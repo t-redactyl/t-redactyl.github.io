@@ -9,12 +9,15 @@
   <meta name="author" content="Jodie Burchell">
 
   
-  <meta name="description" content="This is a trial blog post testing code embedding and syntax highlighting (R example): 1
+  <meta name="description" content="This is a trial blog post testing code embedding and syntax highlighting with both R and Python: In R: 1
 2
 3
 4
-var1 &lt;- rnorm(100, 5, 3)
-var2 &lt;- runif(100, 0, 1 &hellip;">
+5
+6
+7
+rm(list = ls())
+set.seed(1) &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +73,89 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/25/Third-post/">Third Post</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-25'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is a trial blog post testing code embedding and syntax highlighting with both R and Python:</p>
+
+<p>In <strong>R</strong>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='R'><span class='line'><span class="kp">rm</span><span class="p">(</span><span class="kt">list</span> <span class="o">=</span> <span class="kp">ls</span><span class="p">())</span>
+</span><span class='line'><span class="kp">set.seed</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span><span class='line'>mean_vector <span class="o">&lt;-</span> <span class="kc">NULL</span>
+</span><span class='line'><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    mean_vector <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span>mean_vector<span class="p">,</span>
+</span><span class='line'>    <span class="kp">mean</span><span class="p">(</span>rexp<span class="p">(</span><span class="m">40</span><span class="p">,</span> rate <span class="o">=</span> <span class="m">0.2</span><span class="p">)))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In <strong>Python</strong>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#More printing</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">days</span> <span class="o">=</span> <span class="s">&quot;Mon Tue Wed Thu Fri Sat Sun&quot;</span>
+</span><span class='line'><span class="n">months</span> <span class="o">=</span> <span class="s">&quot;Jan</span><span class="se">\n</span><span class="s">Feb</span><span class="se">\n</span><span class="s">Mar</span><span class="se">\n</span><span class="s">Apr</span><span class="se">\n</span><span class="s">May</span><span class="se">\n</span><span class="s">Jun</span><span class="se">\n</span><span class="s">Jul</span><span class="se">\n</span><span class="s">Aug&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;Here are the days: &quot;</span><span class="p">,</span> <span class="n">days</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;Here are the months: &quot;</span><span class="p">,</span> <span class="n">months</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s">There&#39;s something going on here.</span>
+</span><span class='line'><span class="s">With the three double-quotes.</span>
+</span><span class='line'><span class="s">We&#39;ll be able to type as much as we like.</span>
+</span><span class='line'><span class="s">Even 4 lines if we want, or 5, or 6.</span>
+</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -158,6 +244,10 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/25/Third-post/">Third Post</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/08/25/Second-post/">Second Post</a>

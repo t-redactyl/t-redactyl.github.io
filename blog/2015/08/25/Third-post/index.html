@@ -5,16 +5,19 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Second Post - Standard error</title>
+  <title>Third Post - Standard error</title>
   <meta name="author" content="Jodie Burchell">
 
   
-  <meta name="description" content="This is a trial blog post testing code embedding and syntax highlighting (R example): 1
+  <meta name="description" content="This is a trial blog post testing code embedding and syntax highlighting with both R and Python: In R: 1
 2
 3
 4
-var1 &lt;- rnorm(100, 5, 3)
-var2 &lt;- runif(100, 0, 1 &hellip;">
+5
+6
+7
+rm(list = ls())
+set.seed(1) &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,7 +26,7 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/08/25/Second-post/">
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/08/25/Third-post/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Standard error" type="application/atom+xml">
@@ -73,7 +76,7 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
   
   <header>
     
-      <h1 class="entry-title">Second Post</h1>
+      <h1 class="entry-title">Third Post</h1>
     
     
       <p class="meta">
@@ -89,17 +92,60 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
   </header>
 
 
-<div class="entry-content"><p>This is a trial blog post testing code embedding and syntax highlighting (R example):</p>
+<div class="entry-content"><p>This is a trial blog post testing code embedding and syntax highlighting with both R and Python:</p>
+
+<p>In <strong>R</strong>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='R'><span class='line'>var1 <span class="o">&lt;-</span> rnorm<span class="p">(</span><span class="m">100</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
-</span><span class='line'>var2 <span class="o">&lt;-</span> runif<span class="p">(</span><span class="m">100</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
-</span><span class='line'>data <span class="o">&lt;-</span> <span class="kp">as.data.frame</span><span class="p">(</span><span class="kp">rbind</span><span class="p">(</span>var1<span class="p">,</span> var2<span class="p">))</span>
-</span><span class='line'><span class="kp">head</span><span class="p">(</span>data<span class="p">)</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='R'><span class='line'><span class="kp">rm</span><span class="p">(</span><span class="kt">list</span> <span class="o">=</span> <span class="kp">ls</span><span class="p">())</span>
+</span><span class='line'><span class="kp">set.seed</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+</span><span class='line'>mean_vector <span class="o">&lt;-</span> <span class="kc">NULL</span>
+</span><span class='line'><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    mean_vector <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span>mean_vector<span class="p">,</span>
+</span><span class='line'>    <span class="kp">mean</span><span class="p">(</span>rexp<span class="p">(</span><span class="m">40</span><span class="p">,</span> rate <span class="o">=</span> <span class="m">0.2</span><span class="p">)))</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>In <strong>Python</strong>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#More printing</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">days</span> <span class="o">=</span> <span class="s">&quot;Mon Tue Wed Thu Fri Sat Sun&quot;</span>
+</span><span class='line'><span class="n">months</span> <span class="o">=</span> <span class="s">&quot;Jan</span><span class="se">\n</span><span class="s">Feb</span><span class="se">\n</span><span class="s">Mar</span><span class="se">\n</span><span class="s">Apr</span><span class="se">\n</span><span class="s">May</span><span class="se">\n</span><span class="s">Jun</span><span class="se">\n</span><span class="s">Jul</span><span class="se">\n</span><span class="s">Aug&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;Here are the days: &quot;</span><span class="p">,</span> <span class="n">days</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;Here are the months: &quot;</span><span class="p">,</span> <span class="n">months</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="s">There&#39;s something going on here.</span>
+</span><span class='line'><span class="s">With the three double-quotes.</span>
+</span><span class='line'><span class="s">We&#39;ll be able to type as much as we like.</span>
+</span><span class='line'><span class="s">Even 4 lines if we want, or 5, or 6.</span>
+</span><span class='line'><span class="s">&quot;&quot;&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 
 </div>
 
@@ -124,7 +170,7 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://t-redactyl.github.io/blog/2015/08/25/Second-post/" data-via="t_redactyl" data-counturl="http://t-redactyl.github.io/blog/2015/08/25/Second-post/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://t-redactyl.github.io/blog/2015/08/25/Third-post/" data-via="t_redactyl" data-counturl="http://t-redactyl.github.io/blog/2015/08/25/Third-post/" >Tweet</a>
   
   
   
@@ -133,10 +179,8 @@ var2 &lt;- runif(100, 0, 1 &hellip;">
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2015/08/25/First-post/" title="Previous Post: First post">&laquo; First post</a>
+        <a class="basic-alignment left" href="/blog/2015/08/25/Second-post/" title="Previous Post: Second Post">&laquo; Second Post</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2015/08/25/Third-post/" title="Next Post: Third Post">Third Post &raquo;</a>
       
     </p>
   </footer>
