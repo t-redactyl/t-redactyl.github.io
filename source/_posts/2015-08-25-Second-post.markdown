@@ -1,3 +1,12 @@
+---
+layout: post
+title: "Second Post"
+date: 2015-08-25
+comments: false
+external-url:
+categories:
+---
+
 This is a trial blog post testing code embedding and syntax highlighting (R example):
 
 {% codeblock lang:R %}
