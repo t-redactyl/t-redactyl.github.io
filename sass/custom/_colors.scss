@@ -2,9 +2,10 @@
 // To give it a try, uncomment some of the lines below rebuild your blog, and see how it works.
 // If you need a handy color picker try http://hslpicker.com
 
-# Changing heading and subheading colors:
-$title-color: #4A4A4A;
-$subtitle-color: #4A4A4A;
+// Changing heading and subheading colors:
+
+$title-color: #4A4A4A !default;
+$subtitle-color: #4A4A4A !default;
 
 //$header-bg: #263347;
 //$nav-bg: desaturate(lighten(#8fc17a, 18), 5);
