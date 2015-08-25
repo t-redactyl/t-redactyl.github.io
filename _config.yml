@@ -7,7 +7,7 @@ title: Standard error
 subtitle: from scientist to data scientist
 author: Jodie Burchell
 simple_search: https://www.google.com/search
-description: My name is Jodie Burchell and I'm a data scientist living in the beautiful city of Melbourne, Australia. This blog is a collection of interesting data science projects and things I learn using R, Python, Stata and other tools. /n/n Title image courtesy of: "Melbourne Skyline and Princes Bridge - Dec 2008" by Diliff - Own work. Licensed under CC BY 3.0 via Wikimedia Commons - https://commons.wikimedia.org/wiki/File:Melbourne_Skyline_and_Princes_Bridge_-_Dec_2008.jpg#/media/File:Melbourne_Skyline_and_Princes_Bridge_-_Dec_2008.jpg
+description: My name is Jodie Burchell and I'm a data scientist living in the beautiful city of Melbourne, Australia. This blog is a collection of interesting data science projects and things I learn using R, Python, Stata and other tools. 
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
