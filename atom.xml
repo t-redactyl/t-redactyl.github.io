@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Standard error]]></title>
   <link href="http://t-redactyl.github.io/atom.xml" rel="self"/>
   <link href="http://t-redactyl.github.io/"/>
-  <updated>2015-08-25T14:14:42+10:00</updated>
+  <updated>2015-08-25T14:30:52+10:00</updated>
   <id>http://t-redactyl.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Jodie Burchell]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
