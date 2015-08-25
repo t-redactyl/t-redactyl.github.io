@@ -7,7 +7,7 @@ title: Standard error
 subtitle: from scientist to data scientist
 author: Jodie Burchell
 simple_search: https://www.google.com/search
-description:
+description: I'm a data scientist living in the beautiful city of Melbourne, Australia. This blog is a place to post interesting thoughts and things I learn while using R, Python, Stata and other tools.
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -73,6 +73,9 @@ github_skip_forks: true
 twitter_user: t_redactyl
 twitter_tweet_button: true
 
+# Email
+email: jodie.burchell@gmail.com
+
 # Google +1
 google_plus_one: false
 google_plus_one_size: medium
@@ -91,7 +94,7 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
+disqus_short_name: "t-redactyl"
 disqus_show_comment_count: false
 
 # Google Analytics
