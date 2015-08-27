@@ -73,9 +73,6 @@ github_skip_forks: true
 twitter_user: t_redactyl
 twitter_tweet_button: true
 
-# Email
-email: jodie.burchell@gmail.com
-
 # Google +1
 google_plus_one: false
 google_plus_one_size: medium
