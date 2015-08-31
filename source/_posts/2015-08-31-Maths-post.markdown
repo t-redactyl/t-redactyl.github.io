@@ -24,3 +24,5 @@ $$
 	\end{array} \right)
 \end{align*}
 $$
+
+Oh hai, does this work?
