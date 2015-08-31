@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "First post"
+title: "Maths post"
 date: 2015-08-25
 comments: false
 categories:
