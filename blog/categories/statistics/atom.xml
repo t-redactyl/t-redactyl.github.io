@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Standard error]]></title>
-  <link href="http://t-redactyl.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Statistics | Standard error]]></title>
+  <link href="http://t-redactyl.github.io/blog/categories/statistics/atom.xml" rel="self"/>
   <link href="http://t-redactyl.github.io/"/>
   <updated>2015-09-01T16:06:29+10:00</updated>
   <id>http://t-redactyl.github.io/</id>
@@ -32,45 +32,29 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>Let’s revisit our problem of assessing the accuracy of the mean number of page views. One thing you could do is take a large number of samples of 30 day periods each, where large means 1,000 or more. Instead of doing this (because it would take about 82 years…), let’s pretend we already know the population mean and distribution and simulate this result in R. In this case, let’s say we have an mean of 220 page views per day, which we would model using a Poisson distribution (i.e., $\lambda$ = 220/day). (As you may already know, we use the <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a> as it is the most appropriate distribution for describing a count of events occurring over time.)</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-</pre></td><td class="code"><pre><code class="r"><span class="line"><span class="c1"># Clear the workspace</span>
-</span><span class="line"><span class="kp">rm</span><span class="p">(</span><span class="kt">list</span> <span class="o">=</span> <span class="kp">ls</span><span class="p">())</span>
-</span><span class="line">
-</span><span class="line"><span class="c1"># Set seed to replicate random variable generation</span>
-</span><span class="line"><span class="kp">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="c1"># Generate the mean of each sample and store in a vector, and store each sample in a dataframe</span>
-</span><span class="line">mn_vector <span class="o">&lt;-</span> <span class="kc">NULL</span>
-</span><span class="line">sample_frame <span class="o">&lt;-</span> <span class="kt">data.frame</span><span class="p">(</span>row.names <span class="o">=</span> <span class="kp">seq</span><span class="p">(</span>from <span class="o">=</span> <span class="m">1</span><span class="p">,</span> to <span class="o">=</span> <span class="m">30</span><span class="p">,</span> by <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
-</span><span class="line"><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
-</span><span class="line">    s <span class="o">&lt;-</span> rpois<span class="p">(</span><span class="m">30</span><span class="p">,</span> lambda <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
-</span><span class="line">    sample_frame <span class="o">&lt;-</span> <span class="kp">cbind</span><span class="p">(</span>sample_frame<span class="p">,</span> s<span class="p">)</span>
-</span><span class="line">    mn_vector <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span>mn_vector<span class="p">,</span> <span class="kp">mean</span><span class="p">(</span>s<span class="p">))</span>
-</span><span class="line"><span class="p">}</span>
-</span><span class="line">
-</span><span class="line"><span class="c1"># Name the columns in the sample dataframe</span>
-</span><span class="line"><span class="kp">names</span><span class="p">(</span>sample_frame<span class="p">)</span> <span class="o">&lt;-</span> <span class="kp">paste0</span><span class="p">(</span><span class="s">&quot;n&quot;</span><span class="p">,</span> <span class="kp">seq</span><span class="p">(</span>from <span class="o">=</span> <span class="m">1</span><span class="p">,</span> to <span class="o">=</span> <span class="m">1000</span><span class="p">,</span> by <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1"># Clear the workspace
+</span><span class="n">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="n">ls</span><span class="p">())</span>
+
+<span class="c1"># Set seed to replicate random variable generation
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+
+<span class="c1"># Generate the mean of each sample and store in a vector, and store each sample in a dataframe
+</span><span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="n">NULL</span>
+<span class="n">sample_frame</span> <span class="o">&lt;-</span> <span class="n">data.frame</span><span class="p">(</span><span class="n">row.names</span> <span class="o">=</span> <span class="n">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">30</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">&lt;-</span> <span class="n">rpois</span><span class="p">(</span><span class="m">30</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
+    <span class="n">sample_frame</span> <span class="o">&lt;-</span> <span class="n">cbind</span><span class="p">(</span><span class="n">sample_frame</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="n">mn_vector</span><span class="p">,</span> <span class="n">mean</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1"># Name the columns in the sample dataframe
+</span><span class="n">names</span><span class="p">(</span><span class="n">sample_frame</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="n">paste0</span><span class="p">(</span><span class="s2">"n"</span><span class="p">,</span> <span class="n">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">1000</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
+</code></pre>
+</div>
 
 <p>When we do this, our first sample has a mean rate of 220 page views per day, and our second sample has a mean rate of 216 page views per day. Looking at the sample distributions (below), the sample mean almost completely mirrors the population mean in sample 1, but there is quite a bit of difference between the two values in sample 2.</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_sample_plots-1.pdf" alt="plot of chunk sem_sample_plots" /></p>
+<p><img src="/figure/sem_sample_plots-1.pdf" alt="plot of chunk sem_sample_plots" /></p>
 
 <p>Now we plot the <em>distribution of the means of each of the 1,000 samples.</em> Remember we are no longer looking at how much each <em>daily page view</em> varies from each other; instead, we are looking at how much each of the <em>means of these samples of 30 days of page views</em> differ from each other (it’s like, a total meta-distribution).</p>
 
@@ -78,30 +62,25 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>This can be seen in the histogram of the means of each sample:</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
+<p><img src="/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
 
 <p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.08. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, ±1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, ±2 standard errors represents the range that 95% of the sample means fall within, and so on.</p>
 
 <p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.76, and 95% of our samples giving a mean between 214.83 and 225.33. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.76, and 95% of the time when we take a sample we will end up with a mean between 214.83 and 225.33. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the mean.</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
+<p><img src="/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
 
 <h2 id="back-to-the-formula">Back to the formula…</h2>
 <p>As I mentioned at the beginning of this post, the SEM is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is $\sqrt{\lambda / n}$. Let’s see how this compares to our simulation-based estimation of the SEM.</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="r"><span class="line"><span class="c1"># Defining lambda and n</span>
-</span><span class="line">lambda <span class="o">&lt;-</span> <span class="m">220</span>
-</span><span class="line">n <span class="o">&lt;-</span> <span class="m">30</span>
-</span><span class="line">
-</span><span class="line"><span class="c1"># Calculating SEM</span>
-</span><span class="line">sem <span class="o">&lt;-</span> <span class="kp">sqrt</span><span class="p">(</span>lambda <span class="o">/</span> n<span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1"># Defining lambda and n
+</span><span class="n">lambda</span> <span class="o">&lt;-</span> <span class="m">220</span>
+<span class="n">n</span> <span class="o">&lt;-</span> <span class="m">30</span>
+
+<span class="c1"># Calculating SEM
+</span><span class="n">sem</span> <span class="o">&lt;-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">lambda</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
+</code></pre>
+</div>
 
 <p>Using the formula, the range of mean daily page views falling within ±1 SEM is 217.29 to 222.71, and the range falling within ±2 SEMs is 214.69 to 225.31. This is extremely close to the estimate given using the simulation exercise above.</p>
 

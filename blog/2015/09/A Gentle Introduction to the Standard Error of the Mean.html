@@ -1,24 +1,107 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Standard error]]></title>
-  <link href="http://t-redactyl.github.io/atom.xml" rel="self"/>
-  <link href="http://t-redactyl.github.io/"/>
-  <updated>2015-09-01T16:06:29+10:00</updated>
-  <id>http://t-redactyl.github.io/</id>
-  <author>
-    <name><![CDATA[Jodie Burchell]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Gentle Introduction to the Standard Error of the Mean - Standard error</title>
+  <meta name="author" content="Jodie Burchell">
 
   
-  <entry>
-    <title type="html"><![CDATA[A Gentle Introduction to the Standard Error of the Mean]]></title>
-    <link href="http://t-redactyl.github.io/blog/2015/09/A%20Gentle%20Introduction%20to%20the%20Standard%20Error%20of%20the%20Mean.html"/>
-    <updated>2015-09-01T00:00:00+10:00</updated>
-    <id>http://t-redactyl.github.io/blog/2015/09/A Gentle Introduction to the Standard Error of the Mean</id>
-    <content type="html"><![CDATA[<p>Imagine if you were working for a company that wanted to know the mean number of page views their website received per day. How do you measure this? Well, the most logical thing to do is to pick a sample of days, record the number of page views, and take the mean of these. <em>However</em>, how do you know if this is the true mean number of page views per day? How do you know if you’ve taken a big enough sample?<br />
+  <meta name="description" content="A Gentle Introduction to the Standard Error of the Mean written September 1, 2015 in data simulations, r, statistics Imagine if you were working for &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/09/A%20Gentle%20Introduction%20to%20the%20Standard%20Error%20of%20the%20Mean.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Standard error" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+       jax: ["input/TeX", "output/HTML-CSS"],
+       tex2jax: {
+         inlineMath: [ ['$', '$'] ],
+         displayMath: [ ['$$', '$$']],
+         processEscapes: true,
+         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] 
+       },
+       messageStyle: "none",
+       "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+      });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-66946155-1']);
+    _gaq.push(['_setDomainName','github.io']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/images/home.png"/>
+    </a>
+
+    <article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A Gentle Introduction to the Standard Error of the Mean</h1>
+        <div class="meta">
+          written 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-01T00:00:00+10:00" pubdate data-updated="true">September 1, 2015</time>
+          
+
+in
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/data-simulations/'>data simulations</a>, <a class='category' href='/blog/categories/r/'>r</a>, <a class='category' href='/blog/categories/statistics/'>statistics</a>
+  
+</span>
+
+
+        </div>
+        <p>Imagine if you were working for a company that wanted to know the mean number of page views their website received per day. How do you measure this? Well, the most logical thing to do is to pick a sample of days, record the number of page views, and take the mean of these. <em>However</em>, how do you know if this is the true mean number of page views per day? How do you know if you’ve taken a big enough sample?<br />
 <!--more--><br />
 The first thing to understand is that we are talking about <em>two different means</em>. The first is the <em>true mean</em> (or <em>population mean</em>) number of page views per day, which we would get if we took every day that the site has been in existence and took the mean of the daily page views. The other is the <em>sample mean</em> number of page views per day, which we would get if we took a representative sample of days and took the mean of their daily page views. (I will talk more about selecting a representative sample in a later blog post - stay tuned!)</p>
 
@@ -70,7 +153,7 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>When we do this, our first sample has a mean rate of 220 page views per day, and our second sample has a mean rate of 216 page views per day. Looking at the sample distributions (below), the sample mean almost completely mirrors the population mean in sample 1, but there is quite a bit of difference between the two values in sample 2.</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_sample_plots-1.pdf" alt="plot of chunk sem_sample_plots" /></p>
+<p><img src="/figure/sem_sample_plots-1.pdf" alt="plot of chunk sem_sample_plots" /></p>
 
 <p>Now we plot the <em>distribution of the means of each of the 1,000 samples.</em> Remember we are no longer looking at how much each <em>daily page view</em> varies from each other; instead, we are looking at how much each of the <em>means of these samples of 30 days of page views</em> differ from each other (it’s like, a total meta-distribution).</p>
 
@@ -78,13 +161,13 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>This can be seen in the histogram of the means of each sample:</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
+<p><img src="/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
 
 <p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.08. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, ±1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, ±2 standard errors represents the range that 95% of the sample means fall within, and so on.</p>
 
 <p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.76, and 95% of our samples giving a mean between 214.83 and 225.33. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.76, and 95% of the time when we take a sample we will end up with a mean between 214.83 and 225.33. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the mean.</p>
 
-<p><img src="http://t-redactyl.github.io/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
+<p><img src="/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
 
 <h2 id="back-to-the-formula">Back to the formula…</h2>
 <p>As I mentioned at the beginning of this post, the SEM is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is $\sqrt{\lambda / n}$. Let’s see how this compares to our simulation-based estimation of the SEM.</p>
@@ -111,7 +194,60 @@ The first thing to understand is that we are talking about <em>two different mea
 <p>Much of the points and code in this blog post are adapted from the excellent <a href="https://www.coursera.org/course/statinference">Statistical Inference</a> unit on Coursera by <a href="https://twitter.com/bcaffo">Brian Caffo</a>, <a href="https://twitter.com/jtleek">Jeff Leek</a> and <a href="https://twitter.com/rdpeng">Roger Peng</a>. This course gives a far more comprehensive coverage of this material and is highly recommended.</p>
 
 <p>Finally, the full code used to create the figures in this post is located in this <a href="https://github.com/t-redactyl/Blog-posts">repo on my Github page</a>.</p>
-]]></content>
-  </entry>
-  
-</feed>
+
+
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+<hr class="divider-short"/>
+
+<div class="archive-link">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        
+
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+    <footer id="footer" class="her-row">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+  <a href="/"><h4>Home</h4></a>
+</div>
+
+<div class="col-md-2">
+  <div class="social-icon-list">
+    
+    <a href="https://twitter.com/t_redactyl"><img src="/images/glyphicons_social_31_twitter.png"/></a>
+    
+
+    
+    <a href="https://github.com/t-redactyl"><img src="/images/glyphicons_social_21_github.png"/></a>
+    
+
+    
+
+    
+  </div>
+</div>
+
+<div class="pull-right">
+  <h4>Powered by <a href="http://octopress.org/">Octopress</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://commons.wikimedia.org/wiki/File:Melbourne_Skyline_and_Princes_Bridge_-_Dec_2008.jpg#/media/File:Melbourne_Skyline_and_Princes_Bridge_-_Dec_2008.jpg">Diliff via Wikimedia Commons</a>.</h4>
+</div>
+
+
+    </div>
+  </div>
+</footer>
+
+    
+  </body>
+</html>

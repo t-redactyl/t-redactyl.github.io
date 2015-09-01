@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://t-redactyl.github.io/blog/2015/08/25/Third-post/</loc>
-    <lastmod>2015-08-25T00:00:00+10:00</lastmod>
-  </url>
-  <url>
-    <loc>http://t-redactyl.github.io/blog/2015/08/25/Second-post/</loc>
-    <lastmod>2015-08-25T00:00:00+10:00</lastmod>
-  </url>
-  <url>
-    <loc>http://t-redactyl.github.io/blog/2015/08/25/First-post/</loc>
-    <lastmod>2015-08-25T00:00:00+10:00</lastmod>
+    <loc>http://t-redactyl.github.io/blog/2015/09/A%20Gentle%20Introduction%20to%20the%20Standard%20Error%20of%20the%20Mean.html</loc>
+    <lastmod>2015-09-01T00:00:00+10:00</lastmod>
   </url>
   <url>
     <loc>http://t-redactyl.github.io/</loc>
@@ -20,5 +12,14 @@
   </url>
   <url>
     <loc>http://t-redactyl.github.io/posts/</loc>
+  </url>
+  <url>
+    <loc>http://t-redactyl.github.io/blog/categories/statistics/</loc>
+  </url>
+  <url>
+    <loc>http://t-redactyl.github.io/blog/categories/r/</loc>
+  </url>
+  <url>
+    <loc>http://t-redactyl.github.io/blog/categories/data-simulations/</loc>
   </url>
 </urlset>
