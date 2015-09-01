@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Standard error]]></title>
   <link href="http://t-redactyl.github.io/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://t-redactyl.github.io/"/>
-  <updated>2015-09-01T16:06:29+10:00</updated>
+  <updated>2015-09-01T19:09:24+10:00</updated>
   <id>http://t-redactyl.github.io/</id>
   <author>
     <name><![CDATA[Jodie Burchell]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[A Gentle Introduction to the Standard Error of the Mean]]></title>
-    <link href="http://t-redactyl.github.io/blog/2015/09/A%20Gentle%20Introduction%20to%20the%20Standard%20Error%20of%20the%20Mean.html"/>
+    <link href="http://t-redactyl.github.io/blog/2015/09/A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean.html"/>
     <updated>2015-09-01T00:00:00+10:00</updated>
-    <id>http://t-redactyl.github.io/blog/2015/09/A Gentle Introduction to the Standard Error of the Mean</id>
+    <id>http://t-redactyl.github.io/blog/2015/09/A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean</id>
     <content type="html"><![CDATA[<p>Imagine if you were working for a company that wanted to know the mean number of page views their website received per day. How do you measure this? Well, the most logical thing to do is to pick a sample of days, record the number of page views, and take the mean of these. <em>However</em>, how do you know if this is the true mean number of page views per day? How do you know if you’ve taken a big enough sample?<br />
 <!--more--><br />
 The first thing to understand is that we are talking about <em>two different means</em>. The first is the <em>true mean</em> (or <em>population mean</em>) number of page views per day, which we would get if we took every day that the site has been in existence and took the mean of the daily page views. The other is the <em>sample mean</em> number of page views per day, which we would get if we took a representative sample of days and took the mean of their daily page views. (I will talk more about selecting a representative sample in a later blog post - stay tuned!)</p>
