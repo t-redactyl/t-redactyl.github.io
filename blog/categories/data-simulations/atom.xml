@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Data Simulations | Standard error]]></title>
   <link href="http://t-redactyl.github.io/blog/categories/data-simulations/atom.xml" rel="self"/>
   <link href="http://t-redactyl.github.io/"/>
-  <updated>2015-09-01T19:09:24+10:00</updated>
+  <updated>2015-09-01T19:35:53+10:00</updated>
   <id>http://t-redactyl.github.io/</id>
   <author>
     <name><![CDATA[Jodie Burchell]]></name>
@@ -64,9 +64,9 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p><img src="/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
 
-<p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.08. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, ±1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, ±2 standard errors represents the range that 95% of the sample means fall within, and so on.</p>
+<p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.1. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, ±1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, ±2 standard errors represents the range that 95% of the sample means fall within, and so on.</p>
 
-<p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.76, and 95% of our samples giving a mean between 214.83 and 225.33. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.76, and 95% of the time when we take a sample we will end up with a mean between 214.83 and 225.33. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the mean.</p>
+<p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.8, and 95% of our samples giving a mean between 214.8 and 225.3. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.8, and 95% of the time when we take a sample we will end up with a mean between 214.8 and 225.3. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the mean.</p>
 
 <p><img src="/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
 
@@ -82,7 +82,7 @@ The first thing to understand is that we are talking about <em>two different mea
 </code></pre>
 </div>
 
-<p>Using the formula, the range of mean daily page views falling within ±1 SEM is 217.29 to 222.71, and the range falling within ±2 SEMs is 214.69 to 225.31. This is extremely close to the estimate given using the simulation exercise above.</p>
+<p>Using the formula, the range of mean daily page views falling within ±1 SEM is 217.3 to 222.7, and the range falling within ±2 SEMs is 214.7 to 225.3. This is extremely close to the estimate given using the simulation exercise above.</p>
 
 <h2 id="the-take-away-message">The take away message</h2>
 <p>As you can see, the SEM is a useful indication of how likely it is that your sample mean is an accurate reflection of the population value. You can also see it is highly dependent on the size of the sample you choose, with larger samples leading to tighter standard errors. While I have demonstrated calculating the SEM for the mean of a Poisson-distributed variable, the same principles apply with any type of distribution.</p>
