@@ -153,7 +153,7 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>When we do this, our first sample has a mean rate of 220 page views per day, and our second sample has a mean rate of 216 page views per day. Looking at the sample distributions (below), the sample mean almost completely mirrors the population mean in sample 1, but there is quite a bit of difference between the two values in sample 2.</p>
 
-<p><img src="/figure/sem_sample_plots-1.pdf" alt="plot of chunk sem_sample_plots" /></p>
+<p><img src="/figure/sem_sample_plots-1.png" alt="plot of chunk sem_sample_plots" /></p>
 
 <p>Now we plot the <em>distribution of the means of each of the 1,000 samples.</em> Remember we are no longer looking at how much each <em>daily page view</em> varies from each other; instead, we are looking at how much each of the <em>means of these samples of 30 days of page views</em> differ from each other (it’s like, a total meta-distribution).</p>
 
@@ -161,13 +161,13 @@ The first thing to understand is that we are talking about <em>two different mea
 
 <p>This can be seen in the histogram of the means of each sample:</p>
 
-<p><img src="/figure/sem_normal_plot-1.pdf" alt="plot of chunk sem_normal_plot" /></p>
+<p><img src="/figure/sem_normal_plot-1.png" alt="plot of chunk sem_normal_plot" /></p>
 
 <p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.1. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, ±1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, ±2 standard errors represents the range that 95% of the sample means fall within, and so on.</p>
 
 <p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.8, and 95% of our samples giving a mean between 214.8 and 225.3. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.8, and 95% of the time when we take a sample we will end up with a mean between 214.8 and 225.3. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the mean.</p>
 
-<p><img src="/figure/sem_percentile_plot-1.pdf" alt="plot of chunk sem_percentile_plot" /></p>
+<p><img src="/figure/sem_percentile_plot-1.png" alt="plot of chunk sem_percentile_plot" /></p>
 
 <h2 id="back-to-the-formula">Back to the formula…</h2>
 <p>As I mentioned at the beginning of this post, the SEM is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is $\sqrt{\lambda / n}$. Let’s see how this compares to our simulation-based estimation of the SEM.</p>
