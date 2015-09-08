@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: 
-
-Sitemap: http://t-redactyl.github.io/sitemap.xml 
