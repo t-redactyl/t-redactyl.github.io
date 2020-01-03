@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Making beautiful plots in Python (plus a shameless book plug!)</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Making beautiful plots in Python (plus a shameless book plug!) written October 29, 2019 in python,ggplot2">
+  <meta name="keywords" content="plotnine, python, data visualisation, hitchhiker's guide to plotnine" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2019/10/making-beautiful-plots-in-python-plus-a-shameless-book-plug.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Making beautiful plots in Python (plus a shameless book plug!)</h1>
+        <div class="meta">
+          written <time datetime="2019-10-29T00:00:00+01:00">October 29, 2019</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/ggplot2.html">ggplot2</a>          </span>
+        </div>
+        <hr>
+<p>When I transitioned over to working primarily in Python from R, one of the things that I missed was <code>ggplot2</code>. For me, the plots in <code>ggplot2</code> look so much nicer and the syntax is more intuitive compared to <code>matplotlib</code>. Happily, last year I discovered that <a href="https://twitter.com/HKibirige">Hassan Kibirige</a> has made a comprehensive port of <code>ggplot2</code> to Python called <a href="https://plotnine.readthedocs.io/en/stable/">plotnine</a>. Although Hassan is still developing the package, I&#8217;ve found that the port is fairly complete and there is not much I&#8217;m unable to do in <code>plotnine</code> that I could do in the original <code>ggplot2</code>.</p>
+<p>In fact, the port is so good that <a href="https://pacha.hk/">Mauricio</a> and I have written a technical book about how to get the most out of <code>plotnine</code>. This book is an adaptation of our popular <a href="https://leanpub.com/hitchhikers_ggplot2">The Hitchhiker&#8217;s Guide to Ggplot2</a>, but written entirely in Python using the <code>plotnine</code> package, and it&#8217;s (very originally) called <a href="https://leanpub.com/plotnine-guide">The Hitchhiker&#8217;s Guide to Plotnine</a>. Like in the original <code>ggplot2</code> book, we&#8217;ve written chapters on a wide range of graphs, from line and bar graphs, scatterplots and boxplots, through to histograms, linear regression graphs and <span class="caps">LOWESS</span> plots. Using <code>plotnine</code>, we have been able to recreate graphs that are very true to the original <code>ggplot2</code> style and degree of&nbsp;customisation. </p>
+<p>For example, you can create charts like the density plot below, with customisation on the fonts, fill, background layout and&nbsp;legend.</p>
+<p><img src="/figure/plotnine_density.png" title="Density plot" style="display: block; margin: auto;" /></p>
+<p>You can also use <code>plotnine</code> to recreate the styles of other publications. For example, this weighted scatterplot was created in the style of&nbsp;fivethirtyeight.</p>
+<p><img src="/figure/plotnine_w_scatter.png" title="Economist plot" style="display: block; margin: auto;" /></p>
+<p>We&#8217;ve been able to recreate the <span class="caps">XKCD</span> style plots we made for our previous book, entirely in <code>plotnine</code>.</p>
+<p><img src="/figure/plotnine_bar_chart.png" title="XKCD plot" style="display: block; margin: auto;" /></p>
+<p><code>plotnine</code> also allows you to go beyond simpler plots like bar and scatterplots, and create more advanced statistical visualisations. In the plot below, you can see we&#8217;ve combined the capabilities of the <code>scipy</code> package with <code>plotnine</code> to chart some probability density&nbsp;functions.</p>
+<p><img src="/figure/plotnine_function.png" title="Function plot" style="display: block; margin: auto;" /></p>
+<p>The package also includes the useful faceting functions that are used in <code>ggplot2</code>, so you can create subplots like the one&nbsp;below.</p>
+<p><img src="/figure/plotnine_boxplot.png" title="Boxplot" style="display: block; margin: auto;" /></p>
+<p>Hassan has made the syntax of <code>plotnine</code> as close to that of <code>ggplot2</code> as possible, so the overall experience is quite intuitive for someone who is familiar with using <code>ggplot2</code>. For example, in order to create a histogram with a customised title and axis labels, as in the code below, you can see that you use the same <code>ggplot()</code> and <code>geom_histogram()</code> functions to create the plot that you would use in R. You can also see that, like in R, you can specify the metric used by the histogram, its binwidth, and the spacing of the x-axis, although you can see we&#8217;ve used <code>numpy</code><span class="quo">&#8216;</span>s <code>arange</code> function to create the breaks rather than the <code>seq</code> function you might use in R. Finally, <code>plotnine</code> uses the same <code>ggtitle</code>, <code>xlab</code> and <code>ylab</code> functions to allow you to label your title and your&nbsp;axes.</p>
+<div class="highlight"><pre><span></span><span class="n">p7</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">))</span> 
+  <span class="o">+</span> <span class="n">geom_histogram</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="s2">&quot;..count..&quot;</span><span class="p">),</span> <span class="n">binwidth</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">22500</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span> 
+  <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by carat&quot;</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Price of diamond (US$)&quot;</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Frequency of price&quot;</span><span class="p">)</span>
+     <span class="p">)</span>
+<span class="n">p7</span>
+</pre></div>
+
+
+<p><img src="/figure/plotnine_histogram.png" title="Histogram" style="display: block; margin: auto;" /></p>
+<p>Overall, I really recommend <code>plotnine</code> as an alternative to <code>matplotlib</code>  in Python, especially for when you need to create presentation-ready charts. <a href="https://leanpub.com/plotnine-guide">Our book</a> is available on Leanpub, should you need some extra help learning how to use the package or want to push your charts to the next level. Finally, I want to give a huge thanks to Hassan for all of his hard work in building and maintaining this wonderful implementation of <code>ggplot2</code> in&nbsp;Python!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

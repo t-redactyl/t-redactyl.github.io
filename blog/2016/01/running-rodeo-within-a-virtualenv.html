@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Running Rodeo within a virtualenv</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Running Rodeo within a virtualenv written January 16, 2016 in python,rodeo,virtualenvs">
+  <meta name="keywords" content="python, programming, web scraping, movielens, christmas" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/01/running-rodeo-within-a-virtualenv.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Running Rodeo within a virtualenv</h1>
+        <div class="meta">
+          written <time datetime="2016-01-16T00:00:00+01:00">January 16, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/rodeo.html">rodeo</a>,            <a href="http://t-redactyl.github.io/tag/virtualenvs.html">virtualenvs</a>          </span>
+        </div>
+        <p><strong>Note:</strong> This post was updated on 11/12/2016 to reflect changes in how you change your <span class="caps">PYTHONPATH</span> in&nbsp;Rodeo.</p>
+<p>I recently discovered the lovely <a href="http://blog.yhat.com/posts/rodeo-native.html">Rodeo by yhat</a>, an <span class="caps">IDE</span> for Python that is focused on data science. It was originally released as an in-browser web application, but the development team released it as an application in October last year. I am a <strong>huge</strong> fan of <a href="https://www.rstudio.com/">RStudio</a>, and by early looks Rodeo may fill this role for me on the Python side of&nbsp;things.</p>
+<p>However, there was a small hiccup when it came to setting up Rodeo. As you might know, I am a devotee of virtual environments (or <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">virtualenvs</a>) in Python. However, it is not immediately obvious how to run Rodeo within one. I therefore thought I would write this quick tutorial on how to set up Rodeo using a&nbsp;virtualenv.</p>
+<h2>Creating the virtualenv (Python 2.7&nbsp;version)</h2>
+<p>Let&#8217;s first create our Python 2.7 virtualenv. I use <a href="http://fishshell.com/">Fish</a> as my shell interpreter and its associated wrapper <a href="http://virtualfish.readthedocs.org/en/latest/index.html">virtualfish</a>, so I set up my new virtualenv like&nbsp;so:</p>
+<div class="highlight"><pre><span></span>vf new rodeo
+</pre></div>
+
+
+<p>(See this <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">blog post</a> for more information about setting up virtualenvs.) Now that we&#8217;re in our new virtualenv called &#8220;Rodeo&#8221;, we can install the required packages. Rodeo requires <a href="http://jupyter.readthedocs.org/en/latest/">Jupyter</a> and <a href="http://matplotlib.org/">matplotlib</a> as a minimum to run, so let&#8217;s install them using&nbsp;pip.</p>
+<div class="highlight"><pre><span></span>!pip install jupyter
+!pip install matplotlib
+</pre></div>
+
+
+<p>We will also need <a href="http://www.numpy.org/">numpy</a> and <a href="http://pandas.pydata.org/">pandas</a> to complete the example I will show, so let&#8217;s also install&nbsp;them:</p>
+<div class="highlight"><pre><span></span>!pip install numpy
+!pip install pandas
+</pre></div>
+
+
+<p>Now we&#8217;re ready to open&nbsp;Rodeo!</p>
+<h2>Setting up&nbsp;Rodeo</h2>
+<p>The first step to setting up Rodeo with a virtualenv is to get the <span class="caps">PYTHONPATH</span> of the virtualenv. This is very straightforward: all you need to do is type <code>which python</code> at the command line <strong>while you are in your virtualenv.</strong> You should get something that looks like the&nbsp;below:</p>
+<div class="highlight"><pre><span></span>/Users/&lt;your username&gt;/.virtualenvs/rodeo/bin/python
+</pre></div>
+
+
+<p>(Note that this path will be a bit different if you are not working in Mac <span class="caps">OSX</span>.)</p>
+<p>Now let&#8217;s get Rodeo to use our virtualenv. If you haven&#8217;t yet installed Rodeo, it can be downloaded from <a href="https://www.yhat.com/products/rodeo">here</a>. Once that is done, we can get on with changing its <span class="caps">PYTHONPATH</span>. To do so, we first need to go to Rodeo &gt; Preferences in the Rodeo menu. Under the &#8216;Python&#8217; tab, you will find an option called &#8216;Python Command&#8217;. This is where we change the <span class="caps">PYTHONPATH</span>. Simply paste the path to your virtualenv in this space, click &#8216;<span class="caps">OK</span>&#8217;, and you&#8217;re good to&nbsp;go!</p>
+<p>You can check your code has worked by running this example I got from Wes McKinney&#8217;s excellent <a href="http://shop.oreilly.com/product/0636920023784.do">Python for Data Analysis</a>.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+               <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">],</span>
+               <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+
+
+<p>You should get something like the screenshot&nbsp;below:</p>
+<p><img src="/figure/Rodeo_example_small.png" title="Rodeo screenshot" alt="Example of Rodeo working correctly" style="display: block; margin: auto;" /></p>
+<h2>What about Python&nbsp;3?</h2>
+<p>You can easily switch Rodeo over to using Python 3 by creating a new virtualenv. In order to tell virtualfish that you want it to use Python 3, you simply&nbsp;use:</p>
+<div class="highlight"><pre><span></span>vf new -p python3 rodeo
+</pre></div>
+
+
+<p>We then install all of the required packages as above, and get our <span class="caps">PYTHONPATH</span> using <code>which python</code>. In order to switch Rodeo&#8217;s <span class="caps">PYTHONPATH</span> over from our old virtualenv, simply replace the path in &#8216;Python Command&#8217; as detailed&nbsp;above.</p>
+<p>Now you&#8217;re ready to go! Happy analysing&nbsp;:)</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

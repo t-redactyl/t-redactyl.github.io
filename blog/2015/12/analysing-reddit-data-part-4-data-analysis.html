@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Analysing reddit data - part 4: data analysis</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Analysing reddit data - part 4: data analysis written December 09, 2015 in python,programming tips,pandas,scipy,matplotlib,hypothesis testing">
+  <meta name="keywords" content="python, programming, reproducible research, pandas, scipy, hypothesis testing, non-parametric tests, matplotlib" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-4-data-analysis.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Analysing reddit data - part 4: data analysis</h1>
+        <div class="meta">
+          written <time datetime="2015-12-09T00:00:00+01:00">December 09, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/pandas.html">pandas</a>,            <a href="http://t-redactyl.github.io/tag/scipy.html">scipy</a>,            <a href="http://t-redactyl.github.io/tag/matplotlib.html">matplotlib</a>,            <a href="http://t-redactyl.github.io/tag/hypothesis-testing.html">hypothesis testing</a>          </span>
+        </div>
+        <p>This week ends a 4-part series on extracting and analysing <span class="caps">JSON</span>-encoded data from reddit, using the subreddit <a href="https://www.reddit.com/r/relationships#hme">/r/relationships</a> as an example. In the first two entries I <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">set up the environment</a> and <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">collected the data</a>. <a href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">Last week</a>, I finished by cleaning the data and doing some basic analyses. This week we&#8217;ll finish with some fairly simple bivariate analyses. We&#8217;ll answer some questions about both posters to the subreddit and how the readers react to these posts, and play around with visualisation in <code>matplotlib</code>. In the interest of brevity (i.e., not having to check parametric assumptions), I&#8217;ll be using non-parametric tests, but if you were doing this properly (not being lazy!) you would need to complete all of these checks and consider the use of parametric&nbsp;tests.</p>
+<p>(<strong>Note</strong>: If you have been following this tutorial from the beginning, I have made a correction to Part 1. When I initially created my virtualenv, I forgot to install the <code>scipy</code> package. If you do not have <code>scipy</code> installed, please <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">go back</a> and install that before&nbsp;starting.)</p>
+<p>So let&#8217;s see what relationships problems the good people of reddit write in&nbsp;about!</p>
+<p><img src="/figure/Lichtenstein_picture.jpg" title="Lichtenstein picture" alt="Copy of Lichtenstein print" style="display: block; margin: auto;" /></p>
+<h2>Questions about posters to the&nbsp;subreddit</h2>
+<p>Let&#8217;s start by testing some hypotheses about the posters to the site. As we have the sex of the posters, the questions that immediately jump out at me are whether sex has a relationship with a) age and b) the type of posts (flairs) on the&nbsp;subreddit.</p>
+<h3>Does the age distribution vary by&nbsp;sex?</h3>
+<p>The first question I will explore is whether the age distribution of the posters differs between sexes. To start, I&#8217;ll compute the median age of both men and&nbsp;women.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterAge&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">PosterSex</span>
+<span class="err">F    26</span>
+<span class="err">M    27</span>
+<span class="c">Name: PosterAge, dtype: float64</span>
+</pre></div>
+
+
+<p>Hmmm, it looks like there might be a difference, with male posters being older on average than female posters. To test this, I constructed a hypothesis that men are significantly older than women (at the 0.05 level). I can assess this using a <a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Wilcoxon rank-sum test</a>, which is given by the <code>ranksums</code> <a href="http://docs.scipy.org/doc/scipy-0.16.1/reference/generated/scipy.stats.ranksums.html">function</a> in the <code>scipy</code> package. As I&#8217;m predicting that one group is larger than another I should use a one-sided test, so I divide the returned p-value by&nbsp;2.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>  
+
+<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;PosterAge&#39;</span><span class="p">]</span>
+
+<span class="n">u_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ranksums</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">])</span>
+<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The test statistic is 2.745, and the significance level is 0.003.</span>
+</pre></div>
+
+
+<p>You can see that the p-value is 0.003, meaning male posters are significantly older than female&nbsp;posters.</p>
+<h3>Does flair type differ by&nbsp;sex?</h3>
+<p>Another interesting question is whether the distribution of flairs differs by sex, or in other words, does the type of questions asked on the subreddit differ for men and women? We&#8217;ll start by looking at the frequencies of posts for each sex by flair. As mentioned in the <a href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">previous post</a>, we won&#8217;t be using the flairs &#8220;Breakups&#8221;, &#8220;Personal issues&#8221; or &#8220;Dating&#8221; due to the small number of posts in these&nbsp;categories.</p>
+<div class="highlight"><pre><span></span><span class="n">sex_flair</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">],</span> 
+            <span class="n">rownames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Poster Sex&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;Infidelity&#39;</span><span class="p">,</span> <span class="s1">&#39;Non-Romantic&#39;</span><span class="p">,</span> <span class="s1">&#39;Relationships&#39;</span><span class="p">,</span> <span class="s1">&#39;Updates&#39;</span><span class="p">]]</span>
+<span class="n">sex_flair</span>
+</pre></div>
+
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Poster Sex</th>
+      <th>F</th>
+      <th>M</th>
+    </tr>
+    <tr>
+      <th>Flair</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Infidelity</th>
+      <td>13</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <th>Non-Romantic</th>
+      <td>107</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>Relationships</th>
+      <td>85</td>
+      <td>68</td>
+    </tr>
+    <tr>
+      <th>Updates</th>
+      <td>281</td>
+      <td>175</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Well, that&#8217;s not the most informative table. As there are an unequal number of men and women in the sample, we need to standardise these categories in some way. The most logical way is to look at percentage of posts in each&nbsp;column:</p>
+<div class="highlight"><pre><span></span><span class="n">sex_flair</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">/</span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Poster Sex</th>
+      <th>F</th>
+      <th>M</th>
+    </tr>
+    <tr>
+      <th>Flair</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Infidelity</th>
+      <td>2.674897</td>
+      <td>5.647841</td>
+    </tr>
+    <tr>
+      <th>Non-Romantic</th>
+      <td>22.016461</td>
+      <td>13.621262</td>
+    </tr>
+    <tr>
+      <th>Relationships</th>
+      <td>17.489712</td>
+      <td>22.591362</td>
+    </tr>
+    <tr>
+      <th>Updates</th>
+      <td>57.818930</td>
+      <td>58.139535</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Ah ha! Now we can see that we have two flairs that may differ by sex: women are more likely to have questions about non-romantic relationships, whereas men are more likely to ask questions about romantic relationships. Let&#8217;s test this more formally. The test we would use here is a <a href="https://en.wikipedia.org/wiki/Chi-squared_test">Chi-squared test</a>, which can be performed in Python using the <code>chi2_contingency</code> <a href="http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html">function</a> in the <code>scipy</code> package.</p>
+<div class="highlight"><pre><span></span><span class="n">chi2</span><span class="p">,</span> <span class="n">p_val</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">exp_vals</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">chi2_contingency</span><span class="p">(</span><span class="n">sex_flair</span><span class="p">)</span>
+<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">chi2</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The test statistic is 13.768, and the significance level is 0.003.</span>
+</pre></div>
+
+
+<p>Again, we can see that the test is significant, with a p-value of 0.003. What this tells us is that the observed frequencies in our <a href="https://en.wikipedia.org/wiki/Contingency_table">contingency table</a> between flair and sex are different from what would be expected if the two variables did not have a relationship. Therefore, we know that the sex of the poster significantly affects what kind of topics they post about. However, I should stress that as this is an <a href="https://en.wikipedia.org/wiki/Omnibus_test">omnibus test</a> we can&#8217;t say specifically that men and women differ in how frequently they post about non-romantic and relationships topics; we&#8217;d need further (<a href="https://en.wikipedia.org/wiki/Post_hoc_analysis">post-hoc</a>) testing for&nbsp;that.</p>
+<h2>Questions about the readers of the&nbsp;subreddit</h2>
+<p>Now that we&#8217;ve had a brief look at the posters to the subreddit, let&#8217;s have a look at how the readers of the subreddit behave. This time, let&#8217;s have a look at the <code>DayOfWeek</code>, <code>Score</code> and <code>Comments</code> variables. More specifically, we&#8217;ll look at whether the overall post score and number of comments it attracts differs by the day of the week it is posted. To start, let&#8217;s look at the median score and comments each post attracts per day of the&nbsp;week:</p>
+<div class="highlight"><pre><span></span><span class="n">score_com_day</span> <span class="o">=</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">)[</span>
+    <span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">,</span> <span class="s1">&#39;Comments&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="n">score_com_day</span> <span class="o">=</span> <span class="n">score_com_day</span><span class="o">.</span><span class="n">reindex</span><span class="p">([</span><span class="s1">&#39;Mon&#39;</span><span class="p">,</span> <span class="s1">&#39;Tues&#39;</span><span class="p">,</span> <span class="s1">&#39;Weds&#39;</span><span class="p">,</span> <span class="s1">&#39;Thurs&#39;</span><span class="p">,</span> 
+                                       <span class="s1">&#39;Fri&#39;</span><span class="p">,</span> <span class="s1">&#39;Sat&#39;</span><span class="p">,</span> <span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
+<span class="n">score_com_day</span>
+</pre></div>
+
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Score</th>
+      <th>Comments</th>
+    </tr>
+    <tr>
+      <th>DayOfWeek</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Mon</th>
+      <td>1241.0</td>
+      <td>241.5</td>
+    </tr>
+    <tr>
+      <th>Tues</th>
+      <td>1260.5</td>
+      <td>272.0</td>
+    </tr>
+    <tr>
+      <th>Weds</th>
+      <td>1248.0</td>
+      <td>312.0</td>
+    </tr>
+    <tr>
+      <th>Thurs</th>
+      <td>1120.0</td>
+      <td>281.0</td>
+    </tr>
+    <tr>
+      <th>Fri</th>
+      <td>1324.0</td>
+      <td>271.0</td>
+    </tr>
+    <tr>
+      <th>Sat</th>
+      <td>1293.0</td>
+      <td>268.0</td>
+    </tr>
+    <tr>
+      <th>Sun</th>
+      <td>1237.0</td>
+      <td>249.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>It looks like there may be some variation in both scores and comments across the week, but it&#8217;s a little hard to see in a tabular format. To get a better sense of the pattern, let&#8217;s create line graphs plotting each column in the table&nbsp;above:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.font_manager</span> <span class="k">as</span> <span class="nn">fm</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="c1"># Create plot template with two graph boxes</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">720</span><span class="o">/</span><span class="mi">120</span><span class="p">,</span> <span class="mi">420</span><span class="o">/</span><span class="mi">120</span><span class="p">),</span> <span class="n">dpi</span> <span class="o">=</span> <span class="mi">120</span><span class="p">)</span>
+
+<span class="c1"># Create subplot 1 for median scores</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">score_com_day</span><span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;solid&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#FF3721&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Score&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Day of Week&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c1"># Create subplot 2 for median comments</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">score_com_day</span><span class="p">[</span><span class="s1">&#39;Comments&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#4271AE&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Comments&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Day of Week&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/figure/score_comments_plot.png" title="Score/comments plot" alt="Plot of score and comments per day of week" style="display: block; margin: auto;" /></p>
+<p>Now we can see it a bit more clearly! Posts that are created on weekdays, particularly Thursdays, have lower scores than those created on a weekend. However, the opposite is true for the number of comments, where posts created on a weekend and early in the week receive far fewer comments than those created mid-week (Tuesday to&nbsp;Thursday).</p>
+<p>Before we start trying to interpret these results, let&#8217;s test whether the day of the week is significantly related to the score and comments. We&#8217;ll use another omnibus test, the <a href="https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_one-way_analysis_of_variance">Kruskal–Wallis one-way analysis of variance</a> to test this, which can be performed using the <code>kruskalwallis</code> <a href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.mstats.kruskalwallis.html">function</a> in the <code>scipy</code> package. This tells us whether there is a significant difference between any of the days of the week in the score or number of comments, but again doesn&#8217;t tell us which days of the week are significantly&nbsp;different.</p>
+<div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">]</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">kruskalwallis</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Mon&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Tues&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Weds&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Thurs&#39;</span><span class="p">],</span> 
+                                       <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Fri&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sat&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
+<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The test statistic is 11.280, and the significance level is 0.080.</span>
+</pre></div>
+
+
+<p>We can see that the day of the week does <strong>not</strong> significantly affect the score a post receives, with the Kruskall-Wallis test having a p-value of&nbsp;0.080.</p>
+<div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Comments&#39;</span><span class="p">]</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">kruskalwallis</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Mon&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Tues&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Weds&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Thurs&#39;</span><span class="p">],</span> 
+                                       <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Fri&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sat&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
+<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The test statistic is 13.387, and the significance level is 0.037.</span>
+</pre></div>
+
+
+<p>However, the day of the week does significantly affect the number of comments a post attracts (although at p = 0.037 in a sample of 1,000, this is not the most compelling result). Perhaps readers are a bit more motivated to spend time on this subreddit during the week, maybe procrastinating from work? We&#8217;d again need post-hoc analyses to confirm the difference lies between mid-week and the rest of the&nbsp;week.</p>
+<h2>Summing&nbsp;up</h2>
+<p>In our brief analysis we found that male posters are significantly older than female posters, that male and female posters write in about different topics, and that the day of the week affects the number of comments a post attracts (but not its overall&nbsp;score).</p>
+<p>There are a few issues that limit the analysis we should think about. As I mentioned in the last post, there are missing data in <code>Flair</code> (due to the posts getting locked), <code>PosterAge</code> and <code>PosterSex</code>. You&#8217;ll remember I replaced some missing data using the &#8220;Update&#8221; flag in the titles, but was unable to replace any other type of flair, and this likely overrepresented the number of update flairs in the sample. We also can&#8217;t assume that age and sex are randomly missing - it could be that posters that were careless about how they structured their title were very distressed, for example. Finally, remember that these are the <strong>top</strong> posts on the subreddit of all time, which means that they may not be representative of typical poster/reader interactions on&nbsp;/r/relationships.</p>
+<p>There are also a couple of issues to consider with my analysis. I&#8217;ve already pointed out that (in the interests of being lazy) I used non-parametric tests without confirming that I could have used parametric equivalents. This means both that the test is more conservative and that we lose any effect size measures. I also didn&#8217;t perform any post-hoc tests, which means what we can conclude about the relationships between sex and flairs, and day of the week and number of comments is limited. Finally, a p-value of 0.05 might be a bit cheeky when we have a relatively large sample of 1,000 observations, so it might have been more informative to drop that to something like&nbsp;0.01.</p>
+<p>And that&#8217;s it! We&#8217;re now at the end of this tutorial series. I hope you now feel confident with collecting, wrangling, analysing and interpreting <span class="caps">JSON</span>-encoded data from reddit, and perhaps this tutorial has also helped you with issues with observational data more generally. Happy&nbsp;analysing!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

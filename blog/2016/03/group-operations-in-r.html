@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Group operations in R</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Group operations in R written March 27, 2016 in r,programming tips">
+  <meta name="keywords" content="rlanguage, group operations, summary statistics, birthwt, plyr, doBy" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/03/group-operations-in-r.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Group operations in R</h1>
+        <div class="meta">
+          written <time datetime="2016-03-27T00:00:00+01:00">March 27, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>          </span>
+        </div>
+        <p>One of the things I really missed when I moved from Stata to R was how easy it was to do group operations; that is, being able to apply summary statistics by levels of a variable or variables in a dataset. Fortunately for me, I just needed a bit of time exploring R&#8217;s massive number of functions in order to find that not only does R have as good functionality for producing statistics by groups, it offers far more flexibility and customisation than Stata. In this week&#8217;s blog post, I will describe 4 functions that have become my grouping workhorses in&nbsp;R.</p>
+<h2>The&nbsp;data</h2>
+<p>For this post, I will use Hosmer and Lemeshow&#8217;s <code>birthwt</code> dataset in the <code>MASS</code> package, which describes risk factors for low birthweight in 189 infants (see <code>help(birthwt)</code> for more details about these data). In order to make the categories clearer when performing the group operations, I&#8217;ll convert all of the indicator variables into labelled&nbsp;factors.</p>
+<div class="highlight"><pre><span></span><span class="nf">data</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="s">&quot;MASS&quot;</span><span class="p">)</span>
+
+<span class="c1"># Turn indicator variables into labelled factors</span>
+<span class="n">birthwt</span><span class="o">$</span><span class="n">low</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Above 2.5kgs&quot;</span><span class="p">,</span> <span class="s">&quot;Below 2.5kgs&quot;</span><span class="p">))</span>
+<span class="n">birthwt</span><span class="o">$</span><span class="n">race</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">race</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;White&quot;</span><span class="p">,</span> <span class="s">&quot;Black&quot;</span><span class="p">,</span> <span class="s">&quot;Other&quot;</span><span class="p">))</span>
+<span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Non-smoker&quot;</span><span class="p">,</span> <span class="s">&quot;Smoker&quot;</span><span class="p">))</span>
+<span class="n">birthwt</span><span class="o">$</span><span class="n">ht</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">ht</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;No HT&quot;</span><span class="p">,</span> <span class="s">&quot;HT&quot;</span><span class="p">))</span>
+<span class="n">birthwt</span><span class="o">$</span><span class="n">ui</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">ui</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;No UI&quot;</span><span class="p">,</span> <span class="s">&quot;UI&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Now we&#8217;re ready to get&nbsp;started.</p>
+<h2>table and&nbsp;prop.table</h2>
+<p>One of the most basic group operations are frequency tables, which give us the count of the number of observations in a group. This can be achieved using the <code>table</code> function, which we&#8217;ll use to look at the frequency of <code>low</code> below.</p>
+<div class="highlight"><pre><span></span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">## </span>
+<span class="err">## Above 2.5kgs Below 2.5kgs </span>
+<span class="err">##          130           59</span>
+</pre></div>
+
+
+<p><code>table</code> also allows us to do a contingency table, which is the crosstab between two categorical variables. Let&#8217;s have a look at the contingency table of <code>low</code> by <code>smoke</code>, or the number of babies with low birthweight by their mother&#8217;s smoking&nbsp;status.</p>
+<div class="highlight"><pre><span></span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##               </span>
+<span class="err">##                Non-smoker Smoker</span>
+<span class="err">##   Above 2.5kgs         86     44</span>
+<span class="err">##   Below 2.5kgs         29     30</span>
+</pre></div>
+
+
+<p>Often, the proportion of observations is more useful than the raw counts. We can easily convert the values in <code>table</code> to proportions by encasing it in the function <code>prop.table</code>. As a default, <code>prop.table</code> will give you the percentage of the total. However, by entering a second argument we can specify if we want the proportions calculated along the rows (<code>1</code>) or the columns (<code>2</code>) instead. Let&#8217;s generate the row proportions for our <code>low</code> by <code>smoke</code> contingency&nbsp;table:</p>
+<div class="highlight"><pre><span></span><span class="nf">prop.table</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">),</span> <span class="m">1</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##               </span>
+<span class="err">##                Non-smoker    Smoker</span>
+<span class="err">##   Above 2.5kgs  0.6615385 0.3384615</span>
+<span class="err">##   Below 2.5kgs  0.4915254 0.5084746</span>
+</pre></div>
+
+
+<p>We can also join tables with the raw count and the proportion using <code>cbind</code>. In the second example I have rounded off the results of <code>prop.table</code> using the <code>round</code> function to make the table a little&nbsp;neater.</p>
+<div class="highlight"><pre><span></span><span class="nf">cbind</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">),</span> <span class="nf">prop.table</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">),</span> <span class="m">1</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##              Non-smoker Smoker Non-smoker    Smoker</span>
+<span class="err">## Above 2.5kgs         86     44  0.6615385 0.3384615</span>
+<span class="err">## Below 2.5kgs         29     30  0.4915254 0.5084746</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nf">cbind</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">),</span> <span class="nf">round</span><span class="p">(</span><span class="nf">prop.table</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">birthwt</span><span class="o">$</span><span class="n">low</span><span class="p">,</span> <span class="n">birthwt</span><span class="o">$</span><span class="n">smoke</span><span class="p">),</span> <span class="m">1</span><span class="p">),</span> <span class="m">2</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##              Non-smoker Smoker Non-smoker Smoker</span>
+<span class="err">## Above 2.5kgs         86     44       0.66   0.34</span>
+<span class="err">## Below 2.5kgs         29     30       0.49   0.51</span>
+</pre></div>
+
+
+<h2>aggregate</h2>
+<p><code>table</code> is great for counts, but what if you want to do something else? <code>aggregate</code> is a neat way of extending this functionality, allowing you apply a variety of different statistics by groups. Let&#8217;s calculate the mean birthweight by smoking&nbsp;status.</p>
+<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="n">mean</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke      bwt</span>
+<span class="err">## 1 Non-smoker 3055.696</span>
+<span class="err">## 2     Smoker 2771.919</span>
+</pre></div>
+
+
+<p>We can also group by multiple variables. Here I have added hypertension status (<code>ht</code>) as an additional grouping&nbsp;variable.</p>
+<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span> <span class="o">+</span> <span class="n">ht</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="n">mean</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke    ht      bwt</span>
+<span class="err">## 1 Non-smoker No HT 3090.444</span>
+<span class="err">## 2     Smoker No HT 2787.203</span>
+<span class="err">## 3 Non-smoker    HT 2519.571</span>
+<span class="err">## 4     Smoker    HT 2561.000</span>
+</pre></div>
+
+
+<p>By using <a href="https://en.wikipedia.org/wiki/Anonymous_function">anonymous functions</a>, you can also generate the exact statistic you apply to your data. Anonymous functions are functions that are executed &#8220;on the fly&#8221; within R, and don&#8217;t need the formal set up of being named and called separately. Here I have used an anonymous function to generate the 25th, 50th and 75th percentiles of birthweight by smoking&nbsp;status.</p>
+<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="nf">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">.25</span><span class="p">,</span> <span class="m">.5</span><span class="p">,</span> <span class="m">.75</span><span class="p">)))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke bwt.25% bwt.50% bwt.75%</span>
+<span class="err">## 1 Non-smoker 2509.00 3100.00 3621.50</span>
+<span class="err">## 2     Smoker 2370.50 2775.50 3245.75</span>
+</pre></div>
+
+
+<p>If you want to get fancy, you can also nest <code>aggregate</code> functions within each other, similar to the way you&#8217;d use nested <a href="https://en.wikipedia.org/wiki/SQL"><span class="caps">SQL</span> queries</a>. Let&#8217;s first try getting the mean birthweight by maternal age (<code>age</code>) and smoking status, and then calculating the minimum of these birthweights by smoking&nbsp;status.</p>
+<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> 
+          <span class="n">data</span> <span class="o">=</span> <span class="nf">aggregate</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">age</span> <span class="o">+</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="n">mean</span><span class="p">),</span>
+          <span class="n">FUN</span> <span class="o">=</span> <span class="n">min</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke    bwt</span>
+<span class="err">## 1 Non-smoker 1887.5</span>
+<span class="err">## 2     Smoker 1135.0</span>
+</pre></div>
+
+
+<p>You can see I&#8217;ve replaced the <code>data</code> argument with an aggregate function which calculates the sample I want to run the second aggregate function&nbsp;over.</p>
+<h2>summaryBy</h2>
+<p>A couple of limitations of <code>aggregate</code> are that 1) it cannot do group operations over multiple variables, and 2) it cannot calculate multiple summary statistics unless they can be included in the same anonymous&nbsp;function.</p>
+<p>An alternative function that can do both of these things is <code>summaryBy</code> in the <code>doBy</code> package. For Stata users, this is pretty much the R equivalent of <code>tabstat</code> but with a little more flexibility. Let&#8217;s load in the package, and then calculate the mean of birthweight and maternal age by smoking&nbsp;status:</p>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">doBy</span><span class="p">)</span>
+<span class="nf">summaryBy</span><span class="p">(</span><span class="n">bwt</span> <span class="o">+</span> <span class="n">age</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="n">mean</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke bwt.mean age.mean</span>
+<span class="err">## 1 Non-smoker 3055.696 23.42609</span>
+<span class="err">## 2     Smoker 2771.919 22.94595</span>
+</pre></div>
+
+
+<p>We can also calculate a range of statistics using <code>summaryBy</code>. Let&#8217;s calculate the minimum, maximum and median of birthweight by smoking&nbsp;status:</p>
+<div class="highlight"><pre><span></span><span class="nf">summaryBy</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span> <span class="n">FUN</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="n">median</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke bwt.min bwt.max bwt.median</span>
+<span class="err">## 1 Non-smoker    1021    4990     3100.0</span>
+<span class="err">## 2     Smoker     709    4238     2775.5</span>
+</pre></div>
+
+
+<p>Finally, we can combine anonymous functions with regular functions in <code>summaryBy</code>, which gives you a lot of power to get the custom summary statistics you want. Here we&#8217;ll combine min, max, median and the 25th and 75th&nbsp;percentiles:</p>
+<div class="highlight"><pre><span></span><span class="nf">summaryBy</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span>
+          <span class="n">FUN</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="nf">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">.25</span><span class="p">,</span> <span class="m">.75</span><span class="p">))))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke bwt.FUN1 bwt.FUN2 bwt.FUN3 bwt.FUN4 bwt.FUN5</span>
+<span class="err">## 1 Non-smoker     1021     4990   3100.0   2509.0  3621.50</span>
+<span class="err">## 2     Smoker      709     4238   2775.5   2370.5  3245.75</span>
+</pre></div>
+
+
+<p>You can see that an unfortunate side-effect of introducing anonymous functions into <code>summaryBy</code> is that you lose the meaningful column headings you get when using built-in functions. However, you can easily correct this by adding the names of each of the functions to the argument <code>fun.names</code>.</p>
+<div class="highlight"><pre><span></span><span class="nf">summaryBy</span><span class="p">(</span><span class="n">bwt</span> <span class="o">~</span> <span class="n">smoke</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">birthwt</span><span class="p">,</span>
+          <span class="n">FUN</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="nf">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">.25</span><span class="p">,</span> <span class="m">.75</span><span class="p">))),</span>
+          <span class="n">fun.names</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;min&quot;</span><span class="p">,</span> <span class="s">&quot;max&quot;</span><span class="p">,</span> <span class="s">&quot;median&quot;</span><span class="p">,</span> <span class="s">&quot;25%&quot;</span><span class="p">,</span> <span class="s">&quot;75%&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke bwt.min bwt.max bwt.median bwt.25% bwt.75%</span>
+<span class="err">## 1 Non-smoker    1021    4990     3100.0  2509.0 3621.50</span>
+<span class="err">## 2     Smoker     709    4238     2775.5  2370.5 3245.75</span>
+</pre></div>
+
+
+<h2>ddply</h2>
+<p>The final function for performing group operations is the <code>ddply</code> command from the <code>plyr</code> package. <code>plyr</code> became well known a few years ago as a package that simplified data wrangling in R, and this reputation is definitely&nbsp;well-deserved.</p>
+<p>Let&#8217;s start by running our usual mean birthweight by smoking status operation in <code>ddply</code>. The first argument indicates the data to be used, the second is the grouping variable(s), the third tells ddply we are going to run a summary operation, and the final assigns the mean birthweight to a&nbsp;variable.</p>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span>
+<span class="nf">ddply</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="s">&quot;smoke&quot;</span><span class="p">,</span> <span class="n">summarise</span><span class="p">,</span>
+      <span class="n">mean.bwt</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">bwt</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke mean.bwt</span>
+<span class="err">## 1 Non-smoker 3055.696</span>
+<span class="err">## 2     Smoker 2771.919</span>
+</pre></div>
+
+
+<p>You can see we get the exact same results as when using <code>aggregate</code> and <code>summaryBy</code> above. </p>
+<p>You might have noticed that allowing us to create a specific variable for the mean of birthweight gives us a lot more flexibility when using <code>aggregate</code> or <code>summaryBy</code>: instead of running every statistic for every variable we aggregate, we can apply specific statistics to specific variables. Let&#8217;s have a further look at this, by calculating the the mean of birthweight and the median of age by smoking&nbsp;status:</p>
+<div class="highlight"><pre><span></span><span class="nf">ddply</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="s">&quot;smoke&quot;</span><span class="p">,</span> <span class="n">summarise</span><span class="p">,</span>
+      <span class="n">mean.bwt</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">bwt</span><span class="p">),</span>
+      <span class="n">median.age</span> <span class="o">=</span> <span class="nf">median</span><span class="p">(</span><span class="n">age</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke mean.bwt median.age</span>
+<span class="err">## 1 Non-smoker 3055.696         23</span>
+<span class="err">## 2     Smoker 2771.919         22</span>
+</pre></div>
+
+
+<p>This also gives us the even more flexibility to calculate custom functions that we have when using anonymous functions in <code>aggregate</code> and <code>summaryBy</code>. This time we will count the number of observations with a low birthweight using&nbsp;subsetting:</p>
+<div class="highlight"><pre><span></span><span class="nf">ddply</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="s">&quot;smoke&quot;</span><span class="p">,</span> <span class="n">summarise</span><span class="p">,</span>
+      <span class="n">sum.low</span> <span class="o">=</span> <span class="nf">length</span><span class="p">(</span><span class="n">low[low</span> <span class="o">==</span> <span class="s">&quot;Below 2.5kgs&quot;</span><span class="n">]</span><span class="p">),</span>
+      <span class="n">mean.bwt</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">bwt</span><span class="p">),</span>
+      <span class="n">median.age</span> <span class="o">=</span> <span class="nf">median</span><span class="p">(</span><span class="n">age</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke sum.low mean.bwt median.age</span>
+<span class="err">## 1 Non-smoker      29 3055.696         23</span>
+<span class="err">## 2     Smoker      30 2771.919         22</span>
+</pre></div>
+
+
+<p><code>ddply</code> can also group by multiple variables. Here we will group by both <code>smoke</code> and <code>ht</code>:</p>
+<div class="highlight"><pre><span></span><span class="nf">ddply</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;smoke&quot;</span><span class="p">,</span> <span class="s">&quot;ht&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+      <span class="n">sum.low</span> <span class="o">=</span> <span class="nf">length</span><span class="p">(</span><span class="n">low[low</span> <span class="o">==</span> <span class="s">&quot;Below 2.5kgs&quot;</span><span class="n">]</span><span class="p">),</span>
+      <span class="n">mean.bwt</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">bwt</span><span class="p">),</span>
+      <span class="n">median.age</span> <span class="o">=</span> <span class="nf">median</span><span class="p">(</span><span class="n">age</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke    ht sum.low mean.bwt median.age</span>
+<span class="err">## 1 Non-smoker No HT      25 3090.444         23</span>
+<span class="err">## 2 Non-smoker    HT       4 2519.571         24</span>
+<span class="err">## 3     Smoker No HT      27 2787.203         22</span>
+<span class="err">## 4     Smoker    HT       3 2561.000         21</span>
+</pre></div>
+
+
+<h2>Using grouping results with&nbsp;data.frames</h2>
+<p>In order to extend the utility of group operations even further, you can assign each of these outputs to a new data.frame and merge it with other data.frames. Let&#8217;s say we want to merge the mean of birthweight by smoking status into the original <code>birthwt</code> data. For each of the three functions (<code>aggregate</code>, <code>summaryBy</code> and <code>ddply</code>), we need to assign the output to a new object. Then (as it is already a data.frame), we simply use the <code>merge</code> function to join them&nbsp;together.</p>
+<p>Let&#8217;s try this out using <code>ddply</code>. You can see that we merge the two data.frames on the grouping variable (<code>smoke</code>) as it is the constant between the two&nbsp;data.frames.</p>
+<div class="highlight"><pre><span></span><span class="n">agg.birthwt</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="s">&quot;smoke&quot;</span><span class="p">,</span> <span class="n">summarise</span><span class="p">,</span>
+                     <span class="n">mean.bwt</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">bwt</span><span class="p">))</span>
+<span class="n">birthwt</span> <span class="o">&lt;-</span> <span class="nf">merge</span><span class="p">(</span><span class="n">birthwt</span><span class="p">,</span> <span class="n">agg.birthwt</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="s">&quot;smoke&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Let&#8217;s have a look to see if it&nbsp;worked:</p>
+<div class="highlight"><pre><span></span><span class="nf">head</span><span class="p">(</span><span class="n">birthwt[birthwt</span><span class="o">$</span><span class="n">smoke</span> <span class="o">==</span> <span class="s">&quot;Non-smoker&quot;</span><span class="p">,</span><span class="n">]</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##        smoke          low age lwt  race ptl    ht    ui ftv  bwt mean.bwt</span>
+<span class="err">## 1 Non-smoker Above 2.5kgs  19 182 Black   0 No HT    UI   0 2523 3055.696</span>
+<span class="err">## 2 Non-smoker Above 2.5kgs  33 155 Other   0 No HT No UI   3 2551 3055.696</span>
+<span class="err">## 3 Non-smoker Above 2.5kgs  23 130 Black   0 No HT No UI   1 3062 3055.696</span>
+<span class="err">## 4 Non-smoker Above 2.5kgs  21 160 White   0 No HT No UI   0 3062 3055.696</span>
+<span class="err">## 5 Non-smoker Above 2.5kgs  23 123 Other   0 No HT No UI   0 3544 3055.696</span>
+<span class="err">## 6 Non-smoker Above 2.5kgs  21 124 Other   0 No HT No UI   0 2622 3055.696</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nf">head</span><span class="p">(</span><span class="n">birthwt[birthwt</span><span class="o">$</span><span class="n">smoke</span> <span class="o">==</span> <span class="s">&quot;Smoker&quot;</span><span class="p">,</span><span class="n">]</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##      smoke          low age lwt  race ptl    ht    ui ftv  bwt mean.bwt</span>
+<span class="err">## 116 Smoker Above 2.5kgs  22 130 White   0 No HT No UI   0 3132 2771.919</span>
+<span class="err">## 117 Smoker Above 2.5kgs  23 115 Other   0 No HT No UI   1 3331 2771.919</span>
+<span class="err">## 118 Smoker Above 2.5kgs  29 130 White   0 No HT No UI   2 3884 2771.919</span>
+<span class="err">## 119 Smoker Above 2.5kgs  26 133 Other   2 No HT No UI   0 3260 2771.919</span>
+<span class="err">## 120 Smoker Above 2.5kgs  18  90 White   0 No HT    UI   0 3062 2771.919</span>
+<span class="err">## 121 Smoker Above 2.5kgs  27 124 White   0 No HT No UI   0 2922 2771.919</span>
+</pre></div>
+
+
+<p>And that&#8217;s it! You can see that each of these group operations have their own strengths and benefits, ranging from when you need a quick and easy overview of one summary statistic by one variable (<code>table</code>, <code>aggregate</code>) to more complex and tailored aggregation of the data (<code>summaryBy</code>, <code>ddply</code>). I also hope this has helped demystify data screening and wrangling, which has a reputation for being a bit of a pain in&nbsp;R.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

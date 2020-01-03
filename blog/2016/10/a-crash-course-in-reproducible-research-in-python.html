@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A crash course in reproducible research in Python</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="A crash course in reproducible research in Python written October 04, 2016 in python,pandas,virtualenvs,programming tips">
+  <meta name="keywords" content="python, programming, pandas, reproducible research, pycon" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/10/a-crash-course-in-reproducible-research-in-python.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A crash course in reproducible research in Python</h1>
+        <div class="meta">
+          written <time datetime="2016-10-04T00:00:00+02:00">October 04, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/pandas.html">pandas</a>,            <a href="http://t-redactyl.github.io/tag/virtualenvs.html">virtualenvs</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>          </span>
+        </div>
+        <p>A few weeks ago, I was lucky enough to present at <a href="https://2016.pycon-au.org/">PyCon Australia</a>, right here in my home town of Melbourne. <a href="https://www.youtube.com/watch?v=G3mwNnGu5T4">My talk</a> was on reproducible research, an increasingly important concept in science and data analysis as projects become more complicated and datasets become larger (see this <a href="https://www.washingtonpost.com/news/wonk/wp/2016/08/26/an-alarming-number-of-scientific-papers-contain-excel-errors/">recent article</a>, for example, on how a surprisingly high number of genetics papers contain errors because of the way Excel interprets gene&nbsp;names).</p>
+<p>I must confess that reproducibility was not a big consideration for me for most of my academic career. To be honest, when I first started doing statistical programming the basics felt so overwhelming that the idea of making it reproducible seemed beyond what I could manage! I also felt a bit overwhelmed by all of the things I seemed to need to learn once I started trying to conduct reproducible research. There just seemed to be <strong>so much</strong> detail on the web about Git, Github, Jupyter, etc. that I didn&#8217;t really know where to&nbsp;start. </p>
+<p>Over time, I&#8217;ve realised the basics are actually very simple and only require a pretty introductory understanding of the tools you&#8217;ll be using. In this post, I&#8217;ve tried to demystify both the process and the implementation of reproducible research, and also show you how much easier it makes your life when collaborating on projects or even coming back to your own analyses months&nbsp;later!</p>
+<h2>What makes an analysis&nbsp;reproducible?</h2>
+<p>I found a nice little quote on <a href="https://cran.r-project.org/web/views/ReproducibleResearch.html"><span class="caps">CRAN</span></a> that defines the purpose of reproducible research like&nbsp;so:</p>
+<blockquote>
+<p>The goal of reproducible research is to tie specific instructions to data analysis and experimental data so that scholarship can be recreated, better understood and&nbsp;verified.</p>
+</blockquote>
+<p>This is a great high-level overview of reproducibility, but its hard to understand how it relates to our day-to-day work. Instead, it might be useful to start with an example of an <strong>irreproducible&nbsp;analysis.</strong></p>
+<p>An irreproducible analysis, in my mind, is any analysis that you or someone else has significant difficulties picking up and continuing work to on. Let&#8217;s imagine I have an analysis I did 6 months ago, where I used <span class="caps">WHO</span> data to predict the average life expectancy in around 150 countries. I open up the Dropbox folder with all of my&nbsp;files:</p>
+<p><img src="/figure/dropboxfolderwithfiles.png" title="Irreproducible file storage" alt="This is confusing!" style="display: block; margin: auto;" /></p>
+<p>And I have no idea where to start. Not only are there multiple versions of the analysis script (with no clear pointer to what is the final file), there are also over 30 different datasets. When I open up what looks to be the most recent version of the analysis script (as seen <a href="https://github.com/t-redactyl/life-expectancy-analysis/blob/master/Untidy%20script.py">here</a>), there is no real direction as to what the final analysis and findings were, which makes it really difficult to pick up where I left&nbsp;off.</p>
+<p>In order to convert this analysis into something reproducible, we need to be able to answer 5 questions:<br>
+1. What did I do?<br>
+2. Why did I do it?<br>
+3. How did I set up everything at the time of the analysis?<br>
+4. When did I make changes, and what were they?<br>
+5. Who needs to access it, and how can I get it to&nbsp;them?  </p>
+<h2>What did I&nbsp;do?</h2>
+<p>One of the biggest tripping points when you come back to an analysis is remembering everything you did, and this is made much worse if you have any point-and-click&nbsp;steps.</p>
+<p>A common task you might find yourself normally doing manually is downloading your data. However, its really easy to lose track of where you get data from, and which file you actually used. Instead, <a href="http://pandas.pydata.org/">Pandas</a> has a number of great functions that allow you to download data directly from the web. Below, I&#8217;ve used the <code>read_csv</code> function to download a dataset directly from the <span class="caps">WHO</span> website. Note that I&#8217;ve also included the date that I downloaded the dataset, as well as the website from which I sourced it in the&nbsp;comments.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Import life expectancy and predictor data from World Health Organisation Global</span>
+<span class="c1"># Health Observatory data repo (http://www.who.int/gho/en/)</span>
+<span class="c1"># Downloaded on 10th September, 2016</span>
+<span class="k">def</span> <span class="nf">dataImport</span><span class="p">(</span><span class="n">dataurl</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">dataurl</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="c1"># 1. Life expectancy (from: http://apps.who.int/gho/data/node.main.688?lang=en)</span>
+<span class="n">life</span> <span class="o">=</span> <span class="n">dataImport</span><span class="p">(</span><span class="s2">&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Another task that might be tempting to do by hand is editing your data. We&#8217;ve all been in those situations where we think, &#8220;I&#8217;ll only need to do this once, it will be much faster to do this manually!&#8221; Unfortunately, it never ends up being just once, and its also <strong>really</strong> hard to remember what you did&nbsp;later. </p>
+<p>It is relatively simple to do all of your data cleaning and manipulation in Python. Those of you who have worked with data before will know how wonderful Pandas is for data manipulation, and it’s pretty straightforward to couple Pandas functions with basic Python to do all of your standard data cleaning tasks. Below I&#8217;ve built a function that keeps a subset of columns, keeps a subset of rows, and also cleans up string columns with extra characters and converts them into&nbsp;numerics. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Create function for cleaning each imported DataFrame</span>
+<span class="k">def</span> <span class="nf">cleaningData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rowsToKeep</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">colsToDrop</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">varNames</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">colsToConvert</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">year</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">rowsToKeep</span> <span class="p">:</span> <span class="p">]</span>
+    <span class="k">if</span> <span class="n">colsToDrop</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">colsToDrop</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">d</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">varNames</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;\[&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; [&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">d</span><span class="p">[</span><span class="n">colsToConvert</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">colsToConvert</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Year&#39;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+
+
+<p>(As an aside, if you find that you&#8217;re struggling with the documentation for Pandas you might find Wes McKinney&#8217;s <a href="http://shop.oreilly.com/product/0636920023784.do">Python for Data Analysis</a> useful. It&#8217;s written by the author of the Pandas package, and is my go to guide whenever I get stuck trying to implement&nbsp;something.)</p>
+<p>The final step for making sure you know what you did is the very boring, but necessary step of cleaning house after you&#8217;ve finalised your analysis. Make sure you make a <strong>tidy script</strong> when you&#8217;re done that contains only those analyses needed to produce your final report or paper or whatever you&#8217;re producing the analysis&nbsp;for.</p>
+<h2>Why did I do&nbsp;it?</h2>
+<p>So we&#8217;ve documented everything we <strong>did</strong>, but we haven&#8217;t really kept track of <strong>why</strong> we did any of it. This is a bit of a problem, because we make a heap of decisions and assumptions during data analysis that we won&#8217;t remember later without writing them down. One way of documenting our decisions during our analysis is writing comments in our script (as per <a href="https://github.com/t-redactyl/life-expectancy-analysis/blob/master/Tidy%20script%20without%20markdown.py">this version of the life expectancy analysis</a>). However, this is really hard to read, and therefore limits how useful its going to be&nbsp;later.</p>
+<p>Literate programming is an approach that is designed to get around this limitation of comments, as illustrated by <a href="https://en.wikipedia.org/wiki/Literate_programming">this quote</a>:</p>
+<blockquote>
+<p>A literate program is an explanation of the program logic in a natural language, such as English, interspersed with snippets of macros and traditional source&nbsp;code.</p>
+</blockquote>
+<p>What this translates into is lovely, easy to read sections of text that sit along their corresponding chunks of code. In Python, a really nice way to implement literate (statistical) programming is using <a href="http://jupyter.org/">Jupyter notebooks</a>. These are browser-based documents that allow you to interactively run code as well as input text, images, tables and dynamic visualisations. The text sections are written in <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a>, which means you can use nice formatting features like headings, bullet points and simple tables. <a href="https://github.com/t-redactyl/life-expectancy-analysis/blob/master/Tidy%20script%20with%20literate%20programming.ipynb">Here</a> is an example of the life expectancy analysis done in a Jupyter notebook, to give an example of how much clearer it makes&nbsp;documentation.</p>
+<h3>How do I make a Jupyter&nbsp;notebook?</h3>
+<p>It is super simple to make a Jupyter notebook. To start, open up your terminal and navigate to your analysis directory. If you haven&#8217;t already, make sure you now install the Jupyter&nbsp;package:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">jupyter</span>
+</pre></div>
+
+
+<p>Now we can launch Jupyter, which will open in your default&nbsp;browser:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">jupyter</span> <span class="n">notebook</span>
+</pre></div>
+
+
+<p>To start a new notebook, simply click on ‘New’ and select ‘Python 2’ under ‘Notebooks’ in the resultant dropdown menu, as&nbsp;below:</p>
+<p><img src="/figure/Jupyter_screenshot_2.png" title="Starting new Jupyter notebook" alt="This is how to start a new Jupyter notebook" style="display: block; margin: auto;" /></p>
+<p>When you are in your notebook, you will have a choice of three types of cells: code (in this case, Python 2), markdown, and raw NBConvert. I rely heavily in my notebooks on switching between code and markdown cells (however, I&#8217;ve never explored the NBConvert cells, so feel free to play with those yourself!). To change between these cell types, go to &#8216;Cell&#8217;, then &#8216;Cell Type&#8217;, and change to your desired cell&nbsp;type.</p>
+<p><img src="/figure/changingcelltype.png" title="Changing your cell type" alt="This is how to change between code and markdown cells" style="display: block; margin: auto;" /></p>
+<p>Once you&#8217;ve finished typing in the contents of a cell, you can execute it using Shift-Return. And that&#8217;s pretty much it! It really is a very simple tool to use for literate&nbsp;programming.</p>
+<p>To get out of Jupyter when you are finished, close the browser window and enter control-c at the command&nbsp;line.</p>
+<h2>How did I set it&nbsp;up?</h2>
+<p>In the sections above I demonstrated how <strong>you</strong> can understand your analysis when you come back to it later. However, getting <strong>your current machine</strong> to be able to excute your script is another thing&nbsp;altogether!</p>
+<p>Coming back to our life expectancy analysis, let&#8217;s say that when we first completed this project we system-installed the most up-to-date versions of Numpy, Pandas, and Matplotlib. Over the subsequent 6 months, we continually updated to new versions of these package in our global environment. This means we now have a situation where our analysis relies on different package versions to what we have currently installed, which means our scripts may produce different results or fail when we now try to run&nbsp;them.</p>
+<p>Luckily, as always, Python has an easy and elegant solution called <a href="https://virtualenv.pypa.io/en/stable/">virtualenvs</a>. The way to think of virtualenvs is that they are essentially just like your global environment, but instead of there being only one environment that affects all Python code run on your machine, you have many different, self-contained and disposable environments that are isolated from both each other and the global environment. You can see how useful virtualenvs are when you have multiple projects all needing different versions of the same packages, as changing versions of packages in the global environment is&nbsp;difficult.</p>
+<p>I&#8217;ve explained virtualenvs in more detail, as well as how to use and install them, in <a href="http://t-redactyl.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">this</a> blog post. They are super simple to get started with and use - I&nbsp;promise!</p>
+<h2>When did I make&nbsp;changes?</h2>
+<p>One of the more difficult things when completing an analysis is keeping track of what changes you&#8217;ve made. I&#8217;ve already told you that the best way of understanding what you did when you finish your analysis is leaving a tidy script, but what about all of the things you tried that didn&#8217;t work and that you want to keep track of? Or the nice bits of code that you don&#8217;t need for this project, but that would be useful&nbsp;later?</p>
+<p>One really messy and inefficient way (that I admit I am still guilty of at times!) is having multiple files with different versions of the analysis (as you saw at the start of this post). The problem with this approach is that you&#8217;ve got no real way of keeping track of what bits of code in the previous versions are actually useful once you&#8217;re done, and let&#8217;s be honest - you&#8217;re probably never going to look through most of those files&nbsp;again.</p>
+<p>A way to manage these changes more efficiently is something called <a href="https://en.wikipedia.org/wiki/Version_control">version control</a>. This means we use a system to keep track of changes and revisions to our work, while maintaining the current version as our working script. The one I use is <a href="https://git-scm.com/">Git</a>, which is one of the most popular, but this is by <a href="https://en.wikipedia.org/wiki/List_of_version_control_software">no means the only option</a>! </p>
+<p>The way Git works (in my non-technical understanding) is that it allows you to commit a series of snapshots of your work to a special type of folder called a local repository, or repo. This means you can keep track of changes you&#8217;ve made to your work (including stuff you&#8217;ve deleted) and even go back if you&#8217;ve stuffed something up (more detail <a href="https://git-scm.com/book/en/v2/Getting-Started-Git-Basics">here</a>). You can see an example of this <a href="https://github.com/t-redactyl/life-expectancy-analysis/commit/5355e90d359a62a369a84671301948749122d220">here</a>, where I&#8217;ve added some Markdown text to the beginning of the life expectancy analysis. Git has kept track of what lines I&#8217;ve added and deleted, making it easy to compare what changes have been made between the&nbsp;versions.</p>
+<p>The other nice thing about version control is that you commit your changes with (hopefully) meaningful messages, which means that you have a record of your thinking about the project as you did it. <a href="https://github.com/t-redactyl/life-expectancy-analysis/commits/master">Here</a> are the commits I did for the life expectancy analysis, to give you an idea - although you ideally should commit more frequently with more descriptive messages than I&nbsp;did!</p>
+<p>This gives a nice segue to the next section, on how to share your analysis with&nbsp;others.</p>
+<h2>Who needs to access&nbsp;it?</h2>
+<p>When I use Git, I don&#8217;t just commit my work to my local drive (I definitely don&#8217;t want to lose all of my work if my hard drive fails!). Instead, I commit to a remote repo, which is basically works the same way in terms of taking snapshots of your work but instead saves them&nbsp;remotely. </p>
+<p>The website that I use to host my remote repos is called <a href="https://github.com/">Github</a>. Now the main function of Github is not really giving you a nice, cloud-based backup for your work, but instead is designed to help you share your projects and allow others to collaborate on them. A nice overview (involving cats!) of Github is <a href="http://ericsteinborn.com/github-for-cats/#/">here</a>, but in summary it allows multiple people to work on a code-based project, and keeps track of who committed what. This means that instead of trying to manually integrate your collaborators&#8217; contributions, they are automatically merged into your project and the changes are kept track of. Most importantly, <strong>who</strong> made those changes is marked, meaning that if you don&#8217;t understand something that a collaborator did you can work out who added the change to the&nbsp;project.</p>
+<h3>How to do basic version control with Git and&nbsp;Github</h3>
+<p>The first things you need to do are:<br>
+1. Check you have Git installed on your machine (<a href="https://modulesunraveled.com/installing-git/checking-see-if-you-already-have-git-installed-mac">here</a> is a guide for Mac, and <a href="https://modulesunraveled.com/installing-git/checking-see-if-you-already-have-git-installed-windows-machine">another</a> for Windows),<br>
+2. Sign up for a <a href="https://github.com/">Github account</a>, if you don&#8217;t have one, and then<br>
+3. Set up <a href="https://help.github.com/articles/set-up-git/">Github authentication</a> on your&nbsp;machine.  </p>
+<p>Once you are set up with both Git and Github, the first thing to do is create a remote repo for a new project (see <a href="https://help.github.com/articles/creating-a-new-repository/">here</a> for an excellent guide on how to do so). You then need to <strong>clone</strong> a local copy of this repo to your machine, <a href="https://help.github.com/articles/cloning-a-repository/">like so</a>.</p>
+<p>Once we have our local repo, we can start working on our new Python project. Let&#8217;s say we create a new Jupyter notebook (or any kind of code file!), and start work on it. At any point (the more frequently the better), we can make a commit. In order to do so, open the terminal and navigate to the local repo for this project. We then check which files Git is keeping track of (or not) by&nbsp;typing:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">status</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">On</span> <span class="n">branch</span> <span class="n">master</span>
+<span class="n">Your</span> <span class="n">branch</span> <span class="k">is</span> <span class="n">ahead</span> <span class="k">of</span> <span class="s1">&#39;origin/master&#39;</span> <span class="k">by</span> <span class="mi">2</span> <span class="n">commits</span><span class="p">.</span>
+  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git push&quot;</span> <span class="k">to</span> <span class="n">publish</span> <span class="n">your</span> <span class="k">local</span> <span class="n">commits</span><span class="p">)</span>
+<span class="n">Changes</span> <span class="k">not</span> <span class="n">staged</span> <span class="k">for</span> <span class="k">commit</span><span class="p">:</span>
+  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="k">update</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="k">committed</span><span class="p">)</span>
+  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git checkout -- &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="n">discard</span> <span class="n">changes</span> <span class="k">in</span> <span class="n">working</span> <span class="n">directory</span><span class="p">)</span>
+
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2015</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="n">understanding</span><span class="o">-</span><span class="k">object</span><span class="o">-</span><span class="n">orientated</span><span class="o">-</span><span class="n">programming</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2016</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="n">web</span><span class="o">-</span><span class="n">scraping</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="n">reproducible</span><span class="o">-</span><span class="n">research</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+
+<span class="n">Untracked</span> <span class="n">files</span><span class="p">:</span>
+  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="n">include</span> <span class="k">in</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="k">committed</span><span class="p">)</span>
+
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">m</span><span class="p">.</span><span class="n">DS_Store</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">m</span><span class="p">.</span><span class="n">ipynb_checkpoints</span><span class="o">/</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mUntitled</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+
+<span class="k">no</span> <span class="n">changes</span> <span class="n">added</span> <span class="k">to</span> <span class="k">commit</span> <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add&quot;</span> <span class="k">and</span><span class="o">/</span><span class="k">or</span> <span class="ss">&quot;git commit -a&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This is letting us know we have a number of files we&#8217;re already asking Git to track that have some uncommitted changes (the &#8216;Changes not staged for commit&#8217;) as well as one that we&#8217;re not asking Git to keep track of (the &#8216;Untracked files&#8217;). Files that Git is tracking are ones that have already been committed and which Git checks to see whether any changes have been made since the last&nbsp;commit.</p>
+<p>Let&#8217;s commit our latest changes to the file&nbsp;&#8216;2016-10-04-reproducible-research-in-python.ipynb&#8217;.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">add</span> <span class="s1">&#39;2016-10-04-reproducible-research-in-python.ipynb&#39;</span>
+</pre></div>
+
+
+<p>Git has now popped this file in a queue to be committed, but needs us to explicitly commit the file with a&nbsp;message.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;Completed the final section of the blog post&quot;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[master 8f544a0] Completed the final section of the blog post</span>
+<span class="err"> 1 file changed, 5 insertions(+), 6 deletions(-)</span>
+</pre></div>
+
+
+<p>What this command means is that we have committed our changes to the <strong>local</strong> repo. What we now need to do is push our changes to the <strong>remote</strong> repo. Pretty much every time I push to the remote, I am pushing to the <strong>origin</strong> repo on the <strong>master</strong> branch, which means I use the command&nbsp;below:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Counting objects: 8, done.</span>
+<span class="err">Delta compression using up to 8 threads.</span>
+<span class="err">Compressing objects: 100% (8/8), done.</span>
+<span class="err">Writing objects: 100% (8/8), 9.43 KiB | 0 bytes/s, done.</span>
+<span class="err">Total 8 (delta 4), reused 0 (delta 0)</span>
+<span class="c">remote: Resolving deltas: 100% (4/4), completed with 1 local objects.[K</span>
+<span class="err">To https://github.com/t-redactyl/Blog-posts.git</span>
+<span class="err">   83df6d4..8f544a0  master -&gt; master</span>
+</pre></div>
+
+
+<p>However, if you have a more complicated repo structure that contains branches, you will need to tailor your push message to make sure you commit to the right place (see <a href="https://help.github.com/articles/pushing-to-a-remote/">this blog post</a> for more&nbsp;details).</p>
+<p>That sums up my introductory guide on how to implement reproducible research in Python - I hope you can see with some simple modifications to you (and your collaborators&#8217;) workflows, you can have confidence you are building on your previous work and be happily revisiting old projects for years to&nbsp;come!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

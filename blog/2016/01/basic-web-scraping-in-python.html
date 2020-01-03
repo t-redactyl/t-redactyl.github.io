@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Basic web scraping in Python</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Basic web scraping in Python written January 06, 2016 in python,web scraping,programming tips">
+  <meta name="keywords" content="python, programming, web scraping, movielens, christmas" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/01/basic-web-scraping-in-python.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Basic web scraping in Python</h1>
+        <div class="meta">
+          written <time datetime="2016-01-06T00:00:00+01:00">January 06, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/web-scraping.html">web scraping</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>          </span>
+        </div>
+        <p>If you followed along with <a href="http://t-redactyl.github.io/blog/2015/12/what-are-the-most-popular-christmas-movies-according-to-movielens-10m.html">my analysis of the top Christmas movies according to the MovieLens 10M dataset</a>, you would remember I obtained the list of Christmas movies by scraping <a href="http://www.timeout.com/london/film/the-50-best-christmas-movies">this page</a>. I am fairly new to <a href="https://en.wikipedia.org/wiki/Web_scraping">web scraping</a> and this is one of my first serious attempts to get data in this manner. However, you can see that even with a basic understanding of how to find information in webpages it is relatively easy to extract the information you need. Let&#8217;s get&nbsp;started!</p>
+<h2>Setting up your&nbsp;virtualenv</h2>
+<p>The first step as always with Python analyses is to set up a virtualenv. If you&#8217;re unfamiliar with how to do this, <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">this blog post</a> explains how (and I promise you will never want to go back to system-installing packages!). Once you&#8217;re in your virtualenv, install the following&nbsp;packages:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">lxml</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">cssselect</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">requests</span>
+<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">jupyter</span>
+</pre></div>
+
+
+<p>We then enter <code>!ipython notebook</code> into the command line and start a new notebook (alternatively you can use your preferred Python <a href="https://en.wikipedia.org/wiki/Integrated_development_environment"><span class="caps">IDE</span></a>). </p>
+<h2>Scraping the movie&nbsp;titles</h2>
+<p>Once we&#8217;re ready to go, we first import our newly installed&nbsp;packages.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">lxml.html</span>
+<span class="kn">from</span> <span class="nn">lxml.cssselect</span> <span class="kn">import</span> <span class="n">CSSSelector</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+</pre></div>
+
+
+<p>The next thing we need to do is find out where our titles are in the page. This is pretty straightforward in a browser that supports developer tools, like <a href="https://www.google.com/chrome/">Chrome</a>. With Chrome, we simply need to go to our list of top 50 movies, right click, and select &#8220;Inspect&#8221;. This brings up the developer tools for the&nbsp;page.</p>
+<p><img src="/figure/web_scraping_inspect_element.png" title="Inspect element button" alt="Finding elements on page in Chrome." style="display: block; margin: auto;" /></p>
+<p>Once you&#8217;ve done that the developer tools will open on the right of the screen. In the image above, I have highlighted a button that allows you to view the tags associated with any element of the page. If you click on this and select one of the movie titles, it will take you to the title tag, like&nbsp;so:</p>
+<p><img src="/figure/web_scraping_title_element.png" title="Inspect title" alt="Finding 'The Santa Clause' title in the page." style="display: block; margin: auto;" /></p>
+<p>Ah ha! We can see that the first title, &#8216;The Santa Clause&#8217;, is tagged as <code>div.feature-item__text h3 a</code>. However, looking through the rest of the movies (for example, &#8216;Joyeux Noël&#8217;) are tagged only as <code>div.feature-item__text h3</code>. Huh, that creates some problems. To get around this, the function below checks whether the title tag contains an <code>a</code> (anchor) element, and if so, looks in there for the title. Otherwise, it looks in the <code>h3</code> element for the&nbsp;title.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_title</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extracts the movie title from the URL http://www.timeout.com/london/film/the-50-best-christmas-movies</span>
+<span class="sd">    taking into account that some titles are tagged as h3, and some as h3 a.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">h3_elem</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">cssselect</span><span class="p">(</span><span class="s1">&#39;div.feature-item__text h3&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">anchor_elem</span> <span class="o">=</span> <span class="n">h3_elem</span><span class="o">.</span><span class="n">cssselect</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">anchor_elem</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">h3_elem</span><span class="o">.</span><span class="n">text_content</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">anchor_elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text_content</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Now that we&#8217;ve set up where to look for the titles, we can extract the data from the website. The <code>requests.get()</code> function pulls the data from the website, and the <code>lxml.html.fromstring(r.text)</code> command parses the html into the <code>tree</code> variable.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Get data and transform to text</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://www.timeout.com/london/film/the-50-best-christmas-movies&quot;</span><span class="p">)</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We can now select the parts of the html we want. We can see in the screenshot above that the titles are contained within the <code>article.feature-item</code> tag, therefore we select all data under this&nbsp;tag.</p>
+<div class="highlight"><pre><span></span><span class="n">items_selector</span> <span class="o">=</span> <span class="n">CSSSelector</span><span class="p">(</span><span class="s1">&#39;article.feature-item&#39;</span><span class="p">)</span>
+<span class="n">all_items</span> <span class="o">=</span> <span class="n">items_selector</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We can now apply our <code>get_title</code> function to the items we pulled out using list comprehension. Let&#8217;s have a look at what we&nbsp;got:</p>
+<div class="highlight"><pre><span></span><span class="n">h3_titles</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_title</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">all_items</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">50</span><span class="p">]]</span>
+<span class="n">h3_titles</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[&#39;The Santa Clause (1994)&#39;,</span>
+<span class="err"> &#39;Reindeer Games (2000)&#39;,</span>
+<span class="err"> &#39;The Family Stone (2005)&#39;,</span>
+<span class="err"> &#39;Love Actually (2003)&#39;,</span>
+<span class="err"> &#39;Merry Christmas Mr Lawrence (1983)&#39;,</span>
+<span class="err"> u&#39;\n                                            Joyeux No\xebl (2005)\n                                        &#39;,</span>
+<span class="err"> &#39;\n                                            Christmas in Connecticut (1945)\n                                        &#39;,</span>
+<span class="err"> &#39;The Polar Express (2004)&#39;,</span>
+<span class="err"> &#39;A Christmas Story (1983)&#39;,</span>
+<span class="err"> &#39;The Holiday (2006)&#39;,</span>
+<span class="err"> &#39;Planes, Trains and Automobiles (1987)&#39;,</span>
+<span class="err"> &#39;Lethal Weapon (1987)&#39;,</span>
+<span class="err"> &#39;Ghostbusters II (1989)&#39;,</span>
+<span class="err"> &#39;\n                                            Prancer (1989)\n                                        &#39;,</span>
+<span class="err"> &#39;Holiday Inn (1942)&#39;,</span>
+<span class="err"> &#39;White Christmas (1954)&#39;,</span>
+<span class="err"> u&#39;\n                                            Mickey\u2019s Christmas Carol (1983)\n                                        &#39;,</span>
+<span class="err"> u&#39;National Lampoon\u2019s Christmas Vacation (1989)&#39;,</span>
+<span class="err"> &#39;\n                                            Babes In Toyland (1934)\n                                        &#39;,</span>
+<span class="err"> u&#39;\n                                            \u2019R-Xmas (2001)\n                                        &#39;,</span>
+<span class="err"> &#39;Meet Me In St Louis (1944)&#39;,</span>
+<span class="err"> &#39;About a Boy (2002)&#39;,</span>
+<span class="err"> &#39;Christmas Evil (1980)&#39;,</span>
+<span class="err"> &#39;Die Hard (1988)&#39;,</span>
+<span class="err"> &#39;Die Hard 2 (1990)&#39;,</span>
+<span class="err"> &#39;\n                                            A Christmas Carol (1938)\n                                        &#39;,</span>
+<span class="err"> &#39;While You Were Sleeping (1995)&#39;,</span>
+<span class="err"> &#39;Arthur Christmas (2011)&#39;,</span>
+<span class="err"> &#39;Trading Places (1983)&#39;,</span>
+<span class="err"> &#39;Brazil (1985)&#39;,</span>
+<span class="err"> u&#39;Bridget Jones\u2019 Diary (2001) &#39;,</span>
+<span class="err"> &#39;The Nightmare Before Christmas (1993)&#39;,</span>
+<span class="err"> &#39;The Muppet Christmas Carol (1992)&#39;,</span>
+<span class="err"> &#39;How The Grinch Stole Christmas (2000)&#39;,</span>
+<span class="err"> &#39;The Long Kiss Goodnight (1996)&#39;,</span>
+<span class="err"> &#39;In Bruges (2008)&#39;,</span>
+<span class="err"> &#39;Miracle on 34th Street (1947)&#39;,</span>
+<span class="err"> &#39;The Chronicles Of Narnia: The Lion, The Witch and the Wardrobe (2005)&#39;,</span>
+<span class="err"> &#39;8 Women (2001)&#39;,</span>
+<span class="err"> &#39;Scrooged (1988)&#39;,</span>
+<span class="err"> &#39;Batman Returns (1992)&#39;,</span>
+<span class="err"> &#39;A Charlie Brown Christmas (1965)&#39;,</span>
+<span class="err"> &#39;Kiss Kiss Bang Bang (2005)&#39;,</span>
+<span class="err"> &#39;The Snowman (1982)&#39;,</span>
+<span class="err"> &#39;Edward Scissorhands (1990)&#39;,</span>
+<span class="err"> &#39;Home Alone (1990)&#39;,</span>
+<span class="err"> &#39;Gremlins (1984)&#39;,</span>
+<span class="err"> &#39;Bad Santa (2003)&#39;,</span>
+<span class="err"> &#39;Elf (2003)&#39;,</span>
+<span class="err"> u&#39;It\u2019s a Wonderful Life (1946)&#39;]</span>
+</pre></div>
+
+
+<p>Ok, this is a bit of a mess. To use it we need to clean it up using a bit of string&nbsp;manipulation.</p>
+<h2>Cleaning up the list of&nbsp;titles</h2>
+<p>The first major issue you can see is that a number of titles contain whitespace and newline escape characters (<code>\n</code>). We&#8217;ll get rid of the newlines by calling the <code>replace</code> method, and the whitespace by calling the <code>strip</code> method.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Strip newline and whitespace from titles</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">h3_titles</span><span class="p">]</span>
+</pre></div>
+
+
+<p>As we don&#8217;t need to preserve the unicode formatting, we&#8217;ll use a lazy method to get our apostrophes back. We first call the <code>encode('utf8')</code> method, which converts the text into <span class="caps">UTF</span>-8 characters. We then call the <code>replace</code> method again to change the <span class="caps">UTF</span>-8 string for apostrophes into an actual&nbsp;apostrophe.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Convert from unicode and replace apostraphes</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\xe2\x80\x99</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">titles</span><span class="p">]</span>
+</pre></div>
+
+
+<p>If you followed my previous post on the Christmas analyses, you would have seen that titles that start with &#8220;The&#8221; or &#8220;A&#8221; have this leading article moved to the end of the title. For example, &#8220;The Santa Clause (1994)&#8221; is represented as &#8220;Santa Clause, The (1994)&#8221; in the MovieLens 10M dataset. To change all of these, I wrote two small loops, which first use a regex to check if the title starts with &#8220;The&#8221; or &#8220;A&#8221;, removes this word from the beginning of the sentence, and uses indexing to place it at the end of the title. The loop relies on the <code>enumerate</code> function to get both the index and content of each item in the&nbsp;list.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Replace titles in the form &quot;The [title]&quot; to &quot;[title], The&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">titles</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^The&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^The &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;, The&quot;</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span>
+
+<span class="c1"># Replace titles in the form &quot;A [title]&quot; to &quot;[title], A&quot;       </span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">titles</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^A&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^A &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;, A&quot;</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span>
+</pre></div>
+
+
+<p>Finally, I haven&#8217;t yet replaced the <span class="caps">UTF</span>-8 character for &#8216;ö&#8217; in &#8216;Joyeux Noël&#8217;. However, as I know there are issues with the &#8216;ö&#8217; character in the MovieLens 10M dataset as well, I&#8217;ll just truncate the whole title to &#8216;Joyeux&#8217; which is sufficient to get an exact match between the two movie&nbsp;lists.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Change &quot;Joyeux Noël&quot; to just &quot;Joyeux&quot; due to special character matching issues        </span>
+<span class="n">titles</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">titles</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Joyeux No</span><span class="se">\xc3\xab</span><span class="s1">l (2005)&#39;</span><span class="p">,</span> 
+                              <span class="s1">&#39;Joyeux&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We now have a complete list! Let&#8217;s have a look at how it&#8217;s turned&nbsp;out:</p>
+<div class="highlight"><pre><span></span><span class="n">titles</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[&#39;Santa Clause, The (1994)&#39;,</span>
+<span class="err"> &#39;Reindeer Games (2000)&#39;,</span>
+<span class="err"> &#39;Family Stone, The (2005)&#39;,</span>
+<span class="err"> &#39;Love Actually (2003)&#39;,</span>
+<span class="err"> &#39;Merry Christmas Mr Lawrence (1983)&#39;,</span>
+<span class="err"> &#39;Joyeux&#39;,</span>
+<span class="err"> &#39;Christmas in Connecticut (1945)&#39;,</span>
+<span class="err"> &#39;Polar Express, The (2004)&#39;,</span>
+<span class="err"> &#39;Christmas Story, A (1983)&#39;,</span>
+<span class="err"> &#39;Holiday, The (2006)&#39;,</span>
+<span class="err"> &#39;Planes, Trains and Automobiles (1987)&#39;,</span>
+<span class="err"> &#39;Lethal Weapon (1987)&#39;,</span>
+<span class="err"> &#39;Ghostbusters II (1989)&#39;,</span>
+<span class="err"> &#39;Prancer (1989)&#39;,</span>
+<span class="err"> &#39;Holiday Inn (1942)&#39;,</span>
+<span class="err"> &#39;White Christmas (1954)&#39;,</span>
+<span class="err"> &quot;Mickey&#39;s Christmas Carol (1983)&quot;,</span>
+<span class="err"> &quot;National Lampoon&#39;s Christmas Vacation (1989)&quot;,</span>
+<span class="err"> &#39;Babes In Toyland (1934)&#39;,</span>
+<span class="err"> &quot;&#39;R-Xmas (2001)&quot;,</span>
+<span class="err"> &#39;Meet Me In St Louis (1944)&#39;,</span>
+<span class="err"> &#39;About a Boy, A (2002)&#39;,</span>
+<span class="err"> &#39;Christmas Evil (1980)&#39;,</span>
+<span class="err"> &#39;Die Hard (1988)&#39;,</span>
+<span class="err"> &#39;Die Hard 2 (1990)&#39;,</span>
+<span class="err"> &#39;Christmas Carol, A (1938)&#39;,</span>
+<span class="err"> &#39;While You Were Sleeping (1995)&#39;,</span>
+<span class="err"> &#39;Arthur Christmas, A (2011)&#39;,</span>
+<span class="err"> &#39;Trading Places (1983)&#39;,</span>
+<span class="err"> &#39;Brazil (1985)&#39;,</span>
+<span class="err"> &quot;Bridget Jones&#39; Diary (2001)&quot;,</span>
+<span class="err"> &#39;Nightmare Before Christmas, The (1993)&#39;,</span>
+<span class="err"> &#39;Muppet Christmas Carol, The (1992)&#39;,</span>
+<span class="err"> &#39;How The Grinch Stole Christmas (2000)&#39;,</span>
+<span class="err"> &#39;Long Kiss Goodnight, The (1996)&#39;,</span>
+<span class="err"> &#39;In Bruges (2008)&#39;,</span>
+<span class="err"> &#39;Miracle on 34th Street (1947)&#39;,</span>
+<span class="err"> &#39;Chronicles Of Narnia: The Lion, The Witch and the Wardrobe, The (2005)&#39;,</span>
+<span class="err"> &#39;8 Women (2001)&#39;,</span>
+<span class="err"> &#39;Scrooged (1988)&#39;,</span>
+<span class="err"> &#39;Batman Returns (1992)&#39;,</span>
+<span class="err"> &#39;Charlie Brown Christmas, A (1965)&#39;,</span>
+<span class="err"> &#39;Kiss Kiss Bang Bang (2005)&#39;,</span>
+<span class="err"> &#39;Snowman, The (1982)&#39;,</span>
+<span class="err"> &#39;Edward Scissorhands (1990)&#39;,</span>
+<span class="err"> &#39;Home Alone (1990)&#39;,</span>
+<span class="err"> &#39;Gremlins (1984)&#39;,</span>
+<span class="err"> &#39;Bad Santa (2003)&#39;,</span>
+<span class="err"> &#39;Elf (2003)&#39;,</span>
+<span class="err"> &quot;It&#39;s a Wonderful Life (1946)&quot;]</span>
+</pre></div>
+
+
+<p>The last thing left to do is to export the whole thing to a text file. In the case of my analysis, I then imported this into an <span class="caps">SQL</span> database with the MovieLens 10M dataset, and I will describe how I used it in my next blog&nbsp;post.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Export to text file                              </span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;christmas_movies.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">titles</span><span class="p">)))</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+
+<p>I hope this was a useful introduction which demystifies the basics of web scraping. You can see how using your browser&#8217;s developer tools to find the specific tags and the <code>lxml</code> package to select the information you need makes it relatively straightforward to get the information you need. It is then a matter of using some pretty simple string manipulation to clean up the data, and voila! You have successfully scraped the data you need from a web&nbsp;page! </p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

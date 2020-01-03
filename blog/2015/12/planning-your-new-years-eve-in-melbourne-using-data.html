@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Planning your New Year’s Eve in Melbourne using data</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Planning your New Year’s Eve in Melbourne using data written December 30, 2015 in r,public data">
+  <meta name="keywords" content="rlanguage, data science, new years eve, public data, melbourne" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/12/planning-your-new-years-eve-in-melbourne-using-data.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Planning your New Year’s Eve in Melbourne using data</h1>
+        <div class="meta">
+          written <time datetime="2015-12-30T00:00:00+01:00">December 30, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/public-data.html">public data</a>          </span>
+        </div>
+        <p>Like I&#8217;ve said in a previous post <a href="http://t-redactyl.github.io/blog/2015/10/avoiding-the-crowds-in-melbourne-cbd-using-data.html">I&#8217;m not a huge fan of crowds</a>, so I tend to spend my New Year&#8217;s Eve at home. That&#8217;s totally as fun as going out,&nbsp;right?</p>
+<p><img src="/figure/cinderella_nye.gif" title="NYE" alt="NYE" style="display: block; margin: auto;" /></p>
+<p>For those of you with the patience to make your way into the city, I&#8217;ve put together a New Year&#8217;s Eve edition of my analysis of the pedestrian traffic in Melbourne <span class="caps">CBD</span>. Hopefully this will help you avoid the worst of the crowds and have a fun and low-stress <span class="caps">NYE</span>.</p>
+<h2>Reading in and preparing the&nbsp;data</h2>
+<p>As with the last post, I will be using the City of Melbourne&#8217;s <a href="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-Counts/b2ak-trbp">publicly available dataset</a> tracking the number of pedestrians per hour for major <span class="caps">CBD</span> locations. The map showing the locations of the sensors in these data is <a href="http://www.pedestrian.melbourne.vic.gov.au/#date=16-10-2015&amp;time=16&amp;sensor=Swa123_T">here</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">pedestrians</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="nf">url</span><span class="p">(</span><span class="s">&quot;https://data.melbourne.vic.gov.au/api/views/b2ak-trbp/rows.csv&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<h3>Extracting the New Year&#8217;s Eve&nbsp;data</h3>
+<p>The first thing we need to do is to narrow the data down to just New Year&#8217;s Eve. To begin, we convert the string variable <code>Date_Time</code> into a true datetime variable (in the POSIXct&nbsp;format). </p>
+<div class="highlight"><pre><span></span><span class="n">pedestrians</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;-</span> <span class="nf">as.POSIXct</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">Date_Time</span><span class="p">),</span> 
+                               <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;%d-%b-%Y %H:%M&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We then have a look at how many years of data we&nbsp;have. </p>
+<div class="highlight"><pre><span></span><span class="nf">head</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="m">1</span><span class="p">);</span> <span class="nf">tail</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">## [1] &quot;2009-05-01 AEST&quot;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">## [1] &quot;2015-09-30 23:00:00 AEST&quot;</span>
+</pre></div>
+
+
+<p>The earliest New Year&#8217;s Eve we have is 2009, and the latest is last year&#8217;s (2014), giving us 6 years in total. I&#8217;ve decided to start my analysis at 6pm on New Year&#8217;s Eve and finish at 4am on New Year&#8217;s Day. Let&#8217;s extract it&nbsp;now:</p>
+<div class="highlight"><pre><span></span><span class="n">p.subset</span> <span class="o">&lt;-</span> <span class="nf">with</span><span class="p">(</span><span class="n">pedestrians</span><span class="p">,</span> <span class="n">pedestrians</span> 
+                  <span class="nf">[</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2009-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2010-01-01 04:00:00&quot;</span><span class="p">)</span> <span class="o">|</span>
+                   <span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2010-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2011-01-01 04:00:00&quot;</span><span class="p">)</span> <span class="o">|</span>
+                   <span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2011-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2012-01-01 04:00:00&quot;</span><span class="p">)</span> <span class="o">|</span>
+                   <span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2012-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2013-01-01 04:00:00&quot;</span><span class="p">)</span> <span class="o">|</span>
+                   <span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-01-01 04:00:00&quot;</span><span class="p">)</span> <span class="o">|</span>
+                   <span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-12-31 18:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-01-01 04:00:00&quot;</span><span class="p">),</span> <span class="n">]</span><span class="p">)</span>
+<span class="n">p.subset</span> <span class="o">&lt;-</span> <span class="n">p.subset</span><span class="nf">[complete.cases</span><span class="p">(</span><span class="n">p.subset</span><span class="p">),</span> <span class="n">]</span>
+</pre></div>
+
+
+<h3>Checking the number of sites per&nbsp;year</h3>
+<p>We now have a dataset with the number of pedestrians by sensor site, year and hour. We can get an overview of the number of sites we have data on for each hour by running a frequency table on <code>date</code> and feeding this into a <code>data.frame</code>.</p>
+<div class="highlight"><pre><span></span><span class="n">dates</span> <span class="o">&lt;-</span> <span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">date</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Looking at this table, the later years have substantially more sites than the earlier years (17-18 in 2009-2012, compared to 30-32 in 2013-2014). We&#8217;ll keep this in mind when looking at how our sensor sites&nbsp;perform.</p>
+<h3>Create year and hour&nbsp;variables</h3>
+<p>Finally, we&#8217;ll extract the year and hour information from the <code>date</code> variable and convert them into labelled factor&nbsp;variables.</p>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">lubridate</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span> <span class="o">&lt;-</span> <span class="nf">hour</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">date</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span> <span class="o">&lt;-</span> <span class="nf">revalue</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span><span class="p">),</span> 
+                         <span class="nf">c</span><span class="p">(</span><span class="s">&quot;18&quot;</span> <span class="o">=</span> <span class="s">&quot;0&quot;</span><span class="p">,</span> <span class="s">&quot;19&quot;</span> <span class="o">=</span> <span class="s">&quot;1&quot;</span><span class="p">,</span> <span class="s">&quot;20&quot;</span> <span class="o">=</span> <span class="s">&quot;2&quot;</span><span class="p">,</span> <span class="s">&quot;21&quot;</span> <span class="o">=</span> <span class="s">&quot;3&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;22&quot;</span> <span class="o">=</span> <span class="s">&quot;4&quot;</span><span class="p">,</span> <span class="s">&quot;23&quot;</span> <span class="o">=</span> <span class="s">&quot;5&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span> <span class="o">=</span> <span class="s">&quot;6&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span> <span class="o">=</span> <span class="s">&quot;7&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;2&quot;</span> <span class="o">=</span> <span class="s">&quot;8&quot;</span><span class="p">,</span> <span class="s">&quot;3&quot;</span> <span class="o">=</span> <span class="s">&quot;9&quot;</span><span class="p">,</span> <span class="s">&quot;4&quot;</span> <span class="o">=</span> <span class="s">&quot;10&quot;</span><span class="p">))</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span> <span class="o">&lt;-</span> <span class="nf">as.numeric</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">hour</span><span class="p">,</span> 
+                        <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;6pm&quot;</span><span class="p">,</span> <span class="s">&quot;7pm&quot;</span><span class="p">,</span> <span class="s">&quot;8pm&quot;</span><span class="p">,</span> <span class="s">&quot;9pm&quot;</span><span class="p">,</span> <span class="s">&quot;10pm&quot;</span><span class="p">,</span> <span class="s">&quot;11pm&quot;</span><span class="p">,</span> 
+                                   <span class="s">&quot;12am&quot;</span><span class="p">,</span> <span class="s">&quot;1am&quot;</span><span class="p">,</span> <span class="s">&quot;2am&quot;</span><span class="p">,</span> <span class="s">&quot;3am&quot;</span><span class="p">,</span> <span class="s">&quot;4am&quot;</span><span class="p">))</span>
+
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year</span> <span class="o">&lt;-</span> <span class="nf">as.numeric</span><span class="p">(</span><span class="m">0</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2009-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2010-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">1</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2010-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2011-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">2</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2011-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2012-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">3</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2012-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2013-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">4</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">5</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year[p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-12-31 18:00:00&quot;</span> 
+              <span class="o">&amp;</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-01-01 04:00:00&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">6</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">year</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">year</span><span class="p">,</span> 
+                        <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;2009&quot;</span><span class="p">,</span> <span class="s">&quot;2010&quot;</span><span class="p">,</span> <span class="s">&quot;2011&quot;</span><span class="p">,</span> <span class="s">&quot;2012&quot;</span><span class="p">,</span> <span class="s">&quot;2013&quot;</span><span class="p">,</span> <span class="s">&quot;2014&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>We&#8217;re now ready to start planning your New Year&#8217;s Eve in Melbourne&nbsp;City!</p>
+<h2>Watching the fireworks&nbsp;display</h2>
+<p>You might be planning to watch the midnight fireworks to welcome in 2016. This year the City of Melbourne has planned <a href="http://www.thatsmelbourne.com.au/nye/midnight">four sites</a> for viewing the fireworks display, which will all have very similar live music and entertainment from 9pm to 1am. The sites are King&#8217;s Domain, Treasury Gardens, Flagstaff Gardens and Docklands, as shown on this <a href="http://thatsmelbourne.com.au/nye/midnight">nice little map from the City of Melbourne</a>.</p>
+<p><img src="/figure/nye_2015_sites.jpg" title="NYE map" alt="Map of sites for NYE" style="display: block; margin: auto;" /></p>
+<p>In order to have a look at the traffic associated with each of these sites, I found the closest sensors to each and marked them as belonging to the site in a new factor variable <code>fireworks</code> in the <code>p.subset</code> dataset.</p>
+<p>As these fireworks events may not have been held in every year since 2009, I then checked whether the pattern of pedestrian traffic was the same for each year in the data. I did this by taking the mean number of pedestrians recorded by each sensor at the sites by each hour and year. I did this rather than taking the total number of pedestrians at each site as some of the sites have a much larger number of sensors than others, and as such, have an artificially inflated number of pedestrians. The mean number of pedestrians per sensors therefore serves as an average measure of density of pedestrians per&nbsp;site.</p>
+<p>I&#8217;ve plotted each of the sites in separate graphs&nbsp;below.</p>
+<p><img src="/figure/fireworks_years_graph-1.png" title="plot of chunk fireworks_years_graph" alt="plot of chunk fireworks_years_graph" style="display: block; margin: auto;" /></p>
+<p>You can see that the pattern of traffic is not the same every year, especially for Treasury Gardens and Flagstaff Gardens. This is probably because either <span class="caps">NYE</span> activities at these sites has just started in the last couple of years, or they recently became more popular. Either way, it is probably more accurate to use the most recent year&#8217;s data (2014) to plot the potential traffic at the fireworks events this year, with a caveat that these patterns seem quite variable year-to-year in every site but&nbsp;Docklands.</p>
+<p><img src="/figure/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" /></p>
+<p>Despite the fact that the firework events being held at each of the sites look pretty much identical, Docklands and King&#8217;s Domain are far busier than Treasury Gardens and Flagstaff Gardens. It looks like your night will be far less crowded if you go to the celebrations at Flagstaff or Treasury Gardens. If you do want to go to one of the popular sites, you&#8217;d be better off going to Docklands and grabbing an early seat than trying to fight the crowds at King&#8217;s&nbsp;Domain.</p>
+<h2>Going out in the <span class="caps">CBD</span></h2>
+<p>Instead of watching the fireworks, perhaps you are planning to go out in the <span class="caps">CBD</span>. To have a look at traffic in this area, I used the concentration of sensors around Elizabeth and Swanston Streets as this is where the majority of sensors in the city are located. I&#8217;ve separated them into 5 sites: Lonsdale Street, Chinatown, Bourke Street, Collins Street and City Square. I then categorised the corresponding sensors in the <code>cbd</code> variable in <code>p.subset</code>.</p>
+<div class="highlight"><pre><span></span><span class="n">p.subset</span><span class="o">$</span><span class="n">cbd</span> <span class="o">&lt;-</span> <span class="nf">as.numeric</span><span class="p">(</span><span class="kc">NA</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                 <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Lonsdale St (South)&quot;</span><span class="p">,</span> <span class="s">&quot;Lonsdale Street (South)&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">1</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                 <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Chinatown-Swanston St (North)&quot;</span><span class="p">,</span> 
+                   <span class="s">&quot;Chinatown-Lt Bourke St (South)&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">2</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                 <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Bourke Street Mall (South)&quot;</span><span class="p">,</span> 
+                   <span class="s">&quot;Bourke Street Mall (North)&quot;</span><span class="p">,</span>
+                   <span class="s">&quot;Bourke St-Russell St (West)&quot;</span><span class="p">,</span>
+                   <span class="s">&quot;Bourke St-Russel St (West)&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">3</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                 <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Town Hall (West)&quot;</span><span class="p">,</span> <span class="s">&quot;Australia on Collins&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">4</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                 <span class="s">&quot;City Square&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">5</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">cbd</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">cbd</span><span class="p">,</span> 
+                        <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Lonsdale Street&quot;</span><span class="p">,</span> <span class="s">&quot;Chinatown&quot;</span><span class="p">,</span>
+                                   <span class="s">&quot;Bourke Street&quot;</span><span class="p">,</span> <span class="s">&quot;Collins Street&quot;</span><span class="p">,</span>
+                                   <span class="s">&quot;City Square&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Again, we&#8217;ll have a look at the mean number of pedestrians each sensor captures per hour, site and&nbsp;year.</p>
+<p><img src="/figure/graphing_cbd_by_year-1.png" title="plot of chunk graphing_cbd_by_year" alt="plot of chunk graphing_cbd_by_year" style="display: block; margin: auto;" /></p>
+<p>Three of the sites only have data for the last two years, suggesting that again using data from 2014 may be the best predictor of traffic in&nbsp;2015.</p>
+<p><img src="/figure/graphing_cbd_in_2014-1.png" title="plot of chunk graphing_cbd_in_2014" alt="plot of chunk graphing_cbd_in_2014" style="display: block; margin: auto;" /></p>
+<p>City Square is by far the busiest place in the <span class="caps">CBD</span> over the night, followed by Collins Street. It is much quieter around Bourke Street, Chinatown and Lonsdale Street. Even after 1am City Square and Collins Street are extremely crowded, so if you&#8217;re trying to get home you&#8217;d be better off trying the northern part of the <span class="caps">CBD</span>. Speaking of getting&nbsp;home&#8230;</p>
+<h2>Getting there and&nbsp;home</h2>
+<p>Ahhh, battling the crowds at the <span class="caps">CBD</span> events is one thing, but dealing with everyone at the train stations is another. To help you plan your journey in and out of the city, I&#8217;ve also looked at the city loop train station pedestrian traffic. As with my previous post, I have not included Parliament station as the sensors don&#8217;t really cover it properly. I&#8217;ve also included the traffic around the stations as part of the site as you&#8217;ll need to deal with these crowds to get in and out of the&nbsp;stations.</p>
+<div class="highlight"><pre><span></span><span class="n">p.subset</span><span class="o">$</span><span class="n">stations</span> <span class="o">&lt;-</span> <span class="nf">as.numeric</span><span class="p">(</span><span class="kc">NA</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">stations[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                       <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Flinders St-Elizabeth St (East)&quot;</span><span class="p">,</span> 
+                         <span class="s">&quot;Flinders St-Swanston St (West)&quot;</span><span class="p">,</span> 
+                         <span class="s">&quot;Flinders Street Station Underpass&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">1</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">stations[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                       <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Southern Cross Station&quot;</span><span class="p">,</span> <span class="s">&quot;Spencer St-Collins St (North)&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Spencer St-Collins St (South)&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">2</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">stations[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                       <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Melbourne Central&quot;</span><span class="p">,</span> <span class="s">&quot;State Library&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">3</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">stations[p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                       <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Flagstaff Station&quot;</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">4</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">stations</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">stations</span><span class="p">,</span> 
+                        <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Flinders Street&quot;</span><span class="p">,</span> <span class="s">&quot;Southern Cross&quot;</span><span class="p">,</span>
+                                   <span class="s">&quot;Melbourne Central&quot;</span><span class="p">,</span> <span class="s">&quot;Flagstaff&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>As with the other sites, I have taken the mean number of pedestrians per sensor, hour and year to get an indication of the density of pedestrians at each&nbsp;site.</p>
+<p><img src="/figure/graphing_stations_by_year-1.png" title="plot of chunk graphing_stations_by_year" alt="plot of chunk graphing_stations_by_year" style="display: block; margin: auto;" /></p>
+<p>As with the other years, we see quite a bit of variance in traffic across the years, and we&#8217;ll therefore use the 2014 data to figure out the density of people at each of the stations across <span class="caps">NYE</span>.</p>
+<p><img src="/figure/graphing_stations_in_2014-1.png" title="plot of chunk graphing_stations_in_2014" alt="plot of chunk graphing_stations_in_2014" style="display: block; margin: auto;" /></p>
+<p>As we saw in the map I posted above from the City of Melbourne, Flagstaff and Melbourne Central will be closing at 11:45pm on New Year&#8217;s Eve. If you&#8217;re planning to go home before midnight, Southern Cross and Flagstaff are likely to be significantly less crowded than Flinders Street and Melbourne Central based on last year&#8217;s traffic. However, if you&#8217;re going to stay for the whole night you may be best trying to get to Southern Cross to avoid the crush at Flinders Street&nbsp;Station.</p>
+<p>And with that, we&#8217;re done! Have a safe and fun New Year&#8217;s Eve, and I will see you in&nbsp;2016!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A gentle introduction to the standard error of the mean</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="A gentle introduction to the standard error of the mean written September 01, 2015 in statistics,r,data simulations">
+  <meta name="keywords" content="rlanguage, sem, simulations, standard error of the mean, data science" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/09/A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A gentle introduction to the standard error of the mean</h1>
+        <div class="meta">
+          written <time datetime="2015-09-01T00:00:00+02:00">September 01, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/statistics.html">statistics</a>,            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/data-simulations.html">data simulations</a>          </span>
+        </div>
+        <p>Imagine if you were working for a company that wanted to know the mean number of page views their website received per day. How do you measure this? Well, the most logical thing to do is to pick a sample of days, record the number of page views, and take the mean of these. <em>However</em>, how do you know if this is the true mean number of page views per day? How do you know if you&#8217;ve taken a big enough&nbsp;sample?</p>
+<p>The first thing to understand is that we are talking about <em>two different means</em>. The first is the <em>true mean</em> (or <em>population mean</em>) number of page views per day, which we would get if we took every day that the site has been in existence and took the mean of the daily page views. The other is the <em>sample mean</em> number of page views per day, which we would get if we took a representative sample of days and took the mean of their daily page views. (I will talk more about selecting a representative sample in a later blog post - stay&nbsp;tuned!)</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Standard_error"><strong>standard error of the mean</strong></a> (or <strong><span class="caps">SEM</span></strong>) is the amount our sample mean might differ from the true mean. In our page views example, this means we are trying to find out how much possible &#8220;fuzziness&#8221; there is in our sample mean number of daily page views as an estimate of the true mean. Is it likely our estimate might be out by a couple of page views per day? Or could it be as much as 100? Obviously, the smaller the standard error of the mean, the better the sample estimate reflects the true population value. There are formulas for calculating the <span class="caps">SEM</span> depending on the distribution you are dealing with, but the main focus of this blog post will be describing the general principles underlying&nbsp;it.</p>
+<h2>Why should I care about the standard error of the&nbsp;mean?</h2>
+<p>It is easy once you get into applying statistics to a sample to forget you are dealing with a <em>representation</em> of a population, rather than the <em>population itself</em>. As such, all statistics you derive using your sample are just estimates of the true population parameters you are hoping to talk about. It is therefore important that you have some idea how reliable these estimates are before you start inferring from&nbsp;them.</p>
+<h2>How is the standard error of the mean&nbsp;calculated?</h2>
+<p>One way of assessing the <span class="caps">SEM</span> is to sample repeatedly from the population, calculate the mean for each sample, and plot the distribution of these means. Each sample is expected to be a different representation of the population, with different estimates of the mean in each&nbsp;sample.</p>
+<p>Let&#8217;s revisit our problem of assessing the accuracy of the mean number of page views. One thing you could do is take a large number of samples of 30 day periods each, where large means 1,000 or more. Instead of doing this (because it would take about 82 years&#8230;), let&#8217;s pretend we already know the population mean and distribution and simulate this result in R. In this case, let&#8217;s say we have an mean of 220 page views per day, which we would model using a Poisson distribution (i.e., $\lambda$ = 220/day). (As you may already know, we use the <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a> as it is the most appropriate distribution for describing a count of events occurring over&nbsp;time.)</p>
+<div class="highlight"><pre><span></span><span class="c1"># Clear the workspace</span>
+<span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
+
+<span class="c1"># Set seed to replicate random variable generation</span>
+<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+
+<span class="c1"># Generate the mean of each sample and store in a vector, and store each sample in a dataframe</span>
+<span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="kc">NULL</span>
+<span class="n">sample_frame</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">row.names</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">30</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
+<span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">30</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
+    <span class="n">sample_frame</span> <span class="o">&lt;-</span> <span class="nf">cbind</span><span class="p">(</span><span class="n">sample_frame</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">mn_vector</span><span class="p">,</span> <span class="nf">mean</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1"># Name the columns in the sample dataframe</span>
+<span class="nf">names</span><span class="p">(</span><span class="n">sample_frame</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;n&quot;</span><span class="p">,</span> <span class="nf">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">1000</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
+</pre></div>
+
+
+<p>When we do this, our first sample has a mean rate of 220 page views per day, and our second sample has a mean rate of 216 page views per day. Looking at the sample distributions (below), the sample mean almost completely mirrors the population mean in sample 1, but there is quite a bit of difference between the two values in sample&nbsp;2.</p>
+<p><img alt="plot of chunk sem_sample_plots" src="/figure/sem_sample_plots-1.png"></p>
+<p>Now we plot the <em>distribution of the means of each of the 1,000 samples.</em> Remember we are no longer looking at how much each <em>daily page view</em> varies from each other; instead, we are looking at how much each of the <em>means of these samples of 30 days of page views</em> differ from each other (it&#8217;s like, a total&nbsp;meta-distribution).</p>
+<p>It turns out that the distribution of the mean of the samples is approximately normally distributed (as described by the <a href="https://en.wikipedia.org/wiki/Central_limit_theorem"><strong>Central Limit Theorem</strong></a>). This does depend on your observations (i.e., each day of page views) being <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables"><strong>independent and identically distributed</strong></a> (or <strong><em>iid</em></strong>), which basically means each observation has been sampled from the same distribution, and the value of any observation in the sample is not dependent on the values of other values in the sample. In our case, the page views would be <em>iid</em> if each was from a Poisson distribution with $\lambda$ = 220, and the page views you receive on one day are not influenced by the page views on another&nbsp;day.</p>
+<p>This can be seen in the histogram of the means of each&nbsp;sample:</p>
+<p><img alt="plot of chunk sem_normal_plot" src="/figure/sem_normal_plot-1.png"></p>
+<p>The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.1. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, &plusmn;1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, &plusmn;2 standard errors represents the range that 95% of the sample means fall within, and so&nbsp;on.</p>
+<p>In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.8, and 95% of our samples giving a mean between 214.8 and 225.3. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.8, and 95% of the time when we take a sample we will end up with a mean between 214.8 and 225.3. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the&nbsp;mean.</p>
+<p><img alt="plot of chunk sem_percentile_plot" src="/figure/sem_percentile_plot-1.png"></p>
+<h2>Back to the&nbsp;formula&#8230;</h2>
+<p>As I mentioned at the beginning of this post, the <span class="caps">SEM</span> is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is $\sqrt{\lambda / n}$. Let&#8217;s see how this compares to our simulation-based estimation of the <span class="caps">SEM</span>.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Defining lambda and n</span>
+<span class="n">lambda</span> <span class="o">&lt;-</span> <span class="m">220</span>
+<span class="n">n</span> <span class="o">&lt;-</span> <span class="m">30</span>
+
+<span class="c1"># Calculating SEM</span>
+<span class="n">sem</span> <span class="o">&lt;-</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">lambda</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Using the formula, the range of mean daily page views falling within &plusmn;1 <span class="caps">SEM</span> is 217.3 to 222.7, and the range falling within &plusmn;2 SEMs is 214.7 to 225.3. This is extremely close to the estimate given using the simulation exercise&nbsp;above.</p>
+<h2>The take away&nbsp;message</h2>
+<p>As you can see, the <span class="caps">SEM</span> is a useful indication of how likely it is that your sample mean is an accurate reflection of the population value. You can also see it is highly dependent on the size of the sample you choose, with larger samples leading to tighter standard errors. While I have demonstrated calculating the <span class="caps">SEM</span> for the mean of a Poisson-distributed variable, the same principles apply with any type of&nbsp;distribution.</p>
+<p>Much of the points and code in this blog post are adapted from the excellent <a href="https://www.coursera.org/course/statinference">Statistical Inference</a> unit on Coursera by <a href="https://twitter.com/bcaffo">Brian Caffo</a>, <a href="https://twitter.com/jtleek">Jeff Leek</a> and <a href="https://twitter.com/rdpeng">Roger Peng</a>. This course gives a far more comprehensive coverage of this material and is highly&nbsp;recommended.</p>
+<p>Finally, the full code used to create the figures in this post is located in this <a href="https://gist.github.com/t-redactyl/3bbe9623a136db249268">gist on my Github page</a>.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

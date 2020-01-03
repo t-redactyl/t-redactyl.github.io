@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How do we feel about New Year’s resolutions (according to sentiment analysis)?</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="How do we feel about New Year’s resolutions (according to sentiment analysis)? written January 10, 2017 in python,programming tips,public data,twitter api,pandas">
+  <meta name="keywords" content="python, data science, new years, twitter, vader, sentiment analysis" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2017/01/how-do-we-feel-about-new-years-resolutions-according-to-sentiment-analysis.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>How do we feel about New Year’s resolutions (according to sentiment analysis)?</h1>
+        <div class="meta">
+          written <time datetime="2017-01-10T00:00:00+01:00">January 10, 2017</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/public-data.html">public data</a>,            <a href="http://t-redactyl.github.io/tag/twitter-api.html">twitter api</a>,            <a href="http://t-redactyl.github.io/tag/pandas.html">pandas</a>          </span>
+        </div>
+        <p>Happy New Year everyone! And given that it&#8217;s a new year, it&#8217;s the season for New Year&#8217;s resolutions (I myself have been sadly off cake for the last&nbsp;week).</p>
+<p>Why do we love making New Year&#8217;s resolutions so much? Well, change is hard - so hard, in fact, that there is <a href="https://en.wikipedia.org/wiki/Motivational_interviewing">a form of therapy</a> devoted to helping people commit to it. New Year&#8217;s resolutions feel like change on easy mode: you can leave behind the old you with your bad habits in the previous&nbsp;year!</p>
+<p>But do we love <strong>all</strong> New Year&#8217;s resolutions equally? After all, it&#8217;s far more exciting to commit to travelling overseas this year than giving up sugar. So how do people feel about their resolutions when they set&nbsp;them?</p>
+<p><img src="/figure/new_years_resolution.png" title="Change and life are both hard" style="display: block; margin: auto;" /></p>
+<h2>The&nbsp;analysis</h2>
+<p>I looked at this by extracting 20,000 tweets (excluding retweets) through the <a href="https://dev.twitter.com/rest/public/search">Twitter search <span class="caps">API</span></a> that contained the phrase &#8220;new years resolution&#8221;, as well as information about the number of favourites each tweet received. I was then able to classify 5,125 of these tweets into <a href="https://en.wikipedia.org/wiki/New_Year's_resolution#Popular_goals">six of the most popular</a> types of New Year&#8217;s resolutions using string&nbsp;matching.</p>
+<p>I then performed a sentiment analysis on these tweets using the <a href="https://github.com/cjhutto/vaderSentiment">Python package <span class="caps">VADER</span></a>. <span class="caps">VADER</span> gives positive, neutral and negative scores to pieces of text, which range from 0 to 1 (where higher numbers indicate a higher degree of that sentiment). These are then combined to form a weighted compound sentiment score ranging from -1 to 1, with -1 indicating absolutely negative and 1 indicating absolutely&nbsp;positive.</p>
+<p>I&#8217;ll pop up a detailed guide on my methods in a future blog post - for now, let&#8217;s have a look at the&nbsp;results!</p>
+<h2>What are the most popular&nbsp;resolutions?</h2>
+<p>The first interesting thing we can look at as part of this analysis is what the most common and rare types of resolution are. The types of resolutions in this analysis are:<br>
+<strong>Physical Health</strong>: includes being healthy, exercising and getting fit, and giving up smoking or alcohol.<br>
+<strong>Learning and Career</strong>: includes learning a new skill, starting a formal course of education, getting better grades, and advancing in a current job or getting a better one.<br>
+<strong>Mental Wellbeing</strong>: includes getting more organised, managing stress, anxiety and depression, getting more sleep, and enjoying life more.<br>
+<strong>Finances</strong>: includes getting out of debt, investing money, and building savings.<br>
+<strong>Relationships</strong>: includes building better relationships with others, getting engaged or married, and planning to have kids.<br>
+<strong>Travel and Holidays</strong>: includes planning for a trip, domestic or&nbsp;overseas.  </p>
+<p>Let&#8217;s have a look at how frequent they&nbsp;are:</p>
+<p><img src="/figure/new_years_frequency-1.png" title="plot of chunk new_years_frequency" alt="plot of chunk new_years_frequency" style="display: block; margin: auto;" /></p>
+<p>Unsurprisingly, by far and away the most common tweets about New Year&#8217;s resolutions are about Physical Health, with Relationships a distant second. The least frequent resolutions were about Finances and Travel and Holidays. However, the fact that over three times as many people tweeted about getting their finances in order compared to travelling suggests that most Twitter users are just trying to get their basics covered before thinking about splurging on a&nbsp;trip.</p>
+<h2>How do people feel about their&nbsp;resolutions?</h2>
+<p>Ok, so now we know what people are making resolutions about, let&#8217;s have a look at how they feel about&nbsp;them.</p>
+<p><img src="/figure/new_years_sentiment-1.png" title="plot of chunk new_years_sentiment" alt="plot of chunk new_years_sentiment" style="display: block; margin: auto;" /></p>
+<p>In order to make it a bit easier to interpret these results, I got rid of tweets that had a compound sentiment score of 0 (as they could not be assigned a sentiment). Keeping in mind that negative scores indicate that the tweet was negative, and vice versa for positive scores, we can see that Mental Wellbeing and Travel and Holiday resolutions tend to be pretty positively toned. In contrast, people are generally split about their Physical Health resolutions, with a pretty equal number of people feeling positive and negative about them. This is reflected in the median sentiment score for each of the&nbsp;tweets:</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Resolution</th>
+      <th>Sentiment Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Finances</th>
+      <td>0.273</td>
+    </tr>
+    <tr>
+      <th>Learning and Career</th>
+      <td>0.361</td>
+    </tr>
+    <tr>
+      <th>Mental Wellbeing</th>
+      <td>0.572</td>
+    </tr>
+    <tr>
+      <th>Physical Health</th>
+      <td>0.202</td>
+    </tr>
+    <tr>
+      <th>Relationships</th>
+      <td>0.399</td>
+    </tr>
+    <tr>
+      <th>Travel and Holidays</th>
+      <td>0.494</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We can see that, on average, people feel strongly positive about Travel and Holiday and Mental Wellbeing resolutions. In contrast, people only feel weakly positive about Physical Health&nbsp;resolutions.</p>
+<p>One of the reasons that physical health resolutions may not be scoring very positively is partially because people seem to be motivated by how much they currently hate their bodies or health&nbsp;states:</p>
+<blockquote>
+<p>I hate that I&#8217;ve gained weight over the past 3 months. New years resolution is to lose what I dont&nbsp;need.</p>
+</blockquote>
+<p>However, on a somewhat funny note, something that is also bringing the sentiment score down is all of the people hating on people at the gym because of New Year&#8217;s&nbsp;resolutions:</p>
+<blockquote>
+<p>Imma need all you New Years resolution people to stop clogging up the gym already, you&#8217;re about one cookie away from giving up&nbsp;anyways.</p>
+</blockquote>
+<p>Ouch. Keep this in mind as a limitation of the analysis - that it&#8217;s difficult to get a true read on how people feel about Physical Health resolutions because of all of these&nbsp;passengers.</p>
+<p>Speaking of how other people feel about resolution&nbsp;tweets&#8230;</p>
+<h2>How do people&#8217;s friends feel about their&nbsp;resolutions?</h2>
+<p>In order to get a gauge of how much people&#8217;s followers on Twitter liked their resolutions, I looked at the proportion of tweets that got at least five favourites and mapped this against the compound sentiment&nbsp;score:</p>
+<p><img src="/figure/new_years_favourites-1.png" title="plot of chunk new_years_favourites" alt="plot of chunk new_years_favourites" style="display: block; margin: auto;" /></p>
+<p>The first thing to note is that there is not that much variance in the proportion of tweets getting at least 5 favourites, ranging from 15% to 22%. This suggests that the type of resolution doesn&#8217;t have that much of an effect on how much followers like them. However, there are some interesting patterns when comparing the proportion of favourites against the sentiment&nbsp;score.</p>
+<p>In some cases, the number of favourites follows how the person making the tweet felt about the resolution. Physical Health resolutions tend to be more negative, and also seem to be less likely to attract many favourites, and the more positively-toned Relationships and Finances tweets are more likely to attract&nbsp;favourites.</p>
+<p>However, Mental Wellbeing and Travel and Holiday tweets surprisingly break this pattern. While these types of resolutions make the person making them really happy, they are less likely to get five or more favourites. It&#8217;s hard to say why these resolution topics don&#8217;t get much love from followers. My best guess about the Mental Health resolutions is that a lot of them are pretty vague, for example&nbsp;this:</p>
+<blockquote>
+<p>new years resolution: breathe in happiness and positives, breath out toxic things, people, and activities. 2017 will be my year.&nbsp;watch.</p>
+</blockquote>
+<p>It&#8217;s kind of hard to get behind your friends if you don&#8217;t really know what they&#8217;re trying to&nbsp;achieve.</p>
+<p>As for the Travel and Holiday tweets - my best guess is that no one really loves hearing about other people&#8217;s travel&nbsp;plans!</p>
+<p>And there you have it! Best of luck with your New Year&#8217;s resolution if you made one, and hopefully your sentiment about it was nothing but&nbsp;positive!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

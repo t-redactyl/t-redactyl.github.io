@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Avoiding the crowds in Melbourne CBD using data</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Avoiding the crowds in Melbourne CBD using data written October 21, 2015 in r,public data">
+  <meta name="keywords" content="rlanguage, permutation tests, simulations, data science, hypothesis testing" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/10/avoiding-the-crowds-in-melbourne-cbd-using-data.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Avoiding the crowds in Melbourne CBD using data</h1>
+        <div class="meta">
+          written <time datetime="2015-10-21T00:00:00+02:00">October 21, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/public-data.html">public data</a>          </span>
+        </div>
+        <p>I love visiting the <span class="caps">CBD</span> of Melbourne - it is a beautiful place with great restaurants, cafes, shopping and museums. Unfortunately, as with any big city it can get really crowded at times, which can sap a bit of enjoyment for a nerd like me! Imagine my delight when I found that the City of Melbourne has a <a href="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-Counts/b2ak-trbp">publicly available dataset</a> of the number of pedestrians per hour for major <span class="caps">CBD</span> locations. The topic of this week&#8217;s blog post is therefore to help you to plan your journey around the city to avoid the crowds as best as&nbsp;possible.</p>
+<p><img alt="plot of chunk melbourne_pics" src="/figure/melbourne_pics-1.png"> </p>
+<p>Some of the sights around Melbourne <span class="caps">CBD</span> (clockwise from top left): <a href="https://commons.wikimedia.org/wiki/File:Melbourne_Flinders_St._Station.jpg">Flinders Street Station</a>, <a href="https://commons.wikimedia.org/wiki/File:Federation_Square,_Melbourne.jpg">Federation Square</a>, <a href="https://commons.wikimedia.org/wiki/File:StateLibraryofVictoria,_Oct_2005.jpg">the State Library of Victoria</a> and <a href="https://commons.wikimedia.org/wiki/File:Parliament_House_Melbourne_2010.jpg">Victorian Parliament House</a>.</p>
+<h2>Reading in and preparing the&nbsp;data</h2>
+<p>The data were&nbsp;downloaded&#8230;</p>
+<div class="highlight"><pre><span></span><span class="n">pedestrians</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="nf">url</span><span class="p">(</span><span class="s">&quot;https://data.melbourne.vic.gov.au/api/views/b2ak-trbp/rows.csv&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>&#8230; and screened. None of the sensor sites had missing&nbsp;data.</p>
+<div class="highlight"><pre><span></span><span class="nf">head</span><span class="p">(</span><span class="n">pedestrians</span><span class="p">)</span>
+<span class="nf">table</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">Sensor_Name</span><span class="p">)</span>
+<span class="nf">tapply</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">Hourly_Counts</span><span class="p">,</span> <span class="n">pedestrians</span><span class="o">$</span><span class="n">Sensor_Name</span><span class="p">,</span> <span class="nf">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="nf">sum</span><span class="p">(</span><span class="nf">is.na</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</pre></div>
+
+
+<h3>Limiting the data to the last two&nbsp;years</h3>
+<p>In order to increase the relevance of the data to current pedestrian traffic, I limited the dataset to the final two years (from 1st October 2013 to 15th October&nbsp;2015).</p>
+<div class="highlight"><pre><span></span><span class="n">pedestrians</span><span class="o">$</span><span class="n">date</span> <span class="o">&lt;-</span> <span class="nf">as.POSIXct</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">pedestrians</span><span class="o">$</span><span class="n">Date_Time</span><span class="p">),</span> 
+                               <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;%d-%b-%Y %H:%M&quot;</span><span class="p">)</span>
+<span class="n">p.subset</span> <span class="o">&lt;-</span> <span class="nf">subset</span><span class="p">(</span><span class="n">pedestrians</span><span class="p">,</span> <span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-10-01 00:00:00&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<h3>Discarding public holidays and public event&nbsp;days</h3>
+<p>To get the &#8220;normal&#8221; pedestrian traffic in the <span class="caps">CBD</span>, I removed all Victorian public holidays, as well as significant festivals and public events that might change how many people come into the city. These include New Year&#8217;s Eve and New Year&#8217;s Day, Australia Day, the White Night Festival, Labour Day/Moomba Festival parade, Easter long weekend, <span class="caps">ANZAC</span> day, Queen&#8217;s birthday, <span class="caps">AFL</span> Grand Final parade, Melbourne Cup, Christmas Day and Boxing&nbsp;Day.</p>
+<div class="highlight"><pre><span></span><span class="n">p.subset</span> <span class="o">&lt;-</span> <span class="nf">with</span><span class="p">(</span><span class="n">p.subset</span><span class="p">,</span> <span class="n">p.subset</span>
+                 <span class="n">[</span><span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-11-05 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2013-11-05 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span> 
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-12-25 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2013-12-26 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2013-12-31 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-01-01 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-01-27 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-01-27 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-02-22 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-02-23 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-03-10 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-03-10 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-04-18 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-04-21 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-04-25 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-04-25 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-06-09 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-06-09 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-09-26 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-09-26 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-11-04 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-11-04 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-12-25 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2014-12-26 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2014-12-31 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-01-01 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-01-26 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-01-26 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-02-21 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-02-22 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-03-09 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-03-09 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-04-03 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-04-06 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span> 
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-04-25 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-04-25 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-06-08 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-06-08 23:00:00&quot;</span><span class="p">)</span> <span class="o">&amp;</span>
+                  <span class="o">!</span><span class="p">(</span><span class="n">date</span> <span class="o">&gt;=</span> <span class="s">&quot;2015-10-02 00:00:00&quot;</span> <span class="o">&amp;</span> <span class="n">date</span> <span class="o">&lt;=</span> <span class="s">&quot;2015-10-02 23:00:00&quot;</span><span class="p">),</span> <span class="n">]</span><span class="p">)</span>
+</pre></div>
+
+
+<h3>Reducing the number of&nbsp;sites</h3>
+<p>The map with all of the sensors is located <a href="http://www.pedestrian.melbourne.vic.gov.au/#date=16-10-2015&amp;time=16&amp;sensor=Swa123_T">here</a>. To simplify things, I got rid of all of the sites outside of the <span class="caps">CBD</span>. In addition, I&#8217;ve collapsed some of the sensors that are close together into the same site (e.g., Bourke Street Mall (North) and Bourke Street Mall (South) became Bourke Street Mall). My definition of the city loop train stations includes sites that are close to the stations and are likely related to traffic for that station. For example, Flinders Street Station includes the sensors from the Flinders Street Station underpass, as well as those at the corners of Flinders Street/Elizabeth Street and Flinders Street/Swanston&nbsp;Street.</p>
+<div class="highlight"><pre><span></span><span class="n">p.subset</span> <span class="o">&lt;-</span> <span class="n">p.subset[</span><span class="o">!</span><span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">%in%</span> 
+                         <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Australia on Collins&quot;</span><span class="p">,</span> <span class="s">&quot;Birrarung Marr&quot;</span><span class="p">,</span> 
+                         <span class="s">&quot;Lygon St (East)&quot;</span><span class="p">,</span> <span class="s">&quot;Lygon Street (West)&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Grattan St-Swanston St (West)&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Melbourne Convention Exhibition Centre&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Monash Rd-Swanston St (West)&quot;</span><span class="p">,</span> <span class="s">&quot;New Quay&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Sandridge Bridge&quot;</span><span class="p">,</span> <span class="s">&quot;St Kilda-Alexandra Gardens&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;The Arts Centre&quot;</span><span class="p">,</span> <span class="s">&quot;Tin Alley-Swanston St (West)&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Victoria Point&quot;</span><span class="p">,</span> <span class="s">&quot;Waterfront City&quot;</span><span class="p">,</span> <span class="s">&quot;Webb Bridge&quot;</span><span class="p">),</span> <span class="n">]</span>
+
+<span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">&lt;-</span> <span class="nf">as.character</span><span class="p">(</span><span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span><span class="p">)</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors</span> <span class="o">&lt;-</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Bourke Street Mall (North)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Bourke Street Mall (South)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Bourke Street Mall&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;City Square&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Town Hall (West)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Swanston Street South&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Collins Place (North)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Collins Place (South)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Collins Place&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Spark La&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Spring St (West)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Flinders St-Spring St&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Elizabeth St (East)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Swanston St (West)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders Street Station Underpass&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> 
+    <span class="s">&quot;Flinders Street Station&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Southern Cross Station&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Spencer St-Collins St (North)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Spencer St-Collins St (South)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Southern Cross Station&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Melbourne Central&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;State Library&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Melbourne Central&quot;</span>
+
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors_2</span> <span class="o">&lt;-</span> <span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors_2[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Elizabeth St (East)&quot;</span> <span class="o">|</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders St-Swanston St (West)&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> 
+    <span class="s">&quot;Flinders Street-Elizabeth/Swanston Sts&quot;</span>
+<span class="n">p.subset</span><span class="o">$</span><span class="n">collapsed_sensors_2[</span>
+    <span class="n">p.subset</span><span class="o">$</span><span class="n">Sensor_Name</span> <span class="o">==</span> <span class="s">&quot;Flinders Street Station Underpass&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> 
+    <span class="s">&quot;Flinders Street Station Underpass&quot;</span>
+</pre></div>
+
+
+<h3>Averaging the pedestrian&nbsp;traffic</h3>
+<p>Finally, the number of pedestrians recorded was averaged over site, hour and weekday/weekend&nbsp;status. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Sum the collapsed categories</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span>
+<span class="n">av_peds</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">p.subset</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;collapsed_sensors&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                 <span class="n">n_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">Hourly_Counts</span><span class="p">))</span>
+
+<span class="c1"># Extract weekday versus weekend</span>
+<span class="n">av_peds</span><span class="o">$</span><span class="n">day</span> <span class="o">&lt;-</span> <span class="nf">weekdays</span><span class="p">(</span><span class="n">av_peds</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="n">abbreviate</span> <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+<span class="n">av_peds</span><span class="o">$</span><span class="n">weekend</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">((</span><span class="n">av_peds</span><span class="o">$</span><span class="n">day</span> <span class="o">==</span> <span class="s">&quot;Saturday&quot;</span> <span class="o">|</span> <span class="n">av_peds</span><span class="o">$</span><span class="n">day</span> <span class="o">==</span> <span class="s">&quot;Sunday&quot;</span><span class="p">),</span> 
+                           <span class="s">&quot;Weekend&quot;</span><span class="p">,</span> <span class="s">&quot;Weekday&quot;</span><span class="p">)</span>
+<span class="n">av_peds</span><span class="o">$</span><span class="n">weekend</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">av_peds</span><span class="o">$</span><span class="n">weekend</span><span class="p">)</span>
+
+<span class="c1"># Extract time of day</span>
+<span class="n">av_peds</span><span class="o">$</span><span class="n">time</span><span class="o">=</span><span class="nf">format</span><span class="p">(</span><span class="nf">as.POSIXct</span><span class="p">(</span><span class="n">av_peds</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;%Y-%m-%d %H:%M&quot;</span><span class="p">),</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;%H:%M&quot;</span><span class="p">)</span>
+
+<span class="c1"># Collapse data to mean number of pedestrians per site, hour and weekend/weekday</span>
+<span class="n">av_peds</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">av_peds</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;collapsed_sensors&quot;</span><span class="p">,</span> <span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;weekend&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                 <span class="n">mean_peds</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">n_peds</span><span class="p">),</span>
+                 <span class="n">n_measurements</span> <span class="o">=</span> <span class="nf">length</span><span class="p">(</span><span class="n">n_peds</span><span class="p">),</span>
+                 <span class="n">sum_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">n_peds</span><span class="p">))</span>
+</pre></div>
+
+
+<h2>City loop train&nbsp;stations</h2>
+<p><img src="/figure/cbd_train_stations-1.png" title="plot of chunk cbd_train_stations" alt="plot of chunk cbd_train_stations" style="display: block; margin: auto;" /></p>
+<p>Four of the city loop train stations (see map above) were compared. The fifth station, Parliament, was not defined as only two sensors existed close to this station and therefore the number of pedestrians were likely to be underestimated. The average number of passengers per hour at each station was graphed, separated by weekend and&nbsp;weekday.</p>
+<p><img alt="plot of chunk station_graph" src="/figure/station_graph-1.png"> </p>
+<p>As you can see, Southern Cross and Flinders Street Stations (and surrounds) are the most congested in the morning on weekdays, while Melbourne Central has significantly less traffic. In the afternoons and evenings on weekdays, Flinders Street Station is by far the most busy station, while Flagstaff has the least traffic. On the weekends, Flinders Street Station has by far and away the most traffic, while Southern Cross is comparatively quiet (Flagstaff is so quiet as it is closed on the&nbsp;weekend).</p>
+<div class="highlight"><pre><span></span><span class="n">station.hour</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;weekend&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                      <span class="n">total_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">sum_peds</span><span class="p">),</span>
+                      <span class="n">total_measurements</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">n_measurements</span><span class="p">)</span>   
+<span class="p">)</span>
+<span class="n">station.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">&lt;-</span> <span class="n">station.hour</span><span class="o">$</span><span class="n">total_peds</span> <span class="o">/</span> <span class="n">station.hour</span><span class="o">$</span><span class="n">total_measurements</span>
+<span class="n">max.weekday</span> <span class="o">&lt;-</span> <span class="n">station.hour</span><span class="o">$</span><span class="n">time[station.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                     <span class="nf">max</span><span class="p">(</span><span class="n">station.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                         <span class="n">station.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekday&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+<span class="n">max.weekend</span> <span class="o">&lt;-</span> <span class="n">station.hour</span><span class="o">$</span><span class="n">time[station.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                     <span class="nf">max</span><span class="p">(</span><span class="n">station.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                         <span class="n">station.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekend&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+</pre></div>
+
+
+<p>During the week, the stations are busy throughout the whole day, but the hour of peak traffic is 17:00, dropping off sharply before and after this time. You will therefore save yourself a transit headache by leaving the city a bit earlier or later. On the weekend, the stations become increasingly busy across the day, peaking at 15:00. From the looks of the graph above, your best bet on the weekends is to travel into the city in the morning and leave well before 15:00 to avoid the&nbsp;crowds.</p>
+<h2>The east of the <span class="caps">CBD</span></h2>
+<p><img src="/figure/cbd_east-1.png" title="plot of chunk cbd_east" alt="plot of chunk cbd_east" style="display: block; margin: auto;" /></p>
+<p>The east side of the <span class="caps">CBD</span> is a lovely area, including Victorian Parliament House, two of the city&#8217;s theatres, high-end shopping and some wonderful restaurants (I recently went to <a href="http://pastuso.com.au/">Pastuso</a> - it was incredible!). It tends to be quieter than other parts of the <span class="caps">CBD</span>, although it can get congested at times. Let&#8217;s have a&nbsp;look.</p>
+<p><img alt="plot of chunk cbd_east_graph" src="/figure/cbd_east_graph-1.png"> </p>
+<p>Collins Place is clearly the busiest on weekdays, especially at the start and end of the workday and at lunchtime. The rest of the east of the city has a similar pattern of pedestrian traffic during the weekday, becoming increasingly busier towards lunchtime, dropping off in the afternoon, and having another peak at the end of the workday/dinner time. The quietest areas appear to be Alfred Place and east Chinatown. On the weekends, the east of the <span class="caps">CBD</span> is quiet in the morning with increasing traffic towards the afternoon and evening. The busiest area is Bourke/Russell Streets, probably given its proximity to Her Majesty&#8217;s&nbsp;Theatre.</p>
+<div class="highlight"><pre><span></span><span class="n">east.hour</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">city.east</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;weekend&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                   <span class="n">total_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">sum_peds</span><span class="p">),</span>
+                   <span class="n">total_measurements</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">n_measurements</span><span class="p">)</span>   
+<span class="p">)</span>
+<span class="n">east.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">&lt;-</span> <span class="n">east.hour</span><span class="o">$</span><span class="n">total_peds</span> <span class="o">/</span> <span class="n">east.hour</span><span class="o">$</span><span class="n">total_measurements</span>
+<span class="n">max.weekday</span> <span class="o">&lt;-</span> <span class="n">east.hour</span><span class="o">$</span><span class="n">time[east.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                  <span class="nf">max</span><span class="p">(</span><span class="n">east.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                      <span class="n">east.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekday&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+<span class="n">max.weekend</span> <span class="o">&lt;-</span> <span class="n">east.hour</span><span class="o">$</span><span class="n">time[east.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                  <span class="nf">max</span><span class="p">(</span><span class="n">east.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                      <span class="n">east.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekend&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+</pre></div>
+
+
+<p>Unsurprisingly from the above graph, the peak time in the east <span class="caps">CBD</span> on weekdays is 12:00, suggesting an early or late lunch is prudent to avoid the crowds. Conversely, the peak time on weekends is 19:00, coinciding with the start of theatre shows and dinner time. Given that the crowds die down significantly after this, the best time to visit the east of the <span class="caps">CBD</span> on the weekend is either in the morning or after&nbsp;19:00.</p>
+<h2>City&nbsp;centre</h2>
+<p><img src="/figure/cbd_centre-1.png" title="plot of chunk cbd_centre" alt="plot of chunk cbd_centre" style="display: block; margin: auto;" /></p>
+<p>The centre of the city, running down Elizabeth and Swanston Streets, is by far the busiest part of the <span class="caps">CBD</span>. It includes some of the major shopping precincts of the city (Bourke Street Mall and Melbourne Central), as well as tourist attractions such as the Queen Vic Market, the State Library and Federation Square. In addition, there is a massive array of restaurants, bars and cafes (one of my favourite restaurants in this area is a Moroccan place called <a href="http://saharamelbourne.com.au/">Sahara</a> on Swanston&nbsp;Street).</p>
+<p>In order to analyse the data for the city centre, I decided to separate out the sensors at the corners of Flinders Street/Elizabeth Street and Flinders Street/Swanston Street from the Flinders Street Station underpass and include them as a site in the <span class="caps">CBD</span>.</p>
+<div class="highlight"><pre><span></span><span class="n">av_peds_2</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">p.subset</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="s">&quot;collapsed_sensors_2&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                 <span class="n">n_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">Hourly_Counts</span><span class="p">))</span>
+
+<span class="c1"># Extract weekday versus weekend</span>
+<span class="n">av_peds_2</span><span class="o">$</span><span class="n">day</span> <span class="o">&lt;-</span> <span class="nf">weekdays</span><span class="p">(</span><span class="n">av_peds_2</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="n">abbreviate</span> <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+<span class="n">av_peds_2</span><span class="o">$</span><span class="n">weekend</span> <span class="o">&lt;-</span> <span class="nf">ifelse</span><span class="p">((</span><span class="n">av_peds_2</span><span class="o">$</span><span class="n">day</span> <span class="o">==</span> <span class="s">&quot;Saturday&quot;</span> <span class="o">|</span> <span class="n">av_peds_2</span><span class="o">$</span><span class="n">day</span> <span class="o">==</span> <span class="s">&quot;Sunday&quot;</span><span class="p">),</span> 
+                           <span class="s">&quot;Weekend&quot;</span><span class="p">,</span> <span class="s">&quot;Weekday&quot;</span><span class="p">)</span>
+<span class="n">av_peds_2</span><span class="o">$</span><span class="n">weekend</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">av_peds_2</span><span class="o">$</span><span class="n">weekend</span><span class="p">)</span>
+
+<span class="c1"># Extract time of day</span>
+<span class="n">av_peds_2</span><span class="o">$</span><span class="n">time</span><span class="o">=</span><span class="nf">format</span><span class="p">(</span><span class="nf">as.POSIXct</span><span class="p">(</span><span class="n">av_peds_2</span><span class="o">$</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;%Y-%m-%d %H:%M&quot;</span><span class="p">),</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;%H:%M&quot;</span><span class="p">)</span>
+
+<span class="c1"># Collapse data to mean number of pedestrians per site, hour and weekend/weekday</span>
+<span class="n">av_peds_2</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">av_peds_2</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;collapsed_sensors_2&quot;</span><span class="p">,</span> <span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;weekend&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                 <span class="n">mean_peds</span> <span class="o">=</span> <span class="nf">mean</span><span class="p">(</span><span class="n">n_peds</span><span class="p">),</span>
+                 <span class="n">n_measurements</span> <span class="o">=</span> <span class="nf">length</span><span class="p">(</span><span class="n">n_peds</span><span class="p">),</span>
+                 <span class="n">sum_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">n_peds</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="plot of chunk cbd_centre_graph" src="/figure/cbd_centre_graph-1.png"> </p>
+<p>You can see straight away that the level of traffic in the <span class="caps">CBD</span> is substantially higher than in the east of the <span class="caps">CBD</span>, but is (naturally) comparable to the city loop train stations. Bourke Street Mall and Swanston Street South (Town Hall/City Square) are the busiest on both weekends and weekdays. In contrast, Chinatown and the Queen Vic Market are both much quieter than the other parts of the city. Melbourne Central and Flinders Street have much less traffic than Bourke Street Mall or Swanston Street South on the weekend, suggesting these might be better options for shopping or grabbing some food than other parts of the city&nbsp;centre.</p>
+<div class="highlight"><pre><span></span><span class="n">centre.hour</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">city.centre</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;time&quot;</span><span class="p">,</span> <span class="s">&quot;weekend&quot;</span><span class="p">),</span> <span class="n">summarise</span><span class="p">,</span>
+                     <span class="n">total_peds</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">sum_peds</span><span class="p">),</span>
+                     <span class="n">total_measurements</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">(</span><span class="n">n_measurements</span><span class="p">)</span>   
+<span class="p">)</span>
+<span class="n">centre.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">&lt;-</span> <span class="n">centre.hour</span><span class="o">$</span><span class="n">total_peds</span> <span class="o">/</span> <span class="n">centre.hour</span><span class="o">$</span><span class="n">total_measurements</span>
+<span class="n">max.weekday</span> <span class="o">&lt;-</span> <span class="n">centre.hour</span><span class="o">$</span><span class="n">time[centre.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                    <span class="nf">max</span><span class="p">(</span><span class="n">centre.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                        <span class="n">centre.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekday&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+<span class="n">max.weekend</span> <span class="o">&lt;-</span> <span class="n">centre.hour</span><span class="o">$</span><span class="n">time[centre.hour</span><span class="o">$</span><span class="n">av_peds</span> <span class="o">==</span> 
+                                    <span class="nf">max</span><span class="p">(</span><span class="n">centre.hour</span><span class="o">$</span><span class="n">av_peds[</span>
+                                        <span class="n">centre.hour</span><span class="o">$</span><span class="n">weekend</span> <span class="o">==</span> <span class="s">&quot;Weekend&quot;</span><span class="n">]</span><span class="p">)</span><span class="n">]</span>
+</pre></div>
+
+
+<p>The busiest time on weekdays in the city centre is 13:00, suggesting that grabbing an early lunch might be a good strategy for avoiding the crowds. As with the train stations, traffic in the city centre increases across the course of the morning, peaking at 14:00, suggesting you are best coming into the city in the&nbsp;mornings.</p>
+<p>The full code used to create the figures in this post is located in this <a href="https://gist.github.com/t-redactyl/04b212241d5b7861c25a">gist on my Github page</a>.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

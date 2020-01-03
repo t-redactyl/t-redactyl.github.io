@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using VADER to handle sentiment analysis with social media text</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Using VADER to handle sentiment analysis with social media text written April 08, 2017 in python,programming tips,text mining">
+  <meta name="keywords" content="python, data science, text mining, machine learning" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Using VADER to handle sentiment analysis with social media text</h1>
+        <div class="meta">
+          written <time datetime="2017-04-08T00:00:00+02:00">April 08, 2017</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/text-mining.html">text mining</a>          </span>
+        </div>
+        <p>A few months ago at work, I was fortunate enough to see some excellent presentations by a group of data scientists at <a href="http://www.experian.com.au/">Experian</a> regarding the analytics work they do. One of the presenters gave a demonstration of some work they were doing with sentiment analysis using a Python package called <a href="https://github.com/cjhutto/vaderSentiment"><span class="caps">VADER</span>, or the Valence Aware Dictionary and sEntiment Reasoner</a>. After playing with it I realised how easy-to-use and powerful this package is, so let me talk you through how it works and how you can get up and running with it in this&nbsp;post!</p>
+<p><img src="/figure/Vader_1.jpg" title="Today I feel..." style="display: block; margin: auto;" /></p>
+<h2>To start, what is sentiment&nbsp;analysis?</h2>
+<p><a href="https://en.wikipedia.org/wiki/Sentiment_analysis">Sentiment analysis</a> is simply the process of working out (statistically) whether a piece of text is positive, negative or neutral. The majority of sentiment analysis approaches take one of two forms: <strong>polarity-based</strong>, where pieces of texts are classified as either positive or negative, or <strong>valence-based</strong>, where the intensity of the sentiment is taken into account. For example, the words &#8216;good&#8217; and &#8216;excellent&#8217; would be treated the same in a polarity-based approach, whereas &#8216;excellent&#8217; would be treated as more positive than &#8216;good&#8217; in a valence-based&nbsp;approach.</p>
+<p>Sentiment analysis has applications across a range of industries - it&#8217;s great for anything where you can get unstructured opinion data about a service or product. One application of sentiment analysis is for companies that have Twitter or other social media accounts to receive feedback. Obviously it&#8217;s bad business for these companies to leave negative feedback unanswered too long, and sentiment analysis can give them a quick way to find and prioritise these unhappy&nbsp;customers.</p>
+<h2>How does <span class="caps">VADER</span>&nbsp;work?</h2>
+<p><span class="caps">VADER</span> belongs to a type of sentiment analysis that is based on lexicons of sentiment-related words. In this approach, each of the words in the lexicon is rated as to whether it is positive or negative, and in many cases, <strong>how</strong> positive or negative. Below you can see an excerpt from <span class="caps">VADER</span>&#8217;s lexicon, where more positive words have higher positive ratings and more negative words have lower negative&nbsp;ratings.</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:left">Word</th>
+      <th style="text-align:center">Sentiment rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>tragedy</th>
+      <td style="text-align:center">-3.4</td>
+    </tr>
+    <tr>
+      <th>rejoiced</th>
+      <td style="text-align:center">2.0</td>
+    </tr>
+    <tr>
+      <th>insane</th>
+      <td style="text-align:center">-1.7</td>
+    </tr>
+    <tr>
+      <th>disaster</th>
+      <td style="text-align:center">-3.1</td>
+    </tr>
+    <tr>
+      <th>great</th>
+      <td style="text-align:center">3.1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>To work out whether these words are positive or negative (and optionally, to what degree), the developers of these approaches need to get a bunch of people to manually rate them, which is obviously pretty expensive and time-consuming. In addition, the lexicon needs to have good coverage of the words in your text of interest, otherwise it won&#8217;t be very accurate. On the flipside, when there is a good fit between the lexicon and the text, this approach is accurate, and additionally quickly returns results even on large amounts of text. Incidentally, the developers of <span class="caps">VADER</span> used Amazon&#8217;s Mechanical Turk to get most of their ratings, which is a very quick and cheap way to get their&nbsp;ratings!</p>
+<p>As you might have guessed, when <span class="caps">VADER</span> analyses a piece of text it checks to see if any of the words in the text are present in the lexicon. For example, the sentence &#8220;The food is good and the atmosphere is nice&#8221; has two words in the lexicon (good and nice) with ratings of 1.9 and 1.8&nbsp;respectively.</p>
+<p><span class="caps">VADER</span> produces four sentiment metrics from these word ratings, which you can see below. The first three, positive, neutral and negative, represent the proportion of the text that falls into those categories. As you can see, our example sentence was rated as 45% positive, 55% neutral and 0% negative. The final metric, the compound score, is the sum of all of the lexicon ratings (1.9 and 1.8 in this case) which have been standardised to range between -1 and 1. In this case, our example sentence has a rating of 0.69, which is pretty strongly&nbsp;positive.</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:left">Sentiment metric</th>
+      <th style="text-align:center">Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Positive</th>
+      <td style="text-align:center">0.45</td>
+    </tr>
+    <tr>
+      <th>Neutral</th>
+      <td style="text-align:center">0.55</td>
+    </tr>
+    <tr>
+      <th>Negative</th>
+      <td style="text-align:center">0.00</td>
+    </tr>
+    <tr>
+      <th>Compound</th>
+      <td style="text-align:center">0.69</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>What makes <span class="caps">VADER</span> great for social media&nbsp;text?</h2>
+<p>As you might have guessed, the fact that lexicons are expensive and time-consuming to produce means they are not updated all that often. This means they lack a lot of current slang that may be used to express how a person is feeling. Take the below tweet to Optus&#8217; customer support account, for example. You can see that all of the elements of this text that indicate that the writer is unhappy (in the blue boxes) are actually informal writing - multiple punctuation marks, acronyms and an emoticon. If you didn&#8217;t take this information into account, this tweet would actually look neutral to a sentiment analysis&nbsp;algorithm!</p>
+<p><img src="/figure/Vader_2.png" title="Twitter users don't write like NY Times columnists!" style="display: block; margin: auto;" /></p>
+<p><span class="caps">VADER</span> handles this by including these sorts of terms in its lexicon. Let&#8217;s have a look at how this works. We&#8217;ll start by installing the vaderSentiment package using&nbsp;pip:</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">vaderSentiment</span>
+</pre></div>
+
+
+<p>I&#8217;ll now repeat here the method used by the package authors in their <a href="https://github.com/cjhutto/vaderSentiment">github documentation</a> to show you how <span class="caps">VADER</span> outputs sentiment scores for a piece of text. We need to load the <code>SentimentIntensityAnalyser</code> object in from the <span class="caps">VADER</span> package and as it&#8217;s a bit long, we&#8217;ll assign it to another name, <code>analyser</code>, to make it a bit easier to&nbsp;use.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vaderSentiment.vaderSentiment</span> <span class="kn">import</span> <span class="n">SentimentIntensityAnalyzer</span>
+
+<span class="n">analyser</span> <span class="o">=</span> <span class="n">SentimentIntensityAnalyzer</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Finally, we&#8217;ll use the <code>polarity_scores()</code> method to get the sentiment metrics for a piece of text. You can see the authors have included it in a function with some print formatting to make it a bit easier to&nbsp;read.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_sentiment_scores</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+    <span class="n">snt</span> <span class="o">=</span> <span class="n">analyser</span><span class="o">.</span><span class="n">polarity_scores</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:-&lt;40}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">snt</span><span class="p">)))</span>
+</pre></div>
+
+
+<p>Alright, now that we have our sentiment analyser set up, let&#8217;s start looking at how it handles some social media-specific terms. We&#8217;ll start with a base&nbsp;sentence:</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;I just got a call from my boss - does he realise it&#39;s Saturday?&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">I just got a call from my boss - does he realise it&#39;s Saturday? {&#39;neg&#39;: 0.0, &#39;neu&#39;: 1.0, &#39;pos&#39;: 0.0, &#39;compound&#39;: 0.0}</span>
+</pre></div>
+
+
+<p>You can see that <span class="caps">VADER</span> rates this sentence as neutral. What about if we add an&nbsp;emoticon?</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;I just got a call from my boss - does he realise it&#39;s Saturday? :(&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">I just got a call from my boss - does he realise it&#39;s Saturday? :( {&#39;neg&#39;: 0.209, &#39;neu&#39;: 0.791, &#39;pos&#39;: 0.0, &#39;compound&#39;: -0.4404}</span>
+</pre></div>
+
+
+<p>Now <span class="caps">VADER</span> is rating it as negative, picking up the sad face as useful sentiment-related information. Let&#8217;s now add the acronym &#8216;smh&#8217; (shaking my&nbsp;head):</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;I just got a call from my boss - does he realise it&#39;s Saturday? smh :(&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">I just got a call from my boss - does he realise it&#39;s Saturday? smh :( {&#39;neg&#39;: 0.321, &#39;neu&#39;: 0.679, &#39;pos&#39;: 0.0, &#39;compound&#39;: -0.6369}</span>
+</pre></div>
+
+
+<p><span class="caps">VADER</span> also picks this up and rates the sentence as even more intensely&nbsp;negative.</p>
+<h2>Ok, but what about the word&nbsp;context?</h2>
+<p><span class="caps">VADER</span> doesn&#8217;t just do simple matching between the words in the text and in its lexicon. It also considers certain things about the way the words are written as well as their context. Let&#8217;s explore this with another&nbsp;sentence:</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;The food is good.&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The food is good.----------------------- {&#39;neg&#39;: 0.0, &#39;neu&#39;: 0.508, &#39;pos&#39;: 0.492, &#39;compound&#39;: 0.4404}</span>
+</pre></div>
+
+
+<p>One of the things that <span class="caps">VADER</span> recognises is capitalisation, which increases the intensity of both positive and negative words. You can see below that capitalising &#8216;good&#8217; increases the positive intensity of the whole&nbsp;sentence.</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;The food is GOOD.&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The food is GOOD.----------------------- {&#39;neg&#39;: 0.0, &#39;neu&#39;: 0.452, &#39;pos&#39;: 0.548, &#39;compound&#39;: 0.5622}</span>
+</pre></div>
+
+
+<p>Another factor that increases the intensity of sentence sentiment is exclamation marks, with up to 3 exclamation marks adding additional positive or negative&nbsp;intensity:</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;The food is GOOD!&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The food is GOOD!----------------------- {&#39;neg&#39;: 0.0, &#39;neu&#39;: 0.433, &#39;pos&#39;: 0.567, &#39;compound&#39;: 0.6027}</span>
+</pre></div>
+
+
+<p><span class="caps">VADER</span> also takes into account what happens when modifying words are present in front of a sentiment term. For example, &#8220;<strong>extremely</strong> bad&#8221; would increase the negative intensity of a sentence, but &#8220;<strong>kinda</strong> bad&#8221; would decrease it. Let&#8217;s see what happens if we add &#8216;really&#8217; in front of&nbsp;&#8216;good&#8217;:</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;The food is really GOOD!&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The food is really GOOD!---------------- {&#39;neg&#39;: 0.0, &#39;neu&#39;: 0.487, &#39;pos&#39;: 0.513, &#39;compound&#39;: 0.6391}</span>
+</pre></div>
+
+
+<p>Finally, <span class="caps">VADER</span> also handles changes in a sentence&#8217;s sentiment intensity when it contains &#8216;but&#8217;. Essentially, the rule is that the sentiments expressed both before and after the &#8216;but&#8217; are taken into consideration, but the sentiment afterwards is weighted more heavily than that before. Let&#8217;s see how this&nbsp;looks:</p>
+<div class="highlight"><pre><span></span><span class="n">print_sentiment_scores</span><span class="p">(</span><span class="s2">&quot;The food is really GOOD! But the service is dreadful.&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">The food is really GOOD! But the service is dreadful. {&#39;neg&#39;: 0.192, &#39;neu&#39;: 0.529, &#39;pos&#39;: 0.279, &#39;compound&#39;: 0.3222}</span>
+</pre></div>
+
+
+<p>You can see that our score has dropped from 0.64 to 0.32, as <span class="caps">VADER</span> has taken that &#8216;dreadful&#8217; far more into account than the &#8216;really <span class="caps">GOOD</span>!&#8217;.</p>
+<p>I hope this has been a useful introduction to a very powerful and easy to use sentiment analysis package in Python - as you can see the implementation is very straightforward and it can be applied to quite a wide range of contexts. In the next post, I&#8217;ll be detailing how I carried out <a href="http://t-redactyl.github.io/blog/2017/01/how-do-we-feel-about-new-years-resolutions-according-to-sentiment-analysis.html">this analysis</a> using <span class="caps">VADER</span>, and show some traps that come with doing text analysis without a very careful data cleaning&nbsp;strategy.</p>
+<p>Finally, most of the information from this post comes from the very readable <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">paper</a> by the authors of the <span class="caps">VADER</span>&nbsp;package.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

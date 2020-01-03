@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A very ggplot2 Christmas</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="A very ggplot2 Christmas written December 27, 2016 in r,ggplot2">
+  <meta name="keywords" content="rlanguage, data science, christmas, ggplot2, data visualisation" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/12/a-very-ggplot2-christmas.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A very ggplot2 Christmas</h1>
+        <div class="meta">
+          written <time datetime="2016-12-27T00:00:00+01:00">December 27, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/ggplot2.html">ggplot2</a>          </span>
+        </div>
+        <p>About a month ago, <a href="http://is-r.tumblr.com/post/36277968787/happy-thanksgiving-from-isr">this classic gem</a> popped up in my Twitter feed. For those unable to view the image, it is a Thanksgiving turkey made completely in ggplot2 by the guys over at <a href="http://is-r.tumblr.com/">is.R</a>. I was so inspired by this plot I decided to see whether I could similarly draw a Christmas tree using only&nbsp;ggplot2:</p>
+<p><img src="/figure/christmas_tree_final.png" title="The final product" style="display: block; margin: auto;" /></p>
+<p>For those of you who want to jump straight to the final product, <a href="https://gist.github.com/t-redactyl/b9067b1d8862d34b42cb49fc4793f284">here</a> is the code you&#8217;ll need to reproduce the chart&nbsp;above.</p>
+<p>For those who want more of a step-by-step guide, I&#8217;ll talk you through how I built up each layer of the&nbsp;picture.</p>
+<h2>Your base&nbsp;tree</h2>
+<p>In order to make the base tree, I followed pretty much the <a href="https://gist.github.com/cdesante/0ab7a6076c0cd0993cc0ae0eb3ecd2fc#file-turkey2016-r">same approach</a> used by the guys at is.R to create their turkey plot. If you have a look at their gist, you can see they created a dataframe which contained all of the parts of the turkey image assigned to different parts of the plot grid. Given that I&#8217;m not really all that artistic, I found <a href="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSw0w-1TOPluH3LzKgtgqCbmp16eZx8W6SIIiE01QxJL7m3GaaE">an image</a> of a Christmas tree that I could similarly adapt. I&#8217;ve also used the same code is.R used to plot the basic&nbsp;tree.</p>
+<div class="highlight"><pre><span></span><span class="n">ChristmasTree</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="s">&quot;https://raw.githubusercontent.com/t-redactyl/Blog-posts/master/Christmas%20tree%20base%20data.csv&quot;</span><span class="p">)</span>
+
+<span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+
+<span class="n">tree</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> 
+          <span class="nf">geom_tile</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">ChristmasTree</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Tree.X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Tree.Y</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Tree.Colour</span><span class="p">))</span> <span class="o">+</span>       
+          <span class="nf">scale_fill_identity</span><span class="p">()</span> <span class="o">+</span> 
+          <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+          <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span> <span class="o">+</span> 
+          <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="kc">NULL</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="n">tree</span>
+</pre></div>
+
+
+<p><img src="/figure/christmas_tree_01.png" title="Our base tree" style="display: block; margin: auto;" /></p>
+<p><code>geom_tile()</code> plots each datapoint as a solid square. They then added some formatting options: <code>theme_bw()</code> changes the background colour to white; <code>scale_x_continuous(breaks = NULL)</code> (and its y-axis counterpart) gets rid of the tickmarks and gridlines; and <code>labs(x = "", y = "")</code> gets rid of the axis&nbsp;labels.</p>
+<h2>Hanging some&nbsp;lights</h2>
+<p>We can now add some lights to the tree, which I&#8217;ve done by overlaying a scatterplot on top of our base tile plot. In order to get a sort of natural looking distribution, I randomly generated x and y coordinates for each of the lights (drawing from a uniform distribution). However, given that the tree is a triangle, I needed to make sure that the lights were not generated <strong>outside</strong> the&nbsp;tree.</p>
+<p>To do this, I divided the area of the tree into 6 different rectangles, and generated coordinates for the lights within each of these blocks. However, you can see that each of these occupies a different amount of area (e.g., the bottom block is much larger than the top block). In order to make sure the lights were evenly distributed across the tree, I worked out what proportion of the total area each of these rectangles roughly makes up, and used this as a multiple of the total number of lights I wanted. So for example, the bottom block makes up about 35% of the total area, versus 5% for the top block. So if I wanted 50 lights in total, I&#8217;d generate 18 lights for the bottom of the tree, and 3 for the&nbsp;top.</p>
+<p>Now we have the placement of the lights sorted, let&#8217;s get them to twinkle! To do this, I created a third randomly generated variable with values from 1 to 4. We&#8217;ll use this to control the transparency of each of the&nbsp;dots.</p>
+<div class="highlight"><pre><span></span><span class="n">Desired.Lights</span> <span class="o">&lt;-</span> <span class="m">50</span>
+<span class="n">Total.Lights</span> <span class="o">&lt;-</span> <span class="nf">sum</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.35</span><span class="p">)</span> <span class="o">+</span> <span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.20</span><span class="p">)</span> <span class="o">+</span> 
+                      <span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.17</span><span class="p">)</span> <span class="o">+</span> <span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.13</span><span class="p">)</span> <span class="o">+</span>
+                      <span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.10</span><span class="p">)</span> <span class="o">+</span> <span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.05</span><span class="p">))</span>
+
+<span class="n">Lights</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">Lights.X</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.35</span><span class="p">),</span> <span class="m">4</span><span class="p">,</span> <span class="m">18</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                                       <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.20</span><span class="p">),</span> <span class="m">5</span><span class="p">,</span> <span class="m">17</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                                       <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.17</span><span class="p">),</span> <span class="m">6</span><span class="p">,</span> <span class="m">16</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                                       <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.13</span><span class="p">),</span> <span class="m">7</span><span class="p">,</span> <span class="m">15</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                                       <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.10</span><span class="p">),</span> <span class="m">8</span><span class="p">,</span> <span class="m">14</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                                       <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.05</span><span class="p">),</span> <span class="m">10</span><span class="p">,</span> <span class="m">12</span><span class="p">),</span> <span class="m">0</span><span class="p">)))</span>
+<span class="n">Lights</span><span class="o">$</span><span class="n">Lights.Y</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.35</span><span class="p">),</span> <span class="m">4</span><span class="p">,</span> <span class="m">6</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                          <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.20</span><span class="p">),</span> <span class="m">7</span><span class="p">,</span> <span class="m">8</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                          <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.17</span><span class="p">),</span> <span class="m">9</span><span class="p">,</span> <span class="m">10</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                          <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.13</span><span class="p">),</span> <span class="m">11</span><span class="p">,</span> <span class="m">12</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                          <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.10</span><span class="p">),</span> <span class="m">13</span><span class="p">,</span> <span class="m">14</span><span class="p">),</span> <span class="m">0</span><span class="p">),</span>
+                          <span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="n">Desired.Lights</span> <span class="o">*</span> <span class="m">0.05</span><span class="p">),</span> <span class="m">15</span><span class="p">,</span> <span class="m">17</span><span class="p">),</span> <span class="m">0</span><span class="p">))</span>
+<span class="n">Lights</span><span class="o">$</span><span class="n">Lights.Colour</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">runif</span><span class="p">(</span><span class="n">Total.Lights</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">4</span><span class="p">),</span> <span class="m">0</span><span class="p">))</span>
+</pre></div>
+
+
+<p>We now add the lights to our tree by assigning it to a <code>geom_point()</code> command. We let ggplot2 know that the base colour of our lights is &#8220;lightgoldenrodyellow&#8221; by assigning it to the <code>colour</code> argument (make sure you assign it the colour argument outside aes, as these are two different arguments!), and that we want to alter the transparency of the dots by assigning Lights.Colour to the <code>alpha</code> argument (this time inside&nbsp;aes). </p>
+<p>We also suppress the legend that has just been created by adding <code>theme(legend.position = "none")</code>.</p>
+<div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">&lt;-</span> <span class="n">tree</span> <span class="o">+</span>
+          <span class="nf">geom_point</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">Lights</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Lights.X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Lights.Y</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="n">Lights.Colour</span><span class="p">),</span>
+                     <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;lightgoldenrodyellow&quot;</span><span class="p">,</span> <span class="n">shape</span> <span class="o">=</span> <span class="m">16</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;none&quot;</span><span class="p">)</span>
+<span class="n">tree</span>
+</pre></div>
+
+
+<p><img src="/figure/christmas_tree_02.png" title="Hanging some lights" style="display: block; margin: auto;" /></p>
+<p>Look at that tree&nbsp;sparkle!</p>
+<h2>Adding the&nbsp;baubles</h2>
+<p>Let&#8217;s now hang some baubles. To do this, we add yet another scatterplot (this time a weighted scatterplot, one of my favourite plot types) on top of our two existing plots. I found the random approach didn&#8217;t work so well with these, so I manually plotted the coordinates of each of these, as well as manually assigning both a colour and a size to each bauble. You can feel free to tinker with these positions and sizes on your own&nbsp;tree.</p>
+<div class="highlight"><pre><span></span><span class="n">Baubles</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">Bauble.X</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="m">6</span><span class="p">,</span> <span class="m">9</span><span class="p">,</span> <span class="m">15</span><span class="p">,</span> <span class="m">17</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">13</span><span class="p">,</span> <span class="m">16</span><span class="p">,</span> <span class="m">7</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span> <span class="m">14</span><span class="p">,</span> <span class="m">7</span><span class="p">,</span> <span class="m">9</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> 
+                                   <span class="m">14</span><span class="p">,</span> <span class="m">8</span><span class="p">,</span> <span class="m">14</span><span class="p">,</span> <span class="m">9</span><span class="p">,</span> <span class="m">12</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> <span class="m">12</span><span class="p">,</span> <span class="m">14</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> <span class="m">17</span><span class="p">,</span> <span class="m">10</span><span class="p">))</span>
+<span class="n">Baubles</span><span class="o">$</span><span class="n">Bauble.Y</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="m">4</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">4</span><span class="p">,</span> <span class="m">4</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">6</span><span class="p">,</span> <span class="m">6</span><span class="p">,</span> <span class="m">6</span><span class="p">,</span> <span class="m">8</span><span class="p">,</span> <span class="m">8</span><span class="p">,</span> <span class="m">8</span><span class="p">,</span> <span class="m">8</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span>
+                      <span class="m">10</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> <span class="m">12</span><span class="p">,</span> <span class="m">13</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span> <span class="m">16</span><span class="p">,</span> <span class="m">7</span><span class="p">,</span> <span class="m">14</span><span class="p">)</span>
+<span class="n">Baubles</span><span class="o">$</span><span class="n">Bauble.Colour</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span>
+                                  <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">))</span>
+<span class="n">Baubles</span><span class="o">$</span><span class="n">Bauble.Size</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span>
+                         <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now let&#8217;s add these to our tree using a weighted scatterplot&nbsp;command:</p>
+<div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">&lt;-</span> <span class="n">tree</span> <span class="o">+</span> 
+          <span class="nf">geom_point</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">Baubles</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Bauble.X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Bauble.Y</span><span class="p">,</span> 
+                                         <span class="n">colour</span> <span class="o">=</span> <span class="n">Bauble.Colour</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Bauble.Size</span><span class="p">),</span>
+                     <span class="n">shape</span> <span class="o">=</span> <span class="m">16</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">scale_colour_manual</span><span class="p">(</span><span class="n">values</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;firebrick2&quot;</span><span class="p">,</span> <span class="s">&quot;gold&quot;</span><span class="p">,</span> <span class="s">&quot;dodgerblue3&quot;</span><span class="p">))</span> <span class="o">+</span>
+          <span class="nf">scale_size_area</span><span class="p">(</span><span class="n">max_size</span> <span class="o">=</span> <span class="m">12</span><span class="p">)</span>
+<span class="n">tree</span>
+</pre></div>
+
+
+<p><img src="/figure/christmas_tree_03.png" title="Adding some baubles" style="display: block; margin: auto;" /></p>
+<p>I&#8217;ve given the baubles the colours &#8220;firebrick2&#8221;, &#8220;gold&#8221; and &#8220;dodgerblue3&#8221; from the list of <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf">recognised colours</a>, but you can of course tweak these to be anything you want, especially if you have a bit more taste than I do! The default size of the baubles was a bit small, so I&#8217;ve also increased their size using the <code>scale_size_area()</code> option.</p>
+<h2>Decorating the&nbsp;presents</h2>
+<p>Now those presents look a little bare, right? Let&#8217;s spruce them up a little with some nice ribbons. We can do this using the <code>geom_segment()</code> option.</p>
+<div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">&lt;-</span> <span class="n">tree</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">4.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;blueviolet&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">5.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">8.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;dodgerblue3&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">13.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">16.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;blueviolet&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">17.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">19.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">1.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;dodgerblue3&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">3.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">3.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;blueviolet&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">7.0</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">7.0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;dodgerblue3&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">15.0</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">15.0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;blueviolet&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span> <span class="o">+</span>
+          <span class="nf">geom_segment</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="m">18.5</span><span class="p">,</span> <span class="n">xend</span> <span class="o">=</span> <span class="m">18.5</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">yend</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">),</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;dodgerblue3&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span>
+<span class="n">tree</span>
+</pre></div>
+
+
+<p><img src="/figure/christmas_tree_04.png" title="Adding ribbons to the presents" style="display: block; margin: auto;" /></p>
+<p>You can see that for the horizontal ribbons, I&#8217;ve put a range of x-coordinates but put the same value for both of the y-coordinates in order to get a straight line, and vice versa for the vertical lines. You can also alter the colour and thickness of the ribbons using the <code>colour</code> and <code>size</code> arguments&nbsp;respectively.</p>
+<h2>Writing a&nbsp;greeting</h2>
+<p>Finally, let&#8217;s top off our tree with a festive greeting. The default fonts in R are not particularly decorative, so let&#8217;s import some extra fonts using the <code>extrafont</code> package (more instructions on using this package are <a href="https://cran.r-project.org/web/packages/extrafont/README.html">here</a>).</p>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
+<span class="nf">font_import</span><span class="p">()</span>
+<span class="nf">loadfonts</span><span class="p">()</span>
+</pre></div>
+
+
+<p>We can now check what fonts we have using the <code>fonts()</code> command. Of my installed fonts &#8220;Luminari&#8221; has the most old timey feel, so let&#8217;s use this for the&nbsp;greeting. </p>
+<div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">&lt;-</span> <span class="n">tree</span> <span class="o">+</span>
+          <span class="nf">annotate</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="m">11</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="m">20</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;Merry Christmas!&quot;</span><span class="p">,</span> 
+                   <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Luminari&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">)</span>
+<span class="n">tree</span>
+</pre></div>
+
+
+<p><img src="/figure/christmas_tree_final.png" title="Merry Christmas!" style="display: block; margin: auto;" /></p>
+<p>You can see I&#8217;ve used the <code>annotate</code> option with the &#8220;text&#8221; argument to insert &#8220;Merry Christmas!&#8221; at coordinates (11, 20). I&#8217;ve then told ggplot2 that I want to use the Luminari font at size 12 using the <code>family</code> and <code>size</code> arguments&nbsp;respectively.</p>
+<p>And there we have it! You now have the perfect Christmas greeting for the data nerd in your life. Happy&nbsp;Christmas!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

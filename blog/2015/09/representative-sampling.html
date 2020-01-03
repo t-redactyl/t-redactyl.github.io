@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Representative sampling</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Representative sampling written September 15, 2015 in methodology,data simulations,r">
+  <meta name="keywords" content="rlanguage, simulations, sampling, methodology, data science" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/09/representative-sampling.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Representative sampling</h1>
+        <div class="meta">
+          written <time datetime="2015-09-15T00:00:00+02:00">September 15, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/methodology.html">methodology</a>,            <a href="http://t-redactyl.github.io/tag/data-simulations.html">data simulations</a>,            <a href="http://t-redactyl.github.io/tag/r.html">r</a>          </span>
+        </div>
+        <p>Unless we are lucky enough to have access to an entire population and the capacity to analyse all of that data, we have to make do with <a href="https://en.wikipedia.org/wiki/Sample_(statistics)"><strong>samples</strong></a> from our population to make statistical inferences. Choosing a sample that is a good representation of your population is the heart of a quality analysis, as all of the fancy statistical tricks in the world can&#8217;t make accurate conclusions from bad or biased data. In this blog post, I will discuss some key concepts in selecting a representative sample.
+<!--more--></p>
+<h2>First things first: What is your population of&nbsp;interest?</h2>
+<p>Obviously it is a bit tricky to get a representative sample if you&#8217;re not sure what population you&#8217;re trying to represent, so the first step is to carefully consider this question. In the two previous blog posts (<a href="http://t-redactyl.github.io/blog/2015/09/A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean.html">here</a> and <a href="http://t-redactyl.github.io/blog/2015/09/a-gentle-introduction-to-bootstrapping.html">here</a>), I used the example that your company wanted you to assess the mean daily number of page views their website receives. Well, <strong>what</strong> mean daily page views do they want to know&nbsp;about? </p>
+<p>Let&#8217;s consider some complications to that question. The first is <strong>seasonality.</strong> Your website might receive more hits at certain times of year. Do we want to include or exclude these periods from our population? Another consideration is the <strong>demographic profile</strong> of the people visiting your website. Are we interested in all visitors? Or do we want visitors of a certain sex, age group or region? A final consideration is whether there has been some sort of <strong>change in condition</strong> that may have increased the visitors to the site. For example, was there an advertising campaign launched recently? Has the website added additional languages which mean a broader audience can access it? Does the website sell a product that now ships to additional&nbsp;places?</p>
+<p>Let&#8217;s imagine our website is a retail platform that sells children&#8217;s toys. We see some seasonal spikes in page views every year at Easter, Christmas and two major sale periods every year (Black Friday and post-Christmas). No major advertising campaigns are planned outside these seasonal periods, nor any changes planned to the site. Our company want to know what the &#8220;typical&#8221; number of mean daily page views is outside these seasonal periods. They don&#8217;t care about individual demographic groups of visitors, they just want the visitors as a whole. Therefore, we need to find a sample that reflects&nbsp;this.</p>
+<h2>Choosing a representative&nbsp;sample</h2>
+<h3>Sample&nbsp;size</h3>
+<p>Sample size is a key element to representative sampling as it increases your chances of gaining sufficient information about the population, rather than having your statistics influenced by anomalous observations. For example, imagine if by chance we sampled a much higher than average value. Let&#8217;s see how this influences a sample of 30 page views compared to a sample of 10. We&#8217;ll generate samples drawn from a Poisson distribution with a mean of 220 views per day, and add an outlier of 260 views per day to&nbsp;each:</p>
+<div class="highlight"><pre><span></span><span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+
+<span class="c1"># Sample of 30 (29 from the Poisson distribution and an outlier of 260)</span>
+<span class="n">sample1</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rpois</span><span class="p">(</span><span class="m">29</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">),</span> <span class="m">260</span><span class="p">)</span>
+
+<span class="c1"># Sample of 10 (9 from the Poisson distribution and an outlier of 260)</span>
+<span class="n">sample2</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rpois</span><span class="p">(</span><span class="m">9</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">),</span> <span class="m">260</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Compared to the population mean, the mean of the sample of 30 is 221.5 whereas the mean of the sample of 10 is 224.4. As you can see, the smaller sample is far more influenced by the extreme value than the larger&nbsp;one. </p>
+<p>A sufficient sample size depends on a lot of things. For example, if the event we were trying to describe was rare (e.g., 1 event per 100 days), a sample of 30 would likely be too small to assess its mean occurrence. When conducting hypothesis testing, the correct sample size is generally calculated using <a href="https://en.wikipedia.org/wiki/Statistical_power"><strong>power</strong></a> calculations, something I won&#8217;t get into here as it can get veeeeery&nbsp;complicated.</p>
+<p>An additional consideration is that overestimating the required sample size can also be undesirable as there may be time, monetary or even ethical reasons to limit the number of observations collected. For example, the company that asked us to assess page views would likely be unhappy if we spent 100 days collecting information on mean daily page views when the same question could be reliably answered from 30 days of data&nbsp;collection.</p>
+<h3>Representativeness</h3>
+<p>However, a sufficient sample size won&#8217;t be enough if the data are not representative. Representativeness means that the data are sampled from all observations in the population and excludes anything that is outside the population. Representativeness is violated when the sample is biased to a subset of the population or when the sample includes observations from outside the population of&nbsp;interest.</p>
+<p>Let&#8217;s simulate the number of page views our website received per day in 2014. As you can see in the R code below, I&#8217;ve included increased page views for our peak periods of Easter, Black Friday/Christmas, and the post-Christmas&nbsp;sales. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Simulate some data for 2014, with mean page views of 220 per day.</span>
+<span class="n">days</span> <span class="o">&lt;-</span> <span class="nf">seq</span><span class="p">(</span><span class="nf">as.Date</span><span class="p">(</span><span class="s">&quot;2014/1/1&quot;</span><span class="p">),</span> <span class="nf">as.Date</span><span class="p">(</span><span class="s">&quot;2014/12/31&quot;</span><span class="p">),</span> <span class="s">&quot;days&quot;</span><span class="p">)</span>
+<span class="n">page.views</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">365</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
+<span class="n">views</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">page.views</span><span class="p">)</span>
+
+<span class="c1"># Generate post Christmas sale peak period (January 1-10) with mean page views of 400 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/01/01&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/01/10&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">10</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">400</span><span class="p">)</span>
+
+<span class="c1"># Generate Easter peak period (April 1-21) with mean page views of 350 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/04/01&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/04/21&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">21</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">350</span><span class="p">)</span>
+
+<span class="c1"># Generate Black Friday and Christmas peak periods (November 28-December 31) mean page views of 500 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/11/28&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/12/31&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">34</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">500</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img alt="plot of chunk ggplot2_chunk" src="/figure/ggplot2_chunk-1.png"> </p>
+<p>If you look at the graph above, you can see that for most of the year the page views sit fairly consistently around a mean of 220 (as shown in the dotted black line). If we sampled any time outside of the peak periods, we would be pretty safe in assuming we have a representative sample. However, what if we sampled between March 15 and April 14? We would catch some of the Easter peak period in our sample and our sample would no longer represent typical (non-peak) daily page views - instead, we would overestimate our page views by including observations from the peak period population in our&nbsp;sample.</p>
+<h2>A final thing to consider: the method of&nbsp;measurement</h2>
+<p>While not part of representative sampling per se, an extremely important and related concept is how the <strong>thing you are measuring</strong> relates to your <strong>concept of interest</strong>. Why does our company want to know how many page views we get? Do they specifically want to know how many visitors they receive a day in order to plan things like server demand? Or do they want to extrapolate from number of visitors to comment on something like the popularity of the page? It is important to consider whether the measurement you take is a good reflection of what you are interested in before you make inferences based on your data. This falls under the branch of statistics known as <a href="https://en.wikipedia.org/wiki/Validity_%28statistics%29">validity</a>, which is again beyond the scope of this post but an extremely interesting&nbsp;topic. </p>
+<h2>The take away&nbsp;message</h2>
+<p>I hope this has been a helpful introduction to picking a good sample, and a reminder that even when you have really big data, you can&#8217;t escape basic considerations such as what your population is, and whether the variables you have can really answer your&nbsp;question!</p>
+<p>Finally, the full code used to create the figures in this post is located in this <a href="https://gist.github.com/t-redactyl/7c6875812dae4f3489a7">gist on my Github page</a>.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

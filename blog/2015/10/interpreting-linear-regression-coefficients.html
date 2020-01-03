@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Interpreting linear regression coefficients</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Interpreting linear regression coefficients written October 28, 2015 in statistics,r,hypothesis testing,regression">
+  <meta name="keywords" content="rlanguage, data science, hypothesis testing, linear regression, confidence interval, prediction interval" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/10/interpreting-linear-regression-coefficients.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Interpreting linear regression coefficients</h1>
+        <div class="meta">
+          written <time datetime="2015-10-28T00:00:00+01:00">October 28, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/statistics.html">statistics</a>,            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/hypothesis-testing.html">hypothesis testing</a>,            <a href="http://t-redactyl.github.io/tag/regression.html">regression</a>          </span>
+        </div>
+        <p>Coming from a psychology background, I have a soft spot for <a href="https://en.wikipedia.org/wiki/Linear_regression"><strong>multiple linear regression</strong></a>. This method is a workhorse in statistics and machine learning, being flexible, powerful and easily interpretable. An issue that people new to multiple regression face, however, is being overwhelmed by what all the coefficients represent and what the model is <strong>actually</strong> saying about the outcome variable. In this blog post I will show you that it is actually relatively straightforward to understand your regression model by talking you through how to interpret the coefficients of a model containing one continuous predictor, one <a href="https://en.wikipedia.org/wiki/Categorical_variable">factor predictor</a> and their <a href="https://en.wikipedia.org/wiki/Interaction_(statistics)">interaction</a> in&nbsp;R.</p>
+<h2>Running the&nbsp;model</h2>
+<p>Let&#8217;s consider a model using the <code>mtcars</code> dataset. In this model, we will predict <code>mpg</code> (miles per gallon) using <code>wt</code> (the car&#8217;s weight in 1000lb increments), <code>am</code> (transmission type: automatic or manual) and their interaction&nbsp;term.</p>
+<p>Before running the model, I will convert <code>am</code> into a factor variable. I could have also converted <code>am</code> to a factor within the model using <code>factor(am)</code>, but I wanted to label each level to make the explanation of the coefficients more clear. Note that 0 = automatic and 1 =&nbsp;manual.</p>
+<div class="highlight"><pre><span></span><span class="nf">data</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span>
+<span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Automatic&quot;</span><span class="p">,</span> <span class="s">&quot;Manual&quot;</span><span class="p">)</span>
+
+<span class="c1"># Build the model</span>
+<span class="n">model</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">*</span> <span class="n">am.f</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
+<span class="nf">summary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">$</span><span class="n">coef</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##                Estimate Std. Error   t value     Pr(&gt;|t|)</span>
+<span class="err">## (Intercept)   31.416055  3.0201093 10.402291 4.001043e-11</span>
+<span class="err">## wt            -3.785908  0.7856478 -4.818836 4.551182e-05</span>
+<span class="err">## am.fManual    14.878423  4.2640422  3.489277 1.621034e-03</span>
+<span class="err">## wt:am.fManual -5.298360  1.4446993 -3.667449 1.017148e-03</span>
+</pre></div>
+
+
+<h2>Let&#8217;s start with the&nbsp;intercept</h2>
+<p>You can see from the output above that this model has four coefficients, the intercept, the main effect for <code>wt</code> , the main effect for <code>am</code> and the interaction of <code>wt * am</code>. So how do we interpret these? As you will recall, regression equations take the&nbsp;form:</p>
+<p>$$E[Y | X] = \beta_0 +&nbsp;\beta_1X$$</p>
+<p>indicating that the expected value of $Y$, given the value of $X$, is calculated by adding the intercept to the value of $X$ multiplied by $\beta_1$. Our specific model&nbsp;is:</p>
+<p>$$E[Y | X_1X_2] = \beta_0 + \beta_1(weight) + \beta_2(transmission) + \beta_3(weight \cdot&nbsp;transmission)$$</p>
+<p>Ok, so how do we interpret this? The first part is to understand that the intercept is the miles per gallon a car is expected to have when both car weight and car transmission are equal to 0. This can be seen when we substitute $X_1$ and $X_2$ for&nbsp;0:</p>
+<p>$$\begin{eqnarray} 
+E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0) \cr
+&amp;=&amp; \beta_0 \cr&nbsp;\end{eqnarray}$$</p>
+<p>In this case the intercept, or the miles per gallon of an automatic car of weight 0 lbs, is 31.42. This intercept value is not very helpful as no real car can have a weight of 0. Therefore, before we go any further we need to make our coefficients more useful using a technique called <strong>centring</strong>.</p>
+<h2>Centring makes interpretation&nbsp;easier</h2>
+<p>Centring involves subtracting the mean from the continuous predictors in the model in order to change the point at which the regression slope crosses the intercept from 0 to the mean. This is demonstrated in the figure&nbsp;below:</p>
+<p><img alt="plot of chunk centred_chart" src="/figure/centred_chart-1.png"> </p>
+<p>You can see that centring replaces the true intercept value for weight (0 lbs, a non-existent value) with a new intercept value (3.22) by making the model think of the mean as <code>wt</code> = 0. Let&#8217;s try and interpret our intercept again using our centred weight variable. Firstly, we need to run a new&nbsp;model:</p>
+<div class="highlight"><pre><span></span><span class="n">centred.model</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="nf">I</span><span class="p">(</span><span class="n">wt</span> <span class="o">-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">wt</span><span class="p">))</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">+</span> <span class="nf">I</span><span class="p">(</span><span class="n">wt</span> <span class="o">-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">wt</span><span class="p">))</span> <span class="o">*</span> <span class="n">am.f</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
+<span class="nf">summary</span><span class="p">(</span><span class="n">centred.model</span><span class="p">)</span><span class="o">$</span><span class="n">coef</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">##                              Estimate Std. Error   t value     Pr(&gt;|t|)</span>
+<span class="err">## (Intercept)                 19.235844  0.7356848 26.146856 3.243563e-21</span>
+<span class="err">## I(wt - mean(wt))            -3.785908  0.7856478 -4.818836 4.551182e-05</span>
+<span class="err">## am.fManual                  -2.167728  1.4188862 -1.527767 1.377893e-01</span>
+<span class="err">## I(wt - mean(wt)):am.fManual -5.298360  1.4446993 -3.667449 1.017148e-03</span>
+</pre></div>
+
+
+<p>So, the new intercept value is 19.24, which is the predicted miles per gallon for an automatic car (transmission = 0) of weight 3217 lbs (centred weight =&nbsp;0).</p>
+<p>Now that we&#8217;ve covered the intercept, how do we interpret the rest? The trick is to break this down by the different levels of <code>am</code>. When the transmission is automatic (or when $X_2$ = 0), the regression equation&nbsp;becomes:</p>
+<p>$$\begin{eqnarray} 
+E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2(0) + \beta_3(weight \cdot 0) \cr
+&amp;=&amp; \beta_0 + \beta_1(weight) \cr&nbsp;\end{eqnarray}$$</p>
+<p>Alternatively, when the transmission is manual (or when $X_2$ = 1), the regression equation&nbsp;becomes:</p>
+<p>$$\begin{eqnarray} 
+E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2(1) + \beta_3(weight \cdot 1) \cr
+&amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2 + \beta_3(weight) \cr
+&amp;=&amp; (\beta_0 + \beta_2) + (\beta_1 + \beta_3)(weight) \cr&nbsp;\end{eqnarray}$$</p>
+<p>Substituting our model coefficients into this, we&nbsp;get:</p>
+<p>$$E[Y | X_1X_2] = 19.24&nbsp;-3.79(weight)$$</p>
+<p>for cars with automatic transmission&nbsp;and:</p>
+<p>$$\begin{eqnarray} 
+E[Y | X_1X_2] &amp;=&amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
+&amp;=&amp; 17.07 -9.08(weight) \cr&nbsp;\end{eqnarray}$$</p>
+<p>for cars with manual transmission. So if we take a car that weighs 2620 lbs (which would have a value of -0.6 in our centred weight variable), our model predicts that it would have an <span class="caps">MPG</span> of 21.5 if it was automatic and 22.49 if it were&nbsp;manual.</p>
+<p>When comparing the two models, you may have noticed that the two equations differ in both their intercept and slope values. More specifically, $\beta_2$ represents the change in the <strong>intercept</strong> when changing from automatic to manual transmission, while $\beta_3$ represents the change in <strong>slope</strong> changing from automatic to manual transmission. In other words, at the mean car weight, manual cars get 2.17 less miles per gallon than automatic cars. In addition, manual cars get 5.3 less miles per gallon for every additional 1000 lbs in weight. You can see this in the figure below. Note that the converse is true, and that manual cars gain 5.3 miles per gallon for every 1000 lbs less of car weight. As the slopes for the transmission types cross, at lower weights manual cars actually have better <span class="caps">MPG</span> than automatic&nbsp;cars.</p>
+<p><img src="/figure/interaction_model-1.png" title="plot of chunk interaction_model" alt="plot of chunk interaction_model" style="display: block; margin: auto;" /></p>
+<h2>Standard error and the confidence&nbsp;interval</h2>
+<p>The final part of interpreting regression coefficients is getting an estimate of their precision, which we will do using confidence intervals. We can shortcut the process of calculating these using R&#8217;s inbuilt <code>predict</code> function. The first step is create separate models for the automatic and manual&nbsp;transmissions.</p>
+<div class="highlight"><pre><span></span><span class="n">centred.model.auto</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="nf">I</span><span class="p">(</span><span class="n">wt</span> <span class="o">-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">wt</span><span class="p">)),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars[mtcars</span><span class="o">$</span><span class="n">am</span> <span class="o">==</span> <span class="m">0</span><span class="p">,</span> <span class="n">]</span><span class="p">)</span>
+<span class="n">centred.model.manual</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="nf">I</span><span class="p">(</span><span class="n">wt</span> <span class="o">-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">wt</span><span class="p">)),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars[mtcars</span><span class="o">$</span><span class="n">am</span> <span class="o">==</span> <span class="m">1</span><span class="p">,</span> <span class="n">]</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We&#8217;ll then construct new dataframes containing the values of weight we want to put a confidence interval around. Let&#8217;s again go with 2620 lbs, which incidently corresponds to a manual car in our dataset, the Mazda <span class="caps">RX4</span>, and 3570 lbs, which corresponds with the Duster 360, an automatic car in our dataset. I&#8217;ve picked a 95% confidence interval (which is also the default in the predict&nbsp;function).</p>
+<div class="highlight"><pre><span></span><span class="n">manual.car</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">wt</span> <span class="o">=</span> <span class="m">2.620</span><span class="p">)</span>
+<span class="n">auto.car</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">wt</span> <span class="o">=</span> <span class="m">3.570</span><span class="p">)</span>
+
+<span class="c1"># CI for mean</span>
+<span class="n">manual.ci</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">centred.model.manual</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">manual.car</span><span class="p">,</span> 
+                     <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;confidence&quot;</span><span class="p">),</span> <span class="n">level</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">)</span>
+<span class="n">auto.ci</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">centred.model.auto</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">auto.car</span><span class="p">,</span> 
+                   <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;confidence&quot;</span><span class="p">),</span> <span class="n">level</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">)</span>
+</pre></div>
+
+
+<p>For the manual car (the Mazda <span class="caps">RX4</span>), we can see that the predicted <span class="caps">MPG</span> is 22.49 and the 95% confidence interval is [20.76, 24.23]. The actual <span class="caps">MPG</span> of this car model is 21, which is within the confidence interval. Similarly, the predicted <span class="caps">MPG</span> for the automatic car (the Duster 360) is 17.9 and the 95% confidence interval is [16.64, 19.17]. However, the actual <span class="caps">MPG</span> for this model was 14.3, outside of the confidence interval, suggesting this is value for which the model is not a good&nbsp;fit.</p>
+<h2>A final note: using the model on existing versus new&nbsp;values</h2>
+<p>You can see above that when I used the model to predict <span class="caps">MPG</span>, it was only on values that were measured in the data. This is because when we want to use regression models to predict on new values, we have to use <strong>prediction intervals</strong> rather than confidence intervals. Prediction intervals are more conservative (wider) than confidence intervals to allow for the extra error that comes from using a value we haven&#8217;t measured. Prediction intervals are constructed using the same method as the confidence intervals above, but instead we pass &#8220;prediction&#8221; to the interval argument. Let&#8217;s say we want to predict the <span class="caps">MPG</span> for a car weighing 2000 lbs. Depending on whether the car is manual or automatic, the predicted value and prediction interval will be different, so we need to run it for&nbsp;both. </p>
+<div class="highlight"><pre><span></span><span class="n">new.cars</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">wt</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span>
+
+<span class="c1"># Prediction interval for new values</span>
+<span class="n">manual.predict.ci</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">centred.model.manual</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">new.cars</span><span class="p">,</span> 
+                             <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;prediction&quot;</span><span class="p">),</span> <span class="n">level</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">)</span>
+<span class="n">auto.predict.ci</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">centred.model.auto</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">new.cars</span><span class="p">,</span> 
+                           <span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;prediction&quot;</span><span class="p">),</span> <span class="n">level</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">)</span>
+</pre></div>
+
+
+<p>You can see the predicted <span class="caps">MPG</span> for the 2000 lb manual car is 28.13 [95% prediction interval: 21.89, 34.36], and 23.84 [95% prediction interval: 17.67, 30.02] for the automatic car. You can also see that these intervals are significantly wider than the confidence&nbsp;interval.</p>
+<p>A final note about both prediction and confidence intervals - they both become wider the further the value of interest is from the mean. This means that predicting outside of the range of measured values - always something that should be done with caution - will yield very wide prediction intervals compared to values within the observed range and close to the&nbsp;mean.</p>
+<p>Much of the points and code in this blog post are adapted from the excellent <a href="https://www.coursera.org/course/regmods">Regression Models</a> unit on Coursera by <a href="https://twitter.com/bcaffo">Brian Caffo</a>, <a href="https://twitter.com/jtleek">Jeff Leek</a> and <a href="https://twitter.com/rdpeng">Roger Peng</a>. This course gives a far more comprehensive coverage of this material and is highly&nbsp;recommended.</p>
+<p>Finally, the full code used to create the figures in this post is located in this <a href="https://gist.github.com/t-redactyl/00a4ff629bf06a989e29">gist on my Github page</a>.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

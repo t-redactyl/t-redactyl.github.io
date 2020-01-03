@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Getting rJava to work in OS X El Capitan: A non-technical guide</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Getting rJava to work in OS X El Capitan: A non-technical guide written December 16, 2015 in r,programming tips">
+  <meta name="keywords" content="R language, rJava, JDK 1.6" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/12/getting-rjava-to-work-in-os-x-el-capitan-a-non-technical-guide.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Getting rJava to work in OS X El Capitan: A non-technical guide</h1>
+        <div class="meta">
+          written <time datetime="2015-12-16T00:00:00+01:00">December 16, 2015</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>          </span>
+        </div>
+        <p>I recently needed to install the <code>XLConnect</code> package in R, which has the dependency <code>rJava</code>. Unfortunately rJava is one of <strong>those</strong> R packages which is a real pain to install and required a bit of fiddling. I&#8217;ll talk you through how I installed it in <span class="caps">OS</span> X El Capitan (for reference, I&#8217;m currently using version&nbsp;10.11.2).</p>
+<h2>First errors first:&nbsp;RStudio</h2>
+<p>I started by trying to install the <code>XLConnect</code> package in&nbsp;RStudio:</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;XLConnect&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>R threw the following&nbsp;error:</p>
+<div class="highlight"><pre><span></span><span class="n">ERROR</span><span class="o">:</span> <span class="n">dependency</span> <span class="err">‘</span><span class="n">rJava</span><span class="err">’</span> <span class="k">is</span> <span class="n">not</span> <span class="n">available</span> <span class="k">for</span> <span class="kd">package</span> <span class="err">‘</span><span class="n">XLConnect</span><span class="err">’</span>
+<span class="o">*</span> <span class="n">removing</span> <span class="err">‘</span><span class="sr">/usr/local/lib/R/3.2/site-library/</span><span class="n">XLConnect</span><span class="err">’</span>
+<span class="n">Warning</span> <span class="k">in</span> <span class="n">install</span><span class="o">.</span><span class="na">packages</span> <span class="o">:</span>
+    <span class="n">installation</span> <span class="n">of</span> <span class="kd">package</span> <span class="err">‘</span><span class="n">XLConnect</span><span class="err">’</span> <span class="n">had</span> <span class="n">non</span><span class="o">-</span><span class="n">zero</span> <span class="n">exit</span> <span class="n">status</span>
+</pre></div>
+
+
+<p>No problem! I thought. I&#8217;ll just manually install&nbsp;rJava:</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;rJava&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Unfortunately, this didn&#8217;t&nbsp;work.</p>
+<div class="highlight"><pre><span></span><span class="n">configure</span><span class="o">:</span> <span class="n">error</span><span class="o">:</span> <span class="n">One</span> <span class="n">or</span> <span class="n">more</span> <span class="n">JNI</span> <span class="n">types</span> <span class="n">differ</span> <span class="n">from</span> <span class="n">the</span> <span class="n">corresponding</span> <span class="kd">native</span> <span class="n">type</span><span class="o">.</span> <span class="n">You</span> <span class="n">may</span> <span class="n">need</span> <span class="n">to</span> <span class="n">use</span> <span class="n">non</span><span class="o">-</span><span class="n">standard</span> <span class="n">compiler</span> <span class="n">flags</span> <span class="n">or</span> <span class="n">a</span> <span class="n">different</span> <span class="n">compiler</span> <span class="k">in</span> <span class="n">order</span> <span class="n">to</span> <span class="n">fix</span> <span class="k">this</span><span class="o">.</span>
+<span class="n">ERROR</span><span class="o">:</span> <span class="n">configuration</span> <span class="n">failed</span> <span class="k">for</span> <span class="kd">package</span> <span class="err">‘</span><span class="n">rJava</span><span class="err">’</span>
+<span class="o">*</span> <span class="n">removing</span> <span class="err">‘</span><span class="sr">/usr/local/lib/R/3.2/site-library/</span><span class="n">rJava</span><span class="err">’</span>
+<span class="n">Warning</span> <span class="k">in</span> <span class="n">install</span><span class="o">.</span><span class="na">packages</span> <span class="o">:</span>
+    <span class="n">installation</span> <span class="n">of</span> <span class="kd">package</span> <span class="err">‘</span><span class="n">rJava</span><span class="err">’</span> <span class="n">had</span> <span class="n">non</span><span class="o">-</span><span class="n">zero</span> <span class="n">exit</span> <span class="n">status</span>
+</pre></div>
+
+
+<p>I&#8217;ll be the first to admit I am no software engineer, so I had no idea what this meant. Fortunately, my boyfriend <strong>is</strong> a software engineer, so I asked him what I should&nbsp;do.</p>
+<h2>Setting up the <span class="caps">JDK</span></h2>
+<p>He had a look at the <a href="https://cran.r-project.org/web/packages/rJava/rJava.pdf"><span class="caps">CRAN</span> documentation</a> for rJava and said, &#8220;Well, you need to install a <span class="caps">JDK</span>.&#8221; I went to Google, found the latest version of the <span class="caps">JDK</span> (or Java Development Kit) and installed it (at the time of this post, this was version 1.8). After installing it, I tried running <code>install.packages("rJava")</code> in R again. It still didn&#8217;t work. I went back to my boyfriend, and he told me I hadn&#8217;t set Java home to point at where my <span class="caps">JDK</span> was stored. Oh. He opened up my <a href="http://fishshell.com/">Fish</a> shell interpreter and set the Java home using the following&nbsp;code.</p>
+<div class="highlight"><pre><span></span>/usr/libexec/java_home -v <span class="m">1</span>.8.0
+<span class="nb">echo</span> <span class="nv">$JAVA_HOME</span>
+<span class="nb">set</span> JAVA_HOME <span class="o">(</span>/usr/libexec/java_home -v <span class="m">1</span>.8.0<span class="o">)</span>
+</pre></div>
+
+
+<p>If you are using bash, you can use the alternative&nbsp;code:</p>
+<div class="highlight"><pre><span></span>/usr/libexec/java_home -v <span class="m">1</span>.8.0
+<span class="nb">echo</span> <span class="nv">$JAVA_HOME</span>
+<span class="nb">export</span> <span class="nv">JAVA_HOME</span><span class="o">=</span><span class="sb">`</span>/usr/libexec/java_home -v <span class="m">1</span>.8.0<span class="sb">`</span>
+</pre></div>
+
+
+<p>As recommended by several StackOverflow posts (<a href="http://stackoverflow.com/questions/26755013/install-xlsx-and-rjava-on-mac">this</a>, for example), we then ran the following R command that reconfigures&nbsp;Java.</p>
+<div class="highlight"><pre><span></span>R CMD javareconf
+</pre></div>
+
+
+<p>I excitedly opened RStudio and ran <code>install.packages("rJava")</code> and &#8230; it still didn&#8217;t work! What the&nbsp;heck? </p>
+<h2>Setting up the <span class="caps">JDK</span>: second&nbsp;attempt</h2>
+<p>After a bit more rummaging, we found out that R only works with Java 1.6. Oh great. (This is despite the instructions in the <a href="https://cran.r-project.org/web/packages/rJava/rJava.pdf">rJava documentation</a> that indicates you can use any version from 1.2 upwards.) So I went back to Oracle&#8217;s site to download it, and it&#8217;s of course not there. We track it down on the <a href="https://support.apple.com/kb/dl1572?locale=en_US">Apple site</a>, install it, and tried to reset Java home to point to this&nbsp;version.</p>
+<div class="highlight"><pre><span></span>/usr/libexec/java_home -v <span class="m">1</span>.6.0
+<span class="nb">set</span> JAVA_HOME <span class="o">(</span>/usr/libexec/java_home -v <span class="m">1</span>.6.0<span class="o">)</span>
+/usr/libexec/java_home
+</pre></div>
+
+
+<p>It still wouldn&#8217;t change the path, so we found this <a href="http://stackoverflow.com/questions/21964709/how-to-set-or-change-the-default-java-jdk-version-on-os-x">handy little Fish function</a> on&nbsp;StackOverflow:</p>
+<div class="highlight"><pre><span></span><span class="k">function</span> jhome
+    <span class="nb">set</span> JAVA_HOME <span class="o">(</span>/usr/libexec/java_home <span class="nv">$argv</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;JAVA_HOME:&quot;</span> <span class="nv">$JAVA_HOME</span>
+    <span class="nb">echo</span> <span class="s2">&quot;java -version:&quot;</span>
+    java -version
+end
+</pre></div>
+
+
+<p>The <a href="http://stackoverflow.com/questions/21964709/how-to-set-or-change-the-default-java-jdk-version-on-os-x">same user</a> also provided an alternative script for&nbsp;bash:</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+jhome <span class="o">()</span> <span class="o">{</span>
+  <span class="nb">export</span> <span class="nv">JAVA_HOME</span><span class="o">=</span><span class="sb">`</span>/usr/libexec/java_home <span class="nv">$@</span><span class="sb">`</span>
+  <span class="nb">echo</span> <span class="s2">&quot;JAVA_HOME:&quot;</span> <span class="nv">$JAVA_HOME</span>
+  <span class="nb">echo</span> <span class="s2">&quot;java -version:&quot;</span>
+  java -version
+<span class="o">}</span>
+</pre></div>
+
+
+<p>You then execute the function as&nbsp;below:</p>
+<div class="highlight"><pre><span></span>jhome -v <span class="m">1</span>.6
+</pre></div>
+
+
+<h2>Success!</h2>
+<p>I went back to RStudio for the fourth time and&nbsp;ran:</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;rJava&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>And it finally worked! I was then able to smoothly install <code>XLConnect</code> and extract my Excel data.&nbsp;Whew!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

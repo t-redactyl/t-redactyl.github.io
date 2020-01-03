@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Applying sentiment analysis with VADER and the Twitter API</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="Applying sentiment analysis with VADER and the Twitter API written April 15, 2017 in python,programming tips,text mining">
+  <meta name="keywords" content="python, data science, text mining, machine learning" />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2017/04/applying-sentiment-analysis-with-vader-and-the-twitter-api.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Applying sentiment analysis with VADER and the Twitter API</h1>
+        <div class="meta">
+          written <time datetime="2017-04-15T00:00:00+02:00">April 15, 2017</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/text-mining.html">text mining</a>          </span>
+        </div>
+        <p>A few months ago, I posted a <a href="http://t-redactyl.github.io/blog/2017/01/how-do-we-feel-about-new-years-resolutions-according-to-sentiment-analysis.html">blog post</a> about a small project I did where I analysed how people felt about the New Year&#8217;s resolutions they post on Twitter. In this post, we&#8217;ll go through the under-the-hood details of how I carried out this analysis, as well as some of the issues I encountered that are pretty typical of a text mining&nbsp;project.</p>
+<p>If you&#8217;re interested in getting a bit more detail on the package I used to do the sentiment analysis, <span class="caps">VADER</span>, you can see this in <a href="http://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last week&#8217;s blog post</a>. If not, let&#8217;s jump straight into&nbsp;it!</p>
+<h2>Setting up your&nbsp;app</h2>
+<p>To do this analysis, I pulled data from <a href="https://dev.twitter.com/rest/public/search">Twitter&#8217;s public search <span class="caps">API</span></a>, which allows you to pull historical results from up to a week ago. To get started, you will need to create a Twitter account (if you don&#8217;t already have one), and then jump over to Twitter&#8217;s <a href="https://apps.twitter.com/">application management portal</a>. If you&#8217;ve never done this before, what we are doing here is creating a unique &#8216;identity&#8217; that will allow Twitter to work out who we are when we&#8217;re accessing their public <span class="caps">API</span>. This is a way for them to boot off users or apps that are using the <span class="caps">API</span> too heavily or doing dodgy stuff like spamming the&nbsp;site.</p>
+<p>Once in there, hit the &#8216;Create New App&#8217; button, and you&#8217;ll be prompted to enter a name, description and website for your app. It doesn&#8217;t really matter what you write in here - just make sure that the name is not so generic that you can distinguish one app from&nbsp;another.</p>
+<p><img src="/figure/Vader_3.png" title="Create your application" style="display: block; margin: auto;" /></p>
+<p>Once you&#8217;ve done that, you&#8217;ll want to jump into the &#8216;Keys and Access Tokens&#8217; tab. There are 4 bits of information we need to get from here so that our Python program can connect to the <span class="caps">API</span>. We need the consumer key and the consumer secret (circled at the top of the below screenshot), and also the access token and the access token secret (circled at the bottom). As you can see I have blurred mine out - you should take care to keep these secure and not do something like commit them to a public Github repo or anything (definitely not something I&#8217;ve done in the&nbsp;past&#8230;).</p>
+<p><img src="/figure/Vader_4.png" title="Get your keys" style="display: block; margin: auto;" /></p>
+<h2>Pulling down some&nbsp;data</h2>
+<p>Now that we have our keys, we can connect to the <span class="caps">API</span> and pull down some data. In order to do this, we first need to install and import the <code>tweepy</code> and <code>json</code> packages:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tweepy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+</pre></div>
+
+
+<p>Let&#8217;s now take those keys that we got from the app and use them to set up the connection to the <span class="caps">API</span>. As you can see below, we need to pass these keys to the authorisation handler and then get the <span class="caps">API</span> method from tweepy to use them. We also need to get tweepy to return the results as <span class="caps">JSON</span>.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Enter authorisations</span>
+<span class="n">consumer_key</span> <span class="o">=</span> <span class="s2">&quot;XXX&quot;</span>
+<span class="n">consumer_secret</span> <span class="o">=</span> <span class="s2">&quot;XXX&quot;</span>
+<span class="n">access_key</span> <span class="o">=</span> <span class="s2">&quot;XXX&quot;</span>
+<span class="n">access_secret</span> <span class="o">=</span> <span class="s2">&quot;XXX&quot;</span>
+
+<span class="c1"># Set up your authorisations</span>
+<span class="n">auth</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">OAuthHandler</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span>
+<span class="n">auth</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_key</span><span class="p">,</span> <span class="n">access_secret</span><span class="p">)</span>
+
+<span class="c1"># Set up API call</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">API</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">tweepy</span><span class="o">.</span><span class="n">parsers</span><span class="o">.</span><span class="n">JSONParser</span><span class="p">())</span>
+</pre></div>
+
+
+<p>Now that we&#8217;ve done that, let&#8217;s define our search. We need to restrict our search to the exact phrase &#8220;new year&#8217;s resolution&#8221;, and we also want to get rid of retweets (because they are essentially just duplicates in this dataset). The full list of possible ways to search are in the <a href="https://dev.twitter.com/rest/public/search">search <span class="caps">API</span> documentation</a>, and they are surprisingly flexible - in fact you can even search on sentiment in your&nbsp;query!</p>
+<div class="highlight"><pre><span></span><span class="c1"># Set search query</span>
+<span class="n">searchquery</span> <span class="o">=</span> <span class="s1">&#39;&quot;new years resolution&quot; -filter:retweets&#39;</span>
+</pre></div>
+
+
+<p>We can now make our call to the <span class="caps">API</span>. You can see here I&#8217;ve limited my search to both my specific query terms and also English-language results. I&#8217;m also limiting the search to 100 tweets, which is the maximum you can return in a single call (we&#8217;ll get to how we get some more volume&nbsp;soon).</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">searchquery</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">lang</span> <span class="o">=</span> <span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="n">result_type</span> <span class="o">=</span> <span class="s1">&#39;mixed&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Let&#8217;s have a look at these data, which are in <span class="caps">JSON</span> format. For those of you who haven&#8217;t worked with <span class="caps">JSON</span> before, in order to get our data out we just need to find how to reference it properly in the structure, which is a series of nested Python lists and dictionaries. (I&#8217;ve written in more detail on how to work your way through a <span class="caps">JSON</span> file <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">here</a>). In our case, all of the data about each tweet is contained in a dictionary. Each dictionary is contained in a list, and this list is contained at index 1 of an overarching list. Thus the below code returns the tweet text for tweet number 12 in our&nbsp;dataset:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">12</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">u&#39;my new years resolution is to be even more bitter than before&#39;</span>
+</pre></div>
+
+
+<h2>Getting some&nbsp;volume</h2>
+<p>Now that we&#8217;ve returned our first 100 tweets, we need to scale up to get enough tweets to actually analyse. In this case, I&#8217;ve arbitrarily decided on 20,000 tweets, but you can get as many as you like. In order to do this, we need to put our original <span class="caps">API</span> call into a loop. However, we need each loop to start after the final tweet returned by the previous call. To do this, we extract the <span class="caps">ID</span> of the last tweet from each call and add this to the <code>max_id</code> argument in the <code>api.search()</code> method.</p>
+<p>In order to make sure we&#8217;re not exceeding the number of <span class="caps">API</span> calls we can make, we can rate-limit our calls using the <code>sleep()</code> method from the time package. You can see I&#8217;ve put 5 seconds between&nbsp;calls.</p>
+<p>Finally, you can see I&#8217;ve stripped the results out of that outer list, and appended them to a list called data_all. We&#8217;ll use this list as the basis of our DataFrame in the next&nbsp;step.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">searchquery</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">lang</span> <span class="o">=</span> <span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="n">result_type</span> <span class="o">=</span> <span class="s1">&#39;mixed&#39;</span><span class="p">)</span>
+<span class="n">data_all</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_all</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">20000</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="n">data_all</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">searchquery</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">lang</span> <span class="o">=</span> <span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="n">result_type</span> <span class="o">=</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span> <span class="n">max_id</span> <span class="o">=</span> <span class="n">last</span><span class="p">)</span>
+    <span class="n">data_all</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+
+
+<h2>Putting it in a&nbsp;DataFrame</h2>
+<p>We now have a list of up to 20,000 dictionaries containing all of the metadata about each tweet (I say up to, as your particular query may not have enough matches from the past week). We now want to pull out specific information about each tweet, as well as generate our sentiment&nbsp;metrics.</p>
+<p>For my particular analysis, I used the tweet text and the number of favourites each tweet received, but feel free to play and explore the huge amount of metadata you get back about each tweet for your own purposes - it&#8217;s honestly a bit creepy how much data you can readily&nbsp;access!</p>
+<p>Another thing I am going to do at this step is to generate the sentiment scores for each tweet. As we saw in the <a href="http://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last post</a>, the <code>polarity_scores()</code> method from <span class="caps">VADER</span> generates all 4 of these for a piece of text. All we need to do is to run this method over each tweet, and select one sentiment metric at a time. This will be a bit clearer in the code&nbsp;below.</p>
+<p>The first thing we need to do is create separate lists for each piece of information we want to get from the <span class="caps">JSON</span> files. These will be the basis for columns in our&nbsp;DataFrame.</p>
+<div class="highlight"><pre><span></span><span class="n">tweet</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">number_favourites</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vs_compound</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vs_pos</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vs_neu</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vs_neg</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+
+
+<p>We now need to loop over every tweet, extract the relevant information, and append it to its specific list. You can see that for the sentiment metrics, we are taking that additional step mentioned above of passing the tweet text through the <code>polarity_scores()</code> method and keeping only, for example, the &#8216;compound&#8217; metric for the &#8216;compound&#8217;&nbsp;list.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">vaderSentiment.vaderSentiment</span> <span class="kn">import</span> <span class="n">SentimentIntensityAnalyzer</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">SentimentIntensityAnalyzer</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_all</span><span class="p">)):</span>
+    <span class="n">tweet</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
+    <span class="n">number_favourites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;favorite_count&#39;</span><span class="p">])</span>
+    <span class="n">vs_compound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">polarity_scores</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])[</span><span class="s1">&#39;compound&#39;</span><span class="p">])</span>
+    <span class="n">vs_pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">polarity_scores</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])[</span><span class="s1">&#39;pos&#39;</span><span class="p">])</span>
+    <span class="n">vs_neu</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">polarity_scores</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])[</span><span class="s1">&#39;neu&#39;</span><span class="p">])</span>
+    <span class="n">vs_neg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">polarity_scores</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">])[</span><span class="s1">&#39;neg&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Finally, we assign each list as a value in a dictionary, and make the key what we want the column to be called in our DataFrame. We pass this dictionary to the <code>pandas</code> DataFrame function, and then rearrange the columns to get our final, ready-to-use&nbsp;DataFrame!</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
+
+<span class="n">twitter_df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Tweet&#39;</span><span class="p">:</span> <span class="n">tweet</span><span class="p">,</span>
+                        <span class="s1">&#39;Favourites&#39;</span><span class="p">:</span> <span class="n">number_favourites</span><span class="p">,</span>
+                        <span class="s1">&#39;Compound&#39;</span><span class="p">:</span> <span class="n">vs_compound</span><span class="p">,</span>
+                        <span class="s1">&#39;Positive&#39;</span><span class="p">:</span> <span class="n">vs_pos</span><span class="p">,</span>
+                        <span class="s1">&#39;Neutral&#39;</span><span class="p">:</span> <span class="n">vs_neu</span><span class="p">,</span>
+                        <span class="s1">&#39;Negative&#39;</span><span class="p">:</span> <span class="n">vs_neg</span><span class="p">})</span>
+<span class="n">twitter_df</span> <span class="o">=</span> <span class="n">twitter_df</span><span class="p">[[</span><span class="s1">&#39;Tweet&#39;</span><span class="p">,</span> <span class="s1">&#39;Favourites&#39;</span><span class="p">,</span> <span class="s1">&#39;Compound&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;Positive&#39;</span><span class="p">,</span> <span class="s1">&#39;Neutral&#39;</span><span class="p">,</span> <span class="s1">&#39;Negative&#39;</span><span class="p">]]</span>
+
+<span class="c1"># Have a look at the top 5 results.</span>
+<span class="n">twitter_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Tweet</th>
+      <th>Favourites</th>
+      <th>Compound</th>
+      <th>Positive</th>
+      <th>Neutral</th>
+      <th>Negative</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>I&#8217;ve fulfilled my New Years resolution! @Maple&#8230;</td>
+      <td>89</td>
+      <td>0.4753</td>
+      <td>0.205</td>
+      <td>0.795</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>My New Years resolution was to travel and go o&#8230;</td>
+      <td>1</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>1.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>i stopped being petty a long time ago shit was&#8230;</td>
+      <td>0</td>
+      <td>0.2846</td>
+      <td>0.146</td>
+      <td>0.679</td>
+      <td>0.175</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Is it to late to make a New Years resolution?</td>
+      <td>1</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>1.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>time to restart my new years resolution #NoFuc&#8230;</td>
+      <td>0</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>1.000</td>
+      <td>0.000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Categorising our&nbsp;tweets</h2>
+<p>I decided to make this analysis a little more interesting by categorising the tweets into the type of resolution they represent. I based this on the, ahem, very scientific method of checking a Wikipedia article on the <a href="https://en.wikipedia.org/wiki/New_Year%27s_resolution#Popular_goals">most popular types of resolutions</a>, and came up with 6 categories from this: physical health, learning and career, mental wellbeing, finances, relationships and travel and holidays. To get tweets into these categories, I did the very quick-and-dirty approach of thinking of every word I could that was associated with those categories, and then used a regex to search for those terms in the tweet. I&#8217;ve put the code I used to identify physical health resolutions below as an example; however, in the interest of not cluttering up this post with reams of code, I&#8217;ve put the full code with all of the classifications in <a href="https://gist.github.com/t-redactyl/d6eea85dddf9d586dd47f35368a646b7">this gist</a>.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">twitter_df</span><span class="p">[</span><span class="s1">&#39;Physical Health&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">twitter_df</span><span class="p">[</span><span class="s1">&#39;Tweet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;(?:^|\W)(weight|fit|exercise|gym|muscle|health|water|smoking|alcohol|drinking|walk|run|swim)(?:$|\W)&#39;</span><span class="p">,</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Have a look at the matches for the physical health keywords.</span>
+<span class="n">twitter_df</span><span class="p">[</span><span class="n">twitter_df</span><span class="p">[</span><span class="s1">&#39;Physical Health&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Tweet</th>
+      <th>Favourites</th>
+      <th>Compound</th>
+      <th>Positive</th>
+      <th>Neutral</th>
+      <th>Negative</th>
+      <th>Physical Health</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7</th>
+      <td>My New Years resolution was to quit drinking s&#8230;</td>
+      <td>0</td>
+      <td>0.1384</td>
+      <td>0.11</td>
+      <td>0.802</td>
+      <td>0.088</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>My New Years resolution of going to gym hasnt &#8230;</td>
+      <td>1</td>
+      <td>0.0000</td>
+      <td>0.00</td>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Are you getting <span class="caps">PAID</span> to lose weight this New Y&#8230;</td>
+      <td>0</td>
+      <td>-0.4696</td>
+      <td>0.00</td>
+      <td>0.847</td>
+      <td>0.153</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Are you getting <span class="caps">PAID</span> to lose weight this New Y&#8230;</td>
+      <td>1</td>
+      <td>-0.4696</td>
+      <td>0.00</td>
+      <td>0.847</td>
+      <td>0.153</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>83</th>
+      <td>What is your new years resolution?? mine is le&#8230;</td>
+      <td>2</td>
+      <td>0.0000</td>
+      <td>0.00</td>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>In a continuation of this very blunt approach, tweets that fell into multiple categories were deleted. Using this approach, 5,125 of the 20,000 tweets were classified into one of the 6&nbsp;categories.</p>
+<p>As you can see, this is a very quick and dirty analysis and comes with a few limitations. I&#8217;ll discuss these at the end of this&nbsp;post.</p>
+<h2>Doing the&nbsp;analyses</h2>
+<p>In the original blog post, I answered three questions about the data: what are the most popular resolutions, how do people feel about their resolutions, and how do people’s friends feel about their resolutions? A full confession here - although I really like yhat&#8217;s <a href="http://ggplot.yhathq.com/">port</a> of <code>ggplot</code> to Python, it is still in development and didn&#8217;t quite produce the graphs I wanted for this analysis. As such, I jumped over to R to produce the graphs you can see in the original blog post. You can find the code for these in <a href="https://gist.github.com/t-redactyl/d45d800566c00b34aa6f849fb1e975af">this gist</a>, although there is no reason you can&#8217;t adapt this to fit within Python&#8217;s <code>ggplot</code> or <code>matplotlib</code>, or of course any of the dynamic graphing packages - just my personal&nbsp;preference!</p>
+<h2>Some issues with this&nbsp;analysis</h2>
+<p>As this was a pretty quick-and-dirty analysis, there were a number of issues I found that mean the conclusions I drew from the analysis are probably not entirely&nbsp;correct.</p>
+<h3>Tweets about other people&#8217;s&nbsp;resolutions</h3>
+<p>The first I found because I was wondering why the resolutions for physical health were so negatively-toned. Surely people can&#8217;t feel <strong>that</strong> bad about getting fit, right? Well, when I started looking at the raw tweets themselves, I found the expected tweets about starting a new fitness plan, which didn&#8217;t look very negative at all (this tweet, in fact, has a compound score of&nbsp;0):</p>
+<p><img src="/figure/Vader_5.png" title="Our expected gym resolution" style="display: block; margin: auto;" /></p>
+<p>However, then I started seeing all of these tweets where people were bitching about people making New Year&#8217;s resolutions about going to the&nbsp;gym:</p>
+<p><img src="/figure/Vader_6.png" title="Tweets about New Year's resolution gym-goers" style="display: block; margin: auto;" /></p>
+<p>Digging further, I then found tweets where people were angry at those people making fun of people going to the gym for their New Year&#8217;s&nbsp;resolutions!</p>
+<p><img src="/figure/Vader_7.png" title="Tweets about tweets about New Year's resolution gym-goers" style="display: block; margin: auto;" /></p>
+<p>Unsurprisingly, these latter two tweets were negatively-toned, and these tweets-about-resolutions may be a driver of the low overall sentiment score for physical health&nbsp;resolutions.</p>
+<h3>So many&nbsp;ads!</h3>
+<p>Twitter is also chock full of ads, and a lot of companies see New Year&#8217;s resolutions as a prime marketing opportunity (especially gyms and weight-loss programs). My search was pretty simple and picked up everything matching the exact phrase &#8216;New Year&#8217;s resolution&#8217;, and I estimate probably about one-third of the tweets in the dataset were ads. As most of these are likely to be neutrally-toned, they are adding unnecessary noise to the analysis. As cleaning up these and the tweets-about-resolutions is not straightforward, a bit of thought would need to be given to getting rid of this garbage in order to get the most out of these&nbsp;data.</p>
+<p><img src="/figure/Vader_8.png" title="Ads, ads, ads" style="display: block; margin: auto;" /></p>
+<h3>Misclassified&nbsp;resolutions</h3>
+<p>As I commented earlier, my approach to classifying the tweets into the types of resolutions was pretty blunt. One problem, of course, is that I&#8217;ve likely missed terms that are associated with the resolutions (and I probably have, given that I only categorised about a quarter of all of the tweets!). A bigger problem is that I&#8217;ve classified tweets that have nothing to do with the topic of interest. Take, for example, this tweet that fell into the physical health&nbsp;category:</p>
+<p><img src="/figure/Vader_9.png" title="Major misclassification!" style="display: block; margin: auto;" /></p>
+<p>Obviously this is kind of the opposite of what we&#8217;re trying to capture. A more sophisticated classification approach, such as <a href="https://en.wikipedia.org/wiki/Topic_model">topic modelling</a>, could be tried out to see if we can do a better&nbsp;job.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>

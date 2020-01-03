@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A crash course in reproducible research in R</title>
+  <meta name="author" content="Jodie Burchell">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="A crash course in reproducible research in R written October 14, 2016 in r,programming tips">
+  <meta name="keywords" content="rlanguage," />
+
+  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/10/a-crash-course-in-reproducible-research-in-r.html">
+
+  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+
+  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
+
+  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A crash course in reproducible research in R</h1>
+        <div class="meta">
+          written <time datetime="2016-10-14T00:00:00+02:00">October 14, 2016</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/r.html">r</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>          </span>
+        </div>
+        <p><a href="http://t-redactyl.github.io/blog/2016/10/a-crash-course-in-reproducible-research-in-python.html">A couple of weeks ago</a>, I wrote a post giving you an introduction to <a href="https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research">reproducible research</a> in Python. While the principles of reproducibility stay the same no matter the language you are using, there are some specific libraries and tools that R has that differ from Python. In this blog post, I&#8217;ll fill you in on how I conduct a reproducible analysis in R and, like with Python, you&#8217;ll see how straightforward it&nbsp;is!</p>
+<h2>Recap: What is reproducible&nbsp;research?</h2>
+<p>In the last post, I discussed that I think of an analysis as reproducible if you or another researcher can pick it up and continue to work on it with confidence that you fully understand the past work. In order for this to be possible, I think that you need to be able to answer 5 questions about your research:<br>
+1. What did I do?<br>
+2. Why did I do it?<br>
+3. How did I set up everything at the time of the analysis?<br>
+4. When did I make changes, and what were they?<br>
+5. Who needs to access it, and how can I get it to&nbsp;them?   </p>
+<p>As I explained in the last post, I use <a href="https://git-scm.com/">Git</a> and <a href="https://github.com/">Github</a> (or insert your favourite version control and code-sharing tooling here) to track my changes and share my projects with collaborators, so we won&#8217;t revisit them in this post. However, R has some specific tools for points 1 to 3, so we&#8217;ll go over these in the rest of this&nbsp;post.</p>
+<h2>What did I&nbsp;do?</h2>
+<p>As I spoke about in the last post, one of the biggest issues you will face with remembering what you did in your analysis is if you do things manually. As with Python, R has some great functionality for downloading data from online sources and cleaning up those data once you&#8217;ve imported&nbsp;them.</p>
+<p>It&#8217;s straightforward to access structured data from online sources and import them into R as data.frames. Below, I&#8217;ve created a function to download the .csv file containing the life expectancy data that I talked about in the last post. As you can see, you only need to use a couple of commands (the <code>getURL</code> and <code>textConnection</code> commands from the RCurl package). As well as being easy, it is completely&nbsp;reproducible!</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;RCurl&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">RCurl</span><span class="p">)</span>
+
+<span class="n">dataImport</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">dataurl</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">url</span> <span class="o">&lt;-</span> <span class="n">dataurl</span>
+  <span class="n">dl</span> <span class="o">&lt;-</span> <span class="nf">getURL</span><span class="p">(</span><span class="n">dataurl</span><span class="p">,</span> <span class="n">ssl.verifyhost</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span> <span class="n">ssl.verifypeer</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+  <span class="nf">read.csv</span><span class="p">(</span><span class="nf">textConnection</span><span class="p">(</span><span class="n">dl</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="bp">T</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">life</span> <span class="o">&lt;-</span> <span class="nf">dataImport</span><span class="p">(</span><span class="s">&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>R also has great functionality for cleaning up datasets. Below, you can see I was able to create a short function using only commands from base R to select the appropriate subset of columns and rows in our newly imported dataset, as well as rename the remaining&nbsp;columns.</p>
+<div class="highlight"><pre><span></span><span class="n">cleaningData</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">startrow</span><span class="p">,</span> <span class="n">columnyear</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">colsToKeep</span><span class="p">,</span> <span class="n">columnNames</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">df</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="nf">[c</span><span class="p">(</span><span class="n">startrow</span><span class="o">:</span><span class="nf">nrow</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">data[[columnyear]]</span> <span class="o">==</span> <span class="n">year</span><span class="p">,</span> <span class="n">]</span>
+  <span class="n">df</span> <span class="o">&lt;-</span> <span class="n">df[</span> <span class="p">,</span> <span class="n">colsToKeep]</span>
+  <span class="nf">names</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="n">columnNames</span>
+  <span class="n">df</span>
+<span class="p">}</span>
+
+<span class="n">life</span> <span class="o">&lt;-</span> <span class="nf">cleaningData</span><span class="p">(</span><span class="n">life</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="s">&quot;X.1&quot;</span><span class="p">,</span> <span class="s">&quot; 2015&quot;</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;X&quot;</span><span class="p">,</span> <span class="s">&quot;X.1&quot;</span><span class="p">,</span> <span class="s">&quot;Life.expectancy.at.birth..years.&quot;</span><span class="p">),</span>
+                      <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Country&quot;</span><span class="p">,</span> <span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="s">&quot;LifeExpectancy&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<h2>Why did I do&nbsp;it?</h2>
+<p>Like Python, R has its own tooling for literate statistical programming called <a href="http://rmarkdown.RStudio.com/">R Markdown</a>. Just like with Juypter notebooks, you can write chunks of markdown text alongside R code, meaning you can create easy-to-read, meaningful annotations for your analysis. You can also include results, tables and charts, allowing you to create reports and other documents from one self-contained R Markdown script. In fact, <a href="https://twitter.com/pachamaltese">Mauricio</a> and I wrote <a href="https://leanpub.com/hitchhikers_ggplot2">our book</a> on graphing in ggplot2 entirely using R&nbsp;Markdown!</p>
+<h3>How do I set up an R Markdown&nbsp;document?</h3>
+<p>R Markdown documents can be created within RStudio (like much of the best R functionality!). To open a new R Markdown document, simply choose &#8216;R Markdown&#8217; as the type when creating a new file. You&#8217;ll be asked to give your R Markdown document a title; I&#8217;ve called this one &#8216;R Markdown example&#8217;. Then click &#8216;<span class="caps">OK</span>&#8217; to initialise the new&nbsp;document.</p>
+<p><img src="/figure/rmarkdown_setup.png" title="Setting up an Rmd file" style="display: block; margin: auto;" /></p>
+<p>R Markdown documents automatically start with a template. As you can see, there are two types of code within an R Markdown document. Code is placed within chunks, which are delimited by backticks and <code>{r}</code>. There are <a href="http://rmarkdown.RStudio.com/authoring_rcodechunks.html">many options</a> available that allow you to customise how the code is presented and run within the chunks, but the default is that they will simply run whatever R code is inside them. Outside of the chunks, any text written is recognised as markdown. To run an R Markdown document,  press the &#8216;Knit <span class="caps">HTML</span>&#8217; button at the top of the document. This renders the markdown and executes the R code, and spits it out in an <span class="caps">HTML</span>&nbsp;document.</p>
+<p><img src="/figure/rmarkdown_example_1.png" title="The default Rmd example file" style="display: block; margin: auto;" /></p>
+<p>You can export R Markdown documents in a variety of formats, which you can control by using the <code>knit</code> function within the <a href="https://cran.r-project.org/web/packages/knitr/knitr.pdf">knitr</a> package. To do this, we feed in our R Markdown file as the input, and specify the name of your rendered file and the desired format as the output. Here, I&#8217;m rendering our example document as a regular markdown&nbsp;file:</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;knitr&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">knitr</span><span class="p">)</span>
+
+<span class="nf">knit</span><span class="p">(</span><span class="s">&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.Rmd&quot;</span><span class="p">,</span> 
+     <span class="n">output</span> <span class="o">=</span> <span class="s">&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.md&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>And it&#8217;s really that simple! You can see how easily you can integrate literate statistical programming into your usual RStudio&nbsp;workflow. </p>
+<h2>How did I set it&nbsp;up?</h2>
+<p>Like with Python, your scripts in R can fail because you are using the wrong version of a library, or because two different libraries that you have installed globally don&#8217;t play nicely together. R has a similar solution to Python&#8217;s virtualenvs called <a href="https://RStudio.github.io/packrat/">packrat</a> which allows you to keep track of your analyses&#8217;&nbsp;dependencies.</p>
+<p>Packrat is an R library that allows you to create a special kind of directory that works in a very similar manner to a virtualenv. While you are within the packrat directory, any libraries you install are <strong>isolated</strong>: these libraries are only available to your specific project, and your project cannot access any libraries installed outside of it. Packrat folders are able to keep track of your dependencies due to the presence of a <strong>lock file</strong>, which simply keeps track of what libraries you installed and their versions (much like the frozen requirements file in&nbsp;virtualenvs).</p>
+<h3>How do I set up a packrat&nbsp;file?</h3>
+<p>I&#8217;ll run through how to set up a packrat directory as part on an RStudio project, but <a href="https://RStudio.github.io/packrat/walkthrough.html">there</a> is also a great tutorial by RStudio on how to do so independent of a&nbsp;project.</p>
+<p>The first step is to globally install packrat on your&nbsp;machine.</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;packrat&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Once you&#8217;ve done that, restart RStudio. This should be the only time you need to do this. Once you&#8217;re back in RStudio, create a new RStudio project in a new directory (instructions on how to do this <a href="https://support.RStudio.com/hc/en-us/articles/200526207-Using-Projects">here</a>). At this point, you&#8217;ll be asked to name your new project, and most importantly, indicate whether you want to make it a packrat project. As you can see below, it is as simple as ticking a box to initialise your packrat&nbsp;directory!</p>
+<p><img src="/figure/packrat_setup_1.png" title="Setting up a packrat project" alt="Look, it's easy!" #style="display: block; margin: auto;" /></p>
+<p>Once we&#8217;ve created our new RStudio project with packrat, you can see we have a new folder in our directory called &#8216;packrat&#8217;. Among other things, this is where your lock file lives that keeps track of all of the packages you&nbsp;install.</p>
+<p><img src="/figure/packrat_setup_2.png" title="Your new packrat project" alt="Check out the new packrat folder!" style="display: block; margin: auto;" /></p>
+<p>Installing libraries is super simple - while we are in our project we can use the regular <code>install.packages</code> command, and it will keep the installation limited to this specific project. Let&#8217;s install&nbsp;ggplot2.</p>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;ggplot2&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If you&#8217;re following along, you can see that even if you have ggplot2 system installed, R ignores this and does a clean installation. This is because it cannot access your globally-installed version of ggplot2 and needs to install it from&nbsp;scratch.</p>
+<p>RStudio projects with packrat are set up with automatic snapshots, meaning that packrat keeps track of any changes you make to your project dependencies without you needing to explicitly snapshot them&nbsp;yourself.</p>
+<p>Finally, sharing, or coming back to your own packrat project on a different machine is really easy. RStudio does pretty much all of the heavy lifting, so all you need to do is install the project directory on the new machine and open the project in RStudio. All of the project dependencies will be automatically installed, leaving you ready to pick up the project and go from where you left&nbsp;off. </p>
+<p>In my mind, the simplest way to share your RStudio project directory is by pushing it to a remote repo on something like Github, and cloning it to your machine when you next need to work on it. As discussed in the previous post, this also has the additional advantage of allowing you to keep track of changes to your&nbsp;project. </p>
+<p>I hope this tutorial has shown you how few changes you need to make to your usual analysis workflow in R in order to ensure your work is reproducible. Implementing these steps will mean you and others will be happily building on your projects for years to&nbsp;come!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
+
+              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
+
+
+            </div>
+          </div>
+          <div class="pull-right">
+            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+         jax: ["input/TeX", "output/HTML-CSS"],
+         tex2jax: {
+           inlineMath: [ ['$', '$'] ],
+           displayMath: [ ['$$', '$$']],
+           processEscapes: true,
+           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+         },
+         messageStyle: "none",
+         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+        });
+    </script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  </body>
+</html>
