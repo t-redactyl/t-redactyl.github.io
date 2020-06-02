@@ -1,35 +1,70 @@
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
 <!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Creating plots in R using ggplot2 - part 11: linear regression plots</title>
-  <meta name="author" content="Jodie Burchell">
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Creating plots in R using ggplot2 - part 11: linear regression plots</title>
+    <meta name="author" content="Jodie Burchell" />
 
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="description" content="Creating plots in R using ggplot2 - part 11: linear regression plots written May 11, 2016 in r,ggplot2,r graphing tutorials">
   <meta name="keywords" content="rlanguage, ggplot2, data visualisation" />
 
-  <link rel="canonical" href="http://t-redactyl.github.io/blog/2016/05/creating-plots-in-r-using-ggplot2-part-11-linear-regression-plots.html">
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2016/05/creating-plots-in-r-using-ggplot2-part-11-linear-regression-plots.html"
+    />
 
-  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
-  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
-
-  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-</head>
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -45,7 +80,7 @@
 <p><a href="https://twitter.com/pachamaltese">Mauricio</a> and <a href="https://twitter.com/t_redactyl">I</a> have also published these graphing posts as a <a href="https://leanpub.com/hitchhikers_ggplot2">book on Leanpub</a>. We tend to put any changes or updates to the code in the book before these blog posts, so please check it out if you have any issues with the code examples in this post; otherwise feel free to contact us with any&nbsp;questions!</p>
 <p>This post will be much more than showing you how to create regression plots. Here we are extracting, cleaning and processing financial data from <a href="https://www.quandl.com/">Quandl</a>.</p>
 <p>Before going ahead, we strongly suggest to create a <a href="https://www.quandl.com/">Quandl</a> account in order to obtain an <a href="https://www.quandl.com/account/api"><span class="caps">API</span> key</a> that allows you to download data without restrictions. It is even possible to log into Quandl using Github or Linkedin accounts. Quandl&#8217;s website has complete instruction and they have an <span class="caps">API</span> that is 100% R&nbsp;compatible.</p>
-<p>The goal is to estimate the <span class="caps">CAPM</span> model $R_i = R_f + \beta_i [R_m - R_f] + e_i$ where $R_i$ is the return of an asset, $R_f$ is the risk-free return (e.g. <span class="caps">US</span> Treasury Bonds), $R_m$ is the return of the market portfolio (e.g. <span class="caps">NYSE</span>) and $\beta_i$ is  a measure of risk relative to the market (e.g. $\beta_i = 1$ means that asset is exactly as risky as the market portfolio). More on the <span class="caps">CAPM</span> model can be read <a href="http://people.stern.nyu.edu/ashapiro/courses/B01.231103/FFL09.pdf">here</a>, but in this tutorial we will focus on&nbsp;plotting.</p>
+<p>The goal is to estimate the <span class="caps">CAPM</span> model <span class="math">\(R_i = R_f + \beta_i [R_m - R_f] + e_i\)</span> where <span class="math">\(R_i\)</span> is the return of an asset, <span class="math">\(R_f\)</span> is the risk-free return (e.g. <span class="caps">US</span> Treasury Bonds), <span class="math">\(R_m\)</span> is the return of the market portfolio (e.g. <span class="caps">NYSE</span>) and <span class="math">\(\beta_i\)</span> is  a measure of risk relative to the market (e.g. <span class="math">\(\beta_i = 1\)</span> means that asset is exactly as risky as the market portfolio). More on the <span class="caps">CAPM</span> model can be read <a href="http://people.stern.nyu.edu/ashapiro/courses/B01.231103/FFL09.pdf">here</a>, but in this tutorial we will focus on&nbsp;plotting.</p>
 <p>In this tutorial, we will work towards creating the trend line and diagnostics plots below. We will take you from a basic regression plot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/lr_final-1.png" title="plot of chunk lr_final" alt="plot of chunk lr_final" style="display: block; margin: auto;" /><img src="/figure/lr_final-2.png" title="plot of chunk lr_final" alt="plot of chunk lr_final" style="display: block; margin: auto;" /></p>
 <p>The first thing to do is download and load in the data of the monthly price of Hang Seng Index and Cheung Kong Holdings Hong Kong from 2015-03-01 to&nbsp;2016-04-01.</p>
@@ -63,7 +98,7 @@
 </pre></div>
 
 
-<p>Before calculating return as $R_i = \displaystyle \frac{P_t - P_{t-1}}{P_t}$ we need to order <span class="caps">HSI</span> and <span class="caps">CKH</span> data by dates and in decreasing&nbsp;order.</p>
+<p>Before calculating return as <span class="math">\(R_i = \displaystyle \frac{P_t - P_{t-1}}{P_t}\)</span> we need to order <span class="caps">HSI</span> and <span class="caps">CKH</span> data by dates and in decreasing&nbsp;order.</p>
 <div class="highlight"><pre><span></span><span class="n">hsi.df</span> <span class="o">&lt;-</span> <span class="nf">readRDS</span><span class="p">(</span><span class="s">&quot;hsi.rds&quot;</span><span class="p">)</span>
 <span class="nf">colnames</span><span class="p">(</span><span class="n">hsi.df</span><span class="p">)</span><span class="n">[7]</span> <span class="o">&lt;-</span> <span class="s">&quot;Adjusted.Close&quot;</span>
 <span class="n">hsi.df</span> <span class="o">&lt;-</span> <span class="n">hsi.df</span><span class="nf">[order</span><span class="p">(</span><span class="nf">as.Date</span><span class="p">(</span><span class="n">hsi.df</span><span class="o">$</span><span class="n">Date</span><span class="p">)),</span><span class="n">]</span>
@@ -105,7 +140,7 @@
 
 <h2>Trend line&nbsp;plot</h2>
 <h3>Basic trend line&nbsp;plot</h3>
-<p>Now we can fit a linear regression. One interesting thing is that in <span class="caps">CAPM</span> context the regression line slope can be calculated as $\beta_i = \displaystyle&nbsp;\frac{\sigma_{i,m}}{\sigma_m^2}$.</p>
+<p>Now we can fit a linear regression. One interesting thing is that in <span class="caps">CAPM</span> context the regression line slope can be calculated as <span class="math">\(\beta_i = \displaystyle \frac{\sigma_{i,m}}{\sigma_m^2}\)</span>.</p>
 <div class="highlight"><pre><span></span><span class="n">hsi.ckh.returns</span><span class="o">$</span><span class="n">hsi.Risk.free</span> <span class="o">&lt;-</span> <span class="n">usa.risk.free</span> <span class="o">+</span> <span class="n">hsi.risk.premium</span>
 <span class="n">hsi.ckh.returns</span><span class="o">$</span><span class="n">hsi.Risk.premium</span> <span class="o">&lt;-</span> <span class="n">hsi.ckh.returns</span><span class="o">$</span><span class="n">hsi.Return</span> <span class="o">-</span> <span class="n">hsi.ckh.returns</span><span class="o">$</span><span class="n">hsi.Risk.free</span>
 <span class="n">hsi.Return.vector</span> <span class="o">&lt;-</span> <span class="nf">as.vector</span><span class="p">(</span><span class="n">hsi.ckh.returns</span><span class="o">$</span><span class="n">hsi.Return</span><span class="p">)</span>
@@ -172,7 +207,7 @@
 
 <p><img src="/figure/lr_9-1.png" title="plot of chunk lr_9" alt="plot of chunk lr_9" style="display: block; margin: auto;" /></p>
 <h3>Including regression&nbsp;coefficients</h3>
-<p>We can also include more information about the regression line itself. It would be interesting to show $R^2$ and regression coefficients within the&nbsp;plot.</p>
+<p>We can also include more information about the regression line itself. It would be interesting to show <span class="math">\(R^2\)</span> and regression coefficients within the&nbsp;plot.</p>
 <div class="highlight"><pre><span></span><span class="n">p11</span> <span class="o">&lt;-</span> <span class="n">p11</span> <span class="o">+</span> <span class="nf">annotate</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="m">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="m">-0.05</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;R^2=0.78&quot;</span><span class="p">)</span> <span class="o">+</span>
       <span class="nf">annotate</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="m">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="m">-0.06</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;alpha=0.00&quot;</span><span class="p">)</span> <span class="o">+</span>
       <span class="nf">annotate</span><span class="p">(</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="m">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="m">-0.07</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&quot;beta=0.67&quot;</span><span class="p">)</span>
@@ -413,34 +448,37 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
 
           <div class="col-md-2">
             <div class="social-icon-list">
-              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
-
-              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
-
-
-            </div>
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
           </div>
           <div class="pull-right">
-            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
           </div>
         </div>
       </div>
     </footer>
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-         jax: ["input/TeX", "output/HTML-CSS"],
-         tex2jax: {
-           inlineMath: [ ['$', '$'] ],
-           displayMath: [ ['$$', '$$']],
-           processEscapes: true,
-           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-         },
-         messageStyle: "none",
-         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
-        });
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
     </script>
-    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
-<script>
+
+ <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -449,5 +487,5 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
   ga('create', 'UA-66946155-1', 'auto');
   ga('send', 'pageview');
 
-</script>  </body>
+</script>    </body>
 </html>

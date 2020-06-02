@@ -1,35 +1,70 @@
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
 <!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Two-group hypothesis testing: independent samples t-tests</title>
-  <meta name="author" content="Jodie Burchell">
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Two-group hypothesis testing: independent samples t-tests</title>
+    <meta name="author" content="Jodie Burchell" />
 
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="description" content="Two-group hypothesis testing: independent samples t-tests written September 30, 2015 in statistics,r,data simulations,hypothesis testing">
   <meta name="keywords" content="rlanguage, t test, simulations, data science, hypothesis testing, a/b testing" />
 
-  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/09/two-group-hypothesis-testing-independent-samples-t-tests.html">
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2015/09/two-group-hypothesis-testing-independent-samples-t-tests.html"
+    />
 
-  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
-  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
-
-  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-</head>
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -52,14 +87,14 @@
 <h2>Defining your&nbsp;question</h2>
 <p>The first, and most important step to any analysis is working out <strong>what you are asking</strong> and <strong>how you will measure it</strong>. A reasonable way to assess whether the advertising campaigns are equally effective or not could be to take all site visits that originate from each of the campaigns and see how much money the company makes from these visits (i.e., the amount of toys the customers who visit buy). A way we could then test if the amount generated differs is to take the mean amount of money made from each campaign and statistically test whether these means are&nbsp;different.</p>
 <h2>Defining your&nbsp;hypotheses</h2>
-<p>The next step is defining hypotheses so we can test these questions statistically. When you define hypotheses, you are trying to compare two possible outcomes. The first is the <a href="https://en.wikipedia.org/wiki/Null_hypothesis"><strong>null hypothesis</strong></a> ($H_0$), which represents the &#8220;status quo&#8221; and is assumed to be correct until statistical evidence is presented that allows us to reject it. In this case, the null hypothesis is that there is no difference between the mean amount of income generated by each campaign. If we assign $\mu_1$ to be the mean of the first population, and $\mu_2$ to be the mean of the second population, these hypotheses can be stated&nbsp;as:</p>
-<p>$$H_0 : \mu_1 =&nbsp;\mu_2$$</p>
+<p>The next step is defining hypotheses so we can test these questions statistically. When you define hypotheses, you are trying to compare two possible outcomes. The first is the <a href="https://en.wikipedia.org/wiki/Null_hypothesis"><strong>null hypothesis</strong></a> (<span class="math">\(H_0\)</span>), which represents the &#8220;status quo&#8221; and is assumed to be correct until statistical evidence is presented that allows us to reject it. In this case, the null hypothesis is that there is no difference between the mean amount of income generated by each campaign. If we assign <span class="math">\(\mu_1\)</span> to be the mean of the first population, and <span class="math">\(\mu_2\)</span> to be the mean of the second population, these hypotheses can be stated&nbsp;as:</p>
+<div class="math">$$H_0 : \mu_1 = \mu_2$$</div>
 <p><center>or</center></p>
-<p>$$H_0 : \mu_1 - \mu_2 =&nbsp;0$$</p>
-<p>The <a href="https://en.wikipedia.org/wiki/Alternative_hypothesis"><strong>alternative hypothesis</strong></a> ($H_a$) is that there is a difference between the mean level of income generated by each campaign. More formally, the alternative hypothesis&nbsp;is:</p>
-<p>$$H_a : \mu_1 \neq&nbsp;\mu_2$$</p>
+<div class="math">$$H_0 : \mu_1 - \mu_2 = 0$$</div>
+<p>The <a href="https://en.wikipedia.org/wiki/Alternative_hypothesis"><strong>alternative hypothesis</strong></a> (<span class="math">\(H_a\)</span>) is that there is a difference between the mean level of income generated by each campaign. More formally, the alternative hypothesis&nbsp;is:</p>
+<div class="math">$$H_a : \mu_1 \neq \mu_2$$</div>
 <p><center>or</center></p>
-<p>$$H_a : \mu_1 - \mu_2 \neq&nbsp;0$$</p>
+<div class="math">$$H_a : \mu_1 - \mu_2 \neq 0$$</div>
 <p>In other words, we are trying to test whether the difference in the mean levels of income generated by each campaign is sufficiently different from 0 to be&nbsp;meaningful.</p>
 <h2>Picking the most appropriate&nbsp;distribution</h2>
 <p>The most appropriate distribution for our test depends on what we <em>assume the population distribution is</em>. As the next step in our study of which campaign is correct, we take <a href="({filename}2015-09-15-representative-sampling.md)"><strong>representative samples</strong></a> of site visits originating from each campaign and record how much was purchased (simulated&nbsp;below):</p>
@@ -70,15 +105,15 @@
 
 
 <p><img alt="plot of chunk advertising_sample_plots" src="/figure/advertising_sample_plots-1.png"> </p>
-<p>When we look at the data, it appears close enough to normal. However, our sample is a bit small (40 per campaign), so we should be a bit cautious about using the normal (Z) distribution. Instead, we&#8217;ll use a t-distribution, which performs better with &#8220;normally-shaped&#8221; data that have small sample sizes. According to our samples, the first advertising campaign generated a mean of \$296.42 per visit with a standard deviation of \$65.9, and the second campaign generated a mean of \$267.11 per visit with a standard deviation of&nbsp;\$43.53.</p>
+<p>When we look at the data, it appears close enough to normal. However, our sample is a bit small (40 per campaign), so we should be a bit cautious about using the normal (Z) distribution. Instead, we&#8217;ll use a t-distribution, which performs better with &#8220;normally-shaped&#8221; data that have small sample sizes. According to our samples, the first advertising campaign generated a mean of \<span class="math">\(296.42 per visit with a standard deviation of \\)</span>65.9, and the second campaign generated a mean of \<span class="math">\(267.11 per visit with a standard deviation of \\)</span>43.53.</p>
 <p>(<strong>Technical aside:</strong> The reason that the t-distribution performs better than the normal distribution with small samples is because we use the sample standard deviation in our calculation of both the t- and Z-distributions, rather than the true population standard deviation. At large samples, the sample standard deviation is expected to be a very close approximation to the population standard deviation; however, this is not the case in smaller samples. As such, using a Z-distribution for small samples leads to an underestimation of the standard error of the mean and consequently, confidence intervals. Incidently, this also means that as you collect more and more data, the t-distribution behaves more and more like the Z-distribution, meaning that it is a safe bet to use the t-distribution if you are not sure if your sample is big&nbsp;&#8220;enough&#8221;.)</p>
 <h2>Computing your test&nbsp;statistic</h2>
-<p>The next step is to get some measure of whether these values are different (the <a href="https://en.wikipedia.org/wiki/Test_statistic"><strong>test statistic</strong></a>). When talking about hypothesis tests, I pointed out that the null hypothesis can be reframed as $\mu_1 - \mu_2 = 0$, and the alternative hypothesis as $\mu_1 - \mu_2 \neq 0$. As such, we can test our hypotheses by taking the difference of our two campaigns as the <strong>difference between the two means</strong>.</p>
+<p>The next step is to get some measure of whether these values are different (the <a href="https://en.wikipedia.org/wiki/Test_statistic"><strong>test statistic</strong></a>). When talking about hypothesis tests, I pointed out that the null hypothesis can be reframed as <span class="math">\(\mu_1 - \mu_2 = 0\)</span>, and the alternative hypothesis as <span class="math">\(\mu_1 - \mu_2 \neq 0\)</span>. As such, we can test our hypotheses by taking the difference of our two campaigns as the <strong>difference between the two means</strong>.</p>
 <div class="highlight"><pre><span></span><span class="n">diff.means</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">campaign.1</span><span class="p">)</span> <span class="o">-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">campaign.2</span><span class="p">)</span>
 </pre></div>
 
 
-<p>This gives us a difference between the campaigns of \$29.31 per visit. In order to test whether this difference is statistically meaningful, we need to convert it into the same units as our test distribution (more on this below) by standardising it. To standardise the mean difference, we subtract the value of the mean difference under the null hypothesis (which is 0) from $\mu_1 - \mu_2$, and then divide it by the pooled standard error. This standardised mean difference is the <a href="https://en.wikipedia.org/wiki/T-statistic"><strong>t-value.</strong></a> (Of course, we don&#8217;t have the true population value of the means and standard deviations, so we use the sample estimates&nbsp;instead.)</p>
+<p>This gives us a difference between the campaigns of \<span class="math">\(29.31 per visit. In order to test whether this difference is statistically meaningful, we need to convert it into the same units as our test distribution (more on this below) by standardising it. To standardise the mean difference, we subtract the value of the mean difference under the null hypothesis (which is 0) from $\mu_1 - \mu_2\)</span>, and then divide it by the pooled standard error. This standardised mean difference is the <a href="https://en.wikipedia.org/wiki/T-statistic"><strong>t-value.</strong></a> (Of course, we don&#8217;t have the true population value of the means and standard deviations, so we use the sample estimates&nbsp;instead.)</p>
 <div class="highlight"><pre><span></span><span class="c1"># First calculate the pooled standard deviation (assuming equal variances, with equal sample sizes)</span>
 <span class="n">sp</span> <span class="o">&lt;-</span> <span class="nf">sqrt</span><span class="p">((</span><span class="nf">sd</span><span class="p">(</span><span class="n">campaign.1</span><span class="p">)</span><span class="n">^2</span> <span class="o">+</span> <span class="nf">sd</span><span class="p">(</span><span class="n">campaign.2</span><span class="p">)</span><span class="n">^2</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="p">)</span>
 
@@ -94,7 +129,7 @@
 <h2>Rejecting or accepting the null&nbsp;hypothesis</h2>
 <p>The final step is working out whether our means are &#8220;different enough&#8221; is to define a <strong>rejection region</strong> around our mean of 0 (no difference). If our t-value falls within the rejection region, we can call our results statistically&nbsp;significant.</p>
 <p>In order to define our rejection region, we need to first decide on our <a href="https://en.wikipedia.org/wiki/Statistical_significance"><strong>significance level</strong></a>. The significance level represents the probability of <a href="https://en.wikipedia.org/wiki/Type_I_and_type_II_errors"><strong>Type I error</strong></a> we are willing to tolerate in our study, or the probability that we reject the null hypothesis when it is actually true. The &#8220;benchmark&#8221; significance level is 0.05, or a 5% chance that we incorrectly reject the null hypothesis (in our case, saying the means are different when they are in fact&nbsp;not).</p>
-<p>Once we have decided on our significance level, we need to find the <strong>critical values</strong> that represent the point beyond which 5% of our test distribution lies. The specific critical value depends on both the shape of the distribution and whether you are using a <a href="https://en.wikipedia.org/wiki/One-_and_two-tailed_tests"><strong>one-sided</strong> versus a <strong>two-sided</strong> test</a>. One-sided tests are appropriate when you are trying to assess whether one value is bigger (i.e., $\mu_1 - \mu_2 \gt 0$) or smaller than another (i.e., $\mu_1 - \mu_2 \lt 0$). For example, if we were trying to test whether campaign 1 brought in more revenue than campaign 2, it would be appropriate for us to use a one-sided test. In this case, we would have the entire 5% rejection region in the right-hand tail of the distribution, as in the figure&nbsp;below.</p>
+<p>Once we have decided on our significance level, we need to find the <strong>critical values</strong> that represent the point beyond which 5% of our test distribution lies. The specific critical value depends on both the shape of the distribution and whether you are using a <a href="https://en.wikipedia.org/wiki/One-_and_two-tailed_tests"><strong>one-sided</strong> versus a <strong>two-sided</strong> test</a>. One-sided tests are appropriate when you are trying to assess whether one value is bigger (i.e., <span class="math">\(\mu_1 - \mu_2 \gt 0\)</span>) or smaller than another (i.e., <span class="math">\(\mu_1 - \mu_2 \lt 0\)</span>). For example, if we were trying to test whether campaign 1 brought in more revenue than campaign 2, it would be appropriate for us to use a one-sided test. In this case, we would have the entire 5% rejection region in the right-hand tail of the distribution, as in the figure&nbsp;below.</p>
 <p>However, as we are looking for any difference (whether positive or negative) between the two means, we must use a two sided test. In a two-sided test, the rejection region is split in half, so that 2.5% lies in the left-hand tail and 2.5% lies in the right-hand tail of the distribution. As you can see in the figure below, the implication of this is that we need less extreme test statistics to achieve significance in a one-sided test than in a two-sided, therefore it is very bad practice to incorrectly use a one-sided test when a two-sided test would be&nbsp;appropriate.</p>
 <p><img alt="plot of chunk rejection_region_plots" src="/figure/rejection_region_plots-1.png"> </p>
 <h3>Just eat the damn&nbsp;orange!</h3>
@@ -155,34 +190,37 @@
 
           <div class="col-md-2">
             <div class="social-icon-list">
-              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
-
-              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
-
-
-            </div>
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
           </div>
           <div class="pull-right">
-            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
           </div>
         </div>
       </div>
     </footer>
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-         jax: ["input/TeX", "output/HTML-CSS"],
-         tex2jax: {
-           inlineMath: [ ['$', '$'] ],
-           displayMath: [ ['$$', '$$']],
-           processEscapes: true,
-           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-         },
-         messageStyle: "none",
-         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
-        });
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
     </script>
-    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
-<script>
+
+ <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -191,5 +229,5 @@
   ga('create', 'UA-66946155-1', 'auto');
   ga('send', 'pageview');
 
-</script>  </body>
+</script>    </body>
 </html>

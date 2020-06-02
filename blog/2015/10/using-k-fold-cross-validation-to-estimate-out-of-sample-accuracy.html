@@ -1,35 +1,70 @@
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
 <!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Using k-fold cross-validation to estimate out-of-sample accuracy</title>
-  <meta name="author" content="Jodie Burchell">
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Using k-fold cross-validation to estimate out-of-sample accuracy</title>
+    <meta name="author" content="Jodie Burchell" />
 
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="description" content="Using k-fold cross-validation to estimate out-of-sample accuracy written October 14, 2015 in machine learning,r,kaggle">
   <meta name="keywords" content="rlanguage, machine learning, simulations, data science, kaggle, cross-validation" />
 
-  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/10/using-k-fold-cross-validation-to-estimate-out-of-sample-accuracy.html">
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2015/10/using-k-fold-cross-validation-to-estimate-out-of-sample-accuracy.html"
+    />
 
-  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
-  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
-
-  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-</head>
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -106,7 +141,7 @@
 <h2>Estimating out-of-sample&nbsp;accuracy</h2>
 <p>In order to estimate the out-of-sample accuracy, we need to train the data on one dataset, and then apply it to a new dataset. The usual way to do this is to split the dataset into a training set and a testing set, build the model on the training set, and apply it to the testing set to get the accuracy of the model on new data. However, this method relies on having large datasets. In the case of smaller datasets (such as our Titanic data), an alternative to estimate out-of-sample accuracy is cross-validation. Cross-validation is kind of the same idea as creating single training and testing sets; however, because a single training and testing set would yield unstable estimates due to their limited number of observations, you create several testing and training sets using different parts of the data and average their estimates of model&nbsp;fit.</p>
 <h2>k-fold&nbsp;cross-validation</h2>
-<p>In k-fold cross-validation, we create the testing and training sets by splitting the data into $k$ equally sized subsets. We then treat a single subsample as the testing set, and the remaining data as the training set. We then run and test models on all $k$ datasets, and average the estimates. Let&#8217;s try it out with 5&nbsp;folds:</p>
+<p>In k-fold cross-validation, we create the testing and training sets by splitting the data into <span class="math">\(k\)</span> equally sized subsets. We then treat a single subsample as the testing set, and the remaining data as the training set. We then run and test models on all <span class="math">\(k\)</span> datasets, and average the estimates. Let&#8217;s try it out with 5&nbsp;folds:</p>
 <div class="highlight"><pre><span></span><span class="n">k.folds</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">folds</span> <span class="o">&lt;-</span> <span class="nf">createFolds</span><span class="p">(</span><span class="n">train</span><span class="o">$</span><span class="n">Survived</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">list</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> <span class="n">returnTrain</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
     <span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span><span class="o">:</span><span class="n">k</span><span class="p">)</span> <span class="p">{</span>
@@ -193,34 +228,37 @@
 
           <div class="col-md-2">
             <div class="social-icon-list">
-              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
-
-              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
-
-
-            </div>
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
           </div>
           <div class="pull-right">
-            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
           </div>
         </div>
       </div>
     </footer>
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-         jax: ["input/TeX", "output/HTML-CSS"],
-         tex2jax: {
-           inlineMath: [ ['$', '$'] ],
-           displayMath: [ ['$$', '$$']],
-           processEscapes: true,
-           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-         },
-         messageStyle: "none",
-         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
-        });
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
     </script>
-    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
-<script>
+
+ <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -229,5 +267,5 @@
   ga('create', 'UA-66946155-1', 'auto');
   ga('send', 'pageview');
 
-</script>  </body>
+</script>    </body>
 </html>

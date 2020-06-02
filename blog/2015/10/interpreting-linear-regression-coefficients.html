@@ -1,35 +1,70 @@
 <!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
 <!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Interpreting linear regression coefficients</title>
-  <meta name="author" content="Jodie Burchell">
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Interpreting linear regression coefficients</title>
+    <meta name="author" content="Jodie Burchell" />
 
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="description" content="Interpreting linear regression coefficients written October 28, 2015 in statistics,r,hypothesis testing,regression">
   <meta name="keywords" content="rlanguage, data science, hypothesis testing, linear regression, confidence interval, prediction interval" />
 
-  <link rel="canonical" href="http://t-redactyl.github.io/blog/2015/10/interpreting-linear-regression-coefficients.html">
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2015/10/interpreting-linear-regression-coefficients.html"
+    />
 
-  <link href="http://t-redactyl.github.io/favicon.png" rel="icon">
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
-  <link href="http://t-redactyl.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Standard error Full Atom Feed" />
-
-  <link href="http://t-redactyl.github.io/theme/css/screen.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-  <link href="http://t-redactyl.github.io/theme/css/tomorrow.css"  media="screen, projection" rel="stylesheet" type="text/css" />
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
-  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-</head>
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png"/>
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -64,13 +99,20 @@
 
 <h2>Let&#8217;s start with the&nbsp;intercept</h2>
 <p>You can see from the output above that this model has four coefficients, the intercept, the main effect for <code>wt</code> , the main effect for <code>am</code> and the interaction of <code>wt * am</code>. So how do we interpret these? As you will recall, regression equations take the&nbsp;form:</p>
-<p>$$E[Y | X] = \beta_0 +&nbsp;\beta_1X$$</p>
-<p>indicating that the expected value of $Y$, given the value of $X$, is calculated by adding the intercept to the value of $X$ multiplied by $\beta_1$. Our specific model&nbsp;is:</p>
-<p>$$E[Y | X_1X_2] = \beta_0 + \beta_1(weight) + \beta_2(transmission) + \beta_3(weight \cdot&nbsp;transmission)$$</p>
-<p>Ok, so how do we interpret this? The first part is to understand that the intercept is the miles per gallon a car is expected to have when both car weight and car transmission are equal to 0. This can be seen when we substitute $X_1$ and $X_2$ for&nbsp;0:</p>
-<p>$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0) \cr
-&amp;=&amp; \beta_0 \cr&nbsp;\end{eqnarray}$$</p>
+<div class="math">$$
+E[Y | X] = \beta_0 + \beta_1X
+$$</div>
+<p>indicating that the expected value of <span class="math">\(Y\)</span>, given the value of <span class="math">\(X\)</span>, is calculated by adding the intercept to the value of <span class="math">\(X\)</span> multiplied by <span class="math">\(\beta_1\)</span>. Our specific model&nbsp;is:</p>
+<div class="math">$$
+E[Y | X_1X_2] = \beta_0 + \beta_1(weight) + \beta_2(transmission) + \beta_3(weight \cdot transmission)
+$$</div>
+<p>Ok, so how do we interpret this? The first part is to understand that the intercept is the miles per gallon a car is expected to have when both car weight and car transmission are equal to 0. This can be seen when we substitute <span class="math">\(X_1\)</span> and <span class="math">\(X_2\)</span> for&nbsp;0:</p>
+<div class="math">$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;= \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0) \\
+&amp;= \beta_0
+\end{aligned}
+$$</div>
 <p>In this case the intercept, or the miles per gallon of an automatic car of weight 0 lbs, is 31.42. This intercept value is not very helpful as no real car can have a weight of 0. Therefore, before we go any further we need to make our coefficients more useful using a technique called <strong>centring</strong>.</p>
 <h2>Centring makes interpretation&nbsp;easier</h2>
 <p>Centring involves subtracting the mean from the continuous predictors in the model in order to change the point at which the regression slope crosses the intercept from 0 to the mean. This is demonstrated in the figure&nbsp;below:</p>
@@ -90,23 +132,34 @@ E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0)
 
 
 <p>So, the new intercept value is 19.24, which is the predicted miles per gallon for an automatic car (transmission = 0) of weight 3217 lbs (centred weight =&nbsp;0).</p>
-<p>Now that we&#8217;ve covered the intercept, how do we interpret the rest? The trick is to break this down by the different levels of <code>am</code>. When the transmission is automatic (or when $X_2$ = 0), the regression equation&nbsp;becomes:</p>
-<p>$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2(0) + \beta_3(weight \cdot 0) \cr
-&amp;=&amp; \beta_0 + \beta_1(weight) \cr&nbsp;\end{eqnarray}$$</p>
-<p>Alternatively, when the transmission is manual (or when $X_2$ = 1), the regression equation&nbsp;becomes:</p>
-<p>$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2(1) + \beta_3(weight \cdot 1) \cr
-&amp;=&amp; \beta_0 + \beta_1(weight) + \beta_2 + \beta_3(weight) \cr
-&amp;=&amp; (\beta_0 + \beta_2) + (\beta_1 + \beta_3)(weight) \cr&nbsp;\end{eqnarray}$$</p>
+<p>Now that we&#8217;ve covered the intercept, how do we interpret the rest? The trick is to break this down by the different levels of <code>am</code>. When the transmission is automatic (or when <span class="math">\(X_2\)</span> = 0), the regression equation&nbsp;becomes:</p>
+<div class="math">$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;= \beta_0 + \beta_1(weight) + \beta_2(0) + \beta_3(weight \cdot 0) \\
+&amp;= \beta_0 + \beta_1(weight)
+\end{aligned}
+$$</div>
+<p>Alternatively, when the transmission is manual (or when <span class="math">\(X_2\)</span> = 1), the regression equation&nbsp;becomes:</p>
+<div class="math">$$
+\begin{aligned}
+E[Y | X_1X_2] &amp;= \beta_0 + \beta_1(weight) + \beta_2(1) + \beta_3(weight \cdot 1) \\
+&amp;= \beta_0 + \beta_1(weight) + \beta_2 + \beta_3(weight) \\
+&amp;= (\beta_0 + \beta_2) + (\beta_1 + \beta_3)(weight)
+\end{aligned}
+$$</div>
 <p>Substituting our model coefficients into this, we&nbsp;get:</p>
-<p>$$E[Y | X_1X_2] = 19.24&nbsp;-3.79(weight)$$</p>
+<div class="math">$$
+E[Y | X_1X_2] = 19.24 -3.79(weight)
+$$</div>
 <p>for cars with automatic transmission&nbsp;and:</p>
-<p>$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;=&amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
-&amp;=&amp; 17.07 -9.08(weight) \cr&nbsp;\end{eqnarray}$$</p>
+<div class="math">$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;= (19.24 -2.17) + (-3.79 -5.3)(weight) \\
+&amp;= 17.07 -9.08(weight)
+\end{aligned}
+$$</div>
 <p>for cars with manual transmission. So if we take a car that weighs 2620 lbs (which would have a value of -0.6 in our centred weight variable), our model predicts that it would have an <span class="caps">MPG</span> of 21.5 if it was automatic and 22.49 if it were&nbsp;manual.</p>
-<p>When comparing the two models, you may have noticed that the two equations differ in both their intercept and slope values. More specifically, $\beta_2$ represents the change in the <strong>intercept</strong> when changing from automatic to manual transmission, while $\beta_3$ represents the change in <strong>slope</strong> changing from automatic to manual transmission. In other words, at the mean car weight, manual cars get 2.17 less miles per gallon than automatic cars. In addition, manual cars get 5.3 less miles per gallon for every additional 1000 lbs in weight. You can see this in the figure below. Note that the converse is true, and that manual cars gain 5.3 miles per gallon for every 1000 lbs less of car weight. As the slopes for the transmission types cross, at lower weights manual cars actually have better <span class="caps">MPG</span> than automatic&nbsp;cars.</p>
+<p>When comparing the two models, you may have noticed that the two equations differ in both their intercept and slope values. More specifically, <span class="math">\(\beta_2\)</span> represents the change in the <strong>intercept</strong> when changing from automatic to manual transmission, while <span class="math">\(\beta_3\)</span> represents the change in <strong>slope</strong> changing from automatic to manual transmission. In other words, at the mean car weight, manual cars get 2.17 less miles per gallon than automatic cars. In addition, manual cars get 5.3 less miles per gallon for every additional 1000 lbs in weight. You can see this in the figure below. Note that the converse is true, and that manual cars gain 5.3 miles per gallon for every 1000 lbs less of car weight. As the slopes for the transmission types cross, at lower weights manual cars actually have better <span class="caps">MPG</span> than automatic&nbsp;cars.</p>
 <p><img src="/figure/interaction_model-1.png" title="plot of chunk interaction_model" alt="plot of chunk interaction_model" style="display: block; margin: auto;" /></p>
 <h2>Standard error and the confidence&nbsp;interval</h2>
 <p>The final part of interpreting regression coefficients is getting an estimate of their precision, which we will do using confidence intervals. We can shortcut the process of calculating these using R&#8217;s inbuilt <code>predict</code> function. The first step is create separate models for the automatic and manual&nbsp;transmissions.</p>
@@ -164,34 +217,37 @@ E[Y | X_1X_2] &amp;=&amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 
           <div class="col-md-2">
             <div class="social-icon-list">
-              <a href="https://twitter.com/t_redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"/></a>
-
-              <a href="https://github.com/t-redactyl"><img src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"/></a>
-
-
-            </div>
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
           </div>
           <div class="pull-right">
-            <h4>Powered by <a href="http://blog.getpelican.com/">Pelican</a>. Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>. Title picture by <a href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/">Couleur via Pixabay</a>.</h4>
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
           </div>
         </div>
       </div>
     </footer>
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-         jax: ["input/TeX", "output/HTML-CSS"],
-         tex2jax: {
-           inlineMath: [ ['$', '$'] ],
-           displayMath: [ ['$$', '$$']],
-           processEscapes: true,
-           skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-         },
-         messageStyle: "none",
-         "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
-        });
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
     </script>
-    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
-<script>
+
+ <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -200,5 +256,5 @@ E[Y | X_1X_2] &amp;=&amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
   ga('create', 'UA-66946155-1', 'auto');
   ga('send', 'pageview');
 
-</script>  </body>
+</script>    </body>
 </html>

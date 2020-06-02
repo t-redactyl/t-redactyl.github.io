@@ -1,5 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-01-04T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Using Jupyter to learn Fortran</title><link href="http://t-redactyl.github.io/blog/2020/01/using-jupyter-to-learn-fortran.html" rel="alternate"></link><published>2020-01-04T00:00:00+01:00</published><updated>2020-01-04T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-01-04:/blog/2020/01/using-jupyter-to-learn-fortran.html</id><summary type="html">&lt;p&gt;Having heard people talk about the performance improvements that Fortran gives over R or Python, I got curious - how hard is it to learn? Turns out that more recent standards of Fortran, such as Fortran 95, are pretty easy to pick up, so I started working my way through &lt;a href="http://www.fortrantutorial.com/"&gt;this …&lt;/a&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;Having heard people talk about the performance improvements that Fortran gives over R or Python, I got curious - how hard is it to learn? Turns out that more recent standards of Fortran, such as Fortran 95, are pretty easy to pick up, so I started working my way through &lt;a href="http://www.fortrantutorial.com/"&gt;this excellent tutorial&lt;/a&gt;. However, while I started out by writing separate scripts, I got really annoyed not being able to take notes alongside my scripts or keep related scripts together in the same document. As such, I started looking at my options for running my Fortran scripts within a Jupyter&amp;nbsp;notebook.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-06-01T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Working with matrices: addition, subtraction and multiplication</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html" rel="alternate"></link><published>2020-06-01T00:00:00+02:00</published><updated>2020-06-01T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-01:/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html</id><summary type="html">&lt;p&gt;Last year, I had the chance to enrol in a mathematics degree by distance, which has been extremely helpful for filling in some gaps in my maths knowledge that I have coming from a behavioural sciences background. As I work my way through my degree, I&amp;#8217;ll be posting about …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Last year, I had the chance to enrol in a mathematics degree by distance, which has been extremely helpful for filling in some gaps in my maths knowledge that I have coming from a behavioural sciences background. As I work my way through my degree, I&amp;#8217;ll be posting about some of the things that I am learning that I think are relevant to the tools and techniques we work with in data science. In addition to helping me fully understand the material, hopefully it will be helpful for other people working in the&amp;nbsp;field.&lt;/p&gt;
+&lt;p&gt;At the moment, I&amp;#8217;m studying linear algebra, which (in addition to being a fascinating area of study in and of itself) has a lot of applications to the algorithms we work with in data science. To get started, I&amp;#8217;d like to give a brief introduction to one of its basic units of analysis, the&amp;nbsp;matrix.&lt;/p&gt;
+&lt;h2&gt;What is a&amp;nbsp;matrix?&lt;/h2&gt;
+&lt;p&gt;&lt;img src="/figure/linear-algebra-1.jpg" title="What is the matrix" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;No &amp;#8230; we&amp;#8217;re not going to be having that kind of&amp;nbsp;conversation!&lt;/p&gt;
+&lt;p&gt;A matrix is simply an arrangement of symbols in a rectangle. The symbols can be anything, but from a mathematical point of view we&amp;#8217;re mainly interested in those matrices that contain &lt;a href="https://www.mathsisfun.com/numbers/real-numbers.html"&gt;real numbers&lt;/a&gt;. You can think about a matrix like a table in Excel, where you have m rows and n columns, like&amp;nbsp;so:&lt;/p&gt;
+&lt;p&gt;&lt;img src="/figure/linear-algebra-2.png" title="A matrix is like a table" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;We can see this is an Excel spreadsheet with 3 rows and 2 columns, or a &lt;span class="math"&gt;\(3 \times 2\)&lt;/span&gt; spreadsheet. If we were to represent these numbers in a matrix, we&amp;#8217;d end up&amp;nbsp;with:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+A = \begin{bmatrix}1 &amp;amp; 2\\3 &amp;amp; 4\\5 &amp;amp; 6\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;a matrix called &lt;span class="math"&gt;\(A\)&lt;/span&gt; with 3 rows and 2 columns, or a &lt;span class="math"&gt;\(3 \times 2\)&lt;/span&gt;&amp;nbsp;matrix.&lt;/p&gt;
+&lt;p&gt;We can represent this matrix in Python using a Numpy array. Notice that we&amp;#8217;ve assigned each row of the matrix to a separate list, and then passed this list of lists as an argument to Numpy&amp;#8217;s &lt;code&gt;array&lt;/code&gt; function.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;],[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;A&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[1, 2],&lt;/span&gt;
+&lt;span class="err"&gt;       [3, 4],&lt;/span&gt;
+&lt;span class="err"&gt;       [5, 6]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Referring to matrix&amp;nbsp;elements&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s go back to the Excel spreadsheet above. You&amp;#8217;re probably used to the Excel notation of referring to elements in the spreadsheet using their column name and row number. For example, to get the element &lt;code&gt;2&lt;/code&gt; in the spreadsheet above, you&amp;#8217;d refer to cell B1, with the columns denoted by letters and the rows by&amp;nbsp;numbers.&lt;/p&gt;
+&lt;p&gt;Similarly, we also refer to elements in matrices by their row and column&amp;nbsp;positions.&lt;/p&gt;
+&lt;div class="math"&gt;$$
+A = \begin{bmatrix}a_{11} &amp;amp; a_{12}\\a_{21} &amp;amp; a_{22}\\a_{31} &amp;amp; a_{32}\end{bmatrix} = \begin{bmatrix}1 &amp;amp; 2\\3 &amp;amp; 4\\5 &amp;amp; 6\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;In this case we&amp;#8217;d reference the element 2 using &lt;span class="math"&gt;\(a_{12}\)&lt;/span&gt;. Unlike our Excel spreadsheet, however, we reference the row first and then the column. Also note that the convention when working with matrices is to refer to a matrix using a capital letter (&lt;span class="math"&gt;\(A\)&lt;/span&gt;), and components of the matrix by a lowercase letter (&lt;span class="math"&gt;\(a\)&lt;/span&gt;).&lt;/p&gt;
+&lt;p&gt;In Numpy, we can get elements from our array by using this row, column notation. However, because Python is zero-indexed, we need to subtract 1 from each of the row and column numbers, meaning &lt;span class="math"&gt;\(a_{12}\)&lt;/span&gt; becomes &lt;code&gt;(0, 1)&lt;/code&gt; in our Numpy&amp;nbsp;array:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In addition, we can also refer to elements by their index in the matrix, treating each element as though it was part of a single list. In this case, &lt;code&gt;2&lt;/code&gt; is at index &lt;code&gt;1&lt;/code&gt; of the&amp;nbsp;matrix:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Matrix&amp;nbsp;operations&lt;/h2&gt;
+&lt;p&gt;There are a number of mathematical operations we can do with matrices. In this post, we&amp;#8217;ll explore how to add and subtract matrices, how to multiply a matrix by a scalar, and how to multiply a matrix by another matrix. In the next post, I&amp;#8217;ll explain matrix inversion (and when it is possible), and in the final post in this series we&amp;#8217;ll cover powers of a matrix and matrix&amp;nbsp;transposition.&lt;/p&gt;
+&lt;h3&gt;Matrix addition and&amp;nbsp;subtraction&lt;/h3&gt;
+&lt;p&gt;Say we have two matrices, &lt;span class="math"&gt;\(A\)&lt;/span&gt; and &lt;span class="math"&gt;\(B\)&lt;/span&gt;. If these matrices are the same size (that is, they both have &lt;span class="math"&gt;\(m\)&lt;/span&gt; rows and &lt;span class="math"&gt;\(n\)&lt;/span&gt; columns), we can add them together. We do this by adding each element in &lt;span class="math"&gt;\(A\)&lt;/span&gt; with the equivalent element in &lt;span class="math"&gt;\(B\)&lt;/span&gt; to get matrix &lt;span class="math"&gt;\(C\)&lt;/span&gt;, so that &lt;span class="math"&gt;\(c_{11} = a_{11} + b_{11}, c_{12} = a_{12} + b_{12}\)&lt;/span&gt;, up to &lt;span class="math"&gt;\(c_{mn} = a_{mn} + b_{mn}\)&lt;/span&gt;. It is therefore clear why the matrices must be the same size - otherwise the additional elements in the bigger matrix would have nothing to add or subtract in the smaller&amp;nbsp;matrix!&lt;/p&gt;
+&lt;p&gt;So let&amp;#8217;s define our new matrix &lt;span class="math"&gt;\(B\)&lt;/span&gt;, that we would like to add to &lt;span class="math"&gt;\(A\)&lt;/span&gt;:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+B = \begin{bmatrix}7 &amp;amp; 8\\9 &amp;amp; 10\\11 &amp;amp; 12\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;Our new matrix &lt;span class="math"&gt;\(C = A + B\)&lt;/span&gt; is&amp;nbsp;then:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+C = (A + B) = \begin{bmatrix}(1 + 7) &amp;amp; (2 + 8)\\(3 + 9) &amp;amp; (4 + 10)\\(5 + 11) &amp;amp; (6 + 12)\end{bmatrix} = \begin{bmatrix}8 &amp;amp; 10\\12 &amp;amp; 14\\16 &amp;amp; 18\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;In Numpy, we can simply use the &lt;code&gt;+&lt;/code&gt; operator, which correctly calculates this elementwise addition for each&amp;nbsp;matrix.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;C&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;
+&lt;span class="n"&gt;C&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 8, 10],&lt;/span&gt;
+&lt;span class="err"&gt;       [12, 14],&lt;/span&gt;
+&lt;span class="err"&gt;       [16, 18]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This operation can also be extended to allow us to subtract a matrix from another matrix, where instead of adding each number in the two matrices, we would subtract one from the other. In Numpy we similarly use the &lt;code&gt;-&lt;/code&gt; operator to perform this&amp;nbsp;operation.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;D&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;
+&lt;span class="n"&gt;D&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[6, 6],&lt;/span&gt;
+&lt;span class="err"&gt;       [6, 6],&lt;/span&gt;
+&lt;span class="err"&gt;       [6, 6]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;What happens if we try to add or subtract two matrices of different sizes? Let&amp;#8217;s try adding &lt;span class="math"&gt;\(A\)&lt;/span&gt; to a matrix made up of the first two rows of &lt;span class="math"&gt;\(B\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;:]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;---------------------------------------------------------------------------&lt;/span&gt;
+
+&lt;span class="n"&gt;ValueError&lt;/span&gt;                                &lt;span class="n"&gt;Traceback&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;most&lt;/span&gt; &lt;span class="n"&gt;recent&lt;/span&gt; &lt;span class="k"&gt;call&lt;/span&gt; &lt;span class="k"&gt;last&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;ipython&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;input&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b8ee924f9c9b&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="c1"&gt;----&amp;gt; 1 A + B[:2, :]&lt;/span&gt;
+
+
+&lt;span class="n"&gt;ValueError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;operands&lt;/span&gt; &lt;span class="n"&gt;could&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="n"&gt;be&lt;/span&gt; &lt;span class="n"&gt;broadcast&lt;/span&gt; &lt;span class="n"&gt;together&lt;/span&gt; &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;shapes&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Numpy gives us a very helpful error message, reminding us that matrices must be the same shape in order to be added (or&amp;nbsp;subtracted).&lt;/p&gt;
+&lt;h3&gt;Multiplying a matrix by a&amp;nbsp;scalar&lt;/h3&gt;
+&lt;p&gt;We can also create a new matrix by multiplying a matrix by a real number (called a scalar in this context). Taking our original matrix &lt;span class="math"&gt;\(A\)&lt;/span&gt; and a scalar (let&amp;#8217;s say 2), we can create a new matrix &lt;span class="math"&gt;\(E\)&lt;/span&gt; by multiplying every element of &lt;span class="math"&gt;\(A\)&lt;/span&gt; by 2, like&amp;nbsp;so:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+E = 2A = \begin{bmatrix}(2 \times 1) &amp;amp; (2 \times 2)\\(2 \times 3) &amp;amp; (2 \times 4)\\(2 \times 5) &amp;amp; (2 \times 6)\end{bmatrix} = \begin{bmatrix}2 &amp;amp; 4\\6 &amp;amp; 8\\10 &amp;amp; 12\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;In Numpy, similar to matrix addition and subtraction, we can just use the &lt;code&gt;*&lt;/code&gt; operator to multiply each element by the scalar&amp;nbsp;2:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;E&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;
+&lt;span class="n"&gt;E&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 2,  4],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 6,  8],&lt;/span&gt;
+&lt;span class="err"&gt;       [10, 12]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Matrix&amp;nbsp;multiplication&lt;/h3&gt;
+&lt;p&gt;So we&amp;#8217;ve seen that matrices can be multiplied by scalars. Can we also multiply a matrix by another matrix? Just like with matrix addition and subtraction, this depends on the size of the two matrices. However, unlike addition and subtraction, the matrices don&amp;#8217;t have to be the same size. Instead the number of &lt;strong&gt;columns&lt;/strong&gt; in the first matrix must be the same as the number of &lt;strong&gt;rows&lt;/strong&gt; in the second matrix. We&amp;#8217;ll see why by doing an&amp;nbsp;example.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s say that we have a &lt;span class="math"&gt;\(2 \times 4\)&lt;/span&gt; matrix, &lt;span class="math"&gt;\(F\)&lt;/span&gt;, and we want to multiply it by our matrix &lt;span class="math"&gt;\(A\)&lt;/span&gt;:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+F = \begin{bmatrix}10 &amp;amp; 11 &amp;amp; 12 &amp;amp; 13\\14 &amp;amp; 15 &amp;amp; 16 &amp;amp; 17\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;To get the first element of our new matrix &lt;span class="math"&gt;\(AF\)&lt;/span&gt; (which we&amp;#8217;ll call &lt;span class="math"&gt;\(G\)&lt;/span&gt; to make it a bit neater), we use the following&amp;nbsp;formula:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{align}g_{11} &amp;amp;= a_{11}f_{11} + a_{12}f_{21}\\&amp;amp;= (1 \times 10) + (2 \times 14)\\&amp;amp;= 10 + 28\\&amp;amp;= 38\end{align}
+$$&lt;/div&gt;
+&lt;p&gt;In other words, in order to get the first element of our new matrix &lt;span class="math"&gt;\(G\)&lt;/span&gt;, we multiply the first and second elements of the first row in &lt;span class="math"&gt;\(A\)&lt;/span&gt; by the first and second elements of the first column in &lt;span class="math"&gt;\(F\)&lt;/span&gt; respectively, and then add them. This operation is called taking the &lt;a href="https://www.mathsisfun.com/algebra/vectors-dot-product.html"&gt;dot product&lt;/a&gt; of this row and this column. You can now see that this way of pairing of elements is why the number of columns in the first matrix must be the same as the number of rows in the second&amp;nbsp;matrix. &lt;/p&gt;
+&lt;p&gt;Where do we go next? In order to get the next element &lt;span class="math"&gt;\(g_{12}\)&lt;/span&gt; (that is, the second element of the first row), we take the elements of the first row of the first matrix and those of the second column of the second matrix and multiply them together like&amp;nbsp;so:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{align}g_{12} &amp;amp;= a_{11}f_{21} + a_{12}f_{22}\\&amp;amp;= (1 \times 11) + (2 \times 15)\\&amp;amp;= 11 + 30\\&amp;amp;= 41\end{align}
+$$&lt;/div&gt;
+&lt;p&gt;Continuing this across all of the elements, we end up&amp;nbsp;with:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+G = AF = \begin{bmatrix}38 &amp;amp; 41 &amp;amp; 44 &amp;amp; 47\\86 &amp;amp; 93 &amp;amp; 100 &amp;amp; 107\\134 &amp;amp; 145 &amp;amp; 156 &amp;amp; 167\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;And there we have it! We have ended up with a new &lt;span class="math"&gt;\(3 \times 4\)&lt;/span&gt; matrix: that is, a matrix with the same number of rows as the first matrix and the same number of columns as the second&amp;nbsp;matrix.&lt;/p&gt;
+&lt;p&gt;As hinted at in the name of operation that gets each element in our multiplication, the function to multiply two matrices in Numpy is called &lt;code&gt;dot&lt;/code&gt;. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;13&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;17&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;G&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 38,  41,  44,  47],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 86,  93, 100, 107],&lt;/span&gt;
+&lt;span class="err"&gt;       [134, 145, 156, 167]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Alternatively, we can use the &lt;code&gt;@&lt;/code&gt; operator as a&amp;nbsp;shortcut:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="nd"&gt;@F&lt;/span&gt;
+&lt;span class="n"&gt;G&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 38,  41,  44,  47],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 86,  93, 100, 107],&lt;/span&gt;
+&lt;span class="err"&gt;       [134, 145, 156, 167]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;What happens if we try to multiply two matrices that are not the right size? Let&amp;#8217;s try multiplying &lt;span class="math"&gt;\(A\)&lt;/span&gt; and &lt;span class="math"&gt;\(F\)&lt;/span&gt; the other way around, meaning we&amp;#8217;re trying to multiply a &lt;span class="math"&gt;\(2 \times 4\)&lt;/span&gt; matrix by a &lt;span class="math"&gt;\(3 \times 2\)&lt;/span&gt;&amp;nbsp;matrix:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;---------------------------------------------------------------------------&lt;/span&gt;
+
+&lt;span class="n"&gt;ValueError&lt;/span&gt;                                &lt;span class="n"&gt;Traceback&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;most&lt;/span&gt; &lt;span class="n"&gt;recent&lt;/span&gt; &lt;span class="k"&gt;call&lt;/span&gt; &lt;span class="k"&gt;last&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;ipython&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;input&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;26&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="n"&gt;cf9c7190280&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="c1"&gt;----&amp;gt; 1 F.dot(A)&lt;/span&gt;
+
+
+&lt;span class="n"&gt;ValueError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;shapes&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;and&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="n"&gt;aligned&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dim&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dim&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As can be seen, Numpy throws a very useful error message which tells us that the number of columns in our first matrix (&lt;code&gt;dim 1&lt;/code&gt;) is not the same as the number of rows in our second matrix (&lt;code&gt;dim 0&lt;/code&gt;). This error message can be a lifesaver when you&amp;#8217;re trying to do more complicated operations involving&amp;nbsp;matrices!&lt;/p&gt;
+&lt;p&gt;This leads to one final point about matrix multiplication that might have already occurred to you. Matrix multiplication often only works in one direction, where it might be possible to multiply &lt;span class="math"&gt;\(AF\)&lt;/span&gt; but not to multiply &lt;span class="math"&gt;\(FA\)&lt;/span&gt;. What&amp;#8217;s more, even if it is possible to multiply the matrices both ways, the result will (usually) not be the same: &lt;span class="math"&gt;\(AF \neq FA\)&lt;/span&gt;. (In mathematical language, this means matrix multiplication is not &lt;a href="https://www.mathsisfun.com/associative-commutative-distributive.html"&gt;commutative&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s try this out by multiplying &lt;span class="math"&gt;\(A\)&lt;/span&gt; by a version of &lt;span class="math"&gt;\(F\)&lt;/span&gt; where we drop the last column (giving us a &lt;span class="math"&gt;\(3 \times 2\)&lt;/span&gt; matrix and a &lt;span class="math"&gt;\(2 \times 3\)&lt;/span&gt; matrix). First, we multiply calculate &lt;span class="math"&gt;\(AF_{\textrm{trimmed}}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 38,  41,  44],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 86,  93, 100],&lt;/span&gt;
+&lt;span class="err"&gt;       [134, 145, 156]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next, let&amp;#8217;s try it the other way around, calculating &lt;span class="math"&gt;\(F_{\textrm{trimmed}}A\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[103, 136],&lt;/span&gt;
+&lt;span class="err"&gt;       [139, 184]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can see that not only are they not the same matrices, they are not even the same size, with &lt;span class="math"&gt;\(AF_{\textrm{trimmed}}\)&lt;/span&gt; being a &lt;span class="math"&gt;\(3 \times 3\)&lt;/span&gt; matrix, and &lt;span class="math"&gt;\(F_{\textrm{trimmed}}A\)&lt;/span&gt; being a &lt;span class="math"&gt;\(2 \times 2\)&lt;/span&gt;&amp;nbsp;matrix.&lt;/p&gt;
+&lt;p&gt;I hope this was a useful introduction to what matrices are, and how to do some basic operations on them in Python. Next post we&amp;#8217;ll move on to matrix inversion, which is a more advanced and interesting&amp;nbsp;operation.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category><category term="linear algebra"></category><category term="python"></category></entry><entry><title>Using Jupyter to learn Fortran</title><link href="http://t-redactyl.github.io/blog/2020/01/using-jupyter-to-learn-fortran.html" rel="alternate"></link><published>2020-01-04T00:00:00+01:00</published><updated>2020-01-04T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-01-04:/blog/2020/01/using-jupyter-to-learn-fortran.html</id><summary type="html">&lt;p&gt;Having heard people talk about the performance improvements that Fortran gives over R or Python, I got curious - how hard is it to learn? Turns out that more recent standards of Fortran, such as Fortran 95, are pretty easy to pick up, so I started working my way through &lt;a href="http://www.fortrantutorial.com/"&gt;this …&lt;/a&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;Having heard people talk about the performance improvements that Fortran gives over R or Python, I got curious - how hard is it to learn? Turns out that more recent standards of Fortran, such as Fortran 95, are pretty easy to pick up, so I started working my way through &lt;a href="http://www.fortrantutorial.com/"&gt;this excellent tutorial&lt;/a&gt;. However, while I started out by writing separate scripts, I got really annoyed not being able to take notes alongside my scripts or keep related scripts together in the same document. As such, I started looking at my options for running my Fortran scripts within a Jupyter&amp;nbsp;notebook.&lt;/p&gt;
 &lt;h2&gt;Option 1: Run your notebook from a Fortran&amp;nbsp;kernel&lt;/h2&gt;
 &lt;p&gt;The first option is to simply install a Fortran kernel for Jupyter, which means all of your cells will automatically run Fortran code. Peter Hill has written a very easy to use and install Fortran kernel, which you can find &lt;a href="https://github.com/ZedThree/jupyter-fortran-kernel"&gt;here&lt;/a&gt; along with instructions on how to run it. Once you have installed it, you simply need to select &lt;code&gt;Fortran&lt;/code&gt; as your kernel type when you create a new notebook, and you&amp;#8217;re good to&amp;nbsp;go!&lt;/p&gt;
 &lt;p&gt;Let&amp;#8217;s see how it runs with a simple program that just prints some hardcoded&amp;nbsp;text.&lt;/p&gt;
@@ -1404,7 +1618,7 @@ gfortran -ffree-form get_age.f95
 &lt;p&gt;&lt;a href="https://twitter.com/pachamaltese"&gt;Mauricio&lt;/a&gt; and &lt;a href="https://twitter.com/t_redactyl"&gt;I&lt;/a&gt; have also published these graphing posts as a &lt;a href="https://leanpub.com/hitchhikers_ggplot2"&gt;book on Leanpub&lt;/a&gt;. We tend to put any changes or updates to the code in the book before these blog posts, so please check it out if you have any issues with the code examples in this post; otherwise feel free to contact us with any&amp;nbsp;questions!&lt;/p&gt;
 &lt;p&gt;This post will be much more than showing you how to create regression plots. Here we are extracting, cleaning and processing financial data from &lt;a href="https://www.quandl.com/"&gt;Quandl&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Before going ahead, we strongly suggest to create a &lt;a href="https://www.quandl.com/"&gt;Quandl&lt;/a&gt; account in order to obtain an &lt;a href="https://www.quandl.com/account/api"&gt;&lt;span class="caps"&gt;API&lt;/span&gt; key&lt;/a&gt; that allows you to download data without restrictions. It is even possible to log into Quandl using Github or Linkedin accounts. Quandl&amp;#8217;s website has complete instruction and they have an &lt;span class="caps"&gt;API&lt;/span&gt; that is 100% R&amp;nbsp;compatible.&lt;/p&gt;
-&lt;p&gt;The goal is to estimate the &lt;span class="caps"&gt;CAPM&lt;/span&gt; model $R_i = R_f + \beta_i [R_m - R_f] + e_i$ where $R_i$ is the return of an asset, $R_f$ is the risk-free return (e.g. &lt;span class="caps"&gt;US&lt;/span&gt; Treasury Bonds), $R_m$ is the return of the market portfolio (e.g. &lt;span class="caps"&gt;NYSE&lt;/span&gt;) and $\beta_i$ is  a measure of risk relative to the market (e.g. $\beta_i = 1$ means that asset is exactly as risky as the market portfolio). More on the &lt;span class="caps"&gt;CAPM&lt;/span&gt; model can be read &lt;a href="http://people.stern.nyu.edu/ashapiro/courses/B01.231103/FFL09.pdf"&gt;here&lt;/a&gt;, but in this tutorial we will focus on&amp;nbsp;plotting.&lt;/p&gt;
+&lt;p&gt;The goal is to estimate the &lt;span class="caps"&gt;CAPM&lt;/span&gt; model &lt;span class="math"&gt;\(R_i = R_f + \beta_i [R_m - R_f] + e_i\)&lt;/span&gt; where &lt;span class="math"&gt;\(R_i\)&lt;/span&gt; is the return of an asset, &lt;span class="math"&gt;\(R_f\)&lt;/span&gt; is the risk-free return (e.g. &lt;span class="caps"&gt;US&lt;/span&gt; Treasury Bonds), &lt;span class="math"&gt;\(R_m\)&lt;/span&gt; is the return of the market portfolio (e.g. &lt;span class="caps"&gt;NYSE&lt;/span&gt;) and &lt;span class="math"&gt;\(\beta_i\)&lt;/span&gt; is  a measure of risk relative to the market (e.g. &lt;span class="math"&gt;\(\beta_i = 1\)&lt;/span&gt; means that asset is exactly as risky as the market portfolio). More on the &lt;span class="caps"&gt;CAPM&lt;/span&gt; model can be read &lt;a href="http://people.stern.nyu.edu/ashapiro/courses/B01.231103/FFL09.pdf"&gt;here&lt;/a&gt;, but in this tutorial we will focus on&amp;nbsp;plotting.&lt;/p&gt;
 &lt;p&gt;In this tutorial, we will work towards creating the trend line and diagnostics plots below. We will take you from a basic regression plot and explain all the customisations we add to the code&amp;nbsp;step-by-step.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/figure/lr_final-1.png" title="plot of chunk lr_final" alt="plot of chunk lr_final" style="display: block; margin: auto;" /&gt;&lt;img src="/figure/lr_final-2.png" title="plot of chunk lr_final" alt="plot of chunk lr_final" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;p&gt;The first thing to do is download and load in the data of the monthly price of Hang Seng Index and Cheung Kong Holdings Hong Kong from 2015-03-01 to&amp;nbsp;2016-04-01.&lt;/p&gt;
@@ -1422,7 +1636,7 @@ gfortran -ffree-form get_age.f95
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Before calculating return as $R_i = \displaystyle \frac{P_t - P_{t-1}}{P_t}$ we need to order &lt;span class="caps"&gt;HSI&lt;/span&gt; and &lt;span class="caps"&gt;CKH&lt;/span&gt; data by dates and in decreasing&amp;nbsp;order.&lt;/p&gt;
+&lt;p&gt;Before calculating return as &lt;span class="math"&gt;\(R_i = \displaystyle \frac{P_t - P_{t-1}}{P_t}\)&lt;/span&gt; we need to order &lt;span class="caps"&gt;HSI&lt;/span&gt; and &lt;span class="caps"&gt;CKH&lt;/span&gt; data by dates and in decreasing&amp;nbsp;order.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;hsi.df&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;readRDS&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;hsi.rds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="nf"&gt;colnames&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;hsi.df&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;[7]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Adjusted.Close&amp;quot;&lt;/span&gt;
 &lt;span class="n"&gt;hsi.df&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;hsi.df&lt;/span&gt;&lt;span class="nf"&gt;[order&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;as.Date&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;hsi.df&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;&lt;span class="n"&gt;]&lt;/span&gt;
@@ -1464,7 +1678,7 @@ gfortran -ffree-form get_age.f95
 
 &lt;h2&gt;Trend line&amp;nbsp;plot&lt;/h2&gt;
 &lt;h3&gt;Basic trend line&amp;nbsp;plot&lt;/h3&gt;
-&lt;p&gt;Now we can fit a linear regression. One interesting thing is that in &lt;span class="caps"&gt;CAPM&lt;/span&gt; context the regression line slope can be calculated as $\beta_i = \displaystyle&amp;nbsp;\frac{\sigma_{i,m}}{\sigma_m^2}$.&lt;/p&gt;
+&lt;p&gt;Now we can fit a linear regression. One interesting thing is that in &lt;span class="caps"&gt;CAPM&lt;/span&gt; context the regression line slope can be calculated as &lt;span class="math"&gt;\(\beta_i = \displaystyle \frac{\sigma_{i,m}}{\sigma_m^2}\)&lt;/span&gt;.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;hsi.ckh.returns&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;hsi.Risk.free&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;usa.risk.free&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;hsi.risk.premium&lt;/span&gt;
 &lt;span class="n"&gt;hsi.ckh.returns&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;hsi.Risk.premium&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;hsi.ckh.returns&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;hsi.Return&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;hsi.ckh.returns&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;hsi.Risk.free&lt;/span&gt;
 &lt;span class="n"&gt;hsi.Return.vector&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;as.vector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;hsi.ckh.returns&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;hsi.Return&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -1531,7 +1745,7 @@ gfortran -ffree-form get_age.f95
 
 &lt;p&gt;&lt;img src="/figure/lr_9-1.png" title="plot of chunk lr_9" alt="plot of chunk lr_9" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;h3&gt;Including regression&amp;nbsp;coefficients&lt;/h3&gt;
-&lt;p&gt;We can also include more information about the regression line itself. It would be interesting to show $R^2$ and regression coefficients within the&amp;nbsp;plot.&lt;/p&gt;
+&lt;p&gt;We can also include more information about the regression line itself. It would be interesting to show &lt;span class="math"&gt;\(R^2\)&lt;/span&gt; and regression coefficients within the&amp;nbsp;plot.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;p11&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;p11&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nf"&gt;annotate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;-0.05&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;label&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;R^2=0.78&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
       &lt;span class="nf"&gt;annotate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;-0.06&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;label&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;alpha=0.00&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
       &lt;span class="nf"&gt;annotate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;-0.07&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;label&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;beta=0.67&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -7590,7 +7804,7 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
 &lt;/table&gt;
 &lt;/div&gt;
 
-&lt;p&gt;We now have two viable models, &lt;code&gt;model8&lt;/code&gt; and &lt;code&gt;model10&lt;/code&gt;. To select between these, I will have a look at the &lt;a href="https://en.wikipedia.org/wiki/Coefficient_of_determination"&gt;$R^2$&lt;/a&gt; and &lt;a href="https://en.wikipedia.org/wiki/Variance_inflation_factor"&gt;variance inflation factor (&lt;span class="caps"&gt;VIF&lt;/span&gt;)&lt;/a&gt; (in the &lt;a href="https://cran.r-project.org/web/packages/car/car.pdf"&gt;car package&lt;/a&gt;) of each of the&amp;nbsp;models.&lt;/p&gt;
+&lt;p&gt;We now have two viable models, &lt;code&gt;model8&lt;/code&gt; and &lt;code&gt;model10&lt;/code&gt;. To select between these, I will have a look at the &lt;a href="https://en.wikipedia.org/wiki/Coefficient_of_determination"&gt;&lt;span class="math"&gt;\(R^2\)&lt;/span&gt;&lt;/a&gt; and &lt;a href="https://en.wikipedia.org/wiki/Variance_inflation_factor"&gt;variance inflation factor (&lt;span class="caps"&gt;VIF&lt;/span&gt;)&lt;/a&gt; (in the &lt;a href="https://cran.r-project.org/web/packages/car/car.pdf"&gt;car package&lt;/a&gt;) of each of the&amp;nbsp;models.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;car&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="nf"&gt;round&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;r.squared&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -7626,7 +7840,7 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The difference in $R^2$ between the two models is small, but the inclusion of &lt;code&gt;cyl&lt;/code&gt; in the model both increases the variance inflation and decreases the interpretability of the model. Moreover, &lt;code&gt;cyl&lt;/code&gt; is highly correlated with &lt;code&gt;wt&lt;/code&gt; (0.782), meaning it is likely explaining a lot of the same variance as &lt;code&gt;wt&lt;/code&gt;. As such, I dropped &lt;code&gt;cyl&lt;/code&gt; and the final model included &lt;code&gt;am&lt;/code&gt;, &lt;code&gt;wt&lt;/code&gt;, and their interaction&amp;nbsp;term.&lt;/p&gt;
+&lt;p&gt;The difference in &lt;span class="math"&gt;\(R^2\)&lt;/span&gt; between the two models is small, but the inclusion of &lt;code&gt;cyl&lt;/code&gt; in the model both increases the variance inflation and decreases the interpretability of the model. Moreover, &lt;code&gt;cyl&lt;/code&gt; is highly correlated with &lt;code&gt;wt&lt;/code&gt; (0.782), meaning it is likely explaining a lot of the same variance as &lt;code&gt;wt&lt;/code&gt;. As such, I dropped &lt;code&gt;cyl&lt;/code&gt; and the final model included &lt;code&gt;am&lt;/code&gt;, &lt;code&gt;wt&lt;/code&gt;, and their interaction&amp;nbsp;term.&lt;/p&gt;
 &lt;h2&gt;Model&amp;nbsp;diagnostics&lt;/h2&gt;
 &lt;p&gt;Having chosen the final model, it is time to check whether it has any issues with how it fits the data. The built-in &lt;code&gt;plot&lt;/code&gt; function conveniently displays four &lt;a href="https://en.wikipedia.org/wiki/Regression_diagnostic"&gt;diagnostic plots&lt;/a&gt; for lm&amp;nbsp;objects:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;final.model&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;lm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;mpg&lt;/span&gt; &lt;span class="o"&gt;~&lt;/span&gt; &lt;span class="n"&gt;am.f&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;wt&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;am.f&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;wt&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;mtcars&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -7728,13 +7942,20 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
 
 &lt;h2&gt;Let&amp;#8217;s start with the&amp;nbsp;intercept&lt;/h2&gt;
 &lt;p&gt;You can see from the output above that this model has four coefficients, the intercept, the main effect for &lt;code&gt;wt&lt;/code&gt; , the main effect for &lt;code&gt;am&lt;/code&gt; and the interaction of &lt;code&gt;wt * am&lt;/code&gt;. So how do we interpret these? As you will recall, regression equations take the&amp;nbsp;form:&lt;/p&gt;
-&lt;p&gt;$$E[Y | X] = \beta_0 +&amp;nbsp;\beta_1X$$&lt;/p&gt;
-&lt;p&gt;indicating that the expected value of $Y$, given the value of $X$, is calculated by adding the intercept to the value of $X$ multiplied by $\beta_1$. Our specific model&amp;nbsp;is:&lt;/p&gt;
-&lt;p&gt;$$E[Y | X_1X_2] = \beta_0 + \beta_1(weight) + \beta_2(transmission) + \beta_3(weight \cdot&amp;nbsp;transmission)$$&lt;/p&gt;
-&lt;p&gt;Ok, so how do we interpret this? The first part is to understand that the intercept is the miles per gallon a car is expected to have when both car weight and car transmission are equal to 0. This can be seen when we substitute $X_1$ and $X_2$ for&amp;nbsp;0:&lt;/p&gt;
-&lt;p&gt;$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;amp;=&amp;amp; \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0) \cr
-&amp;amp;=&amp;amp; \beta_0 \cr&amp;nbsp;\end{eqnarray}$$&lt;/p&gt;
+&lt;div class="math"&gt;$$
+E[Y | X] = \beta_0 + \beta_1X
+$$&lt;/div&gt;
+&lt;p&gt;indicating that the expected value of &lt;span class="math"&gt;\(Y\)&lt;/span&gt;, given the value of &lt;span class="math"&gt;\(X\)&lt;/span&gt;, is calculated by adding the intercept to the value of &lt;span class="math"&gt;\(X\)&lt;/span&gt; multiplied by &lt;span class="math"&gt;\(\beta_1\)&lt;/span&gt;. Our specific model&amp;nbsp;is:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+E[Y | X_1X_2] = \beta_0 + \beta_1(weight) + \beta_2(transmission) + \beta_3(weight \cdot transmission)
+$$&lt;/div&gt;
+&lt;p&gt;Ok, so how do we interpret this? The first part is to understand that the intercept is the miles per gallon a car is expected to have when both car weight and car transmission are equal to 0. This can be seen when we substitute &lt;span class="math"&gt;\(X_1\)&lt;/span&gt; and &lt;span class="math"&gt;\(X_2\)&lt;/span&gt; for&amp;nbsp;0:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;amp;= \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 \cdot 0) \\
+&amp;amp;= \beta_0
+\end{aligned}
+$$&lt;/div&gt;
 &lt;p&gt;In this case the intercept, or the miles per gallon of an automatic car of weight 0 lbs, is 31.42. This intercept value is not very helpful as no real car can have a weight of 0. Therefore, before we go any further we need to make our coefficients more useful using a technique called &lt;strong&gt;centring&lt;/strong&gt;.&lt;/p&gt;
 &lt;h2&gt;Centring makes interpretation&amp;nbsp;easier&lt;/h2&gt;
 &lt;p&gt;Centring involves subtracting the mean from the continuous predictors in the model in order to change the point at which the regression slope crosses the intercept from 0 to the mean. This is demonstrated in the figure&amp;nbsp;below:&lt;/p&gt;
@@ -7754,23 +7975,34 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; \beta_0 + \beta_1(0) + \beta_2(0) + \beta_3(0 
 
 
 &lt;p&gt;So, the new intercept value is 19.24, which is the predicted miles per gallon for an automatic car (transmission = 0) of weight 3217 lbs (centred weight =&amp;nbsp;0).&lt;/p&gt;
-&lt;p&gt;Now that we&amp;#8217;ve covered the intercept, how do we interpret the rest? The trick is to break this down by the different levels of &lt;code&gt;am&lt;/code&gt;. When the transmission is automatic (or when $X_2$ = 0), the regression equation&amp;nbsp;becomes:&lt;/p&gt;
-&lt;p&gt;$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;amp;=&amp;amp; \beta_0 + \beta_1(weight) + \beta_2(0) + \beta_3(weight \cdot 0) \cr
-&amp;amp;=&amp;amp; \beta_0 + \beta_1(weight) \cr&amp;nbsp;\end{eqnarray}$$&lt;/p&gt;
-&lt;p&gt;Alternatively, when the transmission is manual (or when $X_2$ = 1), the regression equation&amp;nbsp;becomes:&lt;/p&gt;
-&lt;p&gt;$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;amp;=&amp;amp; \beta_0 + \beta_1(weight) + \beta_2(1) + \beta_3(weight \cdot 1) \cr
-&amp;amp;=&amp;amp; \beta_0 + \beta_1(weight) + \beta_2 + \beta_3(weight) \cr
-&amp;amp;=&amp;amp; (\beta_0 + \beta_2) + (\beta_1 + \beta_3)(weight) \cr&amp;nbsp;\end{eqnarray}$$&lt;/p&gt;
+&lt;p&gt;Now that we&amp;#8217;ve covered the intercept, how do we interpret the rest? The trick is to break this down by the different levels of &lt;code&gt;am&lt;/code&gt;. When the transmission is automatic (or when &lt;span class="math"&gt;\(X_2\)&lt;/span&gt; = 0), the regression equation&amp;nbsp;becomes:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;amp;= \beta_0 + \beta_1(weight) + \beta_2(0) + \beta_3(weight \cdot 0) \\
+&amp;amp;= \beta_0 + \beta_1(weight)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Alternatively, when the transmission is manual (or when &lt;span class="math"&gt;\(X_2\)&lt;/span&gt; = 1), the regression equation&amp;nbsp;becomes:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+E[Y | X_1X_2] &amp;amp;= \beta_0 + \beta_1(weight) + \beta_2(1) + \beta_3(weight \cdot 1) \\
+&amp;amp;= \beta_0 + \beta_1(weight) + \beta_2 + \beta_3(weight) \\
+&amp;amp;= (\beta_0 + \beta_2) + (\beta_1 + \beta_3)(weight)
+\end{aligned}
+$$&lt;/div&gt;
 &lt;p&gt;Substituting our model coefficients into this, we&amp;nbsp;get:&lt;/p&gt;
-&lt;p&gt;$$E[Y | X_1X_2] = 19.24&amp;nbsp;-3.79(weight)$$&lt;/p&gt;
+&lt;div class="math"&gt;$$
+E[Y | X_1X_2] = 19.24 -3.79(weight)
+$$&lt;/div&gt;
 &lt;p&gt;for cars with automatic transmission&amp;nbsp;and:&lt;/p&gt;
-&lt;p&gt;$$\begin{eqnarray} 
-E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
-&amp;amp;=&amp;amp; 17.07 -9.08(weight) \cr&amp;nbsp;\end{eqnarray}$$&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned} 
+E[Y | X_1X_2] &amp;amp;= (19.24 -2.17) + (-3.79 -5.3)(weight) \\
+&amp;amp;= 17.07 -9.08(weight)
+\end{aligned}
+$$&lt;/div&gt;
 &lt;p&gt;for cars with manual transmission. So if we take a car that weighs 2620 lbs (which would have a value of -0.6 in our centred weight variable), our model predicts that it would have an &lt;span class="caps"&gt;MPG&lt;/span&gt; of 21.5 if it was automatic and 22.49 if it were&amp;nbsp;manual.&lt;/p&gt;
-&lt;p&gt;When comparing the two models, you may have noticed that the two equations differ in both their intercept and slope values. More specifically, $\beta_2$ represents the change in the &lt;strong&gt;intercept&lt;/strong&gt; when changing from automatic to manual transmission, while $\beta_3$ represents the change in &lt;strong&gt;slope&lt;/strong&gt; changing from automatic to manual transmission. In other words, at the mean car weight, manual cars get 2.17 less miles per gallon than automatic cars. In addition, manual cars get 5.3 less miles per gallon for every additional 1000 lbs in weight. You can see this in the figure below. Note that the converse is true, and that manual cars gain 5.3 miles per gallon for every 1000 lbs less of car weight. As the slopes for the transmission types cross, at lower weights manual cars actually have better &lt;span class="caps"&gt;MPG&lt;/span&gt; than automatic&amp;nbsp;cars.&lt;/p&gt;
+&lt;p&gt;When comparing the two models, you may have noticed that the two equations differ in both their intercept and slope values. More specifically, &lt;span class="math"&gt;\(\beta_2\)&lt;/span&gt; represents the change in the &lt;strong&gt;intercept&lt;/strong&gt; when changing from automatic to manual transmission, while &lt;span class="math"&gt;\(\beta_3\)&lt;/span&gt; represents the change in &lt;strong&gt;slope&lt;/strong&gt; changing from automatic to manual transmission. In other words, at the mean car weight, manual cars get 2.17 less miles per gallon than automatic cars. In addition, manual cars get 5.3 less miles per gallon for every additional 1000 lbs in weight. You can see this in the figure below. Note that the converse is true, and that manual cars gain 5.3 miles per gallon for every 1000 lbs less of car weight. As the slopes for the transmission types cross, at lower weights manual cars actually have better &lt;span class="caps"&gt;MPG&lt;/span&gt; than automatic&amp;nbsp;cars.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/figure/interaction_model-1.png" title="plot of chunk interaction_model" alt="plot of chunk interaction_model" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;h2&gt;Standard error and the confidence&amp;nbsp;interval&lt;/h2&gt;
 &lt;p&gt;The final part of interpreting regression coefficients is getting an estimate of their precision, which we will do using confidence intervals. We can shortcut the process of calculating these using R&amp;#8217;s inbuilt &lt;code&gt;predict&lt;/code&gt; function. The first step is create separate models for the automatic and manual&amp;nbsp;transmissions.&lt;/p&gt;
@@ -8078,7 +8310,7 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;h2&gt;Estimating out-of-sample&amp;nbsp;accuracy&lt;/h2&gt;
 &lt;p&gt;In order to estimate the out-of-sample accuracy, we need to train the data on one dataset, and then apply it to a new dataset. The usual way to do this is to split the dataset into a training set and a testing set, build the model on the training set, and apply it to the testing set to get the accuracy of the model on new data. However, this method relies on having large datasets. In the case of smaller datasets (such as our Titanic data), an alternative to estimate out-of-sample accuracy is cross-validation. Cross-validation is kind of the same idea as creating single training and testing sets; however, because a single training and testing set would yield unstable estimates due to their limited number of observations, you create several testing and training sets using different parts of the data and average their estimates of model&amp;nbsp;fit.&lt;/p&gt;
 &lt;h2&gt;k-fold&amp;nbsp;cross-validation&lt;/h2&gt;
-&lt;p&gt;In k-fold cross-validation, we create the testing and training sets by splitting the data into $k$ equally sized subsets. We then treat a single subsample as the testing set, and the remaining data as the training set. We then run and test models on all $k$ datasets, and average the estimates. Let&amp;#8217;s try it out with 5&amp;nbsp;folds:&lt;/p&gt;
+&lt;p&gt;In k-fold cross-validation, we create the testing and training sets by splitting the data into &lt;span class="math"&gt;\(k\)&lt;/span&gt; equally sized subsets. We then treat a single subsample as the testing set, and the remaining data as the training set. We then run and test models on all &lt;span class="math"&gt;\(k\)&lt;/span&gt; datasets, and average the estimates. Let&amp;#8217;s try it out with 5&amp;nbsp;folds:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;k.folds&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="n"&gt;folds&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;createFolds&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;train&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="n"&gt;Survived&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;TRUE&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;returnTrain&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;TRUE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="nf"&gt;for &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
@@ -8227,14 +8459,14 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;h2&gt;Defining your&amp;nbsp;question&lt;/h2&gt;
 &lt;p&gt;The first, and most important step to any analysis is working out &lt;strong&gt;what you are asking&lt;/strong&gt; and &lt;strong&gt;how you will measure it&lt;/strong&gt;. A reasonable way to assess whether the advertising campaigns are equally effective or not could be to take all site visits that originate from each of the campaigns and see how much money the company makes from these visits (i.e., the amount of toys the customers who visit buy). A way we could then test if the amount generated differs is to take the mean amount of money made from each campaign and statistically test whether these means are&amp;nbsp;different.&lt;/p&gt;
 &lt;h2&gt;Defining your&amp;nbsp;hypotheses&lt;/h2&gt;
-&lt;p&gt;The next step is defining hypotheses so we can test these questions statistically. When you define hypotheses, you are trying to compare two possible outcomes. The first is the &lt;a href="https://en.wikipedia.org/wiki/Null_hypothesis"&gt;&lt;strong&gt;null hypothesis&lt;/strong&gt;&lt;/a&gt; ($H_0$), which represents the &amp;#8220;status quo&amp;#8221; and is assumed to be correct until statistical evidence is presented that allows us to reject it. In this case, the null hypothesis is that there is no difference between the mean amount of income generated by each campaign. If we assign $\mu_1$ to be the mean of the first population, and $\mu_2$ to be the mean of the second population, these hypotheses can be stated&amp;nbsp;as:&lt;/p&gt;
-&lt;p&gt;$$H_0 : \mu_1 =&amp;nbsp;\mu_2$$&lt;/p&gt;
+&lt;p&gt;The next step is defining hypotheses so we can test these questions statistically. When you define hypotheses, you are trying to compare two possible outcomes. The first is the &lt;a href="https://en.wikipedia.org/wiki/Null_hypothesis"&gt;&lt;strong&gt;null hypothesis&lt;/strong&gt;&lt;/a&gt; (&lt;span class="math"&gt;\(H_0\)&lt;/span&gt;), which represents the &amp;#8220;status quo&amp;#8221; and is assumed to be correct until statistical evidence is presented that allows us to reject it. In this case, the null hypothesis is that there is no difference between the mean amount of income generated by each campaign. If we assign &lt;span class="math"&gt;\(\mu_1\)&lt;/span&gt; to be the mean of the first population, and &lt;span class="math"&gt;\(\mu_2\)&lt;/span&gt; to be the mean of the second population, these hypotheses can be stated&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="math"&gt;$$H_0 : \mu_1 = \mu_2$$&lt;/div&gt;
 &lt;p&gt;&lt;center&gt;or&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;$$H_0 : \mu_1 - \mu_2 =&amp;nbsp;0$$&lt;/p&gt;
-&lt;p&gt;The &lt;a href="https://en.wikipedia.org/wiki/Alternative_hypothesis"&gt;&lt;strong&gt;alternative hypothesis&lt;/strong&gt;&lt;/a&gt; ($H_a$) is that there is a difference between the mean level of income generated by each campaign. More formally, the alternative hypothesis&amp;nbsp;is:&lt;/p&gt;
-&lt;p&gt;$$H_a : \mu_1 \neq&amp;nbsp;\mu_2$$&lt;/p&gt;
+&lt;div class="math"&gt;$$H_0 : \mu_1 - \mu_2 = 0$$&lt;/div&gt;
+&lt;p&gt;The &lt;a href="https://en.wikipedia.org/wiki/Alternative_hypothesis"&gt;&lt;strong&gt;alternative hypothesis&lt;/strong&gt;&lt;/a&gt; (&lt;span class="math"&gt;\(H_a\)&lt;/span&gt;) is that there is a difference between the mean level of income generated by each campaign. More formally, the alternative hypothesis&amp;nbsp;is:&lt;/p&gt;
+&lt;div class="math"&gt;$$H_a : \mu_1 \neq \mu_2$$&lt;/div&gt;
 &lt;p&gt;&lt;center&gt;or&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;$$H_a : \mu_1 - \mu_2 \neq&amp;nbsp;0$$&lt;/p&gt;
+&lt;div class="math"&gt;$$H_a : \mu_1 - \mu_2 \neq 0$$&lt;/div&gt;
 &lt;p&gt;In other words, we are trying to test whether the difference in the mean levels of income generated by each campaign is sufficiently different from 0 to be&amp;nbsp;meaningful.&lt;/p&gt;
 &lt;h2&gt;Picking the most appropriate&amp;nbsp;distribution&lt;/h2&gt;
 &lt;p&gt;The most appropriate distribution for our test depends on what we &lt;em&gt;assume the population distribution is&lt;/em&gt;. As the next step in our study of which campaign is correct, we take &lt;a href="({filename}2015-09-15-representative-sampling.md)"&gt;&lt;strong&gt;representative samples&lt;/strong&gt;&lt;/a&gt; of site visits originating from each campaign and record how much was purchased (simulated&amp;nbsp;below):&lt;/p&gt;
@@ -8245,15 +8477,15 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 
 
 &lt;p&gt;&lt;img alt="plot of chunk advertising_sample_plots" src="/figure/advertising_sample_plots-1.png"&gt; &lt;/p&gt;
-&lt;p&gt;When we look at the data, it appears close enough to normal. However, our sample is a bit small (40 per campaign), so we should be a bit cautious about using the normal (Z) distribution. Instead, we&amp;#8217;ll use a t-distribution, which performs better with &amp;#8220;normally-shaped&amp;#8221; data that have small sample sizes. According to our samples, the first advertising campaign generated a mean of \$296.42 per visit with a standard deviation of \$65.9, and the second campaign generated a mean of \$267.11 per visit with a standard deviation of&amp;nbsp;\$43.53.&lt;/p&gt;
+&lt;p&gt;When we look at the data, it appears close enough to normal. However, our sample is a bit small (40 per campaign), so we should be a bit cautious about using the normal (Z) distribution. Instead, we&amp;#8217;ll use a t-distribution, which performs better with &amp;#8220;normally-shaped&amp;#8221; data that have small sample sizes. According to our samples, the first advertising campaign generated a mean of \&lt;span class="math"&gt;\(296.42 per visit with a standard deviation of \\)&lt;/span&gt;65.9, and the second campaign generated a mean of \&lt;span class="math"&gt;\(267.11 per visit with a standard deviation of \\)&lt;/span&gt;43.53.&lt;/p&gt;
 &lt;p&gt;(&lt;strong&gt;Technical aside:&lt;/strong&gt; The reason that the t-distribution performs better than the normal distribution with small samples is because we use the sample standard deviation in our calculation of both the t- and Z-distributions, rather than the true population standard deviation. At large samples, the sample standard deviation is expected to be a very close approximation to the population standard deviation; however, this is not the case in smaller samples. As such, using a Z-distribution for small samples leads to an underestimation of the standard error of the mean and consequently, confidence intervals. Incidently, this also means that as you collect more and more data, the t-distribution behaves more and more like the Z-distribution, meaning that it is a safe bet to use the t-distribution if you are not sure if your sample is big&amp;nbsp;&amp;#8220;enough&amp;#8221;.)&lt;/p&gt;
 &lt;h2&gt;Computing your test&amp;nbsp;statistic&lt;/h2&gt;
-&lt;p&gt;The next step is to get some measure of whether these values are different (the &lt;a href="https://en.wikipedia.org/wiki/Test_statistic"&gt;&lt;strong&gt;test statistic&lt;/strong&gt;&lt;/a&gt;). When talking about hypothesis tests, I pointed out that the null hypothesis can be reframed as $\mu_1 - \mu_2 = 0$, and the alternative hypothesis as $\mu_1 - \mu_2 \neq 0$. As such, we can test our hypotheses by taking the difference of our two campaigns as the &lt;strong&gt;difference between the two means&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The next step is to get some measure of whether these values are different (the &lt;a href="https://en.wikipedia.org/wiki/Test_statistic"&gt;&lt;strong&gt;test statistic&lt;/strong&gt;&lt;/a&gt;). When talking about hypothesis tests, I pointed out that the null hypothesis can be reframed as &lt;span class="math"&gt;\(\mu_1 - \mu_2 = 0\)&lt;/span&gt;, and the alternative hypothesis as &lt;span class="math"&gt;\(\mu_1 - \mu_2 \neq 0\)&lt;/span&gt;. As such, we can test our hypotheses by taking the difference of our two campaigns as the &lt;strong&gt;difference between the two means&lt;/strong&gt;.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;diff.means&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;campaign.1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nf"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;campaign.2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;This gives us a difference between the campaigns of \$29.31 per visit. In order to test whether this difference is statistically meaningful, we need to convert it into the same units as our test distribution (more on this below) by standardising it. To standardise the mean difference, we subtract the value of the mean difference under the null hypothesis (which is 0) from $\mu_1 - \mu_2$, and then divide it by the pooled standard error. This standardised mean difference is the &lt;a href="https://en.wikipedia.org/wiki/T-statistic"&gt;&lt;strong&gt;t-value.&lt;/strong&gt;&lt;/a&gt; (Of course, we don&amp;#8217;t have the true population value of the means and standard deviations, so we use the sample estimates&amp;nbsp;instead.)&lt;/p&gt;
+&lt;p&gt;This gives us a difference between the campaigns of \&lt;span class="math"&gt;\(29.31 per visit. In order to test whether this difference is statistically meaningful, we need to convert it into the same units as our test distribution (more on this below) by standardising it. To standardise the mean difference, we subtract the value of the mean difference under the null hypothesis (which is 0) from $\mu_1 - \mu_2\)&lt;/span&gt;, and then divide it by the pooled standard error. This standardised mean difference is the &lt;a href="https://en.wikipedia.org/wiki/T-statistic"&gt;&lt;strong&gt;t-value.&lt;/strong&gt;&lt;/a&gt; (Of course, we don&amp;#8217;t have the true population value of the means and standard deviations, so we use the sample estimates&amp;nbsp;instead.)&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# First calculate the pooled standard deviation (assuming equal variances, with equal sample sizes)&lt;/span&gt;
 &lt;span class="n"&gt;sp&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="nf"&gt;sd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;campaign.1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;^2&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nf"&gt;sd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;campaign.2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;^2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
@@ -8269,7 +8501,7 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;h2&gt;Rejecting or accepting the null&amp;nbsp;hypothesis&lt;/h2&gt;
 &lt;p&gt;The final step is working out whether our means are &amp;#8220;different enough&amp;#8221; is to define a &lt;strong&gt;rejection region&lt;/strong&gt; around our mean of 0 (no difference). If our t-value falls within the rejection region, we can call our results statistically&amp;nbsp;significant.&lt;/p&gt;
 &lt;p&gt;In order to define our rejection region, we need to first decide on our &lt;a href="https://en.wikipedia.org/wiki/Statistical_significance"&gt;&lt;strong&gt;significance level&lt;/strong&gt;&lt;/a&gt;. The significance level represents the probability of &lt;a href="https://en.wikipedia.org/wiki/Type_I_and_type_II_errors"&gt;&lt;strong&gt;Type I error&lt;/strong&gt;&lt;/a&gt; we are willing to tolerate in our study, or the probability that we reject the null hypothesis when it is actually true. The &amp;#8220;benchmark&amp;#8221; significance level is 0.05, or a 5% chance that we incorrectly reject the null hypothesis (in our case, saying the means are different when they are in fact&amp;nbsp;not).&lt;/p&gt;
-&lt;p&gt;Once we have decided on our significance level, we need to find the &lt;strong&gt;critical values&lt;/strong&gt; that represent the point beyond which 5% of our test distribution lies. The specific critical value depends on both the shape of the distribution and whether you are using a &lt;a href="https://en.wikipedia.org/wiki/One-_and_two-tailed_tests"&gt;&lt;strong&gt;one-sided&lt;/strong&gt; versus a &lt;strong&gt;two-sided&lt;/strong&gt; test&lt;/a&gt;. One-sided tests are appropriate when you are trying to assess whether one value is bigger (i.e., $\mu_1 - \mu_2 \gt 0$) or smaller than another (i.e., $\mu_1 - \mu_2 \lt 0$). For example, if we were trying to test whether campaign 1 brought in more revenue than campaign 2, it would be appropriate for us to use a one-sided test. In this case, we would have the entire 5% rejection region in the right-hand tail of the distribution, as in the figure&amp;nbsp;below.&lt;/p&gt;
+&lt;p&gt;Once we have decided on our significance level, we need to find the &lt;strong&gt;critical values&lt;/strong&gt; that represent the point beyond which 5% of our test distribution lies. The specific critical value depends on both the shape of the distribution and whether you are using a &lt;a href="https://en.wikipedia.org/wiki/One-_and_two-tailed_tests"&gt;&lt;strong&gt;one-sided&lt;/strong&gt; versus a &lt;strong&gt;two-sided&lt;/strong&gt; test&lt;/a&gt;. One-sided tests are appropriate when you are trying to assess whether one value is bigger (i.e., &lt;span class="math"&gt;\(\mu_1 - \mu_2 \gt 0\)&lt;/span&gt;) or smaller than another (i.e., &lt;span class="math"&gt;\(\mu_1 - \mu_2 \lt 0\)&lt;/span&gt;). For example, if we were trying to test whether campaign 1 brought in more revenue than campaign 2, it would be appropriate for us to use a one-sided test. In this case, we would have the entire 5% rejection region in the right-hand tail of the distribution, as in the figure&amp;nbsp;below.&lt;/p&gt;
 &lt;p&gt;However, as we are looking for any difference (whether positive or negative) between the two means, we must use a two sided test. In a two-sided test, the rejection region is split in half, so that 2.5% lies in the left-hand tail and 2.5% lies in the right-hand tail of the distribution. As you can see in the figure below, the implication of this is that we need less extreme test statistics to achieve significance in a one-sided test than in a two-sided, therefore it is very bad practice to incorrectly use a one-sided test when a two-sided test would be&amp;nbsp;appropriate.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="plot of chunk rejection_region_plots" src="/figure/rejection_region_plots-1.png"&gt; &lt;/p&gt;
 &lt;h3&gt;Just eat the damn&amp;nbsp;orange!&lt;/h3&gt;
@@ -8690,7 +8922,7 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;p&gt;&lt;img alt="plot of chunk bootstrap_plot_3" src="/figure/bootstrap_plot_3-1.png"&gt; &lt;/p&gt;
 &lt;p&gt;Taking the mean of this distribution of means gives us the population mean (219.7), and taking the standard deviation of this distribution gives us the &lt;span class="caps"&gt;SEM&lt;/span&gt; (2.6). Moreover, because this distribution of resample means is normal, we know that &amp;plusmn;1 standard errors around the mean represents 68% of the means of the resamples, and &amp;plusmn;2 standard errors represents 95% of the resamples. In other words, 68% of the time when we take a resample we will end up with a mean between 217.1 and 222.3, and 95% of the time when we take a resample we will end up with a mean between 214.7 and 224.7, a pretty small margin of error around our population mean of 219.6 page views per&amp;nbsp;day.&lt;/p&gt;
 &lt;h2&gt;How do I know if it is worth bootstrapping my &lt;span class="caps"&gt;SEM&lt;/span&gt;?&lt;/h2&gt;
-&lt;p&gt;Let&amp;#8217;s compare the result we get from just using the formula for calculating the &lt;span class="caps"&gt;SEM&lt;/span&gt; with the result we get from bootstrapping this sample. In the case of the Poisson distribution, this is $\sqrt{\lambda /&amp;nbsp;n}$.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s compare the result we get from just using the formula for calculating the &lt;span class="caps"&gt;SEM&lt;/span&gt; with the result we get from bootstrapping this sample. In the case of the Poisson distribution, this is &lt;span class="math"&gt;\(\sqrt{\lambda / n}\)&lt;/span&gt;.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# Defining lambda and n&lt;/span&gt;
 &lt;span class="n"&gt;lambda&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nf"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sample&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="m"&gt;30&lt;/span&gt;
@@ -8733,7 +8965,7 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;p&gt;It is easy once you get into applying statistics to a sample to forget you are dealing with a &lt;em&gt;representation&lt;/em&gt; of a population, rather than the &lt;em&gt;population itself&lt;/em&gt;. As such, all statistics you derive using your sample are just estimates of the true population parameters you are hoping to talk about. It is therefore important that you have some idea how reliable these estimates are before you start inferring from&amp;nbsp;them.&lt;/p&gt;
 &lt;h2&gt;How is the standard error of the mean&amp;nbsp;calculated?&lt;/h2&gt;
 &lt;p&gt;One way of assessing the &lt;span class="caps"&gt;SEM&lt;/span&gt; is to sample repeatedly from the population, calculate the mean for each sample, and plot the distribution of these means. Each sample is expected to be a different representation of the population, with different estimates of the mean in each&amp;nbsp;sample.&lt;/p&gt;
-&lt;p&gt;Let&amp;#8217;s revisit our problem of assessing the accuracy of the mean number of page views. One thing you could do is take a large number of samples of 30 day periods each, where large means 1,000 or more. Instead of doing this (because it would take about 82 years&amp;#8230;), let&amp;#8217;s pretend we already know the population mean and distribution and simulate this result in R. In this case, let&amp;#8217;s say we have an mean of 220 page views per day, which we would model using a Poisson distribution (i.e., $\lambda$ = 220/day). (As you may already know, we use the &lt;a href="https://en.wikipedia.org/wiki/Poisson_distribution"&gt;Poisson distribution&lt;/a&gt; as it is the most appropriate distribution for describing a count of events occurring over&amp;nbsp;time.)&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s revisit our problem of assessing the accuracy of the mean number of page views. One thing you could do is take a large number of samples of 30 day periods each, where large means 1,000 or more. Instead of doing this (because it would take about 82 years&amp;#8230;), let&amp;#8217;s pretend we already know the population mean and distribution and simulate this result in R. In this case, let&amp;#8217;s say we have an mean of 220 page views per day, which we would model using a Poisson distribution (i.e., &lt;span class="math"&gt;\(\lambda\)&lt;/span&gt; = 220/day). (As you may already know, we use the &lt;a href="https://en.wikipedia.org/wiki/Poisson_distribution"&gt;Poisson distribution&lt;/a&gt; as it is the most appropriate distribution for describing a count of events occurring over&amp;nbsp;time.)&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# Clear the workspace&lt;/span&gt;
 &lt;span class="nf"&gt;rm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;ls&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 
@@ -8757,14 +8989,14 @@ E[Y | X_1X_2] &amp;amp;=&amp;amp; (19.24 -2.17) + (-3.79 -5.3)(weight) \cr
 &lt;p&gt;When we do this, our first sample has a mean rate of 220 page views per day, and our second sample has a mean rate of 216 page views per day. Looking at the sample distributions (below), the sample mean almost completely mirrors the population mean in sample 1, but there is quite a bit of difference between the two values in sample&amp;nbsp;2.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="plot of chunk sem_sample_plots" src="/figure/sem_sample_plots-1.png"&gt;&lt;/p&gt;
 &lt;p&gt;Now we plot the &lt;em&gt;distribution of the means of each of the 1,000 samples.&lt;/em&gt; Remember we are no longer looking at how much each &lt;em&gt;daily page view&lt;/em&gt; varies from each other; instead, we are looking at how much each of the &lt;em&gt;means of these samples of 30 days of page views&lt;/em&gt; differ from each other (it&amp;#8217;s like, a total&amp;nbsp;meta-distribution).&lt;/p&gt;
-&lt;p&gt;It turns out that the distribution of the mean of the samples is approximately normally distributed (as described by the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;&lt;strong&gt;Central Limit Theorem&lt;/strong&gt;&lt;/a&gt;). This does depend on your observations (i.e., each day of page views) being &lt;a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables"&gt;&lt;strong&gt;independent and identically distributed&lt;/strong&gt;&lt;/a&gt; (or &lt;strong&gt;&lt;em&gt;iid&lt;/em&gt;&lt;/strong&gt;), which basically means each observation has been sampled from the same distribution, and the value of any observation in the sample is not dependent on the values of other values in the sample. In our case, the page views would be &lt;em&gt;iid&lt;/em&gt; if each was from a Poisson distribution with $\lambda$ = 220, and the page views you receive on one day are not influenced by the page views on another&amp;nbsp;day.&lt;/p&gt;
+&lt;p&gt;It turns out that the distribution of the mean of the samples is approximately normally distributed (as described by the &lt;a href="https://en.wikipedia.org/wiki/Central_limit_theorem"&gt;&lt;strong&gt;Central Limit Theorem&lt;/strong&gt;&lt;/a&gt;). This does depend on your observations (i.e., each day of page views) being &lt;a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables"&gt;&lt;strong&gt;independent and identically distributed&lt;/strong&gt;&lt;/a&gt; (or &lt;strong&gt;&lt;em&gt;iid&lt;/em&gt;&lt;/strong&gt;), which basically means each observation has been sampled from the same distribution, and the value of any observation in the sample is not dependent on the values of other values in the sample. In our case, the page views would be &lt;em&gt;iid&lt;/em&gt; if each was from a Poisson distribution with &lt;span class="math"&gt;\(\lambda\)&lt;/span&gt; = 220, and the page views you receive on one day are not influenced by the page views on another&amp;nbsp;day.&lt;/p&gt;
 &lt;p&gt;This can be seen in the histogram of the means of each&amp;nbsp;sample:&lt;/p&gt;
 &lt;p&gt;&lt;img alt="plot of chunk sem_normal_plot" src="/figure/sem_normal_plot-1.png"&gt;&lt;/p&gt;
 &lt;p&gt;The mean of this distribution should be a pretty close estimate of the population mean - and it is, equalling 220.1. If we take the standard deviation of this distribution, we get the standard error of the mean. Because these means are normally distributed, &amp;plusmn;1 standard error around the mean of the sample means represents the range that 68% of the sample means fall within, &amp;plusmn;2 standard errors represents the range that 95% of the sample means fall within, and so&amp;nbsp;on.&lt;/p&gt;
 &lt;p&gt;In our case, taking a sample of 30 days gives us a pretty accurate assessment of the population mean, with 68% of our samples giving a mean between 217.4 and 222.8, and 95% of our samples giving a mean between 214.8 and 225.3. In other words, 68% of the time when we take a sample we will end up with a mean between 217.4 and 222.8, and 95% of the time when we take a sample we will end up with a mean between 214.8 and 225.3. This is a pretty tight band around our population mean of 220 page views per day, indicating that a sample of 30 gives a pretty good estimate of the&amp;nbsp;mean.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="plot of chunk sem_percentile_plot" src="/figure/sem_percentile_plot-1.png"&gt;&lt;/p&gt;
 &lt;h2&gt;Back to the&amp;nbsp;formula&amp;#8230;&lt;/h2&gt;
-&lt;p&gt;As I mentioned at the beginning of this post, the &lt;span class="caps"&gt;SEM&lt;/span&gt; is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is $\sqrt{\lambda / n}$. Let&amp;#8217;s see how this compares to our simulation-based estimation of the &lt;span class="caps"&gt;SEM&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;As I mentioned at the beginning of this post, the &lt;span class="caps"&gt;SEM&lt;/span&gt; is calculated using a distribution-specific formula. In the case of the Poisson distribution, this is &lt;span class="math"&gt;\(\sqrt{\lambda / n}\)&lt;/span&gt;. Let&amp;#8217;s see how this compares to our simulation-based estimation of the &lt;span class="caps"&gt;SEM&lt;/span&gt;.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# Defining lambda and n&lt;/span&gt;
 &lt;span class="n"&gt;lambda&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="m"&gt;220&lt;/span&gt;
 &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="m"&gt;30&lt;/span&gt;
