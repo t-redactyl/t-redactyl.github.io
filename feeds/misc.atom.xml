@@ -134,12 +134,16 @@ F = \begin{bmatrix}10 &amp;amp; 11 &amp;amp; 12 &amp;amp; 13\\14 &amp;amp; 15 &a
 $$&lt;/div&gt;
 &lt;p&gt;To get the first element of our new matrix &lt;span class="math"&gt;\(AF\)&lt;/span&gt; (which we&amp;#8217;ll call &lt;span class="math"&gt;\(G\)&lt;/span&gt; to make it a bit neater), we use the following&amp;nbsp;formula:&lt;/p&gt;
 &lt;div class="math"&gt;$$
-\begin{align}g_{11} &amp;amp;= a_{11}f_{11} + a_{12}f_{21}\\&amp;amp;= (1 \times 10) + (2 \times 14)\\&amp;amp;= 10 + 28\\&amp;amp;= 38\end{align}
+\begin{aligned}
+g_{11} &amp;amp;= a_{11}f_{11} + a_{12}f_{21}\\&amp;amp;= (1 \times 10) + (2 \times 14)\\&amp;amp;= 10 + 28\\&amp;amp;= 38
+\end{aligned}
 $$&lt;/div&gt;
 &lt;p&gt;In other words, in order to get the first element of our new matrix &lt;span class="math"&gt;\(G\)&lt;/span&gt;, we multiply the first and second elements of the first row in &lt;span class="math"&gt;\(A\)&lt;/span&gt; by the first and second elements of the first column in &lt;span class="math"&gt;\(F\)&lt;/span&gt; respectively, and then add them. This operation is called taking the &lt;a href="https://www.mathsisfun.com/algebra/vectors-dot-product.html"&gt;dot product&lt;/a&gt; of this row and this column. You can now see that this way of pairing of elements is why the number of columns in the first matrix must be the same as the number of rows in the second&amp;nbsp;matrix. &lt;/p&gt;
 &lt;p&gt;Where do we go next? In order to get the next element &lt;span class="math"&gt;\(g_{12}\)&lt;/span&gt; (that is, the second element of the first row), we take the elements of the first row of the first matrix and those of the second column of the second matrix and multiply them together like&amp;nbsp;so:&lt;/p&gt;
 &lt;div class="math"&gt;$$
-\begin{align}g_{12} &amp;amp;= a_{11}f_{21} + a_{12}f_{22}\\&amp;amp;= (1 \times 11) + (2 \times 15)\\&amp;amp;= 11 + 30\\&amp;amp;= 41\end{align}
+\begin{aligned}
+g_{12} &amp;amp;= a_{11}f_{21} + a_{12}f_{22}\\&amp;amp;= (1 \times 11) + (2 \times 15)\\&amp;amp;= 11 + 30\\&amp;amp;= 41
+\end{aligned}
 $$&lt;/div&gt;
 &lt;p&gt;Continuing this across all of the elements, we end up&amp;nbsp;with:
 &lt;/p&gt;
@@ -161,7 +165,7 @@ $$&lt;/div&gt;
 
 
 &lt;p&gt;Alternatively, we can use the &lt;code&gt;@&lt;/code&gt; operator as a&amp;nbsp;shortcut:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="nd"&gt;@F&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt; &lt;span class="n"&gt;F&lt;/span&gt;
 &lt;span class="n"&gt;G&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 

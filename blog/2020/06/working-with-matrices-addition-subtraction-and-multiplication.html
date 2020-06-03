@@ -211,12 +211,16 @@ F = \begin{bmatrix}10 &amp; 11 &amp; 12 &amp; 13\\14 &amp; 15 &amp; 16 &amp; 17\
 $$</div>
 <p>To get the first element of our new matrix <span class="math">\(AF\)</span> (which we&#8217;ll call <span class="math">\(G\)</span> to make it a bit neater), we use the following&nbsp;formula:</p>
 <div class="math">$$
-\begin{align}g_{11} &amp;= a_{11}f_{11} + a_{12}f_{21}\\&amp;= (1 \times 10) + (2 \times 14)\\&amp;= 10 + 28\\&amp;= 38\end{align}
+\begin{aligned}
+g_{11} &amp;= a_{11}f_{11} + a_{12}f_{21}\\&amp;= (1 \times 10) + (2 \times 14)\\&amp;= 10 + 28\\&amp;= 38
+\end{aligned}
 $$</div>
 <p>In other words, in order to get the first element of our new matrix <span class="math">\(G\)</span>, we multiply the first and second elements of the first row in <span class="math">\(A\)</span> by the first and second elements of the first column in <span class="math">\(F\)</span> respectively, and then add them. This operation is called taking the <a href="https://www.mathsisfun.com/algebra/vectors-dot-product.html">dot product</a> of this row and this column. You can now see that this way of pairing of elements is why the number of columns in the first matrix must be the same as the number of rows in the second&nbsp;matrix. </p>
 <p>Where do we go next? In order to get the next element <span class="math">\(g_{12}\)</span> (that is, the second element of the first row), we take the elements of the first row of the first matrix and those of the second column of the second matrix and multiply them together like&nbsp;so:</p>
 <div class="math">$$
-\begin{align}g_{12} &amp;= a_{11}f_{21} + a_{12}f_{22}\\&amp;= (1 \times 11) + (2 \times 15)\\&amp;= 11 + 30\\&amp;= 41\end{align}
+\begin{aligned}
+g_{12} &amp;= a_{11}f_{21} + a_{12}f_{22}\\&amp;= (1 \times 11) + (2 \times 15)\\&amp;= 11 + 30\\&amp;= 41
+\end{aligned}
 $$</div>
 <p>Continuing this across all of the elements, we end up&nbsp;with:
 </p>
@@ -238,7 +242,7 @@ $$</div>
 
 
 <p>Alternatively, we can use the <code>@</code> operator as a&nbsp;shortcut:</p>
-<div class="highlight"><pre><span></span><span class="n">G</span> <span class="o">=</span> <span class="n">A</span><span class="nd">@F</span>
+<div class="highlight"><pre><span></span><span class="n">G</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">F</span>
 <span class="n">G</span>
 </pre></div>
 
