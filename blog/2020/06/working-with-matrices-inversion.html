@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Working with matrices: inversion</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Working with matrices: inversion written June 15, 2020 in maths,linear algebra,python">
+  <meta name="keywords" content="python, data science, linear algebra, matrix inversion, identity matrix, numpy" />
+
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"
+    />
+
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Working with matrices: inversion</h1>
+        <div class="meta">
+          written <time datetime="2020-06-15T00:00:00+02:00">June 15, 2020</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/maths.html">maths</a>,            <a href="http://t-redactyl.github.io/tag/linear-algebra.html">linear algebra</a>,            <a href="http://t-redactyl.github.io/tag/python.html">python</a>          </span>
+        </div>
+        <p>Today we will continue our discussion of the basic operations you can do with matrices in linear algebra. In the <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">last post</a> we covered addition, subtraction, scalar multiplication and matrix multiplication. This week, we&#8217;ll cover matrix&nbsp;inversion.</p>
+<h2>Matrix&nbsp;inversion</h2>
+<p>So far we&#8217;ve seen matrix addition, subtraction and multiplication, but what about matrix division? Well, technically there is no such thing! The closest thing we have is multiplying a matrix by its inverse. Before we get into what an inverse is, we need to pause to describe a special matrix called the <strong>identity matrix</strong>. </p>
+<h3>Identity&nbsp;matrix</h3>
+<p>The identity matrix is simply a square matrix which has 0 everywhere except along the diagonal, where it instead contains 1&#8217;s. For example, a <span class="math">\(2 \times 2\)</span> identity matrix would&nbsp;be:</p>
+<div class="math">$$
+I = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}
+$$</div>
+<p>The identity matrix can be thought of as the equivalent of 1 for matrices, in the sense that if you multiply any number by 1, the number will remain unchanged. Similarly, if you multiply any matrix by its identity matrix, that matrix will remain unchanged. Let&#8217;s see this with a new matrix <span class="math">\(A\)</span>:</p>
+<div class="math">$$
+A = \begin{bmatrix} 4 &amp; 3 \\ 6 &amp; 5 \end{bmatrix}
+$$</div>
+<p>If we multiply <span class="math">\(A\)</span> by <span class="math">\(I\)</span>, we&nbsp;get:
+</p>
+<div class="math">$$
+\begin{aligned}
+AI &amp;= \begin{bmatrix} 4 &amp; 3 \\ 6 &amp; 5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}\\
+&amp;= \begin{bmatrix} (4 \times 1 + 3 \times 0) &amp; (4 \times 0 + 3 \times 1) \\ (6 \times 1 + 5 \times 0) &amp; (6 \times 0 + 5 \times 1) \end{bmatrix}\\
+&amp;= \begin{bmatrix} 4 &amp; 3 \\ 6 &amp; 5 \end{bmatrix}
+\end{aligned}
+$$</div>
+<p>In order to do this in Numpy, we can generate an identity matrix using the <code>identity</code> function, passing the number of rows (and columns) as the&nbsp;argument.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
+<span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">I</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<span class="err">       [0., 1.]])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">AI</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="n">AI</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[4., 3.],</span>
+<span class="err">       [6., 5.]])</span>
+</pre></div>
+
+
+<p>Unlike most matrix multiplications, we get the same result if we multiply <span class="math">\(AI\)</span> or <span class="math">\(IA\)</span>, as both results just simplify to <span class="math">\(A\)</span>: <span class="math">\(AI = IA = A\)</span>. This means that matrix multiplication by the identity is&nbsp;commutative.</p>
+<div class="highlight"><pre><span></span><span class="n">IA</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="n">IA</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[4., 3.],</span>
+<span class="err">       [6., 5.]])</span>
+</pre></div>
+
+
+<h3>Inverse of a&nbsp;matrix</h3>
+<p>The inverse of a matrix is another matrix by which you multiply that matrix to get the identity matrix. This is comparable to the inverse with numbers, where the <a href="https://www.mathsisfun.com/numbers/inverse.html">inverse of a number is what you multiply that number by to get 1</a>. You may have noticed that I referred to <strong>the</strong> inverse of a matrix. This is because every matrix that can be inverted has only one unique inverse. The inverse of the matrix is indicated by writing the name of the original matrix with a little <span class="math">\(-1\)</span> superscript (<a href="https://www.mathsisfun.com/numbers/inverse.html">which is exactly the same notation as for the multiplicative inverse for numbers</a>). For example, the matrix <span class="math">\(Z\)</span> would have the inverse <span class="math">\(Z^{-1}\)</span>.</p>
+<p>How do we find the inverse of a matrix? For <span class="math">\(2 \times 2\)</span> matrices it is straightforward. In order to do so, we transform our original matrix in the following&nbsp;way:
+</p>
+<div class="math">$$
+M^{-1} = \frac{1}{m_{11}m_{22} - m_{12}m_{21}} \begin{bmatrix}m_{22} &amp; -m_{12}\\-m_{21} &amp; m_{11}\end{bmatrix}
+$$</div>
+<p>This looks a little complicated, but let&#8217;s break it down. Have a look at the matrix component of this equation. You can see that we have swapped the positions of the first and last elements in the matrix, so that the element that was in <span class="math">\(m_{11}\)</span> is now in <span class="math">\(m_{22}\)</span>, and vice versa. <span class="math">\(m_{12}\)</span> and <span class="math">\(m_{21}\)</span> stay in their original spots, but we multiply them by <span class="math">\(-1\)</span>. We then calculate something called the determinant, which is basically a number we divide this reorganised matrix by to get the inverse. This is calculated by the formula <span class="math">\(m_{11}m_{22} - m_{12}m_{21}\)</span>, and if we multiply our reorganised matrix by <span class="math">\(1\)</span> divided by this number, we get the&nbsp;inverse.</p>
+<p>Let&#8217;s try this with a concrete example, using our matrix <span class="math">\(A\)</span>. In order to get the inverse of <span class="math">\(A\)</span>, or <span class="math">\(A^{-1}\)</span>, we do the&nbsp;following:
+</p>
+<div class="math">$$
+\begin{aligned}
+A^{-1} &amp;= \frac{1}{4 \times 5 - 3 \times 6} \begin{bmatrix}5 &amp; -3 \\ -6 &amp; 4 \end{bmatrix}\\
+&amp;= \frac{1}{2} \begin{bmatrix} 5 &amp; -3 \\ -6 &amp; 4 \end{bmatrix}\\
+&amp;= \begin{bmatrix}(\frac{1}{2} \times 5) &amp; (\frac{1}{2} \times -3) \\ (\frac{1}{2} \times -6) &amp; (\frac{1}{2} \times 4) \end{bmatrix}\\
+&amp;= \begin{bmatrix} \frac{5}{2} &amp; -\frac{3}{2} \\ -3 &amp; 2 \end{bmatrix}
+\end{aligned}
+$$</div>
+<p>And voilà, we have our matrix inversion! Let&#8217;s just double check it worked by multiplying <span class="math">\(A\)</span> by&nbsp;it:
+</p>
+<div class="math">$$
+\begin{aligned}
+AA^{-1} &amp;= \begin{bmatrix}(4 \times \frac{5}{2} + 3 \times -3) &amp; (4\times-\frac{3}{2} + 3\times2)\\(6\times\frac{5}{2} + -3 \times 5) &amp; (6\times-\frac{3}{2} + 5\times2)\end{bmatrix}\\
+&amp;= \begin{bmatrix}(10-9) &amp; (-6 + 6)\\(15-15) &amp; (-9 + 10)\end{bmatrix}\\
+&amp;= \begin{bmatrix}1 &amp; 0\\0 &amp; 1\end{bmatrix}
+\end{aligned}
+$$</div>
+<p>Unfortunately, finding the inverse of matrices that are bigger than <span class="math">\(2 \times 2\)</span> is less straightforward. There are a few methods to do it, but they are beyond the scope of this blog post. A couple of nice (and gentle) introductions to these can be found <a href="https://www.mathsisfun.com/algebra/matrix-inverse-row-operations-gauss-jordan.html">here</a> and <a href="https://www.mathsisfun.com/algebra/matrix-inverse-minors-cofactors-adjugate.html">here</a>.</p>
+<p>In order to calculate the inverse of a matrix in Numpy, we can use the <code>inv</code> function from the <code>linalg</code> subpackage.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
+
+<span class="n">Ainv</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="n">Ainv</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<span class="err">       [-3. ,  2. ]])</span>
+</pre></div>
+
+
+<p>Let&#8217;s check it is the correct inverse by multiplying it by <span class="math">\(A\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<span class="err">       [0., 1.]])</span>
+</pre></div>
+
+
+<p>Like with multiplication by the identity matrix, multiplication by the inverse is also commutative. This is because, as we just saw above, multiplying <span class="math">\(A\)</span> by its inverse simplifies to <span class="math">\(I\)</span>, so <span class="math">\(AA^{-1} = A^{-1}A = I\)</span>. Let&#8217;s confirm this is true using&nbsp;Numpy:</p>
+<div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">Ainv</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<span class="err">       [0., 1.]])</span>
+</pre></div>
+
+
+<p>You&#8217;ve probably guessed from what I said earlier that not all matrices are invertible. Firstly, only square matrices are invertible. In addition, if any of the columns are a combination of any of the other columns in the matrix, then you cannot invert the matrix (in other words, when any of the columns are a linear combination of any of the other columns). Let&#8217;s see why this is the case. Let&#8217;s say we have a matrix <span class="math">\(B\)</span>, where the second column is a multiple of the first&nbsp;column:</p>
+<div class="math">$$
+B = \begin{bmatrix}1 &amp; 2\\3 &amp; 6\end{bmatrix}
+$$</div>
+<p>Let&#8217;s now try to calculate the inverse, <span class="math">\(B^{-1}\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+B^{-1} &amp;= \frac{1}{(1 \times 6) - (2 \times 3)}\begin{bmatrix}6 &amp; -2\\-3 &amp; 1\end{bmatrix}\\ 
+&amp;= \frac{1}{6 - 6}\begin{bmatrix}6 &amp; -2\\-3 &amp; 1\end{bmatrix}\\ 
+&amp;= \frac{1}{0}\begin{bmatrix}6 &amp; -2\\-3 &amp; 1\end{bmatrix}
+\end{aligned}
+$$</div>
+<p>But wait! Our determinant is <span class="math">\(\frac{1}{0}\)</span>, which is undefined. This means we can&#8217;t go any further in solving this equation, making our matrix uninvertible. Such non-invertible matrices are called &#8220;singular&#8221; or &#8220;degenerate&#8221;&nbsp;matrices.</p>
+<p>Let&#8217;s see what happens when we try to pass our matrix <span class="math">\(B\)</span> to Numpy&#8217;s <code>inv</code> function:</p>
+<div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="n">inv</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1">---------------------------------------------------------------------------</span>
+
+<span class="n">LinAlgError</span>                               <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="k">call</span> <span class="k">last</span><span class="p">)</span>
+
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="k">input</span><span class="o">-</span><span class="mi">18</span><span class="o">-</span><span class="n">ae75e56b5e72</span><span class="o">&gt;</span> <span class="k">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+      <span class="mi">1</span> <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="c1">----&gt; 2 inv(B)</span>
+
+
+<span class="o">&lt;</span><span class="n">__array_function__</span> <span class="n">internals</span><span class="o">&gt;</span> <span class="k">in</span> <span class="n">inv</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="o">~/</span><span class="n">Documents</span><span class="o">/</span><span class="n">Blog</span><span class="o">-</span><span class="n">posts</span><span class="o">/</span><span class="p">.</span><span class="n">maths_venv</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">numpy</span><span class="o">/</span><span class="n">linalg</span><span class="o">/</span><span class="n">linalg</span><span class="p">.</span><span class="n">py</span> <span class="k">in</span> <span class="n">inv</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="mi">545</span>     <span class="n">signature</span> <span class="o">=</span> <span class="s1">&#39;D-&gt;D&#39;</span> <span class="k">if</span> <span class="n">isComplexType</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;d-&gt;d&#39;</span>
+    <span class="mi">546</span>     <span class="n">extobj</span> <span class="o">=</span> <span class="n">get_linalg_error_extobj</span><span class="p">(</span><span class="n">_raise_linalgerror_singular</span><span class="p">)</span>
+<span class="c1">--&gt; 547     ainv = _umath_linalg.inv(a, signature=signature, extobj=extobj)</span>
+    <span class="mi">548</span>     <span class="k">return</span> <span class="n">wrap</span><span class="p">(</span><span class="n">ainv</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="n">result_t</span><span class="p">,</span> <span class="k">copy</span><span class="o">=</span><span class="k">False</span><span class="p">))</span>
+    <span class="mi">549</span>
+
+
+<span class="o">~/</span><span class="n">Documents</span><span class="o">/</span><span class="n">Blog</span><span class="o">-</span><span class="n">posts</span><span class="o">/</span><span class="p">.</span><span class="n">maths_venv</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">numpy</span><span class="o">/</span><span class="n">linalg</span><span class="o">/</span><span class="n">linalg</span><span class="p">.</span><span class="n">py</span> <span class="k">in</span> <span class="n">_raise_linalgerror_singular</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+     <span class="mi">95</span> 
+     <span class="mi">96</span> <span class="n">def</span> <span class="n">_raise_linalgerror_singular</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+<span class="c1">---&gt; 97     raise LinAlgError(&quot;Singular matrix&quot;)</span>
+     <span class="mi">98</span> 
+     <span class="mi">99</span> <span class="n">def</span> <span class="n">_raise_linalgerror_nonposdef</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+
+
+<span class="n">LinAlgError</span><span class="p">:</span> <span class="n">Singular</span> <span class="n">matrix</span>
+</pre></div>
+
+
+<p>Numpy tells us clearly that this matrix is non-invertible, exactly for the reasons we talked about&nbsp;above.</p>
+<p>That caps off our discussion of matrix inversion. In the next post, we&#8217;ll finish up this series on matrix operations by talking about powers of a matrix and matrix&nbsp;transposition.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>
