@@ -69,7 +69,7 @@ $$&lt;/div&gt;
 \begin{aligned}
 A^{-1} &amp;amp;= \frac{1}{4 \times 5 - 3 \times 6} \begin{bmatrix}5 &amp;amp; -3 \\ -6 &amp;amp; 4 \end{bmatrix}\\
 &amp;amp;= \frac{1}{2} \begin{bmatrix} 5 &amp;amp; -3 \\ -6 &amp;amp; 4 \end{bmatrix}\\
-&amp;amp;= \begin{bmatrix}(\frac{1}{2} \times 5) &amp;amp; (\frac{1}{2} \times -3) \\ (\frac{1}{2} \times -6) &amp;amp; (\frac{1}{2} \times 4) \end{bmatrix}\\
+&amp;amp;= \begin{bmatrix}(\frac{1}{2} \times 5) &amp;amp; (\frac{1}{2} \times -3) \\[4pt] (\frac{1}{2} \times -6) &amp;amp; (\frac{1}{2} \times 4) \end{bmatrix}\\
 &amp;amp;= \begin{bmatrix} \frac{5}{2} &amp;amp; -\frac{3}{2} \\ -3 &amp;amp; 2 \end{bmatrix}
 \end{aligned}
 $$&lt;/div&gt;
@@ -77,7 +77,7 @@ $$&lt;/div&gt;
 &lt;/p&gt;
 &lt;div class="math"&gt;$$
 \begin{aligned}
-AA^{-1} &amp;amp;= \begin{bmatrix}(4 \times \frac{5}{2} + 3 \times -3) &amp;amp; (4\times-\frac{3}{2} + 3\times2)\\(6\times\frac{5}{2} + -3 \times 5) &amp;amp; (6\times-\frac{3}{2} + 5\times2)\end{bmatrix}\\
+AA^{-1} &amp;amp;= \begin{bmatrix}(4 \times \frac{5}{2} + 3 \times -3) &amp;amp; (4\times-\frac{3}{2} + 3\times2)\\[4pt] (6\times\frac{5}{2} + -3 \times 5) &amp;amp; (6\times-\frac{3}{2} + 5\times2)\end{bmatrix}\\
 &amp;amp;= \begin{bmatrix}(10-9) &amp;amp; (-6 + 6)\\(15-15) &amp;amp; (-9 + 10)\end{bmatrix}\\
 &amp;amp;= \begin{bmatrix}1 &amp;amp; 0\\0 &amp;amp; 1\end{bmatrix}
 \end{aligned}
