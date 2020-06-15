@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Simplifying the normal equation with Gram-Schmidt</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Simplifying the normal equation with Gram-Schmidt written July 27, 2020 in maths,linear algebra,python">
+  <meta name="keywords" content="python, data science, linear algebra, linear regression, normal equation, least squares, numpy" />
+
+    <link
+      rel="canonical"
+      href="/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Simplifying the normal equation with Gram-Schmidt</h1>
+        <div class="meta">
+          written <time datetime="2020-07-27T00:00:00+02:00">July 27, 2020</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>,            <a href="/tag/linear-algebra.html">linear algebra</a>,            <a href="/tag/python.html">python</a>          </span>
+        </div>
+        <p>In the <a href="{filename}2020-07-13-linear-algebra-ols-regression.md">last post</a> I talked about how to find the coefficients that give us the line of best fit for a <span class="caps">OLS</span> regression problem using the normal solution. The core of this approach is the&nbsp;equation:</p>
+<div class="math">$$
+X^TXb = X^Ty
+$$</div>
+<p>The way we solved this in the previous post was to pull out the system of simultaneous equations and solve these for <span class="math">\(b\)</span>. However, a more straightforward way is to rewrite the equation by &#8220;dividing&#8221; both sides by <span class="math">\(X^TX\)</span>, so that we are directly solving for <span class="math">\(b\)</span>. If you remember back to <a href="/blog/2020/06/working-with-matrices-inversion.html">this post</a>, we need to multiply both sides of the equation by the inverse of <span class="math">\(X^TX\)</span> in order to do&nbsp;this:</p>
+<div class="math">$$
+\begin{aligned}
+(X^TX)^{-1}(X^TX)b &amp;= (X^TX)^{-1}X^Ty \\
+Ib &amp;= (X^TX)^{-1}X^Ty \\
+b &amp;= (X^TX)^{-1}X^Ty
+\end{aligned}
+$$</div>
+<p>The issue is that this equation now involves taking the inverse of a matrix, which is computationally expensive. Luckily there is a way of getting rid of this whole inversion step by using a special type of matrix called an <a href="https://en.wikipedia.org/wiki/Orthogonal_matrix">orthonormal matrix</a>.</p>
+<h2>The advantage of orthonormal&nbsp;matrices</h2>
+<p>An orthonormal matrix is one where every column vector is an orthogonal unit vector. We have seen orthogonal vectors before: this simply means that the dot product of every pair of vectors in the matrix is <span class="math">\(0\)</span>. Unit vectors are similarly straightforward - they are just vectors with a length of <span class="math">\(1\)</span>.</p>
+<p>Why are orthonormal matrices so great for helping us find <span class="math">\(b\)</span>? When we multiply an orthonormal matrix <span class="math">\(Q\)</span> by its transpose <span class="math">\(Q^T\)</span>, we get the identity matrix; in other words, <span class="math">\(Q^TQ = I\)</span>. Does the lefthand side of this equation look familiar? It&#8217;s the exact part of <span class="math">\(X^TXb = X^Ty\)</span> that we tried to get rid of earlier by multiplying by the inverse. If we were able to use the orthonormal form of <span class="math">\(X\)</span>, we could isolate <span class="math">\(b\)</span> without having to calculate the inverse at all, by simply calculating <span class="math">\(b = Q^Ty\)</span>!</p>
+<p>Before we get into how to convert our matrix <span class="math">\(X\)</span> into <span class="math">\(Q\)</span>, let&#8217;s have a look at why <span class="math">\(Q^TQ = 0\)</span>. Let&#8217;s take an example orthonormal&nbsp;vector:</p>
+<div class="math">$$
+Q = \begin{bmatrix} \frac{4}{5} &amp; \frac{1}{5} \\[4pt] \frac{2}{5} &amp; -\frac{2}{5} \\[4pt] \frac{1}{5} &amp; \frac{4}{5} \\[4pt] \frac{2}{5} &amp; -\frac{2}{5} \end{bmatrix}
+$$</div>
+<p>Multiplying <span class="math">\(Q^TQ\)</span> will give us a <span class="math">\(2 \times 2\)</span> matrix, with the following&nbsp;components:</p>
+<div class="math">$$
+Q^TQ = \begin{bmatrix} q_1^Tq_1 &amp; q_1^Tq_2 \\[4pt] q_2^Tq_1 &amp; q_2^Tq_2 \end{bmatrix}
+$$</div>
+<p>Any vector multiplied by itself will give the squared length of that vector. In the case of a unit vector, the squared length is <span class="math">\(1\)</span>, as seen by the result of multiplying <span class="math">\(q_1^Tq_1\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+q_1^Tq_1 &amp;= \begin{bmatrix} \frac{4}{5} \\[4pt] \frac{2}{5} \\[4pt] \frac{1}{5} \\[4pt] \frac{2}{5} \end{bmatrix} \cdotp \begin{bmatrix} \frac{4}{5} &amp; \frac{2}{5} &amp; \frac{1}{5} &amp; \frac{2}{5} \end{bmatrix} \\
+&amp;= (\frac{4}{5})^2 + (\frac{2}{5})^2 + (\frac{1}{5})^2 + (\frac{2}{5})^2 \\
+&amp;= \frac{16}{25} + \frac{4}{25} + \frac{1}{25} + \frac{4}{25} \\
+&amp;= \frac{25}{25} = 1
+\end{aligned}
+$$</div>
+<p>This means we will always get <span class="math">\(1\)</span><span class="quo">&#8216;</span>s in this matrix whenever we take the dot product of one of the columns of <span class="math">\(Q\)</span> with itself; that is, along the diagonals of the matrix. For the other components of the matrix, we are now taking the dot product of two orthogonal vectors, meaning the result will be <span class="math">\(0\)</span>.</p>
+<div class="math">$$
+\begin{aligned}
+q_1^Tq_1 &amp;= \begin{bmatrix} \frac{4}{5} \\[4pt] \frac{2}{5} \\[4pt] \frac{1}{5} \\[4pt] \frac{2}{5} \end{bmatrix} \cdotp \begin{bmatrix} \frac{1}{5} &amp; -\frac{2}{5} &amp; \frac{4}{5} &amp; -\frac{2}{5} \end{bmatrix} \\
+&amp;= \frac{4}{25} - \frac{4}{5} + \frac{4}{5} - \frac{4}{5} = 0
+\end{aligned}
+$$</div>
+<p>Combining this, we&nbsp;get:</p>
+<div class="math">$$
+\begin{aligned}
+Q^TQ &amp;= \begin{bmatrix} \frac{4}{5} &amp; \frac{2}{5} &amp; \frac{1}{5} &amp; \frac{2}{5} \\[4pt] \frac{1}{5} &amp; -\frac{2}{5} &amp; \frac{4}{5} &amp; -\frac{2}{5} \end{bmatrix} \begin{bmatrix} \frac{4}{5} &amp; \frac{1}{5} \\[4pt] \frac{2}{5} &amp; -\frac{2}{5} \\[4pt] \frac{1}{5} &amp; \frac{4}{5} \\[4pt] \frac{2}{5} &amp; -\frac{2}{5} \end{bmatrix} \\
+&amp;= \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = I
+\end{aligned}
+$$</div>
+<h2>Turning <span class="math">\(X\)</span> into an orthonormal&nbsp;matrix</h2>
+<p>So how do we convert <span class="math">\(X\)</span> into an orthonormal matrix <span class="math">\(Q\)</span>? The first step is to find <strong>orthogonal</strong> vectors, and the method we use is an extension of how we found <span class="math">\(\hat y\)</span> and <span class="math">\(e\)</span> when trying to solve least squares for regression in the previous post. Those calculations essentially split <span class="math">\(y\)</span> into two orthogonal vectors: <span class="math">\(\hat y\)</span> which lay on the plane of the column space <span class="math">\(C(X)\)</span>, and <span class="math">\(e\)</span>, the vector orthogonal to <span class="math">\(C(X)\)</span>.</p>
+<p>We can think of the relationship between the first and second columns of <span class="math">\(X\)</span> as equivalent to the relationship between <span class="math">\(C(X)\)</span> and <span class="math">\(y\)</span>. Let&#8217;s call these columns <span class="math">\(f\)</span> and <span class="math">\(g\)</span>, and their orthogonal versions <span class="math">\(F\)</span> and <span class="math">\(G\)</span>. Essentially, we keep <span class="math">\(f\)</span> as is, so <span class="math">\(f = F\)</span>. We then try to find the part of <span class="math">\(g\)</span> that lies on <span class="math">\(F\)</span> and the part that is orthogonal to it, <span class="math">\(G\)</span>. </p>
+<p>In least squares, we would calculate <span class="math">\(\hat y\)</span>&nbsp;using:</p>
+<div class="math">$$
+\hat y = X(X^TX)^{-1}X^Ty
+$$</div>
+<p>Similarly we can calculate the part of <span class="math">\(g\)</span> that lies on <span class="math">\(F\)</span>&nbsp;using:</p>
+<div class="math">$$
+F(F^TF)^{-1}F^Tg
+$$</div>
+<p>We can then subtract this from <span class="math">\(g\)</span> to get <span class="math">\(G\)</span>:</p>
+<div class="math">$$
+G = g - F(F^TF)^{-1}F^Tg
+$$</div>
+<p><img src="/figure/linear-algebra-5.png" title="Creating orthogonal vectors" style="display: block; margin: auto;" /></p>
+<p>For this reason, we can obviously only find orthogonal vectors when the vectors of <span class="math">\(X\)</span> are independent: if they are not, then <em>all</em> of <span class="math">\(g\)</span> lies on the line described by <span class="math">\(F\)</span>, and there would be no orthogonal part left&nbsp;behind.</p>
+<p>Finally, as we&#8217;re now dealing entirely with vectors instead of a matrix, the terms <span class="math">\((F^TF)\)</span> and <span class="math">\((F^Tg)\)</span> simplify to&nbsp;scalars:</p>
+<div class="math">$$
+\begin{aligned}
+G &amp;= g - F\frac{1}{F^TF}F^Tg \\
+&amp;= g - \frac{F^Tg}{F^TF}F
+\end{aligned}
+$$</div>
+<p>Let&#8217;s try this out with a matrix <span class="math">\(X\)</span>:</p>
+<div class="math">$$
+X = \begin{bmatrix} 1 &amp; 2 \\ 1 &amp; 0 \\ 1 &amp; 2 \\ 1 &amp; 0 \end{bmatrix}
+$$</div>
+<p><span class="math">\(f = F = (1, 1, 1, 1)\)</span> and <span class="math">\(g = (2, 0, 2, 0)\)</span>. We can now use our above formula to calculate <span class="math">\(G\)</span>:</p>
+<div class="math">$$
+G = \begin{bmatrix} 2 \\ 0 \\ 2 \\ 0 \end{bmatrix} - \frac{4}{4}\begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 \\ -1 \\ 1 \\ -1 \end{bmatrix}
+$$</div>
+<p>And voilà! We now have two orthogonal vectors, <span class="math">\((1, 1, 1, 1)\)</span> and <span class="math">\((1, -1, 1, -1)\)</span>. The final step is taking these from orthogonal to orthonormal. To do this, we simply divide each vector by its&nbsp;length:</p>
+<div class="math">$$
+F = \frac{1}{2}\begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \end{bmatrix} \quad\quad 
+G = \frac{1}{2}\begin{bmatrix} 1 \\ -1 \\ 1 \\ -1 \end{bmatrix} \quad\quad 
+Q = \begin{bmatrix} \frac{1}{2} &amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp; -\frac{1}{2} \\[4pt] \frac{1}{2} &amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp; -\frac{1}{2}\end{bmatrix}
+$$</div>
+<p>Let&#8217;s complete the calculation by checking that <span class="math">\(Q^TQ\)</span> indeed equals <span class="math">\(I\)</span>:</p>
+<div class="math">$$
+Q^TQ = \begin{bmatrix} \frac{1}{2} &amp; \frac{1}{2} &amp; \frac{1}{2} &amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp; -\frac{1}{2} &amp; \frac{1}{2} &amp; -\frac{1}{2}\end{bmatrix} \begin{bmatrix} \frac{1}{2} &amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp; -\frac{1}{2} \\[4pt] \frac{1}{2} &amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp; -\frac{1}{2}\end{bmatrix}
+= \begin{bmatrix} 4(\frac{1}{4}) &amp; 2(\frac{1}{4}) - 2(\frac{1}{4}) \\[4pt] 2(\frac{1}{4}) - 2(\frac{1}{4}) &amp; 4(\frac{1}{4}) \end{bmatrix} 
+= \begin{bmatrix} 1 &amp; 0 \\[4pt] 0 &amp; 1 \end{bmatrix}
+$$</div>
+<h2>What happens if you have more than two&nbsp;vectors?</h2>
+<p>This method generalises out to whatever number of independent columns your matrix has. For each additional vector, we just need to subtract the parts of this vector that lie on <span class="math">\(F\)</span> and <span class="math">\(G\)</span> (and <span class="math">\(H\)</span> and <span class="math">\(J\)</span> and &#8230;). Extending the formula is very easy. Let&#8217;s say we&#8217;re trying to solve for a third vector <span class="math">\(H\)</span>, after solving for <span class="math">\(F\)</span> and <span class="math">\(G\)</span> as&nbsp;above:</p>
+<div class="math">$$
+H = h - \frac{F^Th}{F^TF}F - \frac{G^Th}{G^TG}G
+$$</div>
+<p>You can easily see the pattern. In getting rid of the part of <span class="math">\(g\)</span> that lay on <span class="math">\(F\)</span>, we subtracted <span class="math">\(\frac{F^Tg}{F^TF}F\)</span>. Here we subtract <span class="math">\(\frac{F^Th}{F^TF}F\)</span>. This idea transfers directly to subtracting the component that lies on <span class="math">\(G\)</span>. For each additional vector, we just extend this pattern, making sure to subtract the part that lies on <em>each</em> previous&nbsp;vector.</p>
+<h2>Using <span class="math">\(Q\)</span> to solve for linear&nbsp;regression</h2>
+<p>Now we know how to calculate our orthonormal vector <span class="math">\(Q\)</span>, we can finally use it to obtain our regression coefficients <span class="math">\(b\)</span> and our predicted values <span class="math">\(\hat y\)</span>. In the last post, we used a small dataset to demonstrate the normal equation, and showed how to get the <span class="math">\(b\)</span><span class="quo">&#8216;</span>s and <span class="math">\(\hat y\)</span> using this method. We&#8217;ll use this same example to demonstrate how to do the same using an orthonormal&nbsp;matrix.</p>
+<p>Firstly, let&#8217;s load in the required packages, and create our dataset matrix <span class="math">\(X\)</span> and outcome vector <span class="math">\(y\)</span>.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">qr</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">norm</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">]])</span>
+</pre></div>
+
+
+<p>In order to calculate our orthonormal matrix, we can use the <code>qr</code> method from <code>numpy.linalg</code>.</p>
+<div class="highlight"><pre><span></span><span class="n">Q</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">qr</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">Q</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[-5.77350269e-01,  7.07106781e-01],</span>
+<span class="err">       [-5.77350269e-01,  5.55111512e-17],</span>
+<span class="err">       [-5.77350269e-01, -7.07106781e-01]])</span>
+</pre></div>
+
+
+<p>Let&#8217;s confirm that <code>numpy</code> is giving us the same values that we would using the equations we defined&nbsp;above:</p>
+<div class="highlight"><pre><span></span><span class="c1"># Calculate G</span>
+<span class="n">F_T_g</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">F_T_F</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">F_T_g</span><span class="o">/</span><span class="n">F_T_F</span><span class="p">)</span><span class="o">*</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Turn F and G into unit vectors</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">G</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">F</span><span class="p">,</span> <span class="n">G</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[ 0.57735027, -0.70710678],</span>
+<span class="err">       [ 0.57735027,  0.        ],</span>
+<span class="err">       [ 0.57735027,  0.70710678]])</span>
+</pre></div>
+
+
+<p>We can see we have the same values, albeit with the signs&nbsp;reversed.</p>
+<p>We can now calculate our <span class="math">\(b\)</span><span class="quo">&#8216;</span>s by using our simplified equation, <span class="math">\(b = Q^Ty\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">b</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[-9.23760431],</span>
+<span class="err">       [-2.82842712]])</span>
+</pre></div>
+
+
+<p>As you can see, these are a different set of coefficients from what you would get using <span class="math">\(X\)</span>. However, we can get the same <span class="math">\(\hat y\)</span> by calculating <span class="math">\(Qb\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="n">y_hat</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">y_hat</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[3.33333333],</span>
+<span class="err">       [5.33333333],</span>
+<span class="err">       [7.33333333]])</span>
+</pre></div>
+
+
+<p>As you can see, these are the exact same <span class="math">\(\hat y\)</span> values that we obtained using the normal equation with <span class="math">\(X\)</span>, and what <code>sklearn</code> produced for us in the last&nbsp;post.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
