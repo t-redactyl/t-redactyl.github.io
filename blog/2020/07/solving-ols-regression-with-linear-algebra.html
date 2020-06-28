@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Solving OLS regression with linear algebra</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Solving OLS regression with linear algebra written July 13, 2020 in maths,linear algebra,python">
+  <meta name="keywords" content="python, data science, linear algebra, linear regression, normal equation, least squares, numpy" />
+
+    <link
+      rel="canonical"
+      href="/blog/2020/07/solving-ols-regression-with-linear-algebra.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Solving OLS regression with linear algebra</h1>
+        <div class="meta">
+          written <time datetime="2020-07-13T00:00:00+02:00">July 13, 2020</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>,            <a href="/tag/linear-algebra.html">linear algebra</a>,            <a href="/tag/python.html">python</a>          </span>
+        </div>
+        <p>When I learned least-squares linear regression, I remember that we approached it in the &#8220;calculus&#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating <span class="caps">OLS</span> regression until I completed Andrew Ng&#8217;s brilliant <a href="https://www.coursera.org/learn/machine-learning/home/welcome">Machine Learning</a> course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&#8217;d like to get an overview of these, feel free to look at my earlier blog posts <a href="/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">here</a>, <a href="/blog/2020/06/working-with-matrices-inversion.html">here</a> and <a href="/blog/2020/06/working-with-matrices-powers-and-transposition.html">here</a>. It will also assume familiarity with <span class="caps">OLS</span>&nbsp;regression.</p>
+<p>Say we are trying to predict students&#8217; test scores (out of 10), and the one measurement we have is the average number of hours of study they did a day for this test. Let&#8217;s also say (in order to keep the calculations under control) that we only have 3 observations. Our dataset therefore looks like&nbsp;this:</p>
+<table>
+<thead>
+<tr>
+<th>Hours of study (<span class="math">\(x_1\)</span>)</th>
+<th>Test score (<span class="math">\(y\)</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>6</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>We believe there is some underlying relationship between these variables, which can be modelled in the form of a line <span class="math">\(y = b_0 + b_1x_1\)</span>, where <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> are the intercept and the <span class="math">\(x_1\)</span> coefficient respectively. However, when we plot our points, we can see that no straight line would go through all 3 of our points. Instead, looking ahead a bit, we can see that linear regression instead attempts to fit a line that is as close as possible to each of the points we have&nbsp;observed.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="n">ggplot</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">test_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;hours_study&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                          <span class="s2">&quot;test_score&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]})</span>
+
+<span class="p">(</span><span class="n">ggplot</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;hours_study&quot;</span><span class="p">,</span> <span class="s2">&quot;test_score&quot;</span><span class="p">))</span> 
+    <span class="o">+</span> <span class="n">geom_point</span><span class="p">()</span>
+    <span class="o">+</span> <span class="n">geom_smooth</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s2">&quot;grey&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Daily hours of study (average)&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Test score&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/figure/normal_equation_1.png" title="Linear regression trend" style="display: block; margin: auto;" /></p>
+<p>We can see this clearly from a mathematical viewpoint as well. Each of our points will lie on the line <span class="math">\(y = b_0 + b_1x_1\)</span> under these conditions: if <span class="math">\(b_0 + b_1 \cdotp 1 = 3\)</span>, the first observation is on the line; if <span class="math">\(b_0 + b_1 \cdotp 2 = 6\)</span>, the second observation is on the line; and if <span class="math">\(b_0 + b_1 \cdotp 3 = 7\)</span> the third observation is on the&nbsp;line.</p>
+<p>We can see for the first 2 observations, we have a perfect fit, where the coefficients <span class="math">\(b_0 = 0\)</span> and <span class="math">\(b_1 = 3\)</span> would solve our equations. However, the third observation throws this solution out the window. In fact, there is <em>no</em> pair of <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> that will solve this equation. So what do we do? Obviously linear regression comes up with solutions to this issue all the time, so it must be solvable! I will demonstrate how using the <a href="http://mlwiki.org/index.php/Normal_Equation#Least_Squares">normal equation</a>&nbsp;approach.</p>
+<h2>Solving for <span class="math">\(\hat y\)</span> instead of <span class="math">\(y\)</span></h2>
+<p>In order to get started, let&#8217;s move away from the world of equations and instead start representing our data as matrices and vectors. We have three components we want to represent: the values of our features (<span class="math">\(X\)</span>), the values of our outcome (<span class="math">\(y\)</span>), and the unknown <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> that we&#8217;d like to solve for (<span class="math">\(b\)</span>).
+</p>
+<div class="math">$$
+X = \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; 2 \\ 1 &amp; 3 \end{bmatrix} \quad\quad b = \begin{bmatrix} b_0 \\ b_1 \end{bmatrix}\quad\quad y = \begin{bmatrix} 3 \\ 6 \\ 7 \end{bmatrix}
+$$</div>
+<p>We&#8217;ve added a column of <code>1</code><span class="quo">&#8216;</span>s to the <code>X</code> matrix (also called the <a href="https://en.wikipedia.org/wiki/Design_matrix">design matrix</a>) in order to represent our intercept. This is because the value of <span class="math">\(x_0\)</span> in any linear equation is always set to 1, in order to hold the intercept at a constant. Now let&#8217;s have a look at what these matrices and vectors represent in linear&nbsp;algebra. </p>
+<p><span class="math">\(X\)</span> represents the <a href="https://en.wikipedia.org/wiki/Basis_(linear_algebra)">basis</a> of a <a href="https://en.wikipedia.org/wiki/Row_and_column_spaces">column space</a> <span class="math">\(C(X)\)</span> in <span class="math">\(\mathbb{R}^3\)</span>. What this means is that the two columns of <span class="math">\(X\)</span>, the vectors <span class="math">\((1, 1, 1)\)</span> and <span class="math">\((1, 2, 3)\)</span>, lie on a <a href="https://en.wikipedia.org/wiki/Plane_(geometry)">plane</a> in 3-dimensional space. We can represent all vectors on that plane by taking the linear combinations of these two vectors; that is, by getting all solutions&nbsp;to:</p>
+<div class="math">$$
+C(X) = p\begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} + q\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}
+$$</div>
+<p>where <span class="math">\(p\)</span> and <span class="math">\(q\)</span> represent any real numbers. The reason that we cannot solve our three equations with the <span class="math">\(y\)</span> that we have from our data is that it does not lie on this plane: in other words, it is not a linear combination of our two column vectors in <span class="math">\(X\)</span>. We can see this in the diagram&nbsp;below.</p>
+<p><span class="caps">INSERT</span> <span class="caps">DIAGRAM</span>&nbsp;1</p>
+<p>In order to solve our three equations, we need to find the <em>closest</em> vector to <span class="math">\(y\)</span> in this plane <span class="math">\(C(X)\)</span>. Instead of trying to solve <span class="math">\(Xb = y\)</span>, we will try to solve for <span class="math">\(Xb = \hat y\)</span>:</p>
+<div class="math">$$
+Xb = \hat y = \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; 2 \\ 1 &amp; 3 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} \hat y_1 \\ \hat y_2 \\ \hat y_3 \end{bmatrix}
+$$</div>
+<p>It turns out that the shortest path from our vector <span class="math">\(y\)</span> to the plane <span class="math">\(C(X)\)</span> is a straight line which sits at a 90° angle to the plane and connects the plane to the vector. The point where this line meets the plane is <span class="math">\(\hat y\)</span>, the nearest approximation in the plane we have to our observed <span class="math">\(y\)</span>, and the line itself is our error, <span class="math">\(e\)</span>, which represents how far away our approximation <span class="math">\(\hat y\)</span> is from our actual <span class="math">\(y\)</span>&nbsp;vector.</p>
+<p><span class="caps">INSERT</span> <span class="caps">DIAGRAM</span>&nbsp;2</p>
+<p>The values of the matrix <span class="math">\(b\)</span> (<span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>) turn out to be those values that give us the right linear combinations of the column vectors of <span class="math">\(X\)</span> in order to find this <span class="math">\(\hat y\)</span>.</p>
+<h2>Finding <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span></h2>
+<p>So how do we find these right values of <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> to give us our best approximation <span class="math">\(\hat y\)</span>? As said above, the line with the smallest distance between the plane and <span class="math">\(y\)</span> sits at a 90° angle to the plane: in other words, it is <a href="https://en.wikipedia.org/wiki/Orthogonality#Euclidean_vector_spaces">orthogonal</a> to the plane. In fact, <span class="math">\(e\)</span> is not just orthogonal to our column vectors in <span class="math">\(X\)</span>, it is orthogonal to <strong>every</strong> vector in <span class="math">\(C(X)\)</span>.</p>
+<p>Pairs of orthogonal vectors have a very nice property: when we take their dot product, we get <span class="math">\(0\)</span>. This means that <span class="math">\(e\)</span> multiplied by any vector in <span class="math">\(C(X)\)</span> will be <span class="math">\(0\)</span>. Generalising this to the whole matrix X, we&nbsp;get:
+</p>
+<div class="math">$$
+X^T \cdotp e = 0
+$$</div>
+<p>where the dot product of every transposed column in <span class="math">\(X\)</span> multiplied by <span class="math">\(e\)</span> is 0. Next, because <span class="math">\(\hat y = Xb\)</span>, and <span class="math">\(e\)</span> is the difference between <span class="math">\(y\)</span> and <span class="math">\(\hat y\)</span>, we can rewrite the above&nbsp;as:</p>
+<div class="math">$$
+X^T(y - Xb) = 0
+$$</div>
+<p>When we expand this equation and move one of the components to the righthand side, we end up with the equation that will allow us to find our <span class="math">\(b\)</span><span class="quo">&#8216;</span>s:</p>
+<div class="math">$$
+X^TXb = X^Ty
+$$</div>
+<p>This equation will give us a new set of linear equations. If we solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>, then we will get the right coefficients to find <span class="math">\(\hat y\)</span>, our closest vector to <span class="math">\(b\)</span> that lies in <span class="math">\(C(X)\)</span>.</p>
+<p>Let&#8217;s see this in action with our example dataset. For the lefthand side, we want to calculate our new matrix <span class="math">\(X^TX\)</span>.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">X_T_X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X_T_X</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[ 3,  6],</span>
+<span class="err">       [ 6, 14]])</span>
+</pre></div>
+
+
+<p>For the righthand side, we want to calculate our new vector <span class="math">\(X^Ty\)</span>.</p>
+<div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">]])</span>
+<span class="n">X_T_y</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">X_T_y</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[16],</span>
+<span class="err">       [36]])</span>
+</pre></div>
+
+
+<p>We can now put these together to create our new simultaneous equations, and solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>.</p>
+<div class="math">$$
+X^TXb = X^Ty = \begin{bmatrix} 3 &amp; 6 \\ 6 &amp; 14 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} 16 \\ 36 \end{bmatrix}
+$$</div>
+<p>This yields the two solvable&nbsp;equations:</p>
+<div class="math">$$
+\begin{aligned}
+3b_0 + 6b_1 &amp;= 16 \\
+6b_0 + 14b_1 &amp;= 36
+\end{aligned}
+$$</div>
+<p>Solving these, we get <span class="math">\(b_0 = \frac{4}{3}\)</span> and <span class="math">\(b_1 = 2\)</span>. We now have a line of best fit, <span class="math">\(\hat y = \frac{4}{3} + 2b_1\)</span>.</p>
+<p>Substituting these values into <span class="math">\(Xb\)</span> will give us <span class="math">\(\hat y\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+\hat y = Xb = \begin{bmatrix} 1 &amp; 1 \\[4pt] 1 &amp; 2 \\[4pt] 1 &amp; 3 \end{bmatrix} \begin{bmatrix} \frac{4}{3} \\[4pt] 2 \end{bmatrix} = \begin{bmatrix} \frac{4}{3} \\[4pt] \frac{4}{3} \\[4pt] \frac{4}{3} \end{bmatrix} + \begin{bmatrix} 2 \\[4pt] 4 \\[4pt] 6 \end{bmatrix} = \begin{bmatrix} \frac{10}{3} \\[4pt] \frac{16}{3} \\[4pt] \frac{22}{3} \end{bmatrix}
+\end{aligned}
+$$</div>
+<p>We can now get <span class="math">\(e\)</span> as well, by&nbsp;calculating:</p>
+<div class="math">$$
+e = y - \hat y = \begin{bmatrix} 3 \\[4pt] 6 \\[4pt] 7 \end{bmatrix} - \begin{bmatrix} \frac{10}{3} \\[4pt] \frac{16}{3} \\[4pt] \frac{22}{3} \end{bmatrix} = \begin{bmatrix} -\frac{1}{3} \\[4pt] \frac{2}{3} \\[4pt] -\frac{1}{3} \end{bmatrix}
+$$</div>
+<p>Each of the components of <span class="math">\(e\)</span> represents the vertical distance between our line of best fit and our observed <span class="math">\(y\)</span>, as shown in the graph at the beginning of this post. For example, <span class="math">\(y_1\)</span> <span class="dquo">&#8220;</span>misses&#8221; the line by <span class="math">\(-\frac{1}{3}\)</span> of a test score&nbsp;grade.</p>
+<p>We can confirm that <span class="math">\(e\)</span> is indeed orthogonal to <span class="math">\(C(X)\)</span> by picking any vector from that space and calculating its dot product with <span class="math">\(e\)</span>. Let&#8217;s try this out with <span class="math">\((1, 2, 3)\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="n">x_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">]])</span>
+<span class="n">x_1</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[0.]])</span>
+</pre></div>
+
+
+<h2>Confirming our&nbsp;result</h2>
+<p>Finally, let&#8217;s compare the result we got from our normal equation approach to the result given by <code>sklearn</code><span class="quo">&#8216;</span>s implementation of linear regression. Let&#8217;s start by fitting our model, with the <span class="math">\(X\)</span> and <span class="math">\(y\)</span> matrices we defined&nbsp;above:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">reg</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<p>We&#8217;ll retrieve the model intercept (<span class="math">\(b_0\)</span>) and <span class="math">\(x_1\)</span> coefficient (<span class="math">\(b_1\)</span>)&nbsp;estimates:</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model intercept (b_0): </span><span class="si">{reg.intercept_}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model coefficient (b_1): </span><span class="si">{reg.coef_}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Model intercept (b_0): [1.33333333]</span>
+<span class="err">Model coefficient (b_1): [[0. 2.]]</span>
+</pre></div>
+
+
+<p>Finally, we&#8217;ll use this model to predict the best fitting values from <span class="math">\(X\)</span>, that is, to generate <span class="math">\(\hat y\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generate y-hat:</span><span class="se">\n</span><span class="s2"> {reg.predict(X)}&quot;</span><span class="p">)</span> 
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Generate y-hat:</span>
+<span class="err"> [[3.33333333]</span>
+<span class="err"> [5.33333333]</span>
+<span class="err"> [7.33333333]]</span>
+</pre></div>
+
+
+<p>We can see that our use of the normal method has achieve the exact same values given by the standard Python implementation of linear&nbsp;regression!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Working with matrices: powers and transposition</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Working with matrices: powers and transposition written June 29, 2020 in maths,linear algebra,python">
+  <meta name="keywords" content="python, data science, linear algebra, matrix transposition, powers of a matrix, numpy" />
+
+    <link
+      rel="canonical"
+      href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html"
+    />
+
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="http://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Working with matrices: powers and transposition</h1>
+        <div class="meta">
+          written <time datetime="2020-06-29T00:00:00+02:00">June 29, 2020</time>
+          in <span class="categories">
+            <a href="http://t-redactyl.github.io/tag/maths.html">maths</a>,            <a href="http://t-redactyl.github.io/tag/linear-algebra.html">linear algebra</a>,            <a href="http://t-redactyl.github.io/tag/python.html">python</a>          </span>
+        </div>
+        <p>Today, we&#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">matrix addition, subtraction and multiplication</a> and <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html">matrix inversion</a>.</p>
+<h2>Powers of a&nbsp;matrix</h2>
+<p>Say we have a number <span class="math">\(a\)</span>, and we&#8217;re asked to solve <span class="math">\(a^2\)</span>. Well, this is easy: we just multiply <span class="math">\(a\)</span> by itself to get <span class="math">\(a \times a\)</span>. Powers of matrices work in exactly the same way. If we take a matrix <span class="math">\(A\)</span>, we can get <span class="math">\(A^2\)</span> by multiplying <span class="math">\(A\)</span> by&nbsp;itself:</p>
+<div class="math">$$
+A^2 = AA = \begin{bmatrix}4 &amp; 3\\6 &amp; 5\end{bmatrix}\begin{bmatrix}4 &amp; 3\\6 &amp; 5\end{bmatrix} = \begin{bmatrix}34 &amp; 27\\54 &amp; 43\end{bmatrix}
+$$</div>
+<p>You can probably guess that, because of the way that matrix multiplication works, we can only raise square matrices to a power. We can raise square matrices to any (positive) power in the same way: if we want to get the cube of <span class="math">\(A\)</span>, or <span class="math">\(A^3\)</span>, we multiply the matrix by itself 3 times, if we want <span class="math">\(A^4\)</span>, we multiply it by itself 4 times, and so&nbsp;on.</p>
+<p>In Numpy, we can use the <code>matrix_power</code> function from the <code>linalg</code> subpackage to calculate the power of a matrix. The first argument is the matrix, and the second is the power you&#8217;d like to raise the matrix&nbsp;to.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">matrix_power</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
+<span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[34, 27],</span>
+<span class="err">       [54, 43]])</span>
+</pre></div>
+
+
+<p>Powers of matrices follow the <a href="https://www.mathplanet.com/education/algebra-1/exponents-and-exponential-functions/properties-of-exponents">same rules as do powers of a number</a>. Let&#8217;s have a look at a couple of examples of these. Say we have two <a href="https://www.mathsisfun.com/definitions/integer.html">integers</a>, <span class="math">\(m\)</span> and <span class="math">\(n\)</span>. If we have two matrices, <span class="math">\(A^m\)</span> and <span class="math">\(A^n\)</span> and we multiply them, we get <span class="math">\(A^mA^n = A^{m+n}\)</span>. Similarly, if we have the matrix <span class="math">\(A^m\)</span> and we raise it to <span class="math">\(n\)</span>, then we get <span class="math">\((A^m)^n = A^{mn}\)</span>.</p>
+<p>Let&#8217;s try this out in Numpy, by comparing the results of <span class="math">\(A^5\)</span> to <span class="math">\(A^2A^3\)</span>:</p>
+<div class="highlight"><pre><span></span><span class="n">A_5</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">A_5</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[22930, 18237],</span>
+<span class="err">       [36474, 29009]])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">A_2</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">A_3</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">A_2</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A_3</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[22930, 18237],</span>
+<span class="err">       [36474, 29009]])</span>
+</pre></div>
+
+
+<p>We can also raise matrices to negative powers. We&#8217;ve already seen an example of this with the inverse of a matrix, which is written as <span class="math">\(A^{-1}\)</span>. In order to raise a matrix to the power of <span class="math">\(-2\)</span>, we simply need to multiply the inverse by itself. This logic can then be extended in the same way as we did for raising the matrix to a positive&nbsp;power. </p>
+<p>Let&#8217;s see this in Numpy by comparing the function to calculate the inverse to raising our matrix to the power of <code>-1</code>. As we can see, they are exactly the&nbsp;same.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
+
+<span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<span class="err">       [-3. ,  2. ]])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<span class="err">       [-3. ,  2. ]])</span>
+</pre></div>
+
+
+<h2>Matrix transposition and symmetrical&nbsp;matrices</h2>
+<p>The final thing we will cover is matrix transposition. This is simply what happens if you flip the rows and columns of a matrix. Let&#8217;s have a look at this with matrix <span class="math">\(B\)</span>:</p>
+<div class="math">$$
+B = \begin{bmatrix}1 &amp; 2\\3 &amp; 4\\5 &amp; 6\end{bmatrix}
+$$</div>
+<p>What would the transpose of <span class="math">\(B\)</span> (denoted by <span class="math">\(B^T\)</span>) look like? Well, it is simple as taking the rows of <span class="math">\(B\)</span> and turning them into the columns of <span class="math">\(B^T\)</span> (or vice&nbsp;versa):</p>
+<div class="math">$$
+B^T = \begin{bmatrix}1 &amp; 3 &amp; 5\\2 &amp; 4 &amp; 6\end{bmatrix}
+$$</div>
+<p>And what would the transpose of <span class="math">\(B^T\)</span> look like (in other words, what is <span class="math">\((B^T)^T)\)</span>? Well, if we flip the rows and columns again, we just end up back at our original matrix! In other words, <span class="math">\((B^T)^T = B\)</span>.</p>
+<p>In order to transpose a matrix using Numpy, we use the <code>transpose</code> function on that&nbsp;matrix:</p>
+<div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="n">B_T</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+<span class="n">B_T</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[1, 3, 5],</span>
+<span class="err">       [2, 4, 6]])</span>
+</pre></div>
+
+
+<p>We can also reverse the transposition by calling <code>transpose</code> on our new transposed matrix, <code>B_T</code>:</p>
+<div class="highlight"><pre><span></span><span class="n">B_T</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([[1, 2],</span>
+<span class="err">       [3, 4],</span>
+<span class="err">       [5, 6]])</span>
+</pre></div>
+
+
+<p>As usual, square matrices behave a little differently to non-square matrices, in that the diagonal values of the matrix don&#8217;t move when you take the transpose of the matrix. If we go back to our square matrix <span class="math">\(A\)</span>, and take the transpose, we end up&nbsp;with:</p>
+<div class="math">$$
+A^T = \begin{bmatrix}4 &amp; 6\\3 &amp; 5\end{bmatrix}
+$$</div>
+<p>You can see that the values in <span class="math">\(a_{12}\)</span> and <span class="math">\(a_{21}\)</span> have moved, but the values on the diagonals (<span class="math">\(a_{11}\)</span> and <span class="math">\(a_{22}\)</span>) haven&#8217;t. This means that if values that are diagonally opposite to each other in a square matrix are equal (say, if <span class="math">\(a_{12} = a_{21}\)</span> in the example above), then the transpose of the matrix would be identical to the matrix. Such matrices are called <strong>symmetrical matrices</strong>. Let&#8217;s have a look at an example. Let&#8217;s say we have a <span class="math">\(3 \times 3\)</span> matrix, <span class="math">\(C\)</span>, which is symmetrical. Because of&nbsp;this:</p>
+<div class="math">$$
+C = C^T = \begin{bmatrix}1 &amp; 4 &amp; 5\\4 &amp; 2 &amp; 6\\5 &amp; 6 &amp; 3\end{bmatrix}
+$$</div>
+<p>This matrix might not look symmetrical at a first glance. However, one way to see that it is really symmetrical is to compare the first row and the first column (and the second row and second column, and the third row and third column). You can see that they are identical, which means that it doesn&#8217;t matter whether these elements function as a row or a column: the result will be the same. Another way to see this a bit more explicitly is to compare those elements are diagonal to each other in the matrix, as we spoke about above. We can see that <span class="math">\(c_{12} = c_{21} = 4\)</span>, <span class="math">\(c_{13} = c_{31} = 5\)</span> and <span class="math">\(c_{23} = c_{32} = 6\)</span>.</p>
+<p>I hope these posts have given you a solid overview of the ways you can work with matrices. In the next post, we&#8217;ll build on this by looking at the linear algebra approach to solving linear regression&nbsp;problems.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>

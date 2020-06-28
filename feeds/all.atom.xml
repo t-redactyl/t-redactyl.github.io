@@ -1,5 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-06-15T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Working with matrices: inversion</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html" rel="alternate"></link><published>2020-06-15T00:00:00+02:00</published><updated>2020-06-15T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-15:/blog/2020/06/working-with-matrices-inversion.html</id><summary type="html">&lt;p&gt;Today we will continue our discussion of the basic operations you can do with matrices in linear algebra. In the &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;last post&lt;/a&gt; we covered addition, subtraction, scalar multiplication and matrix multiplication. This week, we&amp;#8217;ll cover matrix&amp;nbsp;inversion.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-06-29T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Working with matrices: powers and transposition</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html" rel="alternate"></link><published>2020-06-29T00:00:00+02:00</published><updated>2020-06-29T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-29:/blog/2020/06/working-with-matrices-powers-and-transposition.html</id><summary type="html">&lt;p&gt;Today, we&amp;#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;matrix addition, subtraction and multiplication&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;matrix inversion&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Powers of a&amp;nbsp;matrix&lt;/h2&gt;
+&lt;p&gt;Say we have a number &lt;span class="math"&gt;\(a\)&lt;/span&gt;, and we&amp;#8217;re asked to solve &lt;span class="math"&gt;\(a …&lt;/span&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;Today, we&amp;#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;matrix addition, subtraction and multiplication&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;matrix inversion&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Powers of a&amp;nbsp;matrix&lt;/h2&gt;
+&lt;p&gt;Say we have a number &lt;span class="math"&gt;\(a\)&lt;/span&gt;, and we&amp;#8217;re asked to solve &lt;span class="math"&gt;\(a^2\)&lt;/span&gt;. Well, this is easy: we just multiply &lt;span class="math"&gt;\(a\)&lt;/span&gt; by itself to get &lt;span class="math"&gt;\(a \times a\)&lt;/span&gt;. Powers of matrices work in exactly the same way. If we take a matrix &lt;span class="math"&gt;\(A\)&lt;/span&gt;, we can get &lt;span class="math"&gt;\(A^2\)&lt;/span&gt; by multiplying &lt;span class="math"&gt;\(A\)&lt;/span&gt; by&amp;nbsp;itself:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+A^2 = AA = \begin{bmatrix}4 &amp;amp; 3\\6 &amp;amp; 5\end{bmatrix}\begin{bmatrix}4 &amp;amp; 3\\6 &amp;amp; 5\end{bmatrix} = \begin{bmatrix}34 &amp;amp; 27\\54 &amp;amp; 43\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;You can probably guess that, because of the way that matrix multiplication works, we can only raise square matrices to a power. We can raise square matrices to any (positive) power in the same way: if we want to get the cube of &lt;span class="math"&gt;\(A\)&lt;/span&gt;, or &lt;span class="math"&gt;\(A^3\)&lt;/span&gt;, we multiply the matrix by itself 3 times, if we want &lt;span class="math"&gt;\(A^4\)&lt;/span&gt;, we multiply it by itself 4 times, and so&amp;nbsp;on.&lt;/p&gt;
+&lt;p&gt;In Numpy, we can use the &lt;code&gt;matrix_power&lt;/code&gt; function from the &lt;code&gt;linalg&lt;/code&gt; subpackage to calculate the power of a matrix. The first argument is the matrix, and the second is the power you&amp;#8217;d like to raise the matrix&amp;nbsp;to.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numpy.linalg&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;matrix_power&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;matrix_power&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[34, 27],&lt;/span&gt;
+&lt;span class="err"&gt;       [54, 43]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Powers of matrices follow the &lt;a href="https://www.mathplanet.com/education/algebra-1/exponents-and-exponential-functions/properties-of-exponents"&gt;same rules as do powers of a number&lt;/a&gt;. Let&amp;#8217;s have a look at a couple of examples of these. Say we have two &lt;a href="https://www.mathsisfun.com/definitions/integer.html"&gt;integers&lt;/a&gt;, &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt;. If we have two matrices, &lt;span class="math"&gt;\(A^m\)&lt;/span&gt; and &lt;span class="math"&gt;\(A^n\)&lt;/span&gt; and we multiply them, we get &lt;span class="math"&gt;\(A^mA^n = A^{m+n}\)&lt;/span&gt;. Similarly, if we have the matrix &lt;span class="math"&gt;\(A^m\)&lt;/span&gt; and we raise it to &lt;span class="math"&gt;\(n\)&lt;/span&gt;, then we get &lt;span class="math"&gt;\((A^m)^n = A^{mn}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s try this out in Numpy, by comparing the results of &lt;span class="math"&gt;\(A^5\)&lt;/span&gt; to &lt;span class="math"&gt;\(A^2A^3\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A_5&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;matrix_power&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;A_5&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[22930, 18237],&lt;/span&gt;
+&lt;span class="err"&gt;       [36474, 29009]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;A_2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;matrix_power&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;A_3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;matrix_power&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;A_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A_3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[22930, 18237],&lt;/span&gt;
+&lt;span class="err"&gt;       [36474, 29009]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can also raise matrices to negative powers. We&amp;#8217;ve already seen an example of this with the inverse of a matrix, which is written as &lt;span class="math"&gt;\(A^{-1}\)&lt;/span&gt;. In order to raise a matrix to the power of &lt;span class="math"&gt;\(-2\)&lt;/span&gt;, we simply need to multiply the inverse by itself. This logic can then be extended in the same way as we did for raising the matrix to a positive&amp;nbsp;power. &lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s see this in Numpy by comparing the function to calculate the inverse to raising our matrix to the power of &lt;code&gt;-1&lt;/code&gt;. As we can see, they are exactly the&amp;nbsp;same.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numpy.linalg&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;inv&lt;/span&gt;
+
+&lt;span class="n"&gt;inv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 2.5, -1.5],&lt;/span&gt;
+&lt;span class="err"&gt;       [-3. ,  2. ]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;matrix_power&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 2.5, -1.5],&lt;/span&gt;
+&lt;span class="err"&gt;       [-3. ,  2. ]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Matrix transposition and symmetrical&amp;nbsp;matrices&lt;/h2&gt;
+&lt;p&gt;The final thing we will cover is matrix transposition. This is simply what happens if you flip the rows and columns of a matrix. Let&amp;#8217;s have a look at this with matrix &lt;span class="math"&gt;\(B\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+B = \begin{bmatrix}1 &amp;amp; 2\\3 &amp;amp; 4\\5 &amp;amp; 6\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;What would the transpose of &lt;span class="math"&gt;\(B\)&lt;/span&gt; (denoted by &lt;span class="math"&gt;\(B^T\)&lt;/span&gt;) look like? Well, it is simple as taking the rows of &lt;span class="math"&gt;\(B\)&lt;/span&gt; and turning them into the columns of &lt;span class="math"&gt;\(B^T\)&lt;/span&gt; (or vice&amp;nbsp;versa):&lt;/p&gt;
+&lt;div class="math"&gt;$$
+B^T = \begin{bmatrix}1 &amp;amp; 3 &amp;amp; 5\\2 &amp;amp; 4 &amp;amp; 6\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;And what would the transpose of &lt;span class="math"&gt;\(B^T\)&lt;/span&gt; look like (in other words, what is &lt;span class="math"&gt;\((B^T)^T)\)&lt;/span&gt;? Well, if we flip the rows and columns again, we just end up back at our original matrix! In other words, &lt;span class="math"&gt;\((B^T)^T = B\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;In order to transpose a matrix using Numpy, we use the &lt;code&gt;transpose&lt;/code&gt; function on that&amp;nbsp;matrix:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;B_T&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;B_T&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[1, 3, 5],&lt;/span&gt;
+&lt;span class="err"&gt;       [2, 4, 6]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can also reverse the transposition by calling &lt;code&gt;transpose&lt;/code&gt; on our new transposed matrix, &lt;code&gt;B_T&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;B_T&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[1, 2],&lt;/span&gt;
+&lt;span class="err"&gt;       [3, 4],&lt;/span&gt;
+&lt;span class="err"&gt;       [5, 6]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As usual, square matrices behave a little differently to non-square matrices, in that the diagonal values of the matrix don&amp;#8217;t move when you take the transpose of the matrix. If we go back to our square matrix &lt;span class="math"&gt;\(A\)&lt;/span&gt;, and take the transpose, we end up&amp;nbsp;with:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+A^T = \begin{bmatrix}4 &amp;amp; 6\\3 &amp;amp; 5\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;You can see that the values in &lt;span class="math"&gt;\(a_{12}\)&lt;/span&gt; and &lt;span class="math"&gt;\(a_{21}\)&lt;/span&gt; have moved, but the values on the diagonals (&lt;span class="math"&gt;\(a_{11}\)&lt;/span&gt; and &lt;span class="math"&gt;\(a_{22}\)&lt;/span&gt;) haven&amp;#8217;t. This means that if values that are diagonally opposite to each other in a square matrix are equal (say, if &lt;span class="math"&gt;\(a_{12} = a_{21}\)&lt;/span&gt; in the example above), then the transpose of the matrix would be identical to the matrix. Such matrices are called &lt;strong&gt;symmetrical matrices&lt;/strong&gt;. Let&amp;#8217;s have a look at an example. Let&amp;#8217;s say we have a &lt;span class="math"&gt;\(3 \times 3\)&lt;/span&gt; matrix, &lt;span class="math"&gt;\(C\)&lt;/span&gt;, which is symmetrical. Because of&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+C = C^T = \begin{bmatrix}1 &amp;amp; 4 &amp;amp; 5\\4 &amp;amp; 2 &amp;amp; 6\\5 &amp;amp; 6 &amp;amp; 3\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;This matrix might not look symmetrical at a first glance. However, one way to see that it is really symmetrical is to compare the first row and the first column (and the second row and second column, and the third row and third column). You can see that they are identical, which means that it doesn&amp;#8217;t matter whether these elements function as a row or a column: the result will be the same. Another way to see this a bit more explicitly is to compare those elements are diagonal to each other in the matrix, as we spoke about above. We can see that &lt;span class="math"&gt;\(c_{12} = c_{21} = 4\)&lt;/span&gt;, &lt;span class="math"&gt;\(c_{13} = c_{31} = 5\)&lt;/span&gt; and &lt;span class="math"&gt;\(c_{23} = c_{32} = 6\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;I hope these posts have given you a solid overview of the ways you can work with matrices. In the next post, we&amp;#8217;ll build on this by looking at the linear algebra approach to solving linear regression&amp;nbsp;problems.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category><category term="linear algebra"></category><category term="python"></category></entry><entry><title>Working with matrices: inversion</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html" rel="alternate"></link><published>2020-06-15T00:00:00+02:00</published><updated>2020-06-15T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-15:/blog/2020/06/working-with-matrices-inversion.html</id><summary type="html">&lt;p&gt;Today we will continue our discussion of the basic operations you can do with matrices in linear algebra. In the &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;last post&lt;/a&gt; we covered addition, subtraction, scalar multiplication and matrix multiplication. This week, we&amp;#8217;ll cover matrix&amp;nbsp;inversion.&lt;/p&gt;
 &lt;p&gt;So far we&amp;#8217;ve seen matrix addition, subtraction and multiplication, but what …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Today we will continue our discussion of the basic operations you can do with matrices in linear algebra. In the &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;last post&lt;/a&gt; we covered addition, subtraction, scalar multiplication and matrix multiplication. This week, we&amp;#8217;ll cover matrix&amp;nbsp;inversion.&lt;/p&gt;
 &lt;p&gt;So far we&amp;#8217;ve seen matrix addition, subtraction and multiplication, but what about matrix division? Well, technically there is no such thing! The closest thing we have is multiplying a matrix by its inverse. Before we get into what an inverse is, we need to pause to describe a special matrix called the &lt;strong&gt;identity matrix&lt;/strong&gt;. &lt;/p&gt;
 &lt;h3&gt;Identity&amp;nbsp;matrix&lt;/h3&gt;
