@@ -1,5 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-06-29T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Working with matrices: powers and transposition</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html" rel="alternate"></link><published>2020-06-29T00:00:00+02:00</published><updated>2020-06-29T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-29:/blog/2020/06/working-with-matrices-powers-and-transposition.html</id><summary type="html">&lt;p&gt;Today, we&amp;#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;matrix addition, subtraction and multiplication&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;matrix inversion&lt;/a&gt;.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-07-13T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Solving OLS regression with linear algebra</title><link href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html" rel="alternate"></link><published>2020-07-13T00:00:00+02:00</published><updated>2020-07-13T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-13:/blog/2020/07/solving-ols-regression-with-linear-algebra.html</id><summary type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I …&lt;/p&gt;</summary><content type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating &lt;span class="caps"&gt;OLS&lt;/span&gt; regression until I completed Andrew Ng&amp;#8217;s brilliant &lt;a href="https://www.coursera.org/learn/machine-learning/home/welcome"&gt;Machine Learning&lt;/a&gt; course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&amp;#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&amp;#8217;d like to get an overview of these, feel free to look at my earlier blog posts &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;here&lt;/a&gt;, &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;here&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html"&gt;here&lt;/a&gt;. It will also assume familiarity with &lt;span class="caps"&gt;OLS&lt;/span&gt;&amp;nbsp;regression.&lt;/p&gt;
+&lt;p&gt;Say we are trying to predict students&amp;#8217; test scores (out of 10), and the one measurement we have is the average number of hours of study they did a day for this test. Let&amp;#8217;s also say (in order to keep the calculations under control) that we only have 3 observations. Our dataset therefore looks like&amp;nbsp;this:&lt;/p&gt;
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;Hours of study (x&lt;sub&gt;1&lt;/sub&gt;)&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;Test score (y)&lt;/b&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;1&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;3&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;2&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;6&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;3&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;7&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We believe there is some underlying relationship between these variables, which can be modelled in the form of a line &lt;span class="math"&gt;\(y = b_0 + b_1x_1\)&lt;/span&gt;, where &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt; are the intercept and the &lt;span class="math"&gt;\(x_1\)&lt;/span&gt; coefficient respectively. However, when we plot our points, we can see that no straight line would go through all 3 of our points. Instead, looking ahead a bit, we can see that linear regression instead attempts to fit a line that is as close as possible to each of the points we have&amp;nbsp;observed.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;plotnine&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;plotnine&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ggplot&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+
+&lt;span class="n"&gt;test_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;hours_study&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                          &lt;span class="s2"&gt;&amp;quot;test_score&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;]})&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ggplot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;test_data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;aes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;hours_study&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;test_score&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; 
+    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;geom_point&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;geom_smooth&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;method&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;lm&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;se&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;colour&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;grey&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;xlab&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Daily hours of study (average)&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;ylab&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Test score&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;theme_bw&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img src="/figure/normal_equation_1.png" title="Linear regression trend" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;We can see this clearly from a mathematical viewpoint as well. Each of our points will lie on the line &lt;span class="math"&gt;\(y = b_0 + b_1x_1\)&lt;/span&gt; only under the following conditions: if &lt;span class="math"&gt;\(b_0 + b_1 \cdotp 1 = 3\)&lt;/span&gt;, the first observation is on the line; if &lt;span class="math"&gt;\(b_0 + b_1 \cdotp 2 = 6\)&lt;/span&gt;, the second observation is on the line; and if &lt;span class="math"&gt;\(b_0 + b_1 \cdotp 3 = 7\)&lt;/span&gt; the third observation is on the&amp;nbsp;line.&lt;/p&gt;
+&lt;p&gt;We can see for the first 2 observations we have a perfect fit, where the coefficients &lt;span class="math"&gt;\(b_0 = 0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1 = 3\)&lt;/span&gt; would solve our equations. However, the third observation throws this solution out the window. In fact, there is &lt;em&gt;no&lt;/em&gt; pair of &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt; that will solve this equation. So what do we do? Obviously linear regression comes up with solutions to this issue all the time, so it must be solvable! I will demonstrate how using the &lt;a href="http://mlwiki.org/index.php/Normal_Equation#Least_Squares"&gt;normal equation&lt;/a&gt;&amp;nbsp;approach.&lt;/p&gt;
+&lt;h2&gt;Solving for &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; instead of &lt;span class="math"&gt;\(y\)&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;In order to get started, let&amp;#8217;s move away from the world of equations and instead start representing our data as matrices and vectors. We have three components we want to represent: the values of our features (&lt;span class="math"&gt;\(X\)&lt;/span&gt;), the values of our outcome (&lt;span class="math"&gt;\(y\)&lt;/span&gt;), and the unknown &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt; that we&amp;#8217;d like to solve for (&lt;span class="math"&gt;\(b\)&lt;/span&gt;).
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X = \begin{bmatrix} 1 &amp;amp; 1 \\ 1 &amp;amp; 2 \\ 1 &amp;amp; 3 \end{bmatrix} \quad\quad b = \begin{bmatrix} b_0 \\ b_1 \end{bmatrix}\quad\quad y = \begin{bmatrix} 3 \\ 6 \\ 7 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;We&amp;#8217;ve added a column of 1&amp;#8217;s to the &lt;span class="math"&gt;\(X\)&lt;/span&gt; matrix (also called the &lt;a href="https://en.wikipedia.org/wiki/Design_matrix"&gt;design matrix&lt;/a&gt;) in order to represent our intercept. This is because the value of &lt;span class="math"&gt;\(x_0\)&lt;/span&gt; in any linear equation is always set to 1, in order to hold the intercept at a constant. Now let&amp;#8217;s have a look at what these matrices and vectors represent in linear&amp;nbsp;algebra. &lt;/p&gt;
+&lt;p&gt;&lt;span class="math"&gt;\(X\)&lt;/span&gt; represents the &lt;a href="https://en.wikipedia.org/wiki/Basis_(linear_algebra)"&gt;basis&lt;/a&gt; of a &lt;a href="https://en.wikipedia.org/wiki/Row_and_column_spaces"&gt;column space&lt;/a&gt; &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt; in &lt;span class="math"&gt;\(\mathbb{R}^3\)&lt;/span&gt;. What this means is that the two columns of &lt;span class="math"&gt;\(X\)&lt;/span&gt;, the vectors &lt;span class="math"&gt;\((1, 1, 1)\)&lt;/span&gt; and &lt;span class="math"&gt;\((1, 2, 3)\)&lt;/span&gt;, lie on a &lt;a href="https://en.wikipedia.org/wiki/Plane_(geometry)"&gt;plane&lt;/a&gt; within 3-dimensional space. We can represent all vectors on that plane by taking the linear combinations of these two vectors; that is, by getting all solutions&amp;nbsp;to:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+C(X) = p\begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} + q\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;where &lt;span class="math"&gt;\(p\)&lt;/span&gt; and &lt;span class="math"&gt;\(q\)&lt;/span&gt; represent any real numbers. The reason that we cannot solve our three equations with the &lt;span class="math"&gt;\(y\)&lt;/span&gt; that we have from our data is that it does not lie on this plane: in other words, it is not a linear combination of our two column vectors in &lt;span class="math"&gt;\(X\)&lt;/span&gt;. We can see this in the diagram&amp;nbsp;below.&lt;/p&gt;
+&lt;p&gt;&lt;img src="/figure/linear-algebra-3.png" title="y in relation to C(X)" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;In order to solve our three equations, we need to find the &lt;strong&gt;closest&lt;/strong&gt; vector to &lt;span class="math"&gt;\(y\)&lt;/span&gt; in this plane &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt;, which is a vector we&amp;#8217;ll call &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;. Now, instead of trying to solve &lt;span class="math"&gt;\(Xb = y\)&lt;/span&gt;, we will try to solve for &lt;span class="math"&gt;\(Xb = \hat y\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+Xb = \hat y = \begin{bmatrix} 1 &amp;amp; 1 \\ 1 &amp;amp; 2 \\ 1 &amp;amp; 3 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} \hat y_1 \\ \hat y_2 \\ \hat y_3 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;It turns out that the shortest path from our vector &lt;span class="math"&gt;\(y\)&lt;/span&gt; to the plane &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt; is a straight line which sits at a 90° angle to the plane and connects the plane to the vector. The point where this line meets the plane is &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;, the nearest approximation in the plane we have to our observed &lt;span class="math"&gt;\(y\)&lt;/span&gt;, and the line itself is our error, &lt;span class="math"&gt;\(e\)&lt;/span&gt;, which represents how far away our approximation &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; is from our actual &lt;span class="math"&gt;\(y\)&lt;/span&gt;&amp;nbsp;vector.&lt;/p&gt;
+&lt;p&gt;&lt;img src="/figure/linear-algebra-4a.png" title="Projection of y onto C(X) to get e and y-hat" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;The values of the vector &lt;span class="math"&gt;\(b\)&lt;/span&gt; (&lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt;) turn out to be those values that give us the right linear combinations of the column vectors of &lt;span class="math"&gt;\(X\)&lt;/span&gt; in order to find this vector &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;.&lt;/p&gt;
+&lt;h2&gt;Finding &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;So how do we find these right values of &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt; to give us our best approximation &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;? As said above, the line with the smallest distance between the plane and &lt;span class="math"&gt;\(y\)&lt;/span&gt; sits at a 90° angle to the plane: in other words, it is &lt;a href="https://en.wikipedia.org/wiki/Orthogonality#Euclidean_vector_spaces"&gt;orthogonal&lt;/a&gt; to the plane. In fact, &lt;span class="math"&gt;\(e\)&lt;/span&gt; is not just orthogonal to our column vectors in &lt;span class="math"&gt;\(X\)&lt;/span&gt;, it is orthogonal to &lt;strong&gt;every&lt;/strong&gt; vector in &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Pairs of orthogonal vectors have a very nice property: when we take their &lt;a href="https://www.mathsisfun.com/algebra/vectors-dot-product.html"&gt;dot product&lt;/a&gt;, we get 0. This means that &lt;span class="math"&gt;\(e\)&lt;/span&gt; multiplied by any vector in &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt; will be 0. Generalising this to the whole matrix X, we&amp;nbsp;get:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^T \cdotp e = 0
+$$&lt;/div&gt;
+&lt;p&gt;which says that the dot product of every transposed column in &lt;span class="math"&gt;\(X\)&lt;/span&gt; multiplied by &lt;span class="math"&gt;\(e\)&lt;/span&gt; is 0. Next, because &lt;span class="math"&gt;\(\hat y = Xb\)&lt;/span&gt;, and &lt;span class="math"&gt;\(e = y - \hat y\)&lt;/span&gt;, we can rewrite the above&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^T \cdotp (y - Xb) = 0
+$$&lt;/div&gt;
+&lt;p&gt;When we expand this equation and move one of the components to the righthand side, we end up with the equation that will allow us to find our &lt;span class="math"&gt;\(b\)&lt;/span&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^TXb = X^Ty
+$$&lt;/div&gt;
+&lt;p&gt;This equation will give us a new set of linear equations. If we solve these for &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt;, then we will get the correct coefficients to find &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;, our closest vector to &lt;span class="math"&gt;\(y\)&lt;/span&gt; that lies in &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s see this in action with our example dataset. For the lefthand side, we want to calculate our new matrix &lt;span class="math"&gt;\(X^TX\)&lt;/span&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;X_T_X&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;X_T_X&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 3,  6],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 6, 14]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For the righthand side, we want to calculate our new vector &lt;span class="math"&gt;\(X^Ty\)&lt;/span&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;X_T_y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;X_T_y&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[16],&lt;/span&gt;
+&lt;span class="err"&gt;       [36]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can now put these together to create our new system of simultaneous equations, and solve these for &lt;span class="math"&gt;\(b_0\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1\)&lt;/span&gt;.&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^TXb = X^Ty = \begin{bmatrix} 3 &amp;amp; 6 \\ 6 &amp;amp; 14 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} 16 \\ 36 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;This yields the two solvable&amp;nbsp;equations:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+3b_0 + 6b_1 &amp;amp;= 16 \\
+6b_0 + 14b_1 &amp;amp;= 36
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Solving these, we get &lt;span class="math"&gt;\(b_0 = \frac{4}{3}\)&lt;/span&gt; and &lt;span class="math"&gt;\(b_1 = 2\)&lt;/span&gt;. We now have a line of best fit, &lt;span class="math"&gt;\(\hat y = \frac{4}{3} + 2b_1\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Substituting these values into &lt;span class="math"&gt;\(Xb\)&lt;/span&gt; will give us &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+\hat y = Xb = \begin{bmatrix} 1 &amp;amp; 1 \\[4pt] 1 &amp;amp; 2 \\[4pt] 1 &amp;amp; 3 \end{bmatrix} \begin{bmatrix} \frac{4}{3} \\[4pt] 2 \end{bmatrix} = \begin{bmatrix} \frac{4}{3} \\[4pt] \frac{4}{3} \\[4pt] \frac{4}{3} \end{bmatrix} + \begin{bmatrix} 2 \\[4pt] 4 \\[4pt] 6 \end{bmatrix} = \begin{bmatrix} \frac{10}{3} \\[4pt] \frac{16}{3} \\[4pt] \frac{22}{3} \end{bmatrix}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We can now get &lt;span class="math"&gt;\(e\)&lt;/span&gt; as well, by&amp;nbsp;calculating:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+e = y - \hat y = \begin{bmatrix} 3 \\[4pt] 6 \\[4pt] 7 \end{bmatrix} - \begin{bmatrix} \frac{10}{3} \\[4pt] \frac{16}{3} \\[4pt] \frac{22}{3} \end{bmatrix} = \begin{bmatrix} -\frac{1}{3} \\[4pt] \frac{2}{3} \\[4pt] -\frac{1}{3} \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;Each of the components of &lt;span class="math"&gt;\(e\)&lt;/span&gt; represents the vertical distance between our line of best fit and our observed &lt;span class="math"&gt;\(y\)&lt;/span&gt;, as shown in the graph at the beginning of this post. For example, &lt;span class="math"&gt;\(y_1\)&lt;/span&gt; &lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;misses&amp;#8221; the line by &lt;span class="math"&gt;\(-\frac{1}{3}\)&lt;/span&gt; of a test score&amp;nbsp;grade.&lt;/p&gt;
+&lt;p&gt;We can confirm that &lt;span class="math"&gt;\(e\)&lt;/span&gt; is indeed orthogonal to &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt; by picking any vector from that space and calculating its dot product with &lt;span class="math"&gt;\(e\)&lt;/span&gt;. Let&amp;#8217;s try this out with &lt;span class="math"&gt;\((1, 2, 3)\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;x_1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;x_1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[0.]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Confirming our&amp;nbsp;result&lt;/h2&gt;
+&lt;p&gt;Finally, let&amp;#8217;s compare the result we got from our normal equation approach to the result given by &lt;code&gt;sklearn&lt;/code&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s implementation of linear regression. Let&amp;#8217;s start by fitting our model, with the &lt;span class="math"&gt;\(X\)&lt;/span&gt; and &lt;span class="math"&gt;\(y\)&lt;/span&gt; matrices we defined&amp;nbsp;above:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sklearn.linear_model&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;LinearRegression&lt;/span&gt;
+
+&lt;span class="n"&gt;reg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LinearRegression&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We&amp;#8217;ll retrieve the model intercept (&lt;span class="math"&gt;\(b_0\)&lt;/span&gt;) and &lt;span class="math"&gt;\(x_1\)&lt;/span&gt; coefficient (&lt;span class="math"&gt;\(b_1\)&lt;/span&gt;)&amp;nbsp;estimates:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Model intercept (b_0): &lt;/span&gt;&lt;span class="si"&gt;{reg.intercept_}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Model coefficient (b_1): &lt;/span&gt;&lt;span class="si"&gt;{reg.coef_}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;Model intercept (b_0): [1.33333333]&lt;/span&gt;
+&lt;span class="err"&gt;Model coefficient (b_1): [[0. 2.]]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Finally, we&amp;#8217;ll use this model to predict the best fitting values from &lt;span class="math"&gt;\(X\)&lt;/span&gt;, that is, to generate &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Generate y-hat:&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt; {reg.predict(X)}&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;Generate y-hat:&lt;/span&gt;
+&lt;span class="err"&gt; [[3.33333333]&lt;/span&gt;
+&lt;span class="err"&gt; [5.33333333]&lt;/span&gt;
+&lt;span class="err"&gt; [7.33333333]]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can see that our use of the normal method has achieve the exact same values given by the standard Python implementation of linear&amp;nbsp;regression!&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category><category term="linear algebra"></category><category term="python"></category></entry><entry><title>Working with matrices: powers and transposition</title><link href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html" rel="alternate"></link><published>2020-06-29T00:00:00+02:00</published><updated>2020-06-29T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-06-29:/blog/2020/06/working-with-matrices-powers-and-transposition.html</id><summary type="html">&lt;p&gt;Today, we&amp;#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;matrix addition, subtraction and multiplication&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;matrix inversion&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Powers of a&amp;nbsp;matrix&lt;/h2&gt;
 &lt;p&gt;Say we have a number &lt;span class="math"&gt;\(a\)&lt;/span&gt;, and we&amp;#8217;re asked to solve &lt;span class="math"&gt;\(a …&lt;/span&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;Today, we&amp;#8217;ll complete our series on basic matrix operations by covering powers of a matrix and matrix transposition. In the previous posts, we covered &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;matrix addition, subtraction and multiplication&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;matrix inversion&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;Powers of a&amp;nbsp;matrix&lt;/h2&gt;

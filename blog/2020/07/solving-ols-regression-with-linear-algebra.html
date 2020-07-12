@@ -19,19 +19,25 @@
 
     <link
       rel="canonical"
-      href="/blog/2020/07/solving-ols-regression-with-linear-algebra.html"
+      href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"
     />
 
-    <link href="/favicon.png" rel="icon" />
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
       <link
-      href="/theme/css/screen.css"
+      href="http://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="/theme/css/tomorrow.css"
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -58,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="/theme/images/home.png" />
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -68,32 +74,35 @@
         <div class="meta">
           written <time datetime="2020-07-13T00:00:00+02:00">July 13, 2020</time>
           in <span class="categories">
-            <a href="/tag/maths.html">maths</a>,            <a href="/tag/linear-algebra.html">linear algebra</a>,            <a href="/tag/python.html">python</a>          </span>
+            <a href="http://t-redactyl.github.io/tag/maths.html">maths</a>,            <a href="http://t-redactyl.github.io/tag/linear-algebra.html">linear algebra</a>,            <a href="http://t-redactyl.github.io/tag/python.html">python</a>          </span>
         </div>
-        <p>When I learned least-squares linear regression, I remember that we approached it in the &#8220;calculus&#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating <span class="caps">OLS</span> regression until I completed Andrew Ng&#8217;s brilliant <a href="https://www.coursera.org/learn/machine-learning/home/welcome">Machine Learning</a> course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&#8217;d like to get an overview of these, feel free to look at my earlier blog posts <a href="/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">here</a>, <a href="/blog/2020/06/working-with-matrices-inversion.html">here</a> and <a href="/blog/2020/06/working-with-matrices-powers-and-transposition.html">here</a>. It will also assume familiarity with <span class="caps">OLS</span>&nbsp;regression.</p>
+        <p>When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &#8220;calculus&#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating <span class="caps">OLS</span> regression until I completed Andrew Ng&#8217;s brilliant <a href="https://www.coursera.org/learn/machine-learning/home/welcome">Machine Learning</a> course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&#8217;d like to get an overview of these, feel free to look at my earlier blog posts <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">here</a>, <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html">here</a> and <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html">here</a>. It will also assume familiarity with <span class="caps">OLS</span>&nbsp;regression.</p>
 <p>Say we are trying to predict students&#8217; test scores (out of 10), and the one measurement we have is the average number of hours of study they did a day for this test. Let&#8217;s also say (in order to keep the calculations under control) that we only have 3 observations. Our dataset therefore looks like&nbsp;this:</p>
-<table>
-<thead>
-<tr>
-<th>Hours of study (<span class="math">\(x_1\)</span>)</th>
-<th>Test score (<span class="math">\(y\)</span>)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>3</td>
-</tr>
-<tr>
-<td>2</td>
-<td>6</td>
-</tr>
-<tr>
-<td>3</td>
-<td>7</td>
-</tr>
-</tbody>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>Hours of study (x<sub>1</sub>)</b></th>
+      <th style="text-align:center"><b>Test score (y)</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">1</td>
+      <td style="text-align:center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">2</td>
+      <td style="text-align:center">6</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">3</td>
+      <td style="text-align:center">7</td>
+    </tr>
+  </tbody>
 </table>
+</div>
+
 <p>We believe there is some underlying relationship between these variables, which can be modelled in the form of a line <span class="math">\(y = b_0 + b_1x_1\)</span>, where <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> are the intercept and the <span class="math">\(x_1\)</span> coefficient respectively. However, when we plot our points, we can see that no straight line would go through all 3 of our points. Instead, looking ahead a bit, we can see that linear regression instead attempts to fit a line that is as close as possible to each of the points we have&nbsp;observed.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="n">ggplot</span>
@@ -113,44 +122,43 @@
 
 
 <p><img src="/figure/normal_equation_1.png" title="Linear regression trend" style="display: block; margin: auto;" /></p>
-<p>We can see this clearly from a mathematical viewpoint as well. Each of our points will lie on the line <span class="math">\(y = b_0 + b_1x_1\)</span> under these conditions: if <span class="math">\(b_0 + b_1 \cdotp 1 = 3\)</span>, the first observation is on the line; if <span class="math">\(b_0 + b_1 \cdotp 2 = 6\)</span>, the second observation is on the line; and if <span class="math">\(b_0 + b_1 \cdotp 3 = 7\)</span> the third observation is on the&nbsp;line.</p>
-<p>We can see for the first 2 observations, we have a perfect fit, where the coefficients <span class="math">\(b_0 = 0\)</span> and <span class="math">\(b_1 = 3\)</span> would solve our equations. However, the third observation throws this solution out the window. In fact, there is <em>no</em> pair of <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> that will solve this equation. So what do we do? Obviously linear regression comes up with solutions to this issue all the time, so it must be solvable! I will demonstrate how using the <a href="http://mlwiki.org/index.php/Normal_Equation#Least_Squares">normal equation</a>&nbsp;approach.</p>
+<p>We can see this clearly from a mathematical viewpoint as well. Each of our points will lie on the line <span class="math">\(y = b_0 + b_1x_1\)</span> only under the following conditions: if <span class="math">\(b_0 + b_1 \cdotp 1 = 3\)</span>, the first observation is on the line; if <span class="math">\(b_0 + b_1 \cdotp 2 = 6\)</span>, the second observation is on the line; and if <span class="math">\(b_0 + b_1 \cdotp 3 = 7\)</span> the third observation is on the&nbsp;line.</p>
+<p>We can see for the first 2 observations we have a perfect fit, where the coefficients <span class="math">\(b_0 = 0\)</span> and <span class="math">\(b_1 = 3\)</span> would solve our equations. However, the third observation throws this solution out the window. In fact, there is <em>no</em> pair of <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> that will solve this equation. So what do we do? Obviously linear regression comes up with solutions to this issue all the time, so it must be solvable! I will demonstrate how using the <a href="http://mlwiki.org/index.php/Normal_Equation#Least_Squares">normal equation</a>&nbsp;approach.</p>
 <h2>Solving for <span class="math">\(\hat y\)</span> instead of <span class="math">\(y\)</span></h2>
 <p>In order to get started, let&#8217;s move away from the world of equations and instead start representing our data as matrices and vectors. We have three components we want to represent: the values of our features (<span class="math">\(X\)</span>), the values of our outcome (<span class="math">\(y\)</span>), and the unknown <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> that we&#8217;d like to solve for (<span class="math">\(b\)</span>).
 </p>
 <div class="math">$$
 X = \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; 2 \\ 1 &amp; 3 \end{bmatrix} \quad\quad b = \begin{bmatrix} b_0 \\ b_1 \end{bmatrix}\quad\quad y = \begin{bmatrix} 3 \\ 6 \\ 7 \end{bmatrix}
 $$</div>
-<p>We&#8217;ve added a column of <code>1</code><span class="quo">&#8216;</span>s to the <code>X</code> matrix (also called the <a href="https://en.wikipedia.org/wiki/Design_matrix">design matrix</a>) in order to represent our intercept. This is because the value of <span class="math">\(x_0\)</span> in any linear equation is always set to 1, in order to hold the intercept at a constant. Now let&#8217;s have a look at what these matrices and vectors represent in linear&nbsp;algebra. </p>
-<p><span class="math">\(X\)</span> represents the <a href="https://en.wikipedia.org/wiki/Basis_(linear_algebra)">basis</a> of a <a href="https://en.wikipedia.org/wiki/Row_and_column_spaces">column space</a> <span class="math">\(C(X)\)</span> in <span class="math">\(\mathbb{R}^3\)</span>. What this means is that the two columns of <span class="math">\(X\)</span>, the vectors <span class="math">\((1, 1, 1)\)</span> and <span class="math">\((1, 2, 3)\)</span>, lie on a <a href="https://en.wikipedia.org/wiki/Plane_(geometry)">plane</a> in 3-dimensional space. We can represent all vectors on that plane by taking the linear combinations of these two vectors; that is, by getting all solutions&nbsp;to:</p>
+<p>We&#8217;ve added a column of 1&#8217;s to the <span class="math">\(X\)</span> matrix (also called the <a href="https://en.wikipedia.org/wiki/Design_matrix">design matrix</a>) in order to represent our intercept. This is because the value of <span class="math">\(x_0\)</span> in any linear equation is always set to 1, in order to hold the intercept at a constant. Now let&#8217;s have a look at what these matrices and vectors represent in linear&nbsp;algebra. </p>
+<p><span class="math">\(X\)</span> represents the <a href="https://en.wikipedia.org/wiki/Basis_(linear_algebra)">basis</a> of a <a href="https://en.wikipedia.org/wiki/Row_and_column_spaces">column space</a> <span class="math">\(C(X)\)</span> in <span class="math">\(\mathbb{R}^3\)</span>. What this means is that the two columns of <span class="math">\(X\)</span>, the vectors <span class="math">\((1, 1, 1)\)</span> and <span class="math">\((1, 2, 3)\)</span>, lie on a <a href="https://en.wikipedia.org/wiki/Plane_(geometry)">plane</a> within 3-dimensional space. We can represent all vectors on that plane by taking the linear combinations of these two vectors; that is, by getting all solutions&nbsp;to:</p>
 <div class="math">$$
 C(X) = p\begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} + q\begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}
 $$</div>
 <p>where <span class="math">\(p\)</span> and <span class="math">\(q\)</span> represent any real numbers. The reason that we cannot solve our three equations with the <span class="math">\(y\)</span> that we have from our data is that it does not lie on this plane: in other words, it is not a linear combination of our two column vectors in <span class="math">\(X\)</span>. We can see this in the diagram&nbsp;below.</p>
-<p><span class="caps">INSERT</span> <span class="caps">DIAGRAM</span>&nbsp;1</p>
-<p>In order to solve our three equations, we need to find the <em>closest</em> vector to <span class="math">\(y\)</span> in this plane <span class="math">\(C(X)\)</span>. Instead of trying to solve <span class="math">\(Xb = y\)</span>, we will try to solve for <span class="math">\(Xb = \hat y\)</span>:</p>
+<p><img src="/figure/linear-algebra-3.png" title="y in relation to C(X)" style="display: block; margin: auto;" /></p>
+<p>In order to solve our three equations, we need to find the <strong>closest</strong> vector to <span class="math">\(y\)</span> in this plane <span class="math">\(C(X)\)</span>, which is a vector we&#8217;ll call <span class="math">\(\hat y\)</span>. Now, instead of trying to solve <span class="math">\(Xb = y\)</span>, we will try to solve for <span class="math">\(Xb = \hat y\)</span>:</p>
 <div class="math">$$
 Xb = \hat y = \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; 2 \\ 1 &amp; 3 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} \hat y_1 \\ \hat y_2 \\ \hat y_3 \end{bmatrix}
 $$</div>
 <p>It turns out that the shortest path from our vector <span class="math">\(y\)</span> to the plane <span class="math">\(C(X)\)</span> is a straight line which sits at a 90° angle to the plane and connects the plane to the vector. The point where this line meets the plane is <span class="math">\(\hat y\)</span>, the nearest approximation in the plane we have to our observed <span class="math">\(y\)</span>, and the line itself is our error, <span class="math">\(e\)</span>, which represents how far away our approximation <span class="math">\(\hat y\)</span> is from our actual <span class="math">\(y\)</span>&nbsp;vector.</p>
-<p><span class="caps">INSERT</span> <span class="caps">DIAGRAM</span>&nbsp;2</p>
-<p>The values of the matrix <span class="math">\(b\)</span> (<span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>) turn out to be those values that give us the right linear combinations of the column vectors of <span class="math">\(X\)</span> in order to find this <span class="math">\(\hat y\)</span>.</p>
+<p><img src="/figure/linear-algebra-4a.png" title="Projection of y onto C(X) to get e and y-hat" style="display: block; margin: auto;" /></p>
+<p>The values of the vector <span class="math">\(b\)</span> (<span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>) turn out to be those values that give us the right linear combinations of the column vectors of <span class="math">\(X\)</span> in order to find this vector <span class="math">\(\hat y\)</span>.</p>
 <h2>Finding <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span></h2>
 <p>So how do we find these right values of <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> to give us our best approximation <span class="math">\(\hat y\)</span>? As said above, the line with the smallest distance between the plane and <span class="math">\(y\)</span> sits at a 90° angle to the plane: in other words, it is <a href="https://en.wikipedia.org/wiki/Orthogonality#Euclidean_vector_spaces">orthogonal</a> to the plane. In fact, <span class="math">\(e\)</span> is not just orthogonal to our column vectors in <span class="math">\(X\)</span>, it is orthogonal to <strong>every</strong> vector in <span class="math">\(C(X)\)</span>.</p>
-<p>Pairs of orthogonal vectors have a very nice property: when we take their dot product, we get <span class="math">\(0\)</span>. This means that <span class="math">\(e\)</span> multiplied by any vector in <span class="math">\(C(X)\)</span> will be <span class="math">\(0\)</span>. Generalising this to the whole matrix X, we&nbsp;get:
-</p>
+<p>Pairs of orthogonal vectors have a very nice property: when we take their <a href="https://www.mathsisfun.com/algebra/vectors-dot-product.html">dot product</a>, we get 0. This means that <span class="math">\(e\)</span> multiplied by any vector in <span class="math">\(C(X)\)</span> will be 0. Generalising this to the whole matrix X, we&nbsp;get:</p>
 <div class="math">$$
 X^T \cdotp e = 0
 $$</div>
-<p>where the dot product of every transposed column in <span class="math">\(X\)</span> multiplied by <span class="math">\(e\)</span> is 0. Next, because <span class="math">\(\hat y = Xb\)</span>, and <span class="math">\(e\)</span> is the difference between <span class="math">\(y\)</span> and <span class="math">\(\hat y\)</span>, we can rewrite the above&nbsp;as:</p>
+<p>which says that the dot product of every transposed column in <span class="math">\(X\)</span> multiplied by <span class="math">\(e\)</span> is 0. Next, because <span class="math">\(\hat y = Xb\)</span>, and <span class="math">\(e = y - \hat y\)</span>, we can rewrite the above&nbsp;as:</p>
 <div class="math">$$
-X^T(y - Xb) = 0
+X^T \cdotp (y - Xb) = 0
 $$</div>
 <p>When we expand this equation and move one of the components to the righthand side, we end up with the equation that will allow us to find our <span class="math">\(b\)</span><span class="quo">&#8216;</span>s:</p>
 <div class="math">$$
 X^TXb = X^Ty
 $$</div>
-<p>This equation will give us a new set of linear equations. If we solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>, then we will get the right coefficients to find <span class="math">\(\hat y\)</span>, our closest vector to <span class="math">\(b\)</span> that lies in <span class="math">\(C(X)\)</span>.</p>
+<p>This equation will give us a new set of linear equations. If we solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>, then we will get the correct coefficients to find <span class="math">\(\hat y\)</span>, our closest vector to <span class="math">\(y\)</span> that lies in <span class="math">\(C(X)\)</span>.</p>
 <p>Let&#8217;s see this in action with our example dataset. For the lefthand side, we want to calculate our new matrix <span class="math">\(X^TX\)</span>.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -177,7 +185,7 @@ $$</div>
 </pre></div>
 
 
-<p>We can now put these together to create our new simultaneous equations, and solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>.</p>
+<p>We can now put these together to create our new system of simultaneous equations, and solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>.</p>
 <div class="math">$$
 X^TXb = X^Ty = \begin{bmatrix} 3 &amp; 6 \\ 6 &amp; 14 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} 16 \\ 36 \end{bmatrix}
 $$</div>
@@ -265,11 +273,11 @@ $$</div>
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_31_twitter.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_21_github.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
@@ -293,5 +301,14 @@ $$</div>
       renderMathInElement(document.body);
     </script>
 
-   </body>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
 </html>

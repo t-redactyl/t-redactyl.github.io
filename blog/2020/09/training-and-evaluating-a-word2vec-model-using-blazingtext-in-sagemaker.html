@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Training and evaluating a Word2Vec model using BlazingText in Sagemaker</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Training and evaluating a Word2Vec model using BlazingText in Sagemaker written September 07, 2020 in aws,sagemaker,machine learning">
+  <meta name="keywords" content="python, data science, aws, sagemaker, s3, pyspark, blazingtext, word2vec, w2v, nlp" />
+
+    <link
+      rel="canonical"
+      href="/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Training and evaluating a Word2Vec model using BlazingText in Sagemaker</h1>
+        <div class="meta">
+          written <time datetime="2020-09-07T00:00:00+02:00">September 07, 2020</time>
+          in <span class="categories">
+            <a href="/tag/aws.html">aws</a>,            <a href="/tag/sagemaker.html">sagemaker</a>,            <a href="/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p><span class="caps">AWS</span> Sagemaker has a <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html">number of inbuilt algorithms</a>, which are not only easier to use with the Sagemaker set up but are also optimised to work with <span class="caps">AWS</span> architecture. At my previous job, we used <a href="https://en.wikipedia.org/wiki/Word_embedding">word embeddings</a> extensively to help solve <a href="https://en.wikipedia.org/wiki/Natural_language_processing"><span class="caps">NLP</span></a> problems. We found that <span class="caps">AWS</span>&#8217;s implementation of the <a href="https://en.wikipedia.org/wiki/Word2vec">word2vec</a> algorithms, <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext.html">BlazingText</a>, is indeed much faster than training on a local machine or one of our own servers, as well as having useful inbuilt evaluation metrics that can help you work out the best model hyperparameters. I&#8217;ve found that models that used to take around 6 hours to train on our servers take around 30 minutes to an hour to train using BlazingText. As you&#8217;ll see, the implementation on Sagemaker also makes it easier for you to compare models with different hyperparameters and keep track of the different models you&#8217;ve&nbsp;trained.</p>
+<p>In this post and the next, I&#8217;ll show you how to train and evaluate a word2vec model using BlazingText, but if you would like more detail <a href="https://www.youtube.com/watch?v=G2tX0YpNHfc">this video</a> gives a more complete overview of the word2vec algorithm and how it is implemented on <span class="caps">AWS</span>.</p>
+<h2>Getting a&nbsp;dataset</h2>
+<p>For this analysis, I used the well known <a href="http://u.cs.biu.ac.il/~koppel/BlogCorpus.htm">Blog Authorship Corpus</a>, which consists of 681,288 posts from blogger.com. In order to use these data to train a word2vec model, I extracted each post, split it into its composite sentences and wrote each sentence to a new line. I then did some light normalisation, including converting the text to lowercase and removing punctuation, newline characters, and extra whitespace. If you would like some guidance on the sort of steps you can take to normalise text data, you can see <a href="/blog/2017/06/text-cleaning-in-multiple-languages.html">my previous blog post</a> on this&nbsp;topic.</p>
+<p>Let&#8217;s have a quick look at the&nbsp;data:</p>
+<div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/training_data/cleaned_sentences.csv&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">train_file</span><span class="p">:</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">train_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">train</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">it saved my ass for this award at least</span>
+<span class="err">but my advisor was telling me about the process surrounding these awards where the teachers all cast a vote for a student each student that recieves one vote is put on the ballot for further consideration</span>
+<span class="err">then they check whether they meet the requirements of a b or athletics or whatever and then cull the herd accordingly</span>
+<span class="err">after that is what he terms the most dreaded meeting of the year where the teachers essentially have to fight for the favorites and it gets incredibly awkward</span>
+<span class="err">apparenty whenever it looks like one kid may get it one teacher will then being pushing for splitting the award starting another whole row of controversey</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">7480869</span>
+</pre></div>
+
+
+<p>You can see from the above that the data contains around 7.4 million sentences sourced from the blogs corpus. To finish, I created a new S3 bucket, uploaded these data, and I was ready to&nbsp;go!</p>
+<h2>Setting up a BlazingText&nbsp;model</h2>
+<p>In order to be able to run our BlazingText model in Sagemaker, we need to create an <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html">execution role</a>. This is essentially a permission that you create that allows Sagemaker to perform operations on your behalf on the <span class="caps">AWS</span> hardware. In our case, we will need to use this role to indicate that we are giving permission for Sagemaker to run a model for us. You might need to first set up an <span class="caps">IAM</span> role for your Sagemaker notebook in order for this to work - I have described how to do this in a <a href="/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html">previous blog post</a>.</p>
+<p>You will also need to set up a few other values. We need to specify the bucket that we wish to write our model artifacts to, and we can also create some tags that will make it a bit easier to keep track of the models we are creating. Finally, we also need to get the image of the BlazingText container that we will be using to train our model. We first need to find our current <span class="caps">AWS</span> region using  <code>boto3.Session().region_name</code>, and then we pass that as an argument to the <code>get_image_uri</code> method from the <code>sagemaker</code> package. We also specify when creating the container that we want to get a <code>blazingtext</code> image, and that it should be the <code>latest</code> one&nbsp;available.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">sagemaker</span>
+<span class="kn">from</span> <span class="nn">sagemaker</span> <span class="kn">import</span> <span class="n">get_execution_role</span>
+
+<span class="n">role</span> <span class="o">=</span> <span class="n">get_execution_role</span><span class="p">()</span>
+<span class="n">bucket_name</span> <span class="o">=</span> <span class="s1">&#39;sagemaker-blog-corpus-nlp&#39;</span>
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Key&#39;</span><span class="p">:</span> <span class="s1">&#39;user:application&#39;</span><span class="p">,</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span> <span class="s1">&#39;BlazingText&#39;</span><span class="p">}]</span>
+
+<span class="n">region_name</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">region_name</span>
+<span class="n">container</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">amazon</span><span class="o">.</span><span class="n">amazon_estimator</span><span class="o">.</span><span class="n">get_image_uri</span><span class="p">(</span><span class="n">region_name</span><span class="p">,</span> <span class="s2">&quot;blazingtext&quot;</span><span class="p">,</span> <span class="s2">&quot;latest&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now that we have created these values, we can pass them to <code>sagemaker</code><span class="quo">&#8216;</span>s <code>Estimator</code> <a href="https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html">method</a>. In our estimator, we pass the container and the execution role we created earlier, telling Sagemaker that we want to train the model using our BlazingText image, and we give permission to do this using our execution role. The type of instance we&#8217;re using to train is a <code>ml.c5.xlarge</code> instance: this is the &#8220;basic&#8221; machine learning instance type which is available with the <a href="https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&amp;all-free-tier.sort-order=asc"><span class="caps">AWS</span> Free Tier</a> account. In this estimator, we&#8217;ve also indicated we only want to use one instance at a time with the <code>train_instance_count=1</code> argument; however, for models that use distributed training you can increase this number for faster&nbsp;training. </p>
+<p>Just as a note about the <a href="https://aws.amazon.com/sagemaker/pricing/instance-types/">Sagemaker <span class="caps">ML</span> instance types</a>: the number in the second part of the instance name (e.g., the <code>c5</code> in <code>ml.c5.xlarge</code>) indicates the generation of that instance type, where higher numbers indicate newer generations. You should always aim to use the newest version of the instance type you want to use that is available in your region, as they will always be more efficient and therefore cheaper to use than the older&nbsp;generations.</p>
+<p>We&#8217;ve specified also what we want the stem of our model name to be using <code>base_job_name</code>, where we want to write our model artifacts using <code>output_path</code>, and what we want the maximum size of the volume where we want to store our input data using <code>train_volume_size</code> and how long we&#8217;re willing to let the training job run for in seconds using <code>train_max_run</code> (I set it to 5 hours so I don&#8217;t go&nbsp;broke!).</p>
+<div class="highlight"><pre><span></span><span class="c1"># generic Estimator class requires specifying container name</span>
+<span class="n">bt_model</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span>
+    <span class="n">container</span><span class="p">,</span>
+    <span class="n">role</span><span class="p">,</span>
+    <span class="n">train_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">train_instance_type</span><span class="o">=</span><span class="s1">&#39;ml.c5.xlarge&#39;</span><span class="p">,</span>
+    <span class="n">train_volume_size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="n">train_max_run</span><span class="o">=</span><span class="mi">18000</span><span class="p">,</span>
+    <span class="n">base_job_name</span><span class="o">=</span><span class="s1">&#39;blazingtext-blogs-sentences&#39;</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;s3://</span><span class="si">{}</span><span class="s1">/models/blazingtext&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="n">tags</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>We also need to select the hyperparameters for our word2vec model. <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext_hyperparameters.html">This link</a> gives more information on each of these. I&#8217;ve chosen to use the <code>batch_skipgram</code> method in order to speed up the training&nbsp;process.</p>
+<div class="highlight"><pre><span></span><span class="c1"># hyperparameters can also be added through `set_hyperparameters` method</span>
+<span class="n">bt_model</span><span class="o">.</span><span class="n">set_hyperparameters</span><span class="p">(</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;batch_skipgram&quot;</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
+    <span class="n">min_count</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">sampling_threshold</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">vector_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">negative_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="n">evaluation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">subwords</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h2>Training the&nbsp;model</h2>
+<p>We&#8217;re finally ready to train our model! We just need to specify the path to our data in S3, and then pass this as the value of a dictionary to our estimator&#8217;s <code>fit</code> method.</p>
+<div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{bucket_name}</span><span class="s2">/cleaned_sentences.csv&quot;</span>
+<span class="n">bt_model</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">},</span> <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">33</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Starting</span> <span class="n">the</span> <span class="n">training</span> <span class="n">job</span><span class="p">...</span>
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">35</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Launching</span> <span class="n">requested</span> <span class="n">ML</span> <span class="n">instances</span><span class="p">......</span>
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">42</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Preparing</span> <span class="n">the</span> <span class="n">instances</span> <span class="k">for</span> <span class="n">training</span><span class="p">...</span>
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">23</span> <span class="n">Downloading</span> <span class="o">-</span> <span class="n">Downloading</span> <span class="k">input</span> <span class="k">data</span><span class="p">...</span>
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">Training</span> <span class="o">-</span> <span class="n">Training</span> <span class="n">image</span> <span class="n">download</span> <span class="n">completed</span><span class="p">.</span> <span class="n">Training</span> <span class="k">in</span> <span class="n">progress</span><span class="p">..</span><span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mArguments</span><span class="p">:</span> <span class="n">train</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">WARNING</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="n">Loggers</span> <span class="n">have</span> <span class="n">already</span> <span class="n">been</span> <span class="n">setup</span><span class="p">.</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">WARNING</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="n">Loggers</span> <span class="n">have</span> <span class="n">already</span> <span class="n">been</span> <span class="n">setup</span><span class="p">.</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">INFO</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span> <span class="n">took</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0251100063324</span> <span class="n">secs</span> <span class="k">to</span> <span class="n">identify</span> <span class="mi">0</span> <span class="n">gpus</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">INFO</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="n">Running</span> <span class="n">single</span> <span class="n">machine</span> <span class="n">CPU</span> <span class="n">BlazingText</span> <span class="n">training</span> <span class="k">using</span> <span class="n">batch_skipgram</span> <span class="k">mode</span><span class="p">.</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">56</span> <span class="n">INFO</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="n">Processing</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">ml</span><span class="o">/</span><span class="k">input</span><span class="o">/</span><span class="k">data</span><span class="o">/</span><span class="n">train</span><span class="o">/</span><span class="n">cleaned_sentences</span><span class="p">.</span><span class="n">csv</span> <span class="p">.</span> <span class="n">File</span> <span class="k">size</span><span class="p">:</span> <span class="mi">676</span> <span class="n">MB</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">10</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">20</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">30</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">40</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">50</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">60</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">70</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">80</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">90</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">100</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">110</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">120</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">130</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">140</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mRead</span> <span class="mi">148</span><span class="n">M</span> <span class="n">words</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mNumber</span> <span class="k">of</span> <span class="n">words</span><span class="p">:</span>  <span class="mi">50298</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0490</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">00</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">12</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0465</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">7</span><span class="p">.</span><span class="mi">01</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">23</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0440</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">12</span><span class="p">.</span><span class="mi">02</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">25</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0415</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">17</span><span class="p">.</span><span class="mi">03</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">26</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0390</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">22</span><span class="p">.</span><span class="mi">04</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">26</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0365</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">27</span><span class="p">.</span><span class="mi">05</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">26</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0340</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">32</span><span class="p">.</span><span class="mi">05</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0315</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">37</span><span class="p">.</span><span class="mi">06</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0290</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">42</span><span class="p">.</span><span class="mi">06</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0265</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">47</span><span class="p">.</span><span class="mi">08</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0240</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">52</span><span class="p">.</span><span class="mi">09</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0215</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">57</span><span class="p">.</span><span class="mi">09</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0189</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">62</span><span class="p">.</span><span class="mi">10</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0164</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">67</span><span class="p">.</span><span class="mi">10</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0139</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">72</span><span class="p">.</span><span class="mi">12</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0114</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">77</span><span class="p">.</span><span class="mi">12</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0089</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">82</span><span class="p">.</span><span class="mi">13</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0064</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">87</span><span class="p">.</span><span class="mi">15</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">10</span> <span class="n">Uploading</span> <span class="o">-</span> <span class="n">Uploading</span> <span class="k">generated</span> <span class="n">training</span> <span class="n">model</span><span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0039</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">92</span><span class="p">.</span><span class="mi">16</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0014</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">97</span><span class="p">.</span><span class="mi">17</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0000</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mTraining</span> <span class="n">finished</span><span class="o">!</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mAverage</span> <span class="n">throughput</span> <span class="k">in</span> <span class="n">Million</span> <span class="n">words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mTotal</span> <span class="n">training</span> <span class="n">time</span> <span class="k">in</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">653</span><span class="p">.</span><span class="mi">67</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mEvaluating</span> <span class="n">word</span> <span class="n">embeddings</span><span class="p">....</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mVectors</span> <span class="k">read</span> <span class="k">from</span><span class="p">:</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">ml</span><span class="o">/</span><span class="n">model</span><span class="o">/</span><span class="n">vectors</span><span class="p">.</span><span class="n">txt</span> <span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="err">{</span>
+    <span class="ss">&quot;EN-WS-353-ALL.txt&quot;</span><span class="p">:</span> <span class="err">{</span>
+        <span class="ss">&quot;not_found&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> 
+        <span class="ss">&quot;spearmans_rho&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">723488739934328</span><span class="p">,</span> 
+        <span class="ss">&quot;total_pairs&quot;</span><span class="p">:</span> <span class="mi">353</span>
+    <span class="err">}</span><span class="p">,</span> 
+    <span class="ss">&quot;EN-WS-353-REL.txt&quot;</span><span class="p">:</span> <span class="err">{</span>
+        <span class="ss">&quot;not_found&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> 
+        <span class="ss">&quot;spearmans_rho&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">6655435614897699</span><span class="p">,</span> 
+        <span class="ss">&quot;total_pairs&quot;</span><span class="p">:</span> <span class="mi">252</span>
+    <span class="err">}</span><span class="p">,</span> 
+    <span class="ss">&quot;EN-WS-353-SIM.txt&quot;</span><span class="p">:</span> <span class="err">{</span>
+        <span class="ss">&quot;not_found&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> 
+        <span class="ss">&quot;spearmans_rho&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">7603912398298175</span><span class="p">,</span> 
+        <span class="ss">&quot;total_pairs&quot;</span><span class="p">:</span> <span class="mi">203</span>
+    <span class="err">}</span><span class="p">,</span> 
+    <span class="ss">&quot;mean_rho&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">7164745137513052</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="err">}</span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="p">[</span><span class="mi">06</span><span class="o">/</span><span class="mi">27</span><span class="o">/</span><span class="mi">2020</span> <span class="mi">16</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">09</span> <span class="n">INFO</span> <span class="mi">140271083321152</span><span class="p">]</span> <span class="o">#</span><span class="n">mean_rho</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">7164745137513052</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+
+<span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">32</span> <span class="n">Completed</span> <span class="o">-</span> <span class="n">Training</span> <span class="n">job</span> <span class="n">completed</span>
+<span class="n">Training</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">729</span>
+<span class="n">Billable</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">729</span>
+</pre></div>
+
+
+<p>As you can see, the <code>fit</code> method gives us an indication of the model progress, a summary of the total billable seconds, and some evaluation metrics. We&#8217;ll discuss these evaluation metrics next. You can see the model trained very quickly, taking only 12 minutes to train over 7.4 million&nbsp;sentences!</p>
+<p>If we go back to our Sagemaker dashboard, we can find all of the details of our training job. Firstly, under <code>Training</code>, we click on <code>Training Jobs</code>. Then, we can go through the list of training jobs until you find our model. Clicking on the model name, we get a page with all of the relevant information for our&nbsp;model:</p>
+<p><img src="/figure/sagemaker_model_page.png" title="Model page" style="display: block; margin: auto;" /></p>
+<p>You can see that this page includes a lot of useful information about our model, including the billable seconds and the hyperparameters we used. To get the location of the actual model artifacts in our S3 bucket, we can scroll down to the bottom of the page. You can see the path&nbsp;here:</p>
+<p><img src="/figure/blazingtext_model_path.png" title="Path to model artifacts" style="display: block; margin: auto;" /></p>
+<h2>Evaluating the&nbsp;model</h2>
+<p>Sagemaker uses a gold standard set of datasets called the <a href="http://alfonseca.org/eng/research/wordsim353.html">WordSim353</a> (or <span class="caps">WS</span>-353 for short) in order to evaluate how well our model has performed. The <span class="caps">WS</span>-353 datasets contain pairs of words that have been manually assessed for either their <a href="http://www.people.vcu.edu/~btmcinnes/projects/similarity.html">semantic similarity or relatedness</a>. For example, this is a selection of pairs from the relatedness gold standard&nbsp;set:</p>
+<table>
+<thead>
+<tr>
+<th>Word 1</th>
+<th>Word 2</th>
+<th align="center">Relatedness score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>planet</td>
+<td>galaxy</td>
+<td align="center">8.11</td>
+</tr>
+<tr>
+<td>computer</td>
+<td>keyboard</td>
+<td align="center">7.62</td>
+</tr>
+<tr>
+<td>country</td>
+<td>citizen</td>
+<td align="center">7.31</td>
+</tr>
+<tr>
+<td>money</td>
+<td>withdrawal</td>
+<td align="center">6.88</td>
+</tr>
+<tr>
+<td>drink</td>
+<td>mouth</td>
+<td align="center">5.96</td>
+</tr>
+<tr>
+<td>space</td>
+<td>chemistry</td>
+<td align="center">4.88</td>
+</tr>
+<tr>
+<td>theater</td>
+<td>history</td>
+<td align="center">3.91</td>
+</tr>
+<tr>
+<td>media</td>
+<td>gain</td>
+<td align="center">2.88</td>
+</tr>
+<tr>
+<td>month</td>
+<td>hotel</td>
+<td align="center">1.81</td>
+</tr>
+</tbody>
+</table>
+<p><span class="caps">AWS</span> correlates the cosine similarities from our model with the manual similarities from the relatedness, similarity and the combined datasets, using a <a href="https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient">Spearman rank correlation</a>. As you can see, the <code>fit</code> method will output each of these metrics individually as part of the model training above. Sagemaker also takes the mean of these correlations as their overall objective metric, <code>mean_rho</code>. You can see this metric in the training output above, but you can also retrieve it using the&nbsp;following:</p>
+<div class="highlight"><pre><span></span><span class="n">bt_model</span><span class="o">.</span><span class="n">training_job_analytics</span><span class="o">.</span><span class="n">dataframe</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">WARNING</span><span class="o">:</span><span class="n">root</span><span class="o">:</span><span class="n">Warning</span><span class="o">:</span> <span class="n">No</span> <span class="n">metrics</span> <span class="n">called</span> <span class="n">train</span><span class="o">:</span><span class="n">accuracy</span> <span class="n">found</span>
+<span class="n">WARNING</span><span class="o">:</span><span class="n">root</span><span class="o">:</span><span class="n">Warning</span><span class="o">:</span> <span class="n">No</span> <span class="n">metrics</span> <span class="n">called</span> <span class="n">validation</span><span class="o">:</span><span class="n">accuracy</span> <span class="n">found</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>timestamp</th>
+      <th>metric_name</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>train:mean_rho</td>
+      <td>0.716475</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>If you go to the path for your model that we discussed earlier, you&#8217;ll find that Sagemaker produces three files: <code>eval.json</code>, which contains all of the metrics we just discussed above, and <code>vectors.bin</code> and <code>vectors.txt</code>, which contain our model vectors. We can download these straight to our Sagemaker notebook instance using the following&nbsp;command.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">sagemaker</span><span class="o">-</span><span class="n">blog</span><span class="o">-</span><span class="n">corpus</span><span class="o">-</span><span class="n">nlp</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">-</span><span class="n">blogs</span><span class="o">-</span><span class="n">sentences</span><span class="o">-</span><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span><span class="o">-</span><span class="mi">16</span><span class="o">-</span><span class="mi">21</span><span class="o">-</span><span class="mi">33</span><span class="o">-</span><span class="mi">136</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span> <span class="o">|</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xz</span>
+</pre></div>
+
+
+<p>We can now read in our model using <code>gensim</code>.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">gensim</span>
+
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">KeyedVectors</span>
+<span class="n">word_vectors</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="s1">&#39;vectors.txt&#39;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Let&#8217;s have a look at some words to check their&nbsp;neighbours:</p>
+<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;family&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[(&#39;grandparents&#39;, 0.8619130253791809),</span>
+<span class="err"> (&#39;grandparent&#39;, 0.86134934425354),</span>
+<span class="err"> (&#39;uncles&#39;, 0.8494136929512024),</span>
+<span class="err"> (&#39;aunts&#39;, 0.8464415073394775),</span>
+<span class="err"> (&#39;relatives&#39;, 0.8421298265457153),</span>
+<span class="err"> (&#39;godparents&#39;, 0.8400623798370361),</span>
+<span class="err"> (&#39;familys&#39;, 0.8268279433250427),</span>
+<span class="err"> (&#39;grandmothers&#39;, 0.8248440623283386),</span>
+<span class="err"> (&#39;cousins&#39;, 0.8228892683982849),</span>
+<span class="err"> (&#39;nephews&#39;, 0.8178520202636719)]</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;sad&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[(&#39;sadden&#39;, 0.877300500869751),</span>
+<span class="err"> (&#39;happy&#39;, 0.842025876045227),</span>
+<span class="err"> (&#39;dissappointed&#39;, 0.8219696283340454),</span>
+<span class="err"> (&#39;dissappointing&#39;, 0.8199109435081482),</span>
+<span class="err"> (&#39;dissapoint&#39;, 0.8183930516242981),</span>
+<span class="err"> (&#39;pathetic&#39;, 0.8036629557609558),</span>
+<span class="err"> (&#39;dissapointed&#39;, 0.8024519085884094),</span>
+<span class="err"> (&#39;depressed&#39;, 0.8010575175285339),</span>
+<span class="err"> (&#39;heartbroken&#39;, 0.789728045463562),</span>
+<span class="err"> (&#39;saddening&#39;, 0.7896846532821655)]</span>
+</pre></div>
+
+
+<p>We can see that both of these terms have produces good neighbours, although the neighbours for &#8220;sad&#8221; do contain a number of typos (e.g., &#8220;dissappointed&#8221;). Although typos do make poor neighbours, including them in the model (rather than correcting or removing them out during the data cleaning process) does help the coverage of the&nbsp;model. </p>
+<p>Alternatively, you can alter the training of the BlazingText model to <a href="https://aws.amazon.com/blogs/machine-learning/enhanced-text-classification-and-word-vectors-using-amazon-sagemaker-blazingtext/">use subwords</a>, which allows the model to find neighbours for out-of-vocabulary (<span class="caps">OOV</span>) words which are similar to words already in the model, such as typos or inflections. However, from what I&#8217;ve worked out the only way to use the model to cover <span class="caps">OOV</span> terms is by using a Sagemaker inference endpoint, which can be&nbsp;expensive.</p>
+<p>We can also visualise how similar our most frequent terms are using <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">T-<span class="caps">SNE</span></a>, which is an algorithm which reduces our 100 dimension vectors to 2 dimensions. This will give us an idea of whether the model is generally doing a good job of positioning similar terms close to each other in the vector space. I copied this code directly from the <span class="caps">AWS</span> tutorial notebook <code>blazingtext_word2vec_text8.ipynb</code>, which you can find under the <code>Sagemaker Examples</code> tab at the top of your Jupyter notebook&nbsp;homepage. </p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">normalize</span>
+<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pylab</span>
+
+<span class="n">num_points</span> <span class="o">=</span> <span class="mi">400</span>
+
+<span class="n">first_line</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">index_to_word</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/initial_model/vectors.txt&quot;</span><span class="p">,</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">first_line</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">word_vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_points</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">first_line</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">continue</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">word_vecs</span><span class="p">[</span><span class="n">line_num</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">vec_val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">vec</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vec_val</span><span class="p">)</span>
+        <span class="n">index_to_word</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line_num</span> <span class="o">&gt;=</span> <span class="n">num_points</span><span class="p">:</span>
+            <span class="k">break</span>
+<span class="n">word_vecs</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">word_vecs</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">tsne</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="n">perplexity</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;pca&#39;</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">two_d_embeddings</span> <span class="o">=</span> <span class="n">tsne</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">word_vecs</span><span class="p">[:</span><span class="n">num_points</span><span class="p">])</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">index_to_word</span><span class="p">[:</span><span class="n">num_points</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">embeddings</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+        <span class="n">pylab</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">pylab</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset points&#39;</span><span class="p">,</span>
+                       <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;tsne_blazing_text_initial.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+<span class="n">plot</span><span class="p">(</span><span class="n">two_d_embeddings</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</pre></div>
+
+
+<p><img src="/figure/tsne_blazing_text_initial.png" title="T-SNE plot" style="display: block; margin: auto;" /></p>
+<p>You can see that the model generally makes sense as you look over the graph. There is a cluster in the top righthand corner containing numbers, while in the bottom lefthand corner we have terms such as &#8220;blog&#8221;, &#8220;post&#8221;, &#8220;write&#8221;, &#8220;read&#8221;, &#8220;book&#8221; and &#8220;story&#8221;&nbsp;grouped.</p>
+<p>And that&#8217;s it for this tutorial! I hope this gave you a good basis for running and evaluating your own word2vec model using BlazingText. In the next post, we&#8217;ll talk about how to select hyperparameters using Sagemaker&#8217;s automatic model&nbsp;tuning.</p>
+<div class="highlight"><pre><span></span>
+</pre></div>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
