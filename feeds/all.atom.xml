@@ -1,5 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-07-13T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Solving OLS regression with linear algebra</title><link href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html" rel="alternate"></link><published>2020-07-13T00:00:00+02:00</published><updated>2020-07-13T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-13:/blog/2020/07/solving-ols-regression-with-linear-algebra.html</id><summary type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I …&lt;/p&gt;</summary><content type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating &lt;span class="caps"&gt;OLS&lt;/span&gt; regression until I completed Andrew Ng&amp;#8217;s brilliant &lt;a href="https://www.coursera.org/learn/machine-learning/home/welcome"&gt;Machine Learning&lt;/a&gt; course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&amp;#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&amp;#8217;d like to get an overview of these, feel free to look at my earlier blog posts &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;here&lt;/a&gt;, &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;here&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html"&gt;here&lt;/a&gt;. It will also assume familiarity with &lt;span class="caps"&gt;OLS&lt;/span&gt;&amp;nbsp;regression.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-07-27T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Simplifying the normal equation with Gram-Schmidt</title><link href="http://t-redactyl.github.io/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html" rel="alternate"></link><published>2020-07-27T00:00:00+02:00</published><updated>2020-07-27T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-27:/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html</id><summary type="html">&lt;p&gt;In the &lt;a href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"&gt;last post&lt;/a&gt; I talked about how to find the coefficients that give us the line of best fit for a &lt;span class="caps"&gt;OLS&lt;/span&gt; regression problem using the normal solution. The core of this approach is the&amp;nbsp;equation:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^TXb = X^Ty
+$$&lt;/div&gt;
+&lt;p&gt;The way we solved this in the previous post …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In the &lt;a href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"&gt;last post&lt;/a&gt; I talked about how to find the coefficients that give us the line of best fit for a &lt;span class="caps"&gt;OLS&lt;/span&gt; regression problem using the normal solution. The core of this approach is the&amp;nbsp;equation:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X^TXb = X^Ty
+$$&lt;/div&gt;
+&lt;p&gt;The way we solved this in the previous post was to pull out the system of simultaneous equations and solve these for &lt;span class="math"&gt;\(b\)&lt;/span&gt;. However, a more straightforward way is to rewrite the equation by &amp;#8220;dividing&amp;#8221; both sides by &lt;span class="math"&gt;\(X^TX\)&lt;/span&gt;, so that we are directly solving for &lt;span class="math"&gt;\(b\)&lt;/span&gt;. If you remember back to &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;this post&lt;/a&gt;, we need to multiply both sides of the equation by the inverse of &lt;span class="math"&gt;\(X^TX\)&lt;/span&gt; in order to do&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+(X^TX)^{-1}(X^TX)b &amp;amp;= (X^TX)^{-1}X^Ty \\
+Ib &amp;amp;= (X^TX)^{-1}X^Ty \\
+b &amp;amp;= (X^TX)^{-1}X^Ty
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;The issue is that this equation now involves taking the inverse of a matrix, which is computationally expensive. However, there is a way of getting rid of this whole inversion step by using a special type of matrix called an &lt;a href="https://en.wikipedia.org/wiki/Orthogonal_matrix"&gt;orthonormal matrix&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;The advantage of orthonormal&amp;nbsp;matrices&lt;/h2&gt;
+&lt;p&gt;An orthonormal matrix is one where every column vector is an orthogonal unit vector. We have seen orthogonal vectors before: this simply means that the dot product of every pair of vectors in the matrix is 0. Unit vectors are similarly straightforward - they are just vectors with a length of 1. Putting this together, an orthonormal matrix is thus one where every column vector has a length of one and is orthogonal with every other column vector in the&amp;nbsp;matrix.&lt;/p&gt;
+&lt;p&gt;Why are orthonormal matrices so great for helping us find &lt;span class="math"&gt;\(b\)&lt;/span&gt;? When we multiply an orthonormal matrix &lt;span class="math"&gt;\(Q\)&lt;/span&gt; by its transpose &lt;span class="math"&gt;\(Q^T\)&lt;/span&gt;, we get the identity matrix; in other words, &lt;span class="math"&gt;\(Q^TQ = I\)&lt;/span&gt;. Does the lefthand side of this equation look familiar? It&amp;#8217;s the exact part of &lt;span class="math"&gt;\(X^TXb = X^Ty\)&lt;/span&gt; that we tried to get rid of earlier by multiplying by the inverse. If we were able to use the orthonormal form of &lt;span class="math"&gt;\(X\)&lt;/span&gt;, we could isolate &lt;span class="math"&gt;\(b\)&lt;/span&gt; without having to calculate the inverse at all, by simply calculating &lt;span class="math"&gt;\(b = Q^Ty\)&lt;/span&gt;!&lt;/p&gt;
+&lt;p&gt;Before we get into how to convert our matrix &lt;span class="math"&gt;\(X\)&lt;/span&gt; into &lt;span class="math"&gt;\(Q\)&lt;/span&gt;, let&amp;#8217;s have a look at why &lt;span class="math"&gt;\(Q^TQ = 0\)&lt;/span&gt;. Let&amp;#8217;s take an example orthonormal&amp;nbsp;vector:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+Q = \begin{bmatrix} \frac{4}{5} &amp;amp; \frac{1}{5} \\[4pt] \frac{2}{5} &amp;amp; -\frac{2}{5} \\[4pt] \frac{1}{5} &amp;amp; \frac{4}{5} \\[4pt] \frac{2}{5} &amp;amp; -\frac{2}{5} \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;Calculating &lt;span class="math"&gt;\(Q^TQ\)&lt;/span&gt; will give us a &lt;span class="math"&gt;\(2 \times 2\)&lt;/span&gt; matrix, with the following&amp;nbsp;components:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+Q^TQ = \begin{bmatrix} q_1^Tq_1 &amp;amp; q_1^Tq_2 \\[4pt] q_2^Tq_1 &amp;amp; q_2^Tq_2 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;Any vector multiplied by itself will give the squared &lt;a href="https://onlinemschool.com/math/library/vector/length/"&gt;length of that vector&lt;/a&gt;. In the case of a unit vector, the squared length is 1, as seen by the result of calculating &lt;span class="math"&gt;\(q_1^Tq_1\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+q_1^Tq_1 &amp;amp;= \begin{bmatrix} \frac{4}{5} \\[4pt] \frac{2}{5} \\[4pt] \frac{1}{5} \\[4pt] \frac{2}{5} \end{bmatrix} \cdotp \begin{bmatrix} \frac{4}{5} &amp;amp; \frac{2}{5} &amp;amp; \frac{1}{5} &amp;amp; \frac{2}{5} \end{bmatrix} \\
+&amp;amp;= (\frac{4}{5})^2 + (\frac{2}{5})^2 + (\frac{1}{5})^2 + (\frac{2}{5})^2 \\
+&amp;amp;= \frac{16}{25} + \frac{4}{25} + \frac{1}{25} + \frac{4}{25} \\
+&amp;amp;= \frac{25}{25} = 1
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;This means we will always get 1&amp;#8217;s in this matrix whenever we take the dot product of one of the columns of &lt;span class="math"&gt;\(Q\)&lt;/span&gt; with itself; that is, along the diagonals of the matrix. For the other components of the matrix, we are now taking the dot product of two orthogonal vectors, meaning the result will be&amp;nbsp;0.&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+q_1^Tq_1 &amp;amp;= \begin{bmatrix} \frac{4}{5} \\[4pt] \frac{2}{5} \\[4pt] \frac{1}{5} \\[4pt] \frac{2}{5} \end{bmatrix} \cdotp \begin{bmatrix} \frac{1}{5} &amp;amp; -\frac{2}{5} &amp;amp; \frac{4}{5} &amp;amp; -\frac{2}{5} \end{bmatrix} \\
+&amp;amp;= \frac{4}{25} - \frac{4}{5} + \frac{4}{5} - \frac{4}{5} = 0
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Combining this, we&amp;nbsp;get:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+Q^TQ &amp;amp;= \begin{bmatrix} \frac{4}{5} &amp;amp; \frac{2}{5} &amp;amp; \frac{1}{5} &amp;amp; \frac{2}{5} \\[4pt] \frac{1}{5} &amp;amp; -\frac{2}{5} &amp;amp; \frac{4}{5} &amp;amp; -\frac{2}{5} \end{bmatrix} \begin{bmatrix} \frac{4}{5} &amp;amp; \frac{1}{5} \\[4pt] \frac{2}{5} &amp;amp; -\frac{2}{5} \\[4pt] \frac{1}{5} &amp;amp; \frac{4}{5} \\[4pt] \frac{2}{5} &amp;amp; -\frac{2}{5} \end{bmatrix} \\
+&amp;amp;= \begin{bmatrix} 1 &amp;amp; 0 \\ 0 &amp;amp; 1 \end{bmatrix} = I
+\end{aligned}
+$$&lt;/div&gt;
+&lt;h2&gt;Turning &lt;span class="math"&gt;\(X\)&lt;/span&gt; into an orthonormal&amp;nbsp;matrix&lt;/h2&gt;
+&lt;p&gt;So how do we convert &lt;span class="math"&gt;\(X\)&lt;/span&gt; into an orthonormal matrix &lt;span class="math"&gt;\(Q\)&lt;/span&gt;? The first step is to find &lt;strong&gt;orthogonal&lt;/strong&gt; vectors, and the method we use is an extension of how we found &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; and &lt;span class="math"&gt;\(e\)&lt;/span&gt; when trying to solve least squares for regression in the previous post. Those calculations essentially split &lt;span class="math"&gt;\(y\)&lt;/span&gt; into two orthogonal vectors: &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; which lay on the plane of the column space &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt;, and &lt;span class="math"&gt;\(e\)&lt;/span&gt;, the vector orthogonal to &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;We can think of the relationship between the first and second columns of &lt;span class="math"&gt;\(X\)&lt;/span&gt; as equivalent to the relationship between &lt;span class="math"&gt;\(C(X)\)&lt;/span&gt; and &lt;span class="math"&gt;\(y\)&lt;/span&gt;. Let&amp;#8217;s call these columns &lt;span class="math"&gt;\(f\)&lt;/span&gt; and &lt;span class="math"&gt;\(g\)&lt;/span&gt;, and their orthogonal versions &lt;span class="math"&gt;\(F\)&lt;/span&gt; and &lt;span class="math"&gt;\(G\)&lt;/span&gt;. Essentially, we keep &lt;span class="math"&gt;\(f\)&lt;/span&gt; as is, so &lt;span class="math"&gt;\(f = F\)&lt;/span&gt;. We then try to find the part of &lt;span class="math"&gt;\(g\)&lt;/span&gt; that lies on &lt;span class="math"&gt;\(F\)&lt;/span&gt; and the part that is orthogonal to it, &lt;span class="math"&gt;\(G\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;In least squares, we would calculate &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;&amp;nbsp;using:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\hat y = X(X^TX)^{-1}X^Ty
+$$&lt;/div&gt;
+&lt;p&gt;Similarly we can calculate the part of &lt;span class="math"&gt;\(g\)&lt;/span&gt; that lies on &lt;span class="math"&gt;\(F\)&lt;/span&gt;&amp;nbsp;using:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+F(F^TF)^{-1}F^Tg
+$$&lt;/div&gt;
+&lt;p&gt;We can then subtract this from &lt;span class="math"&gt;\(g\)&lt;/span&gt; to get &lt;span class="math"&gt;\(G\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+G = g - F(F^TF)^{-1}F^Tg
+$$&lt;/div&gt;
+&lt;p&gt;&lt;img src="/figure/linear-algebra-5.png" title="Creating orthogonal vectors" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;For this reason, we can obviously only find orthogonal vectors when the vectors of &lt;span class="math"&gt;\(X\)&lt;/span&gt; are independent: if they are not, then &lt;em&gt;all&lt;/em&gt; of &lt;span class="math"&gt;\(g\)&lt;/span&gt; lies on the line described by &lt;span class="math"&gt;\(F\)&lt;/span&gt;, and there would be no orthogonal part left&amp;nbsp;behind.&lt;/p&gt;
+&lt;p&gt;Finally, as we&amp;#8217;re now dealing entirely with vectors instead of a matrix, the terms &lt;span class="math"&gt;\((F^TF)\)&lt;/span&gt; and &lt;span class="math"&gt;\((F^Tg)\)&lt;/span&gt; simplify to&amp;nbsp;scalars:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+G &amp;amp;= g - F\frac{1}{F^TF}F^Tg \\
+&amp;amp;= g - \frac{F^Tg}{F^TF}F
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Let&amp;#8217;s try this out with a matrix &lt;span class="math"&gt;\(X\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+X = \begin{bmatrix} 1 &amp;amp; 2 \\ 1 &amp;amp; 0 \\ 1 &amp;amp; 2 \\ 1 &amp;amp; 0 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;&lt;span class="math"&gt;\(f = F = (1, 1, 1, 1)\)&lt;/span&gt; and &lt;span class="math"&gt;\(g = (2, 0, 2, 0)\)&lt;/span&gt;. We can now use our above formula to calculate &lt;span class="math"&gt;\(G\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+G = \begin{bmatrix} 2 \\ 0 \\ 2 \\ 0 \end{bmatrix} - \frac{4}{4}\begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 \\ -1 \\ 1 \\ -1 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;And voilà! We now have two orthogonal vectors, &lt;span class="math"&gt;\((1, 1, 1, 1)\)&lt;/span&gt; and &lt;span class="math"&gt;\((1, -1, 1, -1)\)&lt;/span&gt;. The final step is taking these from orthogonal to orthonormal. To do this, we simply divide each vector by its&amp;nbsp;length:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+F = \frac{1}{2}\begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \end{bmatrix} \quad\quad 
+G = \frac{1}{2}\begin{bmatrix} 1 \\ -1 \\ 1 \\ -1 \end{bmatrix} \quad\quad 
+Q = \begin{bmatrix} \frac{1}{2} &amp;amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; -\frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; -\frac{1}{2}\end{bmatrix}
+$$&lt;/div&gt;
+&lt;p&gt;Let&amp;#8217;s complete the calculation by checking that &lt;span class="math"&gt;\(Q^TQ\)&lt;/span&gt; indeed equals &lt;span class="math"&gt;\(I\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+Q^TQ = \begin{bmatrix} \frac{1}{2} &amp;amp; \frac{1}{2} &amp;amp; \frac{1}{2} &amp;amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; -\frac{1}{2} &amp;amp; \frac{1}{2} &amp;amp; -\frac{1}{2}\end{bmatrix} \begin{bmatrix} \frac{1}{2} &amp;amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; -\frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; \frac{1}{2} \\[4pt] \frac{1}{2} &amp;amp; -\frac{1}{2}\end{bmatrix}
+= \begin{bmatrix} 4(\frac{1}{4}) &amp;amp; 2(\frac{1}{4}) - 2(\frac{1}{4}) \\[4pt] 2(\frac{1}{4}) - 2(\frac{1}{4}) &amp;amp; 4(\frac{1}{4}) \end{bmatrix} 
+= \begin{bmatrix} 1 &amp;amp; 0 \\[4pt] 0 &amp;amp; 1 \end{bmatrix}
+$$&lt;/div&gt;
+&lt;h2&gt;What happens if you have more than two&amp;nbsp;vectors?&lt;/h2&gt;
+&lt;p&gt;This method generalises out to whatever number of independent columns your matrix has. For each additional vector, we just need to subtract the parts of this vector that lie on &lt;span class="math"&gt;\(F\)&lt;/span&gt; and &lt;span class="math"&gt;\(G\)&lt;/span&gt; (and &lt;span class="math"&gt;\(H\)&lt;/span&gt; and &lt;span class="math"&gt;\(J\)&lt;/span&gt; and &amp;#8230;). Extending the formula is very easy. Let&amp;#8217;s say we&amp;#8217;re trying to solve for a third vector &lt;span class="math"&gt;\(H\)&lt;/span&gt;, after solving for &lt;span class="math"&gt;\(F\)&lt;/span&gt; and &lt;span class="math"&gt;\(G\)&lt;/span&gt; as&amp;nbsp;above:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+H = h - \frac{F^Th}{F^TF}F - \frac{G^Th}{G^TG}G
+$$&lt;/div&gt;
+&lt;p&gt;You can easily see the pattern. In getting rid of the part of &lt;span class="math"&gt;\(g\)&lt;/span&gt; that lay on &lt;span class="math"&gt;\(F\)&lt;/span&gt;, we subtracted &lt;span class="math"&gt;\(\frac{F^Tg}{F^TF}F\)&lt;/span&gt;. Here we subtract &lt;span class="math"&gt;\(\frac{F^Th}{F^TF}F\)&lt;/span&gt;. This idea transfers directly to subtracting the component that lies on &lt;span class="math"&gt;\(G\)&lt;/span&gt;. For each additional vector, we just extend this pattern, making sure to subtract the part that lies on &lt;em&gt;each&lt;/em&gt; previous&amp;nbsp;vector.&lt;/p&gt;
+&lt;h2&gt;Using &lt;span class="math"&gt;\(Q\)&lt;/span&gt; to solve linear&amp;nbsp;regression&lt;/h2&gt;
+&lt;p&gt;Now we know how to calculate our orthonormal vector &lt;span class="math"&gt;\(Q\)&lt;/span&gt;, we can finally use it to obtain our regression coefficients &lt;span class="math"&gt;\(b\)&lt;/span&gt; and our predicted values &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt;. In the last post, we used a small dataset to demonstrate the normal equation, and showed how to get the &lt;span class="math"&gt;\(b\)&lt;/span&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s and &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; using this method. We&amp;#8217;ll use this same example to demonstrate how to do the same using an orthonormal&amp;nbsp;matrix.&lt;/p&gt;
+&lt;p&gt;Firstly, let&amp;#8217;s load in the required packages, and create our dataset matrix &lt;span class="math"&gt;\(X\)&lt;/span&gt; and outcome vector &lt;span class="math"&gt;\(y\)&lt;/span&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;math&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;numpy.linalg&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;qr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inv&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;
+
+&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In order to calculate our orthonormal matrix, we can use the &lt;code&gt;qr&lt;/code&gt; method from &lt;code&gt;numpy.linalg&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;Q&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;R&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;qr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Q&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[-5.77350269e-01,  7.07106781e-01],&lt;/span&gt;
+&lt;span class="err"&gt;       [-5.77350269e-01,  5.55111512e-17],&lt;/span&gt;
+&lt;span class="err"&gt;       [-5.77350269e-01, -7.07106781e-01]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Let&amp;#8217;s confirm that &lt;code&gt;numpy&lt;/code&gt; is giving us the same values that we would using the equations we defined&amp;nbsp;above:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# Calculate G&lt;/span&gt;
+&lt;span class="n"&gt;F_T_g&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="n"&gt;F_T_F&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;F_T_g&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;F_T_F&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Turn F and G into unit vectors&lt;/span&gt;
+&lt;span class="n"&gt;F&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;G&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;norm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;column_stack&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;G&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[ 0.57735027, -0.70710678],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 0.57735027,  0.        ],&lt;/span&gt;
+&lt;span class="err"&gt;       [ 0.57735027,  0.70710678]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can see we have the same values, albeit with the signs&amp;nbsp;reversed.&lt;/p&gt;
+&lt;p&gt;We can now calculate our &lt;span class="math"&gt;\(b\)&lt;/span&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s by using our simplified equation, &lt;span class="math"&gt;\(b = Q^Ty\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Q&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transpose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;b&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[-9.23760431],&lt;/span&gt;
+&lt;span class="err"&gt;       [-2.82842712]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, these are a different set of coefficients from what you would get using &lt;span class="math"&gt;\(X\)&lt;/span&gt;. However, we can get the same &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; by calculating &lt;span class="math"&gt;\(Qb\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;y_hat&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Q&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;y_hat&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([[3.33333333],&lt;/span&gt;
+&lt;span class="err"&gt;       [5.33333333],&lt;/span&gt;
+&lt;span class="err"&gt;       [7.33333333]])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, these are the exact same &lt;span class="math"&gt;\(\hat y\)&lt;/span&gt; values that we obtained using the normal equation with &lt;span class="math"&gt;\(X\)&lt;/span&gt;, and what &lt;code&gt;sklearn&lt;/code&gt; produced for us in the last&amp;nbsp;post.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category><category term="linear algebra"></category><category term="python"></category></entry><entry><title>Solving OLS regression with linear algebra</title><link href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html" rel="alternate"></link><published>2020-07-13T00:00:00+02:00</published><updated>2020-07-13T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-13:/blog/2020/07/solving-ols-regression-with-linear-algebra.html</id><summary type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I …&lt;/p&gt;</summary><content type="html">&lt;p&gt;When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &amp;#8220;calculus&amp;#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating &lt;span class="caps"&gt;OLS&lt;/span&gt; regression until I completed Andrew Ng&amp;#8217;s brilliant &lt;a href="https://www.coursera.org/learn/machine-learning/home/welcome"&gt;Machine Learning&lt;/a&gt; course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&amp;#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&amp;#8217;d like to get an overview of these, feel free to look at my earlier blog posts &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html"&gt;here&lt;/a&gt;, &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html"&gt;here&lt;/a&gt; and &lt;a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html"&gt;here&lt;/a&gt;. It will also assume familiarity with &lt;span class="caps"&gt;OLS&lt;/span&gt;&amp;nbsp;regression.&lt;/p&gt;
 &lt;p&gt;Say we are trying to predict students&amp;#8217; test scores (out of 10), and the one measurement we have is the average number of hours of study they did a day for this test. Let&amp;#8217;s also say (in order to keep the calculations under control) that we only have 3 observations. Our dataset therefore looks like&amp;nbsp;this:&lt;/p&gt;
 &lt;div&gt;
 &lt;table class="table table-bordered"&gt;
