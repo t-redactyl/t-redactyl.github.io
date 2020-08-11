@@ -19,19 +19,25 @@
 
     <link
       rel="canonical"
-      href="/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html"
+      href="http://t-redactyl.github.io/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html"
     />
 
-    <link href="/favicon.png" rel="icon" />
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
       <link
-      href="/theme/css/screen.css"
+      href="http://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="/theme/css/tomorrow.css"
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -58,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="/theme/images/home.png" />
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -68,13 +74,13 @@
         <div class="meta">
           written <time datetime="2020-08-10T00:00:00+02:00">August 10, 2020</time>
           in <span class="categories">
-            <a href="/tag/aws.html">aws</a>,            <a href="/tag/pyspark.html">pyspark</a>,            <a href="/tag/sagemaker.html">sagemaker</a>          </span>
+            <a href="http://t-redactyl.github.io/tag/aws.html">aws</a>,            <a href="http://t-redactyl.github.io/tag/pyspark.html">pyspark</a>,            <a href="http://t-redactyl.github.io/tag/sagemaker.html">sagemaker</a>          </span>
         </div>
-        <p>I have recently been working my way through Jose Portilla&#8217;s excellent <a href="https://www.udemy.com/course/spark-and-python-for-big-data-with-pyspark/">Udemy course on PySpark</a>, and of course I wanted to try out some things I learned in the course. I have been transitioning over to <a href="https://aws.amazon.com/sagemaker/"><span class="caps">AWS</span> Sagemaker</a> for a lot of my work, but I haven&#8217;t tried using it with PySpark yet. Unfortunately, setting up my Sagemaker notebook instance to read data from S3 using Spark turned out to be one of <em>those</em> issues in <span class="caps">AWS</span>, where it took 5 hours of wading through the <span class="caps">AWS</span> documentation, the PySpark documentation and (of course) StackOverflow before I was able to make it work. Given how painful this was to solve and how confusing the documentation on this generally is, I figured I would write a blog post to hopefully help anyone who gets similarly&nbsp;stuck.</p>
+        <p>I recently finished Jose Portilla&#8217;s excellent <a href="https://www.udemy.com/course/spark-and-python-for-big-data-with-pyspark/">Udemy course on PySpark</a>, and of course I wanted to try out some things I learned in the course. I have been transitioning over to <a href="https://aws.amazon.com/sagemaker/"><span class="caps">AWS</span> Sagemaker</a> for a lot of my work, but I haven&#8217;t tried using it with PySpark yet. Unfortunately, setting up my Sagemaker notebook instance to read data from S3 using Spark turned out to be one of <em>those</em> issues in <span class="caps">AWS</span>, where it took 5 hours of wading through the <span class="caps">AWS</span> documentation, the PySpark documentation and (of course) StackOverflow before I was able to make it work. Given how painful this was to solve and how confusing the documentation on this generally is, I figured I would write a blog post to hopefully help anyone who gets similarly&nbsp;stuck.</p>
 <h2>Setting up S3 and <span class="caps">AWS</span>&nbsp;correctly</h2>
 <p>The first thing that you need to ensure is that Sagemaker has permission to access S3 and read the data in the first place. The easiest way I&#8217;ve found to do this (as an <span class="caps">AWS</span> beginner) is to set up <span class="caps">IAM</span> role for all of your Sagemaker notebooks, which allows them (among other things) to read data from S3 buckets. <a href="https://docs.aws.amazon.com/glue/latest/dg/create-an-iam-role-sagemaker-notebook.html">This guide</a> walks you through all of the steps to do&nbsp;this.</p>
 <p>Next, you need to go back over to Sagemaker and create your notebook instance. While you&#8217;re creating it, you&#8217;ll see an option under &#8220;Permissions and encryption&#8221; to set the <span class="caps">IAM</span> role. You should select the role you just created in the step above. As you can see, I called my role <code>AWSGlueServiceSageMakerNotebookRole-Default</code>, as recommended in the tutorial. You can leave all of the other options as their defaults and create your notebook&nbsp;instance.  </p>
-<p><img src="/figure/sagemaker-spark-1.png" title="Setting permissions" style="display: block; margin: auto;" /></p>
+<p><img src="/figure/sagemaker-spark-2.png" title="Setting permissions" style="display: block; margin: auto;" /></p>
 <p>You now need somewhere to store all of your data. Go over to S3 and create a new bucket. <span class="caps">AWS</span> recommends that you <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/gs-config-permissions.html">prefix the name of your bucket with Sagemaker</a>, but I don&#8217;t think this is necessary for Sagemaker to be able to recognise the bucket. You can now upload your data into the&nbsp;bucket.  </p>
 <p>Next, you will need to retrieve your <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code>, which will be needed for PySpark to read in the data. <a href="https://supsystic.com/documentation/id-secret-access-key-amazon-s3/">This guide</a> steps you through how to generate and retrieve&nbsp;these.</p>
 <p>Finally, go back to your notebook instance in Sagemaker and open up JupyterLab. Scroll down to the bottom of the Launcher screen to the &#8220;Other&#8221; applications, and open up Terminal. As per <a href="https://sagemaker-pyspark.readthedocs.io/en/latest/">this guide</a>, we need to check our <code>config</code> file is set to the right <span class="caps">AWS</span> region and also put our <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> in the <code>credentials</code> file. To get started, navigate to <code>~/.aws</code> and check the&nbsp;contents:</p>
@@ -105,8 +111,13 @@
 
 
 <h2>Configuring <code>sagemaker_pyspark</code></h2>
-<p>We&#8217;ve now finished all of the preparatory steps, and you can now create a new <code>python_conda3</code> notebook. Once we have this notebook, we need to configure our <code>SparkSession</code> correctly.</p>
-<p>When I initially started trying to read my file into a Spark DataFrame, I kept getting the following error: <code>Py4JJavaError: An error occurred while calling o65.csv. : java.lang.RuntimeException: java.lang.ClassNotFoundException: Class org.apache.hadoop.fs.s3a.S3AFileSystem not found</code>. I was missing a step where I needed to <a href="https://sagemaker-pyspark.readthedocs.io/en/latest/">load the Sagemaker <span class="caps">JAR</span> files</a> in order for Spark to work properly. You can see this in the code below, where I used <code>SparkConf</code> to do&nbsp;this.</p>
+<p>We&#8217;ve finished all of the preparatory steps, and you can now create a new <code>python_conda3</code> notebook. Once we have this notebook, we need to configure our <code>SparkSession</code> correctly.</p>
+<p>When I initially started trying to read my file into a Spark DataFrame, I kept getting the following&nbsp;error: </p>
+<div class="highlight"><pre><span></span><span class="n">Py4JJavaError</span><span class="o">:</span> <span class="n">An</span> <span class="n">error</span> <span class="n">occurred</span> <span class="k">while</span> <span class="n">calling</span> <span class="n">o65</span><span class="o">.</span><span class="na">csv</span><span class="o">.</span> <span class="o">:</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">RuntimeException</span><span class="o">:</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">ClassNotFoundException</span><span class="o">:</span> <span class="n">Class</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">fs</span><span class="o">.</span><span class="na">s3a</span><span class="o">.</span><span class="na">S3AFileSystem</span> <span class="n">not</span> <span class="n">found</span>
+</pre></div>
+
+
+<p>I was missing a step where I needed to <a href="https://sagemaker-pyspark.readthedocs.io/en/latest/">load the Sagemaker <span class="caps">JAR</span> files</a> in order for Spark to work properly. You can see this in the code below, where I used <code>SparkConf</code> to do&nbsp;this.</p>
 <p>Finally, we need to also make the <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> visible to the <code>SparkSession</code>. We can use a package called <code>botocore</code> to <a href="https://stackoverflow.com/questions/50499894/how-should-i-load-file-on-s3-using-spark">access the credentials</a> from the <code>~/.aws/credentials</code> file we created earlier. You can see that instead of us needing to pass the credentials directly, the <code>botocore</code> session pulls them out of our credentials file and stores them for us. We&#8217;ve also passed the <code>SparkConf</code> that we created as a config in the <code>SparkSession</code> builder as&nbsp;well.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkConf</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
@@ -153,94 +164,57 @@
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
+<table class="table table-bordered">
   <thead>
     <tr style="text-align: right;">
-      <th></th>
-      <th>TRIP_ID</th>
-      <th>CALL_TYPE</th>
-      <th>ORIGIN_CALL</th>
-      <th>ORIGIN_STAND</th>
-      <th>TAXI_ID</th>
-      <th><span class="caps">TIMESTAMP</span></th>
-      <th>DAY_TYPE</th>
-      <th>MISSING_DATA</th>
-      <th><span class="caps">POLYLINE</span></th>
+      <th style="text-align:center"><b>TRIP_ID</b></th>
+      <th style="text-align:center"><b>CALL_TYPE</b></th>
+      <th style="text-align:center"><b>ORIGIN_CALL</b></th>
+      <th style="text-align:center"><b>ORIGIN_STAND</b></th>
+      <th style="text-align:center"><b>TAXI_ID</b></th>
+      <th style="text-align:center"><b><span class="caps">TIMESTAMP</span></b></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
-      <td>1372636858620000589</td>
-      <td>C</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>20000589</td>
-      <td>1372636858</td>
-      <td>A</td>
-      <td>False</td>
-      <td>[[-8.618643,41.141412],[-8.618499,41.141376],[&#8230;</td>
+      <td style="text-align:center">0</td>
+      <td style="text-align:center">1372636858620000589</td>
+      <td style="text-align:center">C</td>
+      <td style="text-align:center">None</td>
+      <td style="text-align:center">NaN</td>
+      <td style="text-align:center">20000589</td>
     </tr>
     <tr>
-      <th>1</th>
-      <td>1372637303620000596</td>
-      <td>B</td>
-      <td>None</td>
-      <td>7.0</td>
-      <td>20000596</td>
-      <td>1372637303</td>
-      <td>A</td>
-      <td>False</td>
-      <td>[[-8.639847,41.159826],[-8.640351,41.159871],[&#8230;</td>
+      <td style="text-align:center">1</td>
+      <td style="text-align:center">1372637303620000596</td>
+      <td style="text-align:center">B</td>
+      <td style="text-align:center">None</td>
+      <td style="text-align:center">7.0</td>
+      <td style="text-align:center">20000596</td>
     </tr>
     <tr>
-      <th>2</th>
-      <td>1372636951620000320</td>
-      <td>C</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>20000320</td>
-      <td>1372636951</td>
-      <td>A</td>
-      <td>False</td>
-      <td>[[-8.612964,41.140359],[-8.613378,41.14035],[-&#8230;</td>
+      <td style="text-align:center">2</td>
+      <td style="text-align:center">1372636951620000320</td>
+      <td style="text-align:center">C</td>
+      <td style="text-align:center">None</td>
+      <td style="text-align:center">NaN</td>
+      <td style="text-align:center">20000320</td>
     </tr>
     <tr>
-      <th>3</th>
-      <td>1372636854620000520</td>
-      <td>C</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>20000520</td>
-      <td>1372636854</td>
-      <td>A</td>
-      <td>False</td>
-      <td>[[-8.574678,41.151951],[-8.574705,41.151942],[&#8230;</td>
+      <td style="text-align:center">3</td>
+      <td style="text-align:center">1372636854620000520</td>
+      <td style="text-align:center">C</td>
+      <td style="text-align:center">None</td>
+      <td style="text-align:center">NaN</td>
+      <td style="text-align:center">20000520</td>
     </tr>
     <tr>
-      <th>4</th>
-      <td>1372637091620000337</td>
-      <td>C</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>20000337</td>
-      <td>1372637091</td>
-      <td>A</td>
-      <td>False</td>
-      <td>[[-8.645994,41.18049],[-8.645949,41.180517],[-&#8230;</td>
+      <td style="text-align:center">4</td>
+      <td style="text-align:center">1372637091620000337</td>
+      <td style="text-align:center">C</td>
+      <td style="text-align:center">None</td>
+      <td style="text-align:center">NaN</td>
+      <td style="text-align:center">20000337</td>
     </tr>
   </tbody>
 </table>
@@ -269,11 +243,11 @@
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_31_twitter.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_21_github.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
@@ -297,5 +271,14 @@
       renderMathInElement(document.body);
     </script>
 
-   </body>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
 </html>

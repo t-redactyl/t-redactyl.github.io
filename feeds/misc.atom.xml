@@ -1,5 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-07-27T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Simplifying the normal equation with Gram-Schmidt</title><link href="http://t-redactyl.github.io/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html" rel="alternate"></link><published>2020-07-27T00:00:00+02:00</published><updated>2020-07-27T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-27:/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html</id><summary type="html">&lt;p&gt;In the &lt;a href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"&gt;last post&lt;/a&gt; I talked about how to find the coefficients that give us the line of best fit for a &lt;span class="caps"&gt;OLS&lt;/span&gt; regression problem using the normal solution. The core of this approach is the&amp;nbsp;equation:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="http://t-redactyl.github.io/" rel="alternate"></link><link href="http://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>http://t-redactyl.github.io/</id><updated>2020-08-10T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Reading S3 data into a Spark DataFrame using Sagemaker</title><link href="http://t-redactyl.github.io/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html" rel="alternate"></link><published>2020-08-10T00:00:00+02:00</published><updated>2020-08-10T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-08-10:/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html</id><summary type="html">&lt;p&gt;I recently finished Jose Portilla&amp;#8217;s excellent &lt;a href="https://www.udemy.com/course/spark-and-python-for-big-data-with-pyspark/"&gt;Udemy course on PySpark&lt;/a&gt;, and of course I wanted to try out some things I learned in the course. I have been transitioning over to &lt;a href="https://aws.amazon.com/sagemaker/"&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker&lt;/a&gt; for a lot of my work, but I haven&amp;#8217;t tried using it with PySpark yet …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I recently finished Jose Portilla&amp;#8217;s excellent &lt;a href="https://www.udemy.com/course/spark-and-python-for-big-data-with-pyspark/"&gt;Udemy course on PySpark&lt;/a&gt;, and of course I wanted to try out some things I learned in the course. I have been transitioning over to &lt;a href="https://aws.amazon.com/sagemaker/"&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker&lt;/a&gt; for a lot of my work, but I haven&amp;#8217;t tried using it with PySpark yet. Unfortunately, setting up my Sagemaker notebook instance to read data from S3 using Spark turned out to be one of &lt;em&gt;those&lt;/em&gt; issues in &lt;span class="caps"&gt;AWS&lt;/span&gt;, where it took 5 hours of wading through the &lt;span class="caps"&gt;AWS&lt;/span&gt; documentation, the PySpark documentation and (of course) StackOverflow before I was able to make it work. Given how painful this was to solve and how confusing the documentation on this generally is, I figured I would write a blog post to hopefully help anyone who gets similarly&amp;nbsp;stuck.&lt;/p&gt;
+&lt;h2&gt;Setting up S3 and &lt;span class="caps"&gt;AWS&lt;/span&gt;&amp;nbsp;correctly&lt;/h2&gt;
+&lt;p&gt;The first thing that you need to ensure is that Sagemaker has permission to access S3 and read the data in the first place. The easiest way I&amp;#8217;ve found to do this (as an &lt;span class="caps"&gt;AWS&lt;/span&gt; beginner) is to set up &lt;span class="caps"&gt;IAM&lt;/span&gt; role for all of your Sagemaker notebooks, which allows them (among other things) to read data from S3 buckets. &lt;a href="https://docs.aws.amazon.com/glue/latest/dg/create-an-iam-role-sagemaker-notebook.html"&gt;This guide&lt;/a&gt; walks you through all of the steps to do&amp;nbsp;this.&lt;/p&gt;
+&lt;p&gt;Next, you need to go back over to Sagemaker and create your notebook instance. While you&amp;#8217;re creating it, you&amp;#8217;ll see an option under &amp;#8220;Permissions and encryption&amp;#8221; to set the &lt;span class="caps"&gt;IAM&lt;/span&gt; role. You should select the role you just created in the step above. As you can see, I called my role &lt;code&gt;AWSGlueServiceSageMakerNotebookRole-Default&lt;/code&gt;, as recommended in the tutorial. You can leave all of the other options as their defaults and create your notebook&amp;nbsp;instance.  &lt;/p&gt;
+&lt;p&gt;&lt;img src="/figure/sagemaker-spark-2.png" title="Setting permissions" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;You now need somewhere to store all of your data. Go over to S3 and create a new bucket. &lt;span class="caps"&gt;AWS&lt;/span&gt; recommends that you &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/gs-config-permissions.html"&gt;prefix the name of your bucket with Sagemaker&lt;/a&gt;, but I don&amp;#8217;t think this is necessary for Sagemaker to be able to recognise the bucket. You can now upload your data into the&amp;nbsp;bucket.  &lt;/p&gt;
+&lt;p&gt;Next, you will need to retrieve your &lt;code&gt;AWSAccessKeyId&lt;/code&gt; and &lt;code&gt;AWSSecretKey&lt;/code&gt;, which will be needed for PySpark to read in the data. &lt;a href="https://supsystic.com/documentation/id-secret-access-key-amazon-s3/"&gt;This guide&lt;/a&gt; steps you through how to generate and retrieve&amp;nbsp;these.&lt;/p&gt;
+&lt;p&gt;Finally, go back to your notebook instance in Sagemaker and open up JupyterLab. Scroll down to the bottom of the Launcher screen to the &amp;#8220;Other&amp;#8221; applications, and open up Terminal. As per &lt;a href="https://sagemaker-pyspark.readthedocs.io/en/latest/"&gt;this guide&lt;/a&gt;, we need to check our &lt;code&gt;config&lt;/code&gt; file is set to the right &lt;span class="caps"&gt;AWS&lt;/span&gt; region and also put our &lt;code&gt;AWSAccessKeyId&lt;/code&gt; and &lt;code&gt;AWSSecretKey&lt;/code&gt; in the &lt;code&gt;credentials&lt;/code&gt; file. To get started, navigate to &lt;code&gt;~/.aws&lt;/code&gt; and check the&amp;nbsp;contents:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="o"&gt;~/.&lt;/span&gt;&lt;span class="n"&gt;aws&lt;/span&gt;
+&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;ls&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;config  credentials&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Open the config file, and check that the region matches the one you&amp;#8217;ve set your Sagemaker notebook up in. For example, my notebook is in the Frankfurt region, so my config file looks like&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="o"&gt;~/.&lt;/span&gt;&lt;span class="n"&gt;aws&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[default]&lt;/span&gt;
+&lt;span class="na"&gt;region&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;eu-central-1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next, if you don&amp;#8217;t have a credentials file, you&amp;#8217;ll need to create one. Inside, you need to paste your &lt;code&gt;AWSAccessKeyId&lt;/code&gt; and &lt;code&gt;AWSSecretKey&lt;/code&gt; in the following&amp;nbsp;format:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;aws_access_key_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YOUR_KEY&lt;/span&gt;
+&lt;span class="n"&gt;aws_secret_access_key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;YOUR_KEY&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Configuring &lt;code&gt;sagemaker_pyspark&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;We&amp;#8217;ve finished all of the preparatory steps, and you can now create a new &lt;code&gt;python_conda3&lt;/code&gt; notebook. Once we have this notebook, we need to configure our &lt;code&gt;SparkSession&lt;/code&gt; correctly.&lt;/p&gt;
+&lt;p&gt;When I initially started trying to read my file into a Spark DataFrame, I kept getting the following&amp;nbsp;error: &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;Py4JJavaError&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;An&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="n"&gt;occurred&lt;/span&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;calling&lt;/span&gt; &lt;span class="n"&gt;o65&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;csv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;RuntimeException&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ClassNotFoundException&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Class&lt;/span&gt; &lt;span class="n"&gt;org&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;apache&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;hadoop&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;fs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;s3a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;S3AFileSystem&lt;/span&gt; &lt;span class="n"&gt;not&lt;/span&gt; &lt;span class="n"&gt;found&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I was missing a step where I needed to &lt;a href="https://sagemaker-pyspark.readthedocs.io/en/latest/"&gt;load the Sagemaker &lt;span class="caps"&gt;JAR&lt;/span&gt; files&lt;/a&gt; in order for Spark to work properly. You can see this in the code below, where I used &lt;code&gt;SparkConf&lt;/code&gt; to do&amp;nbsp;this.&lt;/p&gt;
+&lt;p&gt;Finally, we need to also make the &lt;code&gt;AWSAccessKeyId&lt;/code&gt; and &lt;code&gt;AWSSecretKey&lt;/code&gt; visible to the &lt;code&gt;SparkSession&lt;/code&gt;. We can use a package called &lt;code&gt;botocore&lt;/code&gt; to &lt;a href="https://stackoverflow.com/questions/50499894/how-should-i-load-file-on-s3-using-spark"&gt;access the credentials&lt;/a&gt; from the &lt;code&gt;~/.aws/credentials&lt;/code&gt; file we created earlier. You can see that instead of us needing to pass the credentials directly, the &lt;code&gt;botocore&lt;/code&gt; session pulls them out of our credentials file and stores them for us. We&amp;#8217;ve also passed the &lt;code&gt;SparkConf&lt;/code&gt; that we created as a config in the &lt;code&gt;SparkSession&lt;/code&gt; builder as&amp;nbsp;well.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pyspark&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SparkConf&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pyspark.sql&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SparkSession&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sagemaker_pyspark&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;botocore.session&lt;/span&gt;
+
+&lt;span class="n"&gt;session&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;botocore&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_session&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_credentials&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;conf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SparkConf&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;spark.driver.extraClassPath&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;:&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sagemaker_pyspark&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;classpath_jars&lt;/span&gt;&lt;span class="p"&gt;())))&lt;/span&gt;
+
+&lt;span class="n"&gt;spark&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;SparkSession&lt;/span&gt;
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;builder&lt;/span&gt;
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; \
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fs.s3a.access.key&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;access_key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fs.s3a.secret.key&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;secret_key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;appName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;schema_test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrCreate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Alternatively, if you&amp;#8217;re having problems with &lt;code&gt;botocore&lt;/code&gt; reading in your credentials, you can also paste in your &lt;code&gt;AWSAccessKeyId&lt;/code&gt; and &lt;code&gt;AWSSecretKey&lt;/code&gt; directly as strings. This is obviously a bit less secure, so make sure you delete them from your notebook before sharing it with&amp;nbsp;anyone!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;spark&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SparkSession&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;builder&lt;/span&gt; \
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;appName&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;schema_test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; \
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; \
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fs.s3a.access.key&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;YOUR_KEY&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;\
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;fs.s3a.secret.key&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;YOUR_KEY&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;\
+        &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrCreate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And that&amp;#8217;s it, we&amp;#8217;re done! We can finally load in our data from S3 into a Spark DataFrame, as&amp;nbsp;below.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;bucket&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;sagemaker-pyspark&amp;quot;&lt;/span&gt;
+&lt;span class="n"&gt;data_key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;train_sample.csv&amp;quot;&lt;/span&gt;
+&lt;span class="n"&gt;data_location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;s3a://&lt;/span&gt;&lt;span class="si"&gt;{bucket}&lt;/span&gt;&lt;span class="s2"&gt;/&lt;/span&gt;&lt;span class="si"&gt;{data_key}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;spark&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data_location&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;header&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;True&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inferSchema&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;df&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;toPandas&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;TRIP_ID&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;CALL_TYPE&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;ORIGIN_CALL&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;ORIGIN_STAND&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;TAXI_ID&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;&lt;span class="caps"&gt;TIMESTAMP&lt;/span&gt;&lt;/b&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;0&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1372636858620000589&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;C&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;None&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;NaN&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20000589&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;1&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1372637303620000596&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;B&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;None&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;7.0&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20000596&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;2&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1372636951620000320&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;C&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;None&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;NaN&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20000320&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;3&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1372636854620000520&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;C&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;None&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;NaN&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20000520&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;4&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1372637091620000337&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;C&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;None&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;NaN&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20000337&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I hope this guide was useful and helps you troubleshoot any of the problems you might be having getting PySpark to work with Sagemaker, and getting it to read in your data from&amp;nbsp;S3.&lt;/p&gt;</content><category term="misc"></category><category term="aws"></category><category term="pyspark"></category><category term="sagemaker"></category></entry><entry><title>Simplifying the normal equation with Gram-Schmidt</title><link href="http://t-redactyl.github.io/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html" rel="alternate"></link><published>2020-07-27T00:00:00+02:00</published><updated>2020-07-27T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-07-27:/blog/2020/07/simplifying-the-normal-equation-with-gram-schmidt.html</id><summary type="html">&lt;p&gt;In the &lt;a href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"&gt;last post&lt;/a&gt; I talked about how to find the coefficients that give us the line of best fit for a &lt;span class="caps"&gt;OLS&lt;/span&gt; regression problem using the normal solution. The core of this approach is the&amp;nbsp;equation:&lt;/p&gt;
 &lt;div class="math"&gt;$$
 X^TXb = X^Ty
 $$&lt;/div&gt;
