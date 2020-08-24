@@ -19,19 +19,25 @@
 
     <link
       rel="canonical"
-      href="/blog/2020/08/using-schemas-to-speed-up-reading-into-spark-dataframes.html"
+      href="http://t-redactyl.github.io/blog/2020/08/using-schemas-to-speed-up-reading-into-spark-dataframes.html"
     />
 
-    <link href="/favicon.png" rel="icon" />
+    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
 
+    <link
+      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
       <link
-      href="/theme/css/screen.css"
+      href="http://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="/theme/css/tomorrow.css"
+      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -58,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="/theme/images/home.png" />
+      <img src="http://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -68,12 +74,12 @@
         <div class="meta">
           written <time datetime="2020-08-24T00:00:00+02:00">August 24, 2020</time>
           in <span class="categories">
-            <a href="/tag/pyspark.html">pyspark</a>          </span>
+            <a href="http://t-redactyl.github.io/tag/pyspark.html">pyspark</a>          </span>
         </div>
-        <p>While Spark is the best thing since sliced bread for dealing with big data, I definitely realise I have a lot to learn before I can use it to its full potential. One trick I recently discovered was using explicit schemas to speed up how fast Spark can read a <span class="caps">CSV</span> into a&nbsp;DataFrame.</p>
-<p>When using <code>spark.read_csv</code> to read in a <span class="caps">CSV</span>, the most straightforward way is to set the <code>inferSchema</code> argument to <code>True</code>. This means that Spark will attempt to check the data in order to work out what type of data each column&nbsp;is. </p>
-<p>The problem with this operation is that it&#8217;s quite memory intensive, especially for large datasets, as Spark needs to look at a sufficient amount of data in order to correctly infer the type. Imagine that you have a column with integers in the first 1000 rows, but then a string in the 1001th row. If Spark had inferred this column was an <code>IntegerType</code> based on the top few rows, then we would end up with missing values for each of the rows containing a string. As such, Spark either needs to scan the whole dataset, or randomly sample enough rows to infer the&nbsp;type.</p>
-<p>One way we can get around this is by determining the type of the data beforehand and passing this information to Spark using an schema. The syntax for this is pretty straightforward. Each column&#8217;s name and type is defined using the <code>StructField</code> method from <code>pyspark.sql</code>:</p>
+        <p>While Spark is the best thing since sliced bread for dealing with big data, I definitely realise I have a lot to learn before I can use it to its full potential. One trick I recently discovered was using explicit schemas to speed up how fast PySpark can read a <span class="caps">CSV</span> into a&nbsp;DataFrame.</p>
+<p>When using <code>spark.read_csv</code> to read in a <span class="caps">CSV</span> in PySpark, the most straightforward way is to set the <code>inferSchema</code> argument to <code>True</code>. This means that PySpark will attempt to check the data in order to work out what type of data each column&nbsp;is. </p>
+<p>The problem with this operation is that it&#8217;s quite memory intensive, especially for large datasets, as Spark needs to look at a sufficient amount of data in order to correctly infer the type. Imagine that you have a column with integers in the first 1000 rows, but then a string in the 1001th row. If PySpark had inferred this column was an <code>IntegerType</code> based on the top few rows, then we would end up with missing values for each of the rows containing a string. As such, PySpark either needs to scan the whole dataset, or randomly sample enough rows to infer the&nbsp;type.</p>
+<p>One way we can get around this is by determining the type of the data beforehand and passing this information to PySpark using an schema. The syntax for this is pretty straightforward. Each column&#8217;s name and type is defined using the <code>StructField</code> method from <code>pyspark.sql</code>:</p>
 <div class="highlight"><pre><span></span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;trip_id&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
@@ -121,7 +127,7 @@
 </pre></div>
 
 
-<p>Let&#8217;s first time how long it takes to read in these data when Spark has to infer the&nbsp;schema:</p>
+<p>Let&#8217;s first time how long it takes to read in these data when PySpark has to infer the&nbsp;schema:</p>
 <div class="highlight"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 
 <span class="n">data_inferred</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">data_location</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">inferSchema</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
@@ -135,7 +141,7 @@
 </pre></div>
 
 
-<p>We&#8217;ll now compare how long it takes when we explicitly tell Spark what the data schema&nbsp;is:</p>
+<p>We&#8217;ll now compare how long it takes when we explicitly tell PySpark what the data schema&nbsp;is:</p>
 <div class="highlight"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 
 <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span>
@@ -160,7 +166,7 @@
 </pre></div>
 
 
-<p>The data are read in around 10 times faster when we give Spark the schema rather than asking it to infer it! Obviously this is a more practical step when you have data with fewer variables, but when reading truly large data, it is an easy way to save some processing&nbsp;time.</p>
+<p>The data are read in around 10 times faster when we give PySpark the schema rather than asking it to infer it! Obviously this is a more practical step when you have data with fewer variables, but when reading truly large data, it is an easy way to save some processing&nbsp;time.</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->
         <!-- <section>
@@ -183,11 +189,11 @@
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_31_twitter.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_21_github.png"
+                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
@@ -211,5 +217,14 @@
       renderMathInElement(document.body);
     </script>
 
-   </body>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
 </html>
