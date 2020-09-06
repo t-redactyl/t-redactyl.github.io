@@ -79,120 +79,130 @@
         <p>One of the biggest issues when building an effective machine learning algorithm is <a href="https://en.wikipedia.org/wiki/Overfitting"><strong>overfitting</strong></a>. Overfitting is where you build a model on your training data and it not only picks up the true relationship between the outcome and the predictors, but also random noise specific to your training set. As such, the model will have much better performance on the training set than any new data, and will not generalise well outside the training set. In order to gauge the true predictive ability of our model on novel data, we need to build some way of estimating the out-of-sample accuracy into our model generation process. I&#8217;ll discuss one way of doing this, <a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics)"><strong>k-fold cross-validation</strong></a>, in this blog post, using the <a href="https://www.kaggle.com/c/titanic"><strong>Kaggle Titanic tutorial dataset</strong></a>.</p>
 <h2>Building a&nbsp;model</h2>
 <p>Firstly, we&#8217;ll load in our&nbsp;data:</p>
-<pre><code class="r">train &lt;- read.csv(url(&quot;http://s3.amazonaws.com/assets.datacamp.com/course/Kaggle/train.csv&quot;))
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">train</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="nf">url</span><span class="p">(</span><span class="s">&quot;http://s3.amazonaws.com/assets.datacamp.com/course/Kaggle/train.csv&quot;</span><span class="p">))</span>
+</pre></div>
+
 
 <p>and do a quick&nbsp;screening:</p>
-<pre><code class="r">str(train)
-table(train$Survived)
-prop.table(table(train$Survived))
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">str</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="nf">table</span><span class="p">(</span><span class="n">train</span><span class="o">$</span><span class="n">Survived</span><span class="p">)</span>
+<span class="nf">prop.table</span><span class="p">(</span><span class="nf">table</span><span class="p">(</span><span class="n">train</span><span class="o">$</span><span class="n">Survived</span><span class="p">))</span>
+</pre></div>
+
 
 <p>We have 891 observations, with 549 (62%) people who died, and 342 (38%) people who&nbsp;survived.</p>
 <p>Information on the variables in the Titantic dataset can be found <a href="https://www.kaggle.com/c/titanic/data">here</a>. For our model, we&#8217;ll use a decision-tree model with passenger class (&#8220;Pclass&#8221;), sex (&#8220;Sex&#8221;), age (&#8220;Age&#8221;), number of siblings or spouses aboard (&#8220;SibSp&#8221;), number of parents or children aboard (&#8220;Parch&#8221;), the passenger fare (&#8220;Fare&#8221;) and port of embarkation (C = Cherbourg; Q = Queenstown; S = Southampton) (&#8220;Embarked&#8221;).  I used this model as it is one of those used in the <a href="https://www.datacamp.com/courses/kaggle-tutorial-on-machine-learing-the-sinking-of-the-titanic">excellent DataCamp R Titantic tutorial</a>, so if you&#8217;re new to machine learning you can work your way through that to work out how we got to this point. You can see the model displayed in the figure&nbsp;below.</p>
-<pre><code class="r">library(rpart); library(caret)
-model.single &lt;- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
-                      data = train, method = &quot;class&quot;)
-predict.single &lt;- predict(object = model.single, newdata = train, type = &quot;class&quot;)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">rpart</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">caret</span><span class="p">)</span>
+<span class="n">model.single</span> <span class="o">&lt;-</span> <span class="nf">rpart</span><span class="p">(</span><span class="n">Survived</span> <span class="o">~</span> <span class="n">Pclass</span> <span class="o">+</span> <span class="n">Sex</span> <span class="o">+</span> <span class="n">Age</span> <span class="o">+</span> <span class="n">SibSp</span> <span class="o">+</span> <span class="n">Parch</span> <span class="o">+</span> <span class="n">Fare</span> <span class="o">+</span> <span class="n">Embarked</span><span class="p">,</span> 
+                      <span class="n">data</span> <span class="o">=</span> <span class="n">train</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span><span class="p">)</span>
+<span class="n">predict.single</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">object</span> <span class="o">=</span> <span class="n">model.single</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">train</span><span class="p">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span><span class="p">)</span>
 
-library(RGtk2); library(cairoDevice); library(rattle); library(rpart.plot); library(RColorBrewer)
-fancyRpartPlot(model.single)
-</code></pre>
+<span class="nf">library</span><span class="p">(</span><span class="n">RGtk2</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">cairoDevice</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">rattle</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">rpart.plot</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span>
+<span class="nf">fancyRpartPlot</span><span class="p">(</span><span class="n">model.single</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img alt="Fit of single model" src="/figure/fit_single_model-1.png"> </p>
 <p>So how did our model perform on the data it was trained&nbsp;on?</p>
-<pre><code class="r">confusionMatrix(predict.single, train$Survived)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">confusionMatrix</span><span class="p">(</span><span class="n">predict.single</span><span class="p">,</span> <span class="n">train</span><span class="o">$</span><span class="n">Survived</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction   0   1
-##          0 521 115
-##          1  28 227
-##                                          
-##                Accuracy : 0.8395         
-##                  95% CI : (0.8137, 0.863)
-##     No Information Rate : 0.6162         
-##     P-Value [Acc &gt; NIR] : &lt; 2e-16        
-##                                          
-##                   Kappa : 0.6436         
-##  Mcnemar's Test P-Value : 6.4e-13        
-##                                          
-##             Sensitivity : 0.9490         
-##             Specificity : 0.6637         
-##          Pos Pred Value : 0.8192         
-##          Neg Pred Value : 0.8902         
-##              Prevalence : 0.6162         
-##          Detection Rate : 0.5847         
-##    Detection Prevalence : 0.7138         
-##       Balanced Accuracy : 0.8064         
-##                                          
-##        'Positive' Class : 0              
-## 
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="err">## Confusion Matrix and Statistics</span>
+<span class="err">## </span>
+<span class="err">##           Reference</span>
+<span class="err">## Prediction   0   1</span>
+<span class="err">##          0 521 115</span>
+<span class="err">##          1  28 227</span>
+<span class="err">##                                          </span>
+<span class="err">##                Accuracy : 0.8395         </span>
+<span class="err">##                  95% CI : (0.8137, 0.863)</span>
+<span class="err">##     No Information Rate : 0.6162         </span>
+<span class="err">##     P-Value [Acc &gt; NIR] : &lt; 2e-16        </span>
+<span class="err">##                                          </span>
+<span class="err">##                   Kappa : 0.6436         </span>
+<span class="err">##  Mcnemar&#39;s Test P-Value : 6.4e-13        </span>
+<span class="err">##                                          </span>
+<span class="err">##             Sensitivity : 0.9490         </span>
+<span class="err">##             Specificity : 0.6637         </span>
+<span class="err">##          Pos Pred Value : 0.8192         </span>
+<span class="err">##          Neg Pred Value : 0.8902         </span>
+<span class="err">##              Prevalence : 0.6162         </span>
+<span class="err">##          Detection Rate : 0.5847         </span>
+<span class="err">##    Detection Prevalence : 0.7138         </span>
+<span class="err">##       Balanced Accuracy : 0.8064         </span>
+<span class="err">##                                          </span>
+<span class="err">##        &#39;Positive&#39; Class : 0              </span>
+<span class="err">## </span>
+</pre></div>
+
 
 <p>We can see that our model has an accuracy of 0.84 when we apply it back to the data it was trained on. However, this is likely to be an overestimate. How do we get an idea of what the true accuracy rate would be on new&nbsp;data?</p>
 <h2>Estimating out-of-sample&nbsp;accuracy</h2>
 <p>In order to estimate the out-of-sample accuracy, we need to train the data on one dataset, and then apply it to a new dataset. The usual way to do this is to split the dataset into a training set and a testing set, build the model on the training set, and apply it to the testing set to get the accuracy of the model on new data. However, this method relies on having large datasets. In the case of smaller datasets (such as our Titanic data), an alternative to estimate out-of-sample accuracy is cross-validation. Cross-validation is kind of the same idea as creating single training and testing sets; however, because a single training and testing set would yield unstable estimates due to their limited number of observations, you create several testing and training sets using different parts of the data and average their estimates of model&nbsp;fit.</p>
 <h2>k-fold&nbsp;cross-validation</h2>
 <p>In k-fold cross-validation, we create the testing and training sets by splitting the data into <span class="math">\(k\)</span> equally sized subsets. We then treat a single subsample as the testing set, and the remaining data as the training set. We then run and test models on all <span class="math">\(k\)</span> datasets, and average the estimates. Let&#8217;s try it out with 5&nbsp;folds:</p>
-<pre><code class="r">k.folds &lt;- function(k) {
-    folds &lt;- createFolds(train$Survived, k = k, list = TRUE, returnTrain = TRUE)
-    for (i in 1:k) {
-        model &lt;- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
-                       data = train[folds[[i]],], method = &quot;class&quot;)
-        predictions &lt;- predict(object = model, newdata = train[-folds[[i]],], type = &quot;class&quot;)
-        accuracies.dt &lt;- c(accuracies.dt, 
-                           confusionMatrix(predictions, train[-folds[[i]], ]$Survived)$overall[[1]])
-    }
-    accuracies.dt
-}
+<div class="highlight"><pre><span></span><span class="n">k.folds</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">folds</span> <span class="o">&lt;-</span> <span class="nf">createFolds</span><span class="p">(</span><span class="n">train</span><span class="o">$</span><span class="n">Survived</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">list</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> <span class="n">returnTrain</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+    <span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span><span class="o">:</span><span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">model</span> <span class="o">&lt;-</span> <span class="nf">rpart</span><span class="p">(</span><span class="n">Survived</span> <span class="o">~</span> <span class="n">Pclass</span> <span class="o">+</span> <span class="n">Sex</span> <span class="o">+</span> <span class="n">Age</span> <span class="o">+</span> <span class="n">SibSp</span> <span class="o">+</span> <span class="n">Parch</span> <span class="o">+</span> <span class="n">Fare</span> <span class="o">+</span> <span class="n">Embarked</span><span class="p">,</span> 
+                       <span class="n">data</span> <span class="o">=</span> <span class="n">train[folds[[i]]</span><span class="p">,</span><span class="n">]</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">object</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">train[</span><span class="o">-</span><span class="n">folds[[i]]</span><span class="p">,</span><span class="n">]</span><span class="p">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span><span class="p">)</span>
+        <span class="n">accuracies.dt</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">,</span> 
+                           <span class="nf">confusionMatrix</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">train[</span><span class="o">-</span><span class="n">folds[[i]]</span><span class="p">,</span> <span class="n">]</span><span class="o">$</span><span class="n">Survived</span><span class="p">)</span><span class="o">$</span><span class="n">overall[[1]]</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">accuracies.dt</span>
+<span class="p">}</span>
 
-set.seed(567)
-accuracies.dt &lt;- c()
-accuracies.dt &lt;- k.folds(5)
-accuracies.dt
-</code></pre>
+<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+<span class="n">accuracies.dt</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">()</span>
+<span class="n">accuracies.dt</span> <span class="o">&lt;-</span> <span class="nf">k.folds</span><span class="p">(</span><span class="m">5</span><span class="p">)</span>
+<span class="n">accuracies.dt</span>
+</pre></div>
 
-<pre><code>## [1] 0.8033708 0.7696629 0.7808989 0.8435754 0.8258427
-</code></pre>
 
-<pre><code class="r">mean.accuracies &lt;- mean(accuracies.dt)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="err">## [1] 0.8033708 0.7696629 0.7808989 0.8435754 0.8258427</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">mean.accuracies</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span>
+</pre></div>
+
 
 <p>As you can see above, this function produces a vector containing the accuracy scores for each of the 5 cross-validations. If we take the mean and standard deviation of this vector, we get an estimate of our out-of-sample accuracy. In this case, this is estimated to be 0.805, which is quite a bit lower than our in-sample accuracy&nbsp;estimate.</p>
 <h2>Repeated k-fold&nbsp;cross-validation</h2>
 <p>However, it is a bit dodgy taking a mean of 5 samples. On the other hand, splitting our sample into more than 5 folds would greatly reduce the stability of the estimates from each cross-validation. A way around this is to do repeated k-folds cross-validation. To do this, we simply repeat the k-folds cross-validation a large number of times and take the mean of this estimate. An advantage of this approach is that we can also get an estimate of the precision of this out-of-sample accuracy by creating a confidence interval. We&#8217;ll do 200 replications so we end up with a nice round 1,000 out-of-sample accuracy&nbsp;estimates.</p>
-<pre><code class="r">set.seed(567)
-v &lt;- c()
-v &lt;- replicate(200, k.folds(5))
-accuracies.dt &lt;- c()
-for (i in 1 : 200) { 
-    accuracies.dt &lt;- c(accuracies.dt, v[,i])
-}
+<div class="highlight"><pre><span></span><span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">()</span>
+<span class="n">v</span> <span class="o">&lt;-</span> <span class="nf">replicate</span><span class="p">(</span><span class="m">200</span><span class="p">,</span> <span class="nf">k.folds</span><span class="p">(</span><span class="m">5</span><span class="p">))</span>
+<span class="n">accuracies.dt</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">()</span>
+<span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">200</span><span class="p">)</span> <span class="p">{</span> 
+    <span class="n">accuracies.dt</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">,</span> <span class="n">v[</span><span class="p">,</span><span class="n">i]</span><span class="p">)</span>
+<span class="p">}</span>
 
-mean.accuracies &lt;- mean(accuracies.dt)
-lci &lt;- mean(accuracies.dt) - sd(accuracies.dt) * 1.96
-uci &lt;- mean(accuracies.dt) + sd(accuracies.dt) * 1.96
-</code></pre>
+<span class="n">mean.accuracies</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span>
+<span class="n">lci</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span> <span class="o">-</span> <span class="nf">sd</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span> <span class="o">*</span> <span class="m">1.96</span>
+<span class="n">uci</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span> <span class="o">+</span> <span class="nf">sd</span><span class="p">(</span><span class="n">accuracies.dt</span><span class="p">)</span> <span class="o">*</span> <span class="m">1.96</span>
+</pre></div>
+
 
 <p>This time, we get an estimate of 0.807, which is pretty close to our estimate from a single k-fold cross-validation. As you can see from our the histogram below, the distribution of our accuracy estimates is roughly normal, so we can say that the 95% confidence interval indicates that the true out-of-sample accuracy is likely between 0.753 and&nbsp;0.861.</p>
 <p><img alt="Accuracy histogram" src="/figure/unnamed-chunk-1-1.png"> </p>
 <h2>Testing out the model in&nbsp;Kaggle</h2>
 <p>Finally, let&#8217;s see how our out-of-sample accuracy estimate performs on the unlabelled Kaggle test set. First, let&#8217;s apply the model to the test set, then export a .csv file containing only the passenger <span class="caps">ID</span> and our prediction. We then submit this to&nbsp;Kaggle.</p>
-<pre><code class="r"># Read in test data
-test &lt;- read.csv(url(&quot;http://s3.amazonaws.com/assets.datacamp.com/course/Kaggle/test.csv&quot;))
+<div class="highlight"><pre><span></span><span class="c1"># Read in test data</span>
+<span class="n">test</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="nf">url</span><span class="p">(</span><span class="s">&quot;http://s3.amazonaws.com/assets.datacamp.com/course/Kaggle/test.csv&quot;</span><span class="p">))</span>
 
-# Apply the model to the test data
-predict.test &lt;- predict(object = model.single, newdata = test, type = &quot;class&quot;)
+<span class="c1"># Apply the model to the test data</span>
+<span class="n">predict.test</span> <span class="o">&lt;-</span> <span class="nf">predict</span><span class="p">(</span><span class="n">object</span> <span class="o">=</span> <span class="n">model.single</span><span class="p">,</span> <span class="n">newdata</span> <span class="o">=</span> <span class="n">test</span><span class="p">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&quot;class&quot;</span><span class="p">)</span>
 
-# Create a data frame with just PassengerId and Survived to submit to Kaggle. Note that I assign &quot;predict.test&quot; to &quot;Survived&quot;
-titanic_solution &lt;- data.frame(PassengerId = test$PassengerId, Survived = predict.test)
+<span class="c1"># Create a data frame with just PassengerId and Survived to submit to Kaggle. Note that I assign &quot;predict.test&quot; to &quot;Survived&quot;</span>
+<span class="n">titanic_solution</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">PassengerId</span> <span class="o">=</span> <span class="n">test</span><span class="o">$</span><span class="n">PassengerId</span><span class="p">,</span> <span class="n">Survived</span> <span class="o">=</span> <span class="n">predict.test</span><span class="p">)</span>
 
-# Write your solution to a csv file with the name my_solution.csv
-write.csv(titanic_solution, file = &quot;titanic_solution.csv&quot;, row.names = FALSE)
-</code></pre>
+<span class="c1"># Write your solution to a csv file with the name my_solution.csv</span>
+<span class="nf">write.csv</span><span class="p">(</span><span class="n">titanic_solution</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s">&quot;titanic_solution.csv&quot;</span><span class="p">,</span> <span class="n">row.names</span> <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img alt="Kaggle result" src="/figure/kaggle_result-1.png"> </p>
 <p>We end up with a final accuracy rating on Kaggle of 0.785, which is lower than our mean accuracy estimate, but within our 95% confidence interval. We can also see that it is substantially lower than the in-sample accuracy we got at the beginning of this post, indicating that the model is overfitting the training&nbsp;data. </p>

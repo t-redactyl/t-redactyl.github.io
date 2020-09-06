@@ -80,314 +80,334 @@
 <p>If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as <span class="caps">LOWESS</span> charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date <code>ggplot</code> and tidyverse code, and every purchase really helps us out with keeping up with new&nbsp;content.</p>
 <p><a href="https://leanpub.com/ggplot-guide"><img alt="ggplot2 book" class="banner" src="/figure/ggplot-book-banner-small.png" title="The Hitchhikers Guide to ggplot2"></a></p>
 <p>The first thing to do is load in the data, as below. We&#8217;ll convert <code>Month</code> into a labelled factor in order to use it as our grouping&nbsp;variable.</p>
-<pre><code class="r">rm(list = ls())
-library(datasets)
-library(ggplot2)
+<div class="highlight"><pre><span></span><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
 
-data(airquality)
-airquality$Month &lt;- factor(airquality$Month,
-                           labels = c(&quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;))
-</code></pre>
+<span class="nf">data</span><span class="p">(</span><span class="n">airquality</span><span class="p">)</span>
+<span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">airquality</span><span class="o">$</span><span class="n">Month</span><span class="p">,</span>
+                           <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;May&quot;</span><span class="p">,</span> <span class="s">&quot;Jun&quot;</span><span class="p">,</span> <span class="s">&quot;Jul&quot;</span><span class="p">,</span> <span class="s">&quot;Aug&quot;</span><span class="p">,</span> <span class="s">&quot;Sep&quot;</span><span class="p">))</span>
+</pre></div>
+
 
 <p>In this tutorial, we will work towards creating the boxplot below. We will take you from a basic boxplot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/box_final-1.png" title="plot of chunk box_final" alt="plot of chunk box_final" style="display: block; margin: auto;" /></p>
 <h3>Basic&nbsp;boxplot</h3>
 <p>In order to initialise a plot we tell ggplot that <code>airquality</code> is our data, and specify that our x-axis plots the <code>Month</code> variable and our y-axis plots the <code>Ozone</code> variable. We then instruct ggplot to render this as a boxplot by adding the <code>geom_boxplot()</code> option.</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot()
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">()</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_1-1.png" title="plot of chunk box_1" alt="plot of chunk box_1" style="display: block; margin: auto;" /></p>
 <h3>Customising axis&nbsp;labels</h3>
 <p>In order to change the axis labels, we have a couple of options. In this case, we have used the <code>scale_x_discrete</code> and <code>scale_y_continuous</code> options, as these have further customisation options for the axes we will use below. In each, we add the desired name to the <code>name</code> argument as a&nbsp;string.</p>
-<pre><code class="r">p10 &lt;- p10 + scale_x_discrete(name = &quot;Month&quot;) +
-        scale_y_continuous(name = &quot;Mean ozone in parts per billion&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in parts per billion&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_2-1.png" title="plot of chunk box_2" alt="plot of chunk box_2" style="display: block; margin: auto;" /></p>
 <p>ggplot also allows for the use of multiline names (in both axes and titles). Here, we&#8217;ve changed the y-axis label so that it goes over two lines using the <code>\n</code> character to break the&nbsp;line.</p>
-<pre><code class="r">p10 &lt;- p10 + scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_3-1.png" title="plot of chunk box_3" alt="plot of chunk box_3" style="display: block; margin: auto;" /></p>
 <h3>Changing axis&nbsp;ticks</h3>
 <p>The next thing we will change is the axis ticks. Let&#8217;s make the y-axis ticks appear at every 25 units rather than 50 using the <code>breaks = seq(0, 175, 25)</code> argument in <code>scale_y_continuous</code>. (The <code>seq</code> function is a base R function that indicates the start and endpoints and the units to increment by respectively. See <code>help(seq)</code> for more information.) We ensure that the y-axis begins and ends where we want by also adding the argument <code>limits = c(0, 175)</code> to <code>scale_y_continuous</code>.</p>
-<pre><code class="r">p10 &lt;- p10 + scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 175, 25),
-                              limits=c(0, 175))
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_4-1.png" title="plot of chunk box_4" alt="plot of chunk box_4" style="display: block; margin: auto;" /></p>
 <h3>Adding a&nbsp;title</h3>
 <p>To add a title, we include the option <code>ggtitle</code> and include the name of the graph as a string&nbsp;argument.</p>
-<pre><code class="r">p10 &lt;- p10 + ggtitle(&quot;Boxplot of mean ozone by month&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_5-1.png" title="plot of chunk box_5" alt="plot of chunk box_5" style="display: block; margin: auto;" /></p>
 <h3>Changing the colour of the&nbsp;boxes</h3>
 <p>To change the line and fill colours of the box plot, we add a valid colour to the <code>colour</code> and <code>fill</code> arguments in <code>geom_boxplot()</code> (note that we assigned these colours to variables outside of the plot to make it easier to change them). A list of valid colours is <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf">here</a>.</p>
-<pre><code class="r">fill &lt;- &quot;gold1&quot;
-line &lt;- &quot;goldenrod2&quot;
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;gold1&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;goldenrod2&quot;</span>
 
-p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;)
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_6-1.png" title="plot of chunk box_6" alt="plot of chunk box_6" style="display: block; margin: auto;" /></p>
 <p>If you want to go beyond the options in the list above, you can also specify exact <span class="caps">HEX</span> colours by including them as a string preceded by a hash, e.g., &#8220;#<span class="caps">FFFFFF</span>&#8221;. Below, we have called two shades of blue for the fill and lines using their <span class="caps">HEX</span>&nbsp;codes.</p>
-<pre><code class="r">fill &lt;- &quot;#4271AE&quot;
-line &lt;- &quot;#1F3552&quot;
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;)
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_7-1.png" title="plot of chunk box_7" alt="plot of chunk box_7" style="display: block; margin: auto;" /></p>
 <p>You can also specify the degree of transparency in the box fill area using the argument <code>alpha</code> in <code>geom_boxplot</code>. This ranges from 0 to&nbsp;1.</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line,
-                     alpha = 0.7) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span>
+                     <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.7</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_8-1.png" title="plot of chunk box_8" alt="plot of chunk box_8" style="display: block; margin: auto;" /></p>
 <p>Finally, you can change the appearance of the outliers as well, using the arguments <code>outlier.colour</code> and <code>outlier.shape</code> in <code>geom_boxplot</code> to change the colour and shape respectively. An explanation of the allowed arguments for shape are described in <a href="http://sape.inf.usi.ch/quick-reference/ggplot2/shape">this article</a>, although be aware that because there is no &#8220;fill&#8221; argument for outlier, you cannot create circles with separate outline and fill colours. Here we will make the outliers small solid circles (using <code>outlier.shape = 20</code>) and make them the same colour as the box lines (using <code>outlier.colour = "#1F3552"</code>).</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line, alpha = 0.7,
-                     outlier.colour = &quot;#1F3552&quot;, outlier.shape = 20) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.7</span><span class="p">,</span>
+                     <span class="n">outlier.colour</span> <span class="o">=</span> <span class="s">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">outlier.shape</span> <span class="o">=</span> <span class="m">20</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_9-1.png" title="plot of chunk box_9" alt="plot of chunk box_9" style="display: block; margin: auto;" /></p>
 <h3>Using the white&nbsp;theme</h3>
 <p>As explained in the previous posts, we can also change the overall look of the plot using themes. We&#8217;ll start using a simple theme customisation by adding <code>theme_bw()</code>. As you can see, we can further tweak the graph using the <code>theme</code> option, which we&#8217;ve used so far to change the&nbsp;legend.</p>
-<pre><code class="r">p10 &lt;- p10 + theme_bw()
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">theme_bw</span><span class="p">()</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_10-1.png" title="plot of chunk box_10" alt="plot of chunk box_10" style="display: block; margin: auto;" /></p>
 <h3>Creating an <span class="caps">XKCD</span> style&nbsp;chart</h3>
 <p>Of course, you may want to create your own themes as well. <code>ggplot2</code> allows for a very high degree of customisation, including allowing you to use imported fonts. Below is an example of a theme Mauricio was able to create which mimics the visual style of <a href="http://xkcd.com/"><span class="caps">XKCD</span></a>. In order to create this chart, you first need to import the <span class="caps">XKCD</span> font, install it on your machine and load it into R using the <code>extrafont</code> package.
 These instructions are taken from <a href="https://www.google.com.au/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0ahUKEwiWzafchdPJAhVBpJQKHe_LDT8QFggbMAA&amp;url=https%3A%2F%2Fcran.r-project.org%2Fweb%2Fpackages%2Fxkcd%2Fvignettes%2Fxkcd-intro.pdf&amp;usg=AFQjCNE-KciGY14e-Q1buYIVmTFC0ht__Q&amp;sig2=DZUwkvIHwfNWtTtkcz94jg">here</a>:</p>
-<pre><code class="r">library(extrafont)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
 
-download.file(&quot;http://simonsoftware.se/other/xkcd.ttf&quot;,
-              dest=&quot;xkcd.ttf&quot;, mode=&quot;wb&quot;)
-system(&quot;mkdir ~/.fonts&quot;)
-system(&quot;cp xkcd.ttf  ~/.fonts&quot;)
-font_import(paths = &quot;~/.fonts&quot;, pattern=&quot;[X/x]kcd&quot;)
-fonts()
-loadfonts()
-</code></pre>
+<span class="nf">download.file</span><span class="p">(</span><span class="s">&quot;http://simonsoftware.se/other/xkcd.ttf&quot;</span><span class="p">,</span>
+              <span class="n">dest</span><span class="o">=</span><span class="s">&quot;xkcd.ttf&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;mkdir ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;cp xkcd.ttf  ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">font_import</span><span class="p">(</span><span class="n">paths</span> <span class="o">=</span> <span class="s">&quot;~/.fonts&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s">&quot;[X/x]kcd&quot;</span><span class="p">)</span>
+<span class="nf">fonts</span><span class="p">()</span>
+<span class="nf">loadfonts</span><span class="p">()</span>
+</pre></div>
+
 
 <p>You can then create your&nbsp;graph:</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(colour = &quot;black&quot;, fill = &quot;#56B4E9&quot;) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme(axis.line.x = element_line(size = 0.5, colour = &quot;black&quot;),
-              axis.line.y = element_line(size = 0.5, colour = &quot;black&quot;),
-              axis.line = element_line(size=1, colour = &quot;black&quot;),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(),
-              panel.background = element_blank(),
-              plot.title=element_text(size = 20, family=&quot;xkcd-Regular&quot;),
-              text=element_text(size = 16, family=&quot;xkcd-Regular&quot;),
-              axis.text.x=element_text(colour=&quot;black&quot;, size = 12),
-              axis.text.y=element_text(colour=&quot;black&quot;, size = 12))
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;#56B4E9&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line.x</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">axis.line.y</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">plot.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">20</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span>
+              <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">16</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">),</span>
+              <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">))</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_11-1.png" title="plot of chunk box_11" alt="plot of chunk box_11" style="display: block; margin: auto;" /></p>
 <h3>Using &#8216;The Economist&#8217;&nbsp;theme</h3>
 <p>There are a wider range of pre-built themes available as part of the <code>ggthemes</code> package (more information on these <a href="https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html">here</a>). Below we&#8217;ve applied <code>theme_economist()</code>, which approximates graphs in the Economist&nbsp;magazine.</p>
-<pre><code class="r">library(ggthemes)
-library(grid)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-fill &lt;- &quot;#4271AE&quot;
-line &lt;- &quot;#1F3552&quot;
+<span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_economist() +
-        theme(axis.line.x = element_line(size = 0.5, colour = &quot;black&quot;),
-              axis.line.y = element_line(size = 0.5, colour = &quot;black&quot;),
-              legend.position = &quot;bottom&quot;, legend.direction = &quot;horizontal&quot;,
-              legend.box = &quot;horizontal&quot;,
-              legend.key.size = unit(1, &quot;cm&quot;),
-              plot.title = element_text(family=&quot;Tahoma&quot;),
-              text = element_text(family = &quot;Tahoma&quot;),
-              axis.title = element_text(size = 12),
-              legend.text = element_text(size = 9),
-              legend.title=element_text(face = &quot;bold&quot;, size = 9))
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_economist</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line.x</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">axis.line.y</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+              <span class="n">legend.box</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+              <span class="n">legend.key.size</span> <span class="o">=</span> <span class="nf">unit</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;cm&quot;</span><span class="p">),</span>
+              <span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">),</span>
+              <span class="n">legend.text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
+              <span class="n">legend.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">))</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_12-1.png" title="plot of chunk box_12" alt="plot of chunk box_12" style="display: block; margin: auto;" /></p>
 <h3>Creating your own&nbsp;theme</h3>
 <p>As before, you can modify your plots a lot as <code>ggplot2</code> allows many customisations. Here is a custom plot where we have modified the axes, background and&nbsp;font.</p>
-<pre><code class="r">library(grid)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-fill &lt;- &quot;#4271AE&quot;
-lines &lt;- &quot;#1F3552&quot;
+<span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">lines</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(colour = lines, fill = fill,
-                     size = 1) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 175, 25),
-                              limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_bw() +
-        theme(panel.grid.major = element_line(colour = &quot;#d3d3d3&quot;),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(),
-              panel.background = element_blank(),
-              plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text=element_text(family = &quot;Tahoma&quot;),
-              axis.title = element_text(face=&quot;bold&quot;),
-              axis.text.x = element_text(colour=&quot;black&quot;, size = 11),
-              axis.text.y = element_text(colour=&quot;black&quot;, size = 9),
-              axis.line = element_line(size=0.5, colour = &quot;black&quot;))
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="n">lines</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span>
+                     <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#d3d3d3&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">face</span><span class="o">=</span><span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">11</span><span class="p">),</span>
+              <span class="n">axis.text.y</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
+              <span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">))</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_13-1.png" title="plot of chunk box_13" alt="plot of chunk box_13" style="display: block; margin: auto;" /></p>
 <h3>Boxplot&nbsp;extras</h3>
 <p>An extra feature you can add to boxplots is to overlay all of the points for that group on each boxplot in order to get an idea of the sample size of the group. This can be achieved using by adding the <code>geom_jitter</code> option.</p>
-<pre><code class="r">p10 &lt;- p10 + geom_jitter()
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="n">p10</span> <span class="o">+</span> <span class="nf">geom_jitter</span><span class="p">()</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_14-1.png" title="plot of chunk box_14" alt="plot of chunk box_14" style="display: block; margin: auto;" /></p>
 <p>We can see that June has a pretty small sample, indicating that information based on this group may not be very&nbsp;reliable.</p>
 <p>Another thing you can do with your boxplot is add a notch to the box where the median sits to give a clearer visual indication of how the data are distributed within the <span class="caps">IQR</span>. You achieve this by adding the argument <code>notch = TRUE</code> to the <code>geom_boxplot</code> option. You can see on our graph that the box for June looks a bit weird due to the very small gap between the 25th percentile and the&nbsp;median.</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality, aes(x = Month, y = Ozone)) +
-        geom_boxplot(colour = lines, fill = fill,
-                     size = 1, notch = TRUE) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 175, 25),
-                              limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_bw() +
-        theme(panel.grid.major = element_line(colour = &quot;#d3d3d3&quot;),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(), panel.background = element_blank(),
-              plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text=element_text(family=&quot;Tahoma&quot;),
-              axis.title = element_text(face=&quot;bold&quot;),
-              axis.text.x=element_text(colour=&quot;black&quot;, size = 11),
-              axis.text.y=element_text(colour=&quot;black&quot;, size = 9),
-              axis.line = element_line(size=0.5, colour = &quot;black&quot;))
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="n">lines</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span>
+                     <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">notch</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#d3d3d3&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span> <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">face</span><span class="o">=</span><span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">11</span><span class="p">),</span>
+              <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
+              <span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">0.5</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">))</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_15-1.png" title="plot of chunk box_15" alt="plot of chunk box_15" style="display: block; margin: auto;" /></p>
 <h3>Grouping by another&nbsp;variable</h3>
 <p>You can also easily group box plots by the levels of another variable. There are two options, in separate (panel) plots, or in the same&nbsp;plot.</p>
 <p>We first need to do a little data wrangling. In order to make the graphs a bit clearer, we&#8217;ve kept only months &#8220;July&#8221;, &#8220;Aug&#8221; and &#8220;Sep&#8221; in a new dataset <code>airquality_trimmed</code>. We&#8217;ve also mean-split <code>Temp</code> so that this is also categorical, and made it into a new labelled factor variable called <code>Temp.f</code>.</p>
 <p>In order to produce a panel plot by temperature, we add the <code>facet_grid(. ~ Temp.f)</code> option to the&nbsp;plot.</p>
-<pre><code class="r">airquality_trimmed &lt;- airquality[which(airquality$Month == &quot;Jul&quot; |
-                                       airquality$Month == &quot;Aug&quot; |
-                                       airquality$Month == &quot;Sep&quot;), ]
-airquality_trimmed$Temp.f &lt;- factor(ifelse(airquality_trimmed$Temp &gt; mean(airquality_trimmed$Temp), 1, 0),
-                                    labels = c(&quot;Low temp&quot;, &quot;High temp&quot;))
+<div class="highlight"><pre><span></span><span class="n">airquality_trimmed</span> <span class="o">&lt;-</span> <span class="n">airquality</span><span class="nf">[which</span><span class="p">(</span><span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="s">&quot;Jul&quot;</span> <span class="o">|</span>
+                                       <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="s">&quot;Aug&quot;</span> <span class="o">|</span>
+                                       <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="s">&quot;Sep&quot;</span><span class="p">),</span> <span class="n">]</span>
+<span class="n">airquality_trimmed</span><span class="o">$</span><span class="n">Temp.f</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="nf">ifelse</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="o">$</span><span class="n">Temp</span> <span class="o">&gt;</span> <span class="nf">mean</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="o">$</span><span class="n">Temp</span><span class="p">),</span> <span class="m">1</span><span class="p">,</span> <span class="m">0</span><span class="p">),</span>
+                                    <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Low temp&quot;</span><span class="p">,</span> <span class="s">&quot;High temp&quot;</span><span class="p">))</span>
 
-p10 &lt;- ggplot(airquality_trimmed, aes(x = Month, y = Ozone)) +
-        geom_boxplot(fill = fill, colour = line,
-                     alpha = 0.7) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 50),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;),
-              axis.title = element_text(face=&quot;bold&quot;),
-              axis.text.x=element_text(size = 11)) +
-        facet_grid(. ~ Temp.f)
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span>
+                     <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.7</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">50</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">face</span><span class="o">=</span><span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">11</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">facet_grid</span><span class="p">(</span><span class="n">. </span><span class="o">~</span> <span class="n">Temp.f</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_16-1.png" title="plot of chunk box_16" alt="plot of chunk box_16" style="display: block; margin: auto;" /></p>
 <p>In order to plot the two temperature levels in the same plot, we need to add a couple of things. Firstly, in the <code>ggplot</code> function, we add a <code>fill = Temp.f</code> argument to <code>aes</code>. Secondly, we customise the colours of the boxes by adding the <code>scale_fill_brewer</code> to the plot from the <code>RColorBrewer</code> package. <a href="http://moderndata.plot.ly/create-colorful-graphs-in-r-with-rcolorbrewer-and-plotly/">This</a> blog post describes the available&nbsp;packages.</p>
-<pre><code class="r">library(RColorBrewer)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span>
 
-p10 &lt;- ggplot(airquality_trimmed, aes(x = Month, y = Ozone, fill = Temp.f)) +
-        geom_boxplot(alpha=0.7) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;),
-              axis.title = element_text(face=&quot;bold&quot;),
-              axis.text.x=element_text(size = 11)) +
-        scale_fill_brewer(palette = &quot;Accent&quot;)
-p10
-</code></pre>
+<span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Temp.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="m">0.7</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">face</span><span class="o">=</span><span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">11</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_fill_brewer</span><span class="p">(</span><span class="n">palette</span> <span class="o">=</span> <span class="s">&quot;Accent&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_17-1.png" title="plot of chunk box_17" alt="plot of chunk box_17" style="display: block; margin: auto;" /></p>
 <h3>Formatting the&nbsp;legend</h3>
 <p>Finally, we can format the legend. Firstly, we can change the position by adding the <code>legend.position = "bottom"</code> argument to the <code>theme</code> option, which moves the legend under the plot. Secondly, we can fix the title by adding the <code>labs(fill = "Temperature")</code> option to the&nbsp;plot.</p>
-<pre><code class="r">p10 &lt;- ggplot(airquality_trimmed, aes(x = Month, y = Ozone, fill = Temp.f)) +
-        geom_boxplot(alpha=0.7) +
-        scale_y_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 175, 25),
-                           limits=c(0, 175)) +
-        scale_x_discrete(name = &quot;Month&quot;) +
-        ggtitle(&quot;Boxplot of mean ozone by month&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;),
-              axis.title = element_text(face=&quot;bold&quot;),
-              axis.text.x=element_text(size = 11),
-              legend.position = &quot;bottom&quot;) +
-        scale_fill_brewer(palette = &quot;Accent&quot;) +
-        labs(fill = &quot;Temperature&quot;)
-p10
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Month</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Temp.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_boxplot</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="m">0.7</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">175</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_x_discrete</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Boxplot of mean ozone by month&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">face</span><span class="o">=</span><span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">11</span><span class="p">),</span>
+              <span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_fill_brewer</span><span class="p">(</span><span class="n">palette</span> <span class="o">=</span> <span class="s">&quot;Accent&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">labs</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;Temperature&quot;</span><span class="p">)</span>
+<span class="n">p10</span>
+</pre></div>
+
 
 <p><img src="/figure/box_18-1.png" title="plot of chunk box_18" alt="plot of chunk box_18" style="display: block; margin: auto;" /></p>
         <hr class="divider-short"/>

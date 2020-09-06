@@ -84,73 +84,84 @@
 <p>You now need somewhere to store all of your data. Go over to S3 and create a new bucket. <span class="caps">AWS</span> recommends that you <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/gs-config-permissions.html">prefix the name of your bucket with Sagemaker</a>, but I don&#8217;t think this is necessary for Sagemaker to be able to recognise the bucket. You can now upload your data into the&nbsp;bucket.  </p>
 <p>Next, you will need to retrieve your <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code>, which will be needed for PySpark to read in the data. <a href="https://supsystic.com/documentation/id-secret-access-key-amazon-s3/">This guide</a> steps you through how to generate and retrieve&nbsp;these.</p>
 <p>Finally, go back to your notebook instance in Sagemaker and open up JupyterLab. Scroll down to the bottom of the Launcher screen to the &#8220;Other&#8221; applications, and open up Terminal. As per <a href="https://sagemaker-pyspark.readthedocs.io/en/latest/">this guide</a>, we need to check our <code>config</code> file is set to the right <span class="caps">AWS</span> region and also put our <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> in the <code>credentials</code> file. To get started, navigate to <code>~/.aws</code> and check the&nbsp;contents:</p>
-<pre><code class="python">!cd ~/.aws
-!ls
-</code></pre>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">cd</span> <span class="o">~/.</span><span class="n">aws</span>
+<span class="err">!</span><span class="n">ls</span>
+</pre></div>
 
-<pre><code>config  credentials
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="err">config  credentials</span>
+</pre></div>
+
+
 <p>Open the config file, and check that the region matches the one you&#8217;ve set your Sagemaker notebook up in. For example, my notebook is in the Frankfurt region, so my config file looks like&nbsp;this:</p>
-<pre><code class="python">!head ~/.aws/config
-</code></pre>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">head</span> <span class="o">~/.</span><span class="n">aws</span><span class="o">/</span><span class="n">config</span>
+</pre></div>
 
-<pre><code>[default]
-region = eu-central-1
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="k">[default]</span>
+<span class="na">region</span> <span class="o">=</span> <span class="s">eu-central-1</span>
+</pre></div>
+
+
 <p>Next, if you don&#8217;t have a credentials file, you&#8217;ll need to create one. Inside, you need to paste your <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> in the following&nbsp;format:</p>
-<pre><code class="python">[default]
-aws_access_key_id = YOUR_KEY
-aws_secret_access_key = YOUR_KEY
-</code></pre>
+<div class="highlight"><pre><span></span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<span class="n">aws_access_key_id</span> <span class="o">=</span> <span class="n">YOUR_KEY</span>
+<span class="n">aws_secret_access_key</span> <span class="o">=</span> <span class="n">YOUR_KEY</span>
+</pre></div>
+
 
 <h2>Configuring <code>sagemaker_pyspark</code></h2>
 <p>We&#8217;ve finished all of the preparatory steps, and you can now create a new <code>python_conda3</code> notebook. Once we have this notebook, we need to configure our <code>SparkSession</code> correctly.</p>
 <p>When I initially started trying to read my file into a Spark DataFrame, I kept getting the following&nbsp;error: </p>
-<pre><code>Py4JJavaError: An error occurred while calling o65.csv. : java.lang.RuntimeException: java.lang.ClassNotFoundException: Class org.apache.hadoop.fs.s3a.S3AFileSystem not found
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">Py4JJavaError</span><span class="o">:</span> <span class="n">An</span> <span class="n">error</span> <span class="n">occurred</span> <span class="k">while</span> <span class="n">calling</span> <span class="n">o65</span><span class="o">.</span><span class="na">csv</span><span class="o">.</span> <span class="o">:</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">RuntimeException</span><span class="o">:</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">ClassNotFoundException</span><span class="o">:</span> <span class="n">Class</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">fs</span><span class="o">.</span><span class="na">s3a</span><span class="o">.</span><span class="na">S3AFileSystem</span> <span class="n">not</span> <span class="n">found</span>
+</pre></div>
+
 
 <p>I was missing a step where I needed to <a href="https://sagemaker-pyspark.readthedocs.io/en/latest/">load the Sagemaker <span class="caps">JAR</span> files</a> in order for Spark to work properly. You can see this in the code below, where I used <code>SparkConf</code> to do&nbsp;this.</p>
 <p>Finally, we need to also make the <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> visible to the <code>SparkSession</code>. We can use a package called <code>botocore</code> to <a href="https://stackoverflow.com/questions/50499894/how-should-i-load-file-on-s3-using-spark">access the credentials</a> from the <code>~/.aws/credentials</code> file we created earlier. You can see that instead of us needing to pass the credentials directly, the <code>botocore</code> session pulls them out of our credentials file and stores them for us. We&#8217;ve also passed the <code>SparkConf</code> that we created as a config in the <code>SparkSession</code> builder as&nbsp;well.</p>
-<pre><code class="python">from pyspark import SparkConf
-from pyspark.sql import SparkSession
-import sagemaker_pyspark
-import botocore.session
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkConf</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">import</span> <span class="nn">sagemaker_pyspark</span>
+<span class="kn">import</span> <span class="nn">botocore.session</span>
 
-session = botocore.session.get_session()
-credentials = session.get_credentials()
+<span class="n">session</span> <span class="o">=</span> <span class="n">botocore</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get_session</span><span class="p">()</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_credentials</span><span class="p">()</span>
 
-conf = (SparkConf()
-        .set(&quot;spark.driver.extraClassPath&quot;, &quot;:&quot;.join(sagemaker_pyspark.classpath_jars())))
+<span class="n">conf</span> <span class="o">=</span> <span class="p">(</span><span class="n">SparkConf</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.driver.extraClassPath&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sagemaker_pyspark</span><span class="o">.</span><span class="n">classpath_jars</span><span class="p">())))</span>
 
-spark = (
-    SparkSession
-    .builder
-    .config(conf=conf) \
-    .config('fs.s3a.access.key', credentials.access_key)
-    .config('fs.s3a.secret.key', credentials.secret_key)
-    .appName(&quot;schema_test&quot;)
-    .getOrCreate()
-)
-</code></pre>
+<span class="n">spark</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SparkSession</span>
+    <span class="o">.</span><span class="n">builder</span>
+    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.access.key&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">access_key</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.secret.key&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">secret_key</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;schema_test&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Alternatively, if you&#8217;re having problems with <code>botocore</code> reading in your credentials, you can also paste in your <code>AWSAccessKeyId</code> and <code>AWSSecretKey</code> directly as strings. This is obviously a bit less secure, so make sure you delete them from your notebook before sharing it with&nbsp;anyone!</p>
-<pre><code class="python">spark = SparkSession.builder \
-        .appName(&quot;schema_test&quot;) \
-        .config(conf=conf) \
-        .config('fs.s3a.access.key', YOUR_KEY)\
-        .config('fs.s3a.secret.key', YOUR_KEY)\
-        .getOrCreate()
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span> \
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;schema_test&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.access.key&#39;</span><span class="p">,</span> <span class="n">YOUR_KEY</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.secret.key&#39;</span><span class="p">,</span> <span class="n">YOUR_KEY</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+</pre></div>
+
 
 <p>And that&#8217;s it, we&#8217;re done! We can finally load in our data from S3 into a Spark DataFrame, as&nbsp;below.</p>
-<pre><code class="python">bucket = &quot;sagemaker-pyspark&quot;
-data_key = &quot;train_sample.csv&quot;
-data_location = f&quot;s3a://{bucket}/{data_key}&quot;
+<div class="highlight"><pre><span></span><span class="n">bucket</span> <span class="o">=</span> <span class="s2">&quot;sagemaker-pyspark&quot;</span>
+<span class="n">data_key</span> <span class="o">=</span> <span class="s2">&quot;train_sample.csv&quot;</span>
+<span class="n">data_location</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3a://</span><span class="si">{bucket}</span><span class="s2">/</span><span class="si">{data_key}</span><span class="s2">&quot;</span>
 
-df = spark.read.csv(data_location, header = 'True', inferSchema = True)
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">data_location</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">inferSchema</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
-df.limit(5).toPandas()
-</code></pre>
+<span class="n">df</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+</pre></div>
+
 
 <div>
 <table class="table table-bordered">

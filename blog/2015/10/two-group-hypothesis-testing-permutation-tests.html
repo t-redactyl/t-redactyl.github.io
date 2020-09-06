@@ -83,59 +83,65 @@
 <p>In cases like this, we can&#8217;t use a t-test, so what can we do? We can instead rely on <a href="https://en.wikipedia.org/wiki/Nonparametric_statistics"><strong>non-parametric</strong></a> methods. I will talk about one example, <a href="https://en.wikipedia.org/wiki/Resampling_(statistics)"><strong>permutation tests</strong></a>, in this blog post. So how do they work? Well, when we collect our data (amount of money spent per visit), we assign it to a group depending on what advertising campaign the visit originated from. We then take the difference in the mean amount generated per campaign as our test statistic. What permutation tests suggest as their <a href="https://en.wikipedia.org/wiki/Null_hypothesis"><strong>null hypothesis</strong></a> is that randomly reassigning (or <strong>permuting</strong>) these group labels and then taking the mean difference between these new groups will give a mean difference similar to the one we got from our original groups. In other words, the null hypothesis is that the group labels are arbitrary, and that we could get a mean difference of that size or bigger by chance alone. The <a href=""><strong>alternative hypothesis</strong></a> is that the group labels are <strong>not</strong> arbitrary, and a mean difference of that size didn&#8217;t occur by chance. In permutation tests, we therefore permute the group labels a large number of times, and see where our original mean difference ranks among the permuted mean differences. This is a bit confusing, but I&#8217;ll talk you through it&nbsp;step-by-step.</p>
 <h2>Simulating some&nbsp;data</h2>
 <p>As with the last post, let&#8217;s say we collected a sample of 40 site visits for each campaign. To simulate the samples, I will resort to my much-loved method of creating Franken-distributions - in this case, I am merging elements of exponential and uniform distributions, plus throwing in some zero counts. This will give us some inflation around zero and a tapering off as the amount spent per visit increases, which is a far more realistic representation of the sort of data we&#8217;d&nbsp;collect.</p>
-<pre><code class="r">data &lt;- data.frame(group = rep(c(&quot;Campaign 1&quot;, &quot;Campaign 2&quot;), c(40, 40)), 
-                   amount.purchased = numeric(length = 80))
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">group</span> <span class="o">=</span> <span class="nf">rep</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;Campaign 1&quot;</span><span class="p">,</span> <span class="s">&quot;Campaign 2&quot;</span><span class="p">),</span> <span class="nf">c</span><span class="p">(</span><span class="m">40</span><span class="p">,</span> <span class="m">40</span><span class="p">)),</span> 
+                   <span class="n">amount.purchased</span> <span class="o">=</span> <span class="nf">numeric</span><span class="p">(</span><span class="n">length</span> <span class="o">=</span> <span class="m">80</span><span class="p">))</span>
 
-set.seed(567)
-data$amount.purchased[data$group == &quot;Campaign 1&quot;] &lt;- c(rep.int(0, 7), 
-                                                  rexp(33, rate = 1) * 100)
-data$amount.purchased[data$group == &quot;Campaign 2&quot;] &lt;- c(rep.int(0, 10), 
-                                                  rexp(30, rate = 2.5) * 100)
-</code></pre>
+<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+<span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">group</span> <span class="o">==</span> <span class="s">&quot;Campaign 1&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rep.int</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">7</span><span class="p">),</span> 
+                                                  <span class="nf">rexp</span><span class="p">(</span><span class="m">33</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="o">*</span> <span class="m">100</span><span class="p">)</span>
+<span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">group</span> <span class="o">==</span> <span class="s">&quot;Campaign 2&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rep.int</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">10</span><span class="p">),</span> 
+                                                  <span class="nf">rexp</span><span class="p">(</span><span class="m">30</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="m">2.5</span><span class="p">)</span> <span class="o">*</span> <span class="m">100</span><span class="p">)</span>
+</pre></div>
+
 
 <p>As you can see in the histograms below, the distribution of observations for campaign 1 appears to differ from that for campaign 2, so the group labels are not likely to be arbitrary. The frequency of observations where nothing or very little was spent in a visit is lower in campaign 1, and the maximum amount spent in any visit was&nbsp;higher.</p>
 <p><img alt="plot of chunk perm_alt_sample_plots" src="/figure/perm_alt_sample_plots-1.png"> </p>
 <h2>Creating the test&nbsp;statistic</h2>
 <p>The next step is creating the test statistic to assess whether the difference between the campaigns&#8217; revenue is meaningfully different. This is simpler than in the last post - we can use the raw mean difference rather than standardising&nbsp;it.</p>
-<pre><code class="r">diff.means &lt;- mean(data$amount.purchased[data$group == &quot;Campaign 1&quot;]) - 
-              mean(data$amount.purchased[data$group == &quot;Campaign 2&quot;])
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">diff.means</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">group</span> <span class="o">==</span> <span class="s">&quot;Campaign 1&quot;</span><span class="n">]</span><span class="p">)</span> <span class="o">-</span> 
+              <span class="nf">mean</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">group</span> <span class="o">==</span> <span class="s">&quot;Campaign 2&quot;</span><span class="n">]</span><span class="p">)</span>
+</pre></div>
+
 
 <p>The test statistic is 64.92, which indicates that visitors spent \$64.92 more per visit if they came to the site via campaign&nbsp;1.</p>
 <h2>Permuting the group&nbsp;labels</h2>
 <p>We&#8217;ll now move on to the permutations. To illustrate how this works, I&#8217;ll start with a single&nbsp;example.</p>
-<pre><code class="r"># Create a function that randomly reassigns each observation to a different group and then takes the mean difference between these new groups.
-one.test &lt;- function(grouping, variable) {
-                resampled.group &lt;- sample(grouping)
-                mean(variable[resampled.group == &quot;Campaign 2&quot;]) - 
-                mean(variable[resampled.group == &quot;Campaign 1&quot;])
-            }
+<div class="highlight"><pre><span></span><span class="c1"># Create a function that randomly reassigns each observation to a different group and then takes the mean difference between these new groups.</span>
+<span class="n">one.test</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">grouping</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">resampled.group</span> <span class="o">&lt;-</span> <span class="nf">sample</span><span class="p">(</span><span class="n">grouping</span><span class="p">)</span>
+                <span class="nf">mean</span><span class="p">(</span><span class="n">variable[resampled.group</span> <span class="o">==</span> <span class="s">&quot;Campaign 2&quot;</span><span class="n">]</span><span class="p">)</span> <span class="o">-</span> 
+                <span class="nf">mean</span><span class="p">(</span><span class="n">variable[resampled.group</span> <span class="o">==</span> <span class="s">&quot;Campaign 1&quot;</span><span class="n">]</span><span class="p">)</span>
+            <span class="p">}</span>
 
-# Example of how resampling works:
-set.seed(567)
-data$resampled.group &lt;- sample(data$group)
-rs.mean &lt;- mean(data$amount.purchased[data$resampled.group == &quot;Campaign 2&quot;]) - 
-           mean(data$amount.purchased[data$resampled.group == &quot;Campaign 1&quot;])
-head(data[ , c(&quot;group&quot;, &quot;resampled.group&quot;, &quot;amount.purchased&quot;)])
-</code></pre>
+<span class="c1"># Example of how resampling works:</span>
+<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+<span class="n">data</span><span class="o">$</span><span class="n">resampled.group</span> <span class="o">&lt;-</span> <span class="nf">sample</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">group</span><span class="p">)</span>
+<span class="n">rs.mean</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">resampled.group</span> <span class="o">==</span> <span class="s">&quot;Campaign 2&quot;</span><span class="n">]</span><span class="p">)</span> <span class="o">-</span> 
+           <span class="nf">mean</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">amount.purchased[data</span><span class="o">$</span><span class="n">resampled.group</span> <span class="o">==</span> <span class="s">&quot;Campaign 1&quot;</span><span class="n">]</span><span class="p">)</span>
+<span class="nf">head</span><span class="p">(</span><span class="n">data[</span> <span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;group&quot;</span><span class="p">,</span> <span class="s">&quot;resampled.group&quot;</span><span class="p">,</span> <span class="s">&quot;amount.purchased&quot;</span><span class="p">)</span><span class="n">]</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>##        group resampled.group amount.purchased
-## 1 Campaign 1      Campaign 2                0
-## 2 Campaign 1      Campaign 2                0
-## 3 Campaign 1      Campaign 2                0
-## 4 Campaign 1      Campaign 1                0
-## 5 Campaign 1      Campaign 1                0
-## 6 Campaign 1      Campaign 1                0
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="err">##        group resampled.group amount.purchased</span>
+<span class="err">## 1 Campaign 1      Campaign 2                0</span>
+<span class="err">## 2 Campaign 1      Campaign 2                0</span>
+<span class="err">## 3 Campaign 1      Campaign 2                0</span>
+<span class="err">## 4 Campaign 1      Campaign 1                0</span>
+<span class="err">## 5 Campaign 1      Campaign 1                0</span>
+<span class="err">## 6 Campaign 1      Campaign 1                0</span>
+</pre></div>
+
 
 <p>What we&#8217;ve done here is randomly reassigned the group labels and taken the mean difference of the amount purchased per visit of these new groups. You can see this by comparing the &#8216;group&#8217; and &#8216;resampled.group&#8217; columns in the table above. The mean difference of this particular permutation is 11.2, compared to our test statistic of 64.92. We&#8217;ll now repeat this permutation process 1,000 times to get a distribution of the mean difference of the permuted&nbsp;groups.</p>
-<pre><code class="r">perm.means &lt;- replicate(1000, one.test(data$group, data$amount.purchased))
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">perm.means</span> <span class="o">&lt;-</span> <span class="nf">replicate</span><span class="p">(</span><span class="m">1000</span><span class="p">,</span> <span class="nf">one.test</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">group</span><span class="p">,</span> <span class="n">data</span><span class="o">$</span><span class="n">amount.purchased</span><span class="p">))</span>
+</pre></div>
+
 
 <h2>Rejecting or accepting the null&nbsp;hypothesis</h2>
 <p>To check whether your test statistic is statistically different from 0, we just check how it ranks compared to the permuted&nbsp;means:</p>
-<pre><code class="r">sig &lt;- sum(perm.means &gt; diff.means)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">sig</span> <span class="o">&lt;-</span> <span class="nf">sum</span><span class="p">(</span><span class="n">perm.means</span> <span class="o">&gt;</span> <span class="n">diff.means</span><span class="p">)</span>
+</pre></div>
+
 
 <p>The number of permuted mean differences that exceeded the true mean difference was 0. As there were 1,000 permutations, the significance level is simply 1/1001, or <em>p</em> = 0.001. As this is less than 0.05, this means that campaign 1 generates significantly more income than campaign 2 per site&nbsp;visit.</p>
 <p><img alt="plot of chunk permutation_plot" src="/figure/permutation_plot-1.png"> </p>

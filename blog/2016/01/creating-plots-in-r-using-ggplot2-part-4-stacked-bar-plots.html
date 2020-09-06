@@ -80,210 +80,225 @@
 <p>If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as <span class="caps">LOWESS</span> charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date <code>ggplot</code> and tidyverse code, and every purchase really helps us out with keeping up with new&nbsp;content.</p>
 <p><a href="https://leanpub.com/ggplot-guide"><img alt="ggplot2 book" class="banner" src="/figure/ggplot-book-banner-small.png" title="The Hitchhikers Guide to ggplot2"></a></p>
 <p>The first thing to do is load in the data and libraries, as&nbsp;below:</p>
-<pre><code class="r">library(ggplot2)
-library(ggthemes)
-library(extrafont)
-library(plyr)
-library(scales)
-charts.data &lt;- read.csv(&quot;copper-data-for-tutorial.csv&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">scales</span><span class="p">)</span>
+<span class="n">charts.data</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="s">&quot;copper-data-for-tutorial.csv&quot;</span><span class="p">)</span>
+</pre></div>
+
 
 <p>In this tutorial, we will work towards creating the bar plot below. We will take you from a basic stacked bar plot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/sb_finalresult-1.png" title="plot of chunk sb_finalresult" alt="plot of chunk sb_finalresult" style="display: block; margin: auto;" /></p>
 <h3>Basic&nbsp;graph</h3>
 <p>In order to initialise a plot we tell ggplot that <code>charts.data</code> is our data, and specify the variables on each axis. We then instruct ggplot to render this as a stacked bar plot by adding the <code>geom_bar</code> command.</p>
-<pre><code class="r">charts.data &lt;- read.csv(&quot;copper-data-for-tutorial.csv&quot;)
+<div class="highlight"><pre><span></span><span class="n">charts.data</span> <span class="o">&lt;-</span> <span class="nf">read.csv</span><span class="p">(</span><span class="s">&quot;copper-data-for-tutorial.csv&quot;</span><span class="p">)</span>
 
-p4 &lt;- ggplot() + geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data,
-                           stat=&quot;identity&quot;)
-p4
-</code></pre>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span>
+                           <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar14-1.png" title="plot of chunk bar14" alt="plot of chunk bar14" style="display: block; margin: auto;" /></p>
 <h3>Adding data&nbsp;labels</h3>
 <p>To label the bars according to some variable in the data, we add the <code>label</code> argument to the <code>ggplot(aes())</code> option. In this case, we have labelled the bars with numbers from the <code>export</code> variable.</p>
-<pre><code class="r">p4 &lt;- p4 + geom_text(data=charts.data, aes(x = year, y = percentage,
-                                             label = paste0(percentage,&quot;%&quot;)), size=4)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span>
+                                             <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar15-1.png" title="plot of chunk bar15" alt="plot of chunk bar15" style="display: block; margin: auto;" /></p>
 <h3>Adjusting data labels&nbsp;position</h3>
 <p>To adjust the position of the data labels from the default placement, we use the <code>ddply</code> function on the data, and create a new variable called <code>pos</code>. This variable is at the centre of each bar and can be used to specify the position of the labels by assigning it to the <code>y</code> argument in <code>geom_text(aes())</code>.</p>
-<pre><code class="r">charts.data &lt;- ddply(charts.data, .(year),
-                     transform, pos = cumsum(percentage) - (0.5 * percentage))
+<div class="highlight"><pre><span></span><span class="n">charts.data</span> <span class="o">&lt;-</span> <span class="nf">ddply</span><span class="p">(</span><span class="n">charts.data</span><span class="p">,</span> <span class="n">.(year</span><span class="p">),</span>
+                     <span class="n">transform</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="nf">cumsum</span><span class="p">(</span><span class="n">percentage</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="m">0.5</span> <span class="o">*</span> <span class="n">percentage</span><span class="p">))</span>
 
-p4 &lt;- ggplot() + geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data,
-                           stat=&quot;identity&quot;)
-p4 &lt;- p4 + geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)),
-                       size=4)
-p4
-</code></pre>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span>
+                           <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span>
+                       <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar16-1.png" title="plot of chunk bar16" alt="plot of chunk bar16" style="display: block; margin: auto;" /></p>
 <h3>Adjusting legend&nbsp;position</h3>
 <p>To adjust the position of the legend from the default spot of right of the graph, we add the <code>theme</code> option and specify the <code>legend.position="bottom"</code> argument. We can also change the title to blank using the <code>legend.title = element_blank()</code> argument and change the legend shape using the <code>legend.direction="horizontal"</code> argument.</p>
-<pre><code class="r">p4 &lt;- p4 + theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-                   legend.title = element_blank())
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+                   <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar17-1.png" title="plot of chunk bar17" alt="plot of chunk bar17" style="display: block; margin: auto;" /></p>
 <h3>Changing variables&nbsp;display</h3>
 <p>To change the variables&#8217; displayed name, we need to re-factor our data labels in <code>charts.data</code> data&nbsp;frame.</p>
-<pre><code class="r">charts.data &lt;- as.data.frame(charts.data)
-charts.data$product &lt;- factor(charts.data$product, levels = c(&quot;copper&quot;,&quot;others&quot;),
-                              labels = c(&quot;Copper&quot;,&quot;Pulp wood, Fruit, Salmon &amp; Others&quot;))
+<div class="highlight"><pre><span></span><span class="n">charts.data</span> <span class="o">&lt;-</span> <span class="nf">as.data.frame</span><span class="p">(</span><span class="n">charts.data</span><span class="p">)</span>
+<span class="n">charts.data</span><span class="o">$</span><span class="n">product</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">charts.data</span><span class="o">$</span><span class="n">product</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;copper&quot;</span><span class="p">,</span><span class="s">&quot;others&quot;</span><span class="p">),</span>
+                              <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Copper&quot;</span><span class="p">,</span><span class="s">&quot;Pulp wood, Fruit, Salmon &amp; Others&quot;</span><span class="p">))</span>
 
-p4 &lt;- ggplot() + geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data,
-                           stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos,
-                                  label = paste0(percentage,&quot;%&quot;)), size=4) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;, legend.title = element_blank())
-p4
-</code></pre>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span>
+                           <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span>
+                                  <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar18-1.png" title="plot of chunk bar18" alt="plot of chunk bar18" style="display: block; margin: auto;" /></p>
 <h3>Adjusting x-axis&nbsp;scale</h3>
 <p>To change the axis tick marks, we use the <code>scale_x_continuous</code> and/or <code>scale_y_continuous</code> commands.</p>
-<pre><code class="r">p4 &lt;- p4 + scale_x_continuous(breaks=seq(2006,2014,1))
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar19-1.png" title="plot of chunk bar19" alt="plot of chunk bar19" style="display: block; margin: auto;" /></p>
 <h3>Adjusting axis, title <span class="amp">&amp;</span>&nbsp;units</h3>
 <p>To add a title, we include the option <code>ggtitle</code> and include the name of the graph as a string argument, and to change the axis names we use the <code>labs</code> command.</p>
-<pre><code class="r">p4 &lt;- p4 + labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar20-1.png" title="plot of chunk bar20" alt="plot of chunk bar20" style="display: block; margin: auto;" /></p>
 <h3>Adjusting color&nbsp;palette</h3>
 <p>To change the colours, we use the <code>scale_colour_manual</code> command. Note that you can reference the specific colours you&#8217;d like to use with specific <span class="caps">HEX</span> codes. You can also reference colours by name, with the full list of colours recognised by R <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf">here</a>.</p>
-<pre><code class="r">fill &lt;- c(&quot;#5F9EA0&quot;, &quot;#E1B378&quot;)
-p4 &lt;- p4 + scale_fill_manual(values=fill)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;#5F9EA0&quot;</span><span class="p">,</span> <span class="s">&quot;#E1B378&quot;</span><span class="p">)</span>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="n">p4</span> <span class="o">+</span> <span class="nf">scale_fill_manual</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">fill</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar21-1.png" title="plot of chunk bar21" alt="plot of chunk bar21" style="display: block; margin: auto;" /></p>
 <h3>Using the white&nbsp;theme</h3>
 <p>As explained in the previous posts, we can also change the overall look of the graph using themes. We&#8217;ll start using a simple theme customisation by adding <code>theme_bw()</code> after <code>ggplot()</code>. As you can see, we can further tweak the graph using the <code>theme</code> option, which we&#8217;ve used so far to change the&nbsp;legend.</p>
-<pre><code class="r">p4 &lt;- ggplot() + theme_bw() +
-  geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data, stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)), size=4) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-        legend.title = element_blank()) +
-  scale_x_continuous(breaks=seq(2006,2014,1)) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+  <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar22-1.png" title="plot of chunk bar22" alt="plot of chunk bar22" style="display: block; margin: auto;" /></p>
 <h3>Creating an <span class="caps">XKCD</span> style&nbsp;chart</h3>
 <p>Of course, you may want to create your own themes as well. <code>ggplot2</code> allows for a very high degree of customisation, including allowing you to use imported fonts. Below is an example of a theme Mauricio was able to create which mimics the visual style of <a href="http://xkcd.com/"><span class="caps">XKCD</span></a>. In order to create this chart, you first need to import the <span class="caps">XKCD</span> font, install it on your machine and load it into R using the <code>extrafont</code> package.
 These instructions are taken from <a href="https://www.google.com.au/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0ahUKEwiWzafchdPJAhVBpJQKHe_LDT8QFggbMAA&amp;url=https%3A%2F%2Fcran.r-project.org%2Fweb%2Fpackages%2Fxkcd%2Fvignettes%2Fxkcd-intro.pdf&amp;usg=AFQjCNE-KciGY14e-Q1buYIVmTFC0ht__Q&amp;sig2=DZUwkvIHwfNWtTtkcz94jg">here</a>:</p>
-<pre><code class="r">library(extrafont)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
 
-download.file(&quot;http://simonsoftware.se/other/xkcd.ttf&quot;,
-              dest=&quot;xkcd.ttf&quot;, mode=&quot;wb&quot;)
-system(&quot;mkdir ~/.fonts&quot;)
-system(&quot;cp xkcd.ttf  ~/.fonts&quot;)
-font_import(paths = &quot;~/.fonts&quot;, pattern=&quot;[X/x]kcd&quot;)
-fonts()
-loadfonts()
-</code></pre>
+<span class="nf">download.file</span><span class="p">(</span><span class="s">&quot;http://simonsoftware.se/other/xkcd.ttf&quot;</span><span class="p">,</span>
+              <span class="n">dest</span><span class="o">=</span><span class="s">&quot;xkcd.ttf&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;mkdir ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;cp xkcd.ttf  ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">font_import</span><span class="p">(</span><span class="n">paths</span> <span class="o">=</span> <span class="s">&quot;~/.fonts&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s">&quot;[X/x]kcd&quot;</span><span class="p">)</span>
+<span class="nf">fonts</span><span class="p">()</span>
+<span class="nf">loadfonts</span><span class="p">()</span>
+</pre></div>
+
 
 <p>You can then create your&nbsp;graph:</p>
-<pre><code class="r">#font_import(pattern=&quot;[X/x]kcd&quot;)
-#fonts()
+<div class="highlight"><pre><span></span><span class="c1">#font_import(pattern=&quot;[X/x]kcd&quot;)</span>
+<span class="c1">#fonts()</span>
 
-fill &lt;- c(&quot;#56B4E9&quot;, &quot;#F0E442&quot;)
+<span class="n">fill</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;#56B4E9&quot;</span><span class="p">,</span> <span class="s">&quot;#F0E442&quot;</span><span class="p">)</span>
 
-p4 &lt;- ggplot() +
-  geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data, stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)),
-            colour=&quot;black&quot;, family=&quot;xkcd-Regular&quot;, size = 5, show.legend = F) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-        legend.title = element_blank()) +
-  scale_x_continuous(breaks=seq(2006,2014,1)) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;) +
-  scale_fill_manual(values=fill) +
-  theme(axis.line = element_line(size=1, colour = &quot;black&quot;),
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.border = element_blank(), panel.background = element_blank()) +
-  theme(plot.title=element_text(family=&quot;xkcd-Regular&quot;), text=element_text(family=&quot;xkcd-Regular&quot;),
-        axis.text.x=element_text(colour=&quot;black&quot;, size = 10),
-        axis.text.y=element_text(colour=&quot;black&quot;, size = 10))
-p4
-</code></pre>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span>
+  <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span>
+            <span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">5</span><span class="p">,</span> <span class="n">show.legend</span> <span class="o">=</span> <span class="bp">F</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">scale_fill_manual</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">fill</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+        <span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span> <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+        <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span> <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span>
+        <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">),</span>
+        <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">))</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar25-1.png" title="plot of chunk bar25" alt="plot of chunk bar25" style="display: block; margin: auto;" /></p>
 <h3>Using &#8216;The Economist&#8217;&nbsp;theme</h3>
 <p>There are a wider range of pre-built themes available as part of the <code>ggthemes</code> package (more information on these <a href="https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html">here</a>). Below we&#8217;ve applied <code>theme_economist()</code>, which approximates graphs in the Economist magazine. It is also important that the font change argument inside <code>theme</code> is optional and it&#8217;s only to obtain a more similar result compared to the original. For an exact result you need &#8216;Officina Sans&#8217; which is a commercial font and is available <a href="http://www.myfonts.com/fonts/itc/officina-sans/">here</a>.</p>
-<pre><code class="r">p4 &lt;- ggplot() + theme_economist() + scale_fill_economist() +
-  theme(plot.title=element_text(family=&quot;OfficinaSanITC-Book&quot;),
-        text=element_text(family=&quot;OfficinaSanITC-Book&quot;)) +
-  geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data, stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)),
-            colour=&quot;white&quot;, family=&quot;OfficinaSanITC-Book&quot;, size=4) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-        legend.title = element_blank()) +
-  scale_x_continuous(breaks=seq(2006,2014,1)) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">theme_economist</span><span class="p">()</span> <span class="o">+</span> <span class="nf">scale_fill_economist</span><span class="p">()</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;OfficinaSanITC-Book&quot;</span><span class="p">),</span>
+        <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;OfficinaSanITC-Book&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span>
+            <span class="n">colour</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;OfficinaSanITC-Book&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar23-1.png" title="plot of chunk bar23" alt="plot of chunk bar23" style="display: block; margin: auto;" /></p>
 <h3>Using &#8216;Five Thirty Eight&#8217;&nbsp;theme</h3>
 <p>Below we&#8217;ve applied <code>theme_fivethirtyeight()</code>, which approximates graphs in the nice <a href="http://fivethirtyeight.com/">FiveThirtyEight</a> website. Again, it is also important that the font change is optional and it&#8217;s only to obtain a more similar result compared to the original. For an exact result you need &#8216;Atlas Grotesk&#8217; which is a commercial font and is available <a href="https://commercialtype.com/catalog/atlas">here</a>.</p>
-<pre><code class="r">p4 &lt;- ggplot() + theme_fivethirtyeight() + scale_fill_fivethirtyeight() +   
-  theme(plot.title=element_text(family=&quot;Atlas Grotesk Medium&quot;),
-        text=element_text(family=&quot;Atlas Grotesk Light&quot;)) +
-  geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data, stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)),
-            colour=&quot;white&quot;, family=&quot;Atlas Grotesk Medium&quot;, size=4) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-        legend.title = element_blank()) +
-  scale_x_continuous(breaks=seq(2006,2014,1)) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;)
-p4
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span> <span class="nf">theme_fivethirtyeight</span><span class="p">()</span> <span class="o">+</span> <span class="nf">scale_fill_fivethirtyeight</span><span class="p">()</span> <span class="o">+</span>   
+  <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Atlas Grotesk Medium&quot;</span><span class="p">),</span>
+        <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Atlas Grotesk Light&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span>
+            <span class="n">colour</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;Atlas Grotesk Medium&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar24-1.png" title="plot of chunk bar24" alt="plot of chunk bar24" style="display: block; margin: auto;" /></p>
 <h3>Creating your own&nbsp;theme</h3>
 <p>As before, you can modify your plots a lot as <code>ggplot2</code> allows many customisations. Here we present our original result shown at the top of&nbsp;page.</p>
-<pre><code class="r">fill &lt;- c(&quot;#40b8d0&quot;, &quot;#b2d183&quot;)
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;#40b8d0&quot;</span><span class="p">,</span> <span class="s">&quot;#b2d183&quot;</span><span class="p">)</span>
 
-p4 &lt;- ggplot() +
-  geom_bar(aes(y = percentage, x = year, fill = product), data = charts.data, stat=&quot;identity&quot;) +
-  geom_text(data=charts.data, aes(x = year, y = pos, label = paste0(percentage,&quot;%&quot;)),
-            colour=&quot;black&quot;, family=&quot;Tahoma&quot;, size=4) +
-  theme(legend.position=&quot;bottom&quot;, legend.direction=&quot;horizontal&quot;,
-        legend.title = element_blank()) +
-  scale_x_continuous(breaks=seq(2006,2014,1)) +
-  scale_y_continuous(labels = dollar_format(suffix = &quot;%&quot;, prefix = &quot;&quot;)) +
-  labs(x=&quot;Year&quot;, y=&quot;Percentage&quot;) +
-  ggtitle(&quot;Composition of Exports to China (%)&quot;) +
-  scale_fill_manual(values=fill) +
-  theme(axis.line = element_line(size=1, colour = &quot;black&quot;),
-        panel.grid.major = element_line(colour = &quot;#d3d3d3&quot;), panel.grid.minor = element_blank(),
-        panel.border = element_blank(), panel.background = element_blank()) +
-  theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-        text=element_text(family=&quot;Tahoma&quot;),
-        axis.text.x=element_text(colour=&quot;black&quot;, size = 10),
-        axis.text.y=element_text(colour=&quot;black&quot;, size = 10))
-p4
-</code></pre>
+<span class="n">p4</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">()</span> <span class="o">+</span>
+  <span class="nf">geom_bar</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">product</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">charts.data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">charts.data</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">year</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nf">paste0</span><span class="p">(</span><span class="n">percentage</span><span class="p">,</span><span class="s">&quot;%&quot;</span><span class="p">)),</span>
+            <span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="m">4</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span><span class="o">=</span><span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+        <span class="n">legend.title</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="nf">seq</span><span class="p">(</span><span class="m">2006</span><span class="p">,</span><span class="m">2014</span><span class="p">,</span><span class="m">1</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="nf">dollar_format</span><span class="p">(</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;%&quot;</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">))</span> <span class="o">+</span>
+  <span class="nf">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">&quot;Percentage&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Composition of Exports to China (%)&quot;</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">scale_fill_manual</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">fill</span><span class="p">)</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+        <span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#d3d3d3&quot;</span><span class="p">),</span> <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+        <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span> <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">())</span> <span class="o">+</span>
+  <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+        <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+        <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">),</span>
+        <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">))</span>
+<span class="n">p4</span>
+</pre></div>
+
 
 <p><img src="/figure/bar26-1.png" title="plot of chunk bar26" alt="plot of chunk bar26" style="display: block; margin: auto;" /></p>
         <hr class="divider-short"/>

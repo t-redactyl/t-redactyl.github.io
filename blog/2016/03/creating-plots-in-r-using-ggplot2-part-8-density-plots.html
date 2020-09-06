@@ -80,320 +80,341 @@
 <p>If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as <span class="caps">LOWESS</span> charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date <code>ggplot</code> and tidyverse code, and every purchase really helps us out with keeping up with new&nbsp;content.</p>
 <p><a href="https://leanpub.com/ggplot-guide"><img alt="ggplot2 book" class="banner" src="/figure/ggplot-book-banner-small.png" title="The Hitchhikers Guide to ggplot2"></a></p>
 <p>The first thing to do is load in the data, as&nbsp;below:</p>
-<pre><code class="r">rm(list = ls())
-library(datasets)
-library(ggplot2)
+<div class="highlight"><pre><span></span><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
 
-data(airquality)
-</code></pre>
+<span class="nf">data</span><span class="p">(</span><span class="n">airquality</span><span class="p">)</span>
+</pre></div>
+
 
 <p>In this tutorial, we will work towards creating the density plot below. We will take you from a basic density plot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/density_final-1.png" title="plot of chunk density_final" alt="plot of chunk density_final" style="display: block; margin: auto;" /></p>
 <h3>Basic density&nbsp;plot</h3>
 <p>In order to initialise a plot we tell ggplot that <code>airquality</code> is our data, and specify that our x axis plots the <code>Ozone</code> variable. We then instruct ggplot to render this as a density plot by adding the <code>geom_density()</code> option.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density()
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">()</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_1-1.png" title="plot of chunk density_1" alt="plot of chunk density_1" style="display: block; margin: auto;" /></p>
 <h3>Customising axis&nbsp;labels</h3>
 <p>In order to change the axis labels, we have a couple of options. In this case, we have used the <code>scale_x_continuous</code> and <code>scale_y_continuous</code> options, as these have further customisation options for the axes we will use below. In each, we add the desired name to the <code>name</code> argument as a&nbsp;string.</p>
-<pre><code class="r">p8 &lt;- p8 + scale_x_continuous(name = &quot;Mean ozone in parts per billion&quot;) +
-        scale_y_continuous(name = &quot;Density&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in parts per billion&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_2-1.png" title="plot of chunk density_2" alt="plot of chunk density_2" style="display: block; margin: auto;" /></p>
 <p>ggplot also allows for the use of multiline names (in both axes and titles). Here, we&#8217;ve changed the x-axis label so that it goes over two lines using the <code>\n</code> character to break the&nbsp;line.</p>
-<pre><code class="r">p8 &lt;- p8 + scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_3-1.png" title="plot of chunk density_3" alt="plot of chunk density_3" style="display: block; margin: auto;" /></p>
 <h3>Changing axis&nbsp;ticks</h3>
 <p>The next thing we will change is the axis ticks. Let&#8217;s make the x-axis ticks appear at every 25 units rather than 50 using the <code>breaks = seq(0, 200, 25)</code> argument in <code>scale_x_continuous</code>. (The <code>seq</code> function is a base R function that indicates the start and endpoints and the units to increment by respectively. See <code>help(seq)</code> for more information.) We ensure that the x-axis begins and ends where we want by also adding the argument <code>limits = c(0, 200)</code> to <code>scale_x_continuous</code>.</p>
-<pre><code class="r">p8 &lt;- p8 + scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 200, 25),
-                              limits=c(0, 200))
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_4-1.png" title="plot of chunk density_4" alt="plot of chunk density_4" style="display: block; margin: auto;" /></p>
 <h3>Adding a&nbsp;title</h3>
 <p>To add a title, we include the option <code>ggtitle</code> and include the name of the graph as a string&nbsp;argument.</p>
-<pre><code class="r">p8 &lt;- p8 + ggtitle(&quot;Density plot of mean ozone&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_5-1.png" title="plot of chunk density_5" alt="plot of chunk density_5" style="display: block; margin: auto;" /></p>
 <h3>Changing the colour of the&nbsp;curves</h3>
 <p>To change the line and fill colours of the density plot, we add a valid colour to the <code>colour</code> and <code>fill</code> arguments in <code>geom_density()</code> (note that I assigned these colours to variables outside of the plot to make it easier to change them). A list of valid colours is <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf">here</a>.</p>
-<pre><code class="r">fill &lt;- &quot;gold1&quot;
-line &lt;- &quot;goldenrod2&quot;
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;gold1&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;goldenrod2&quot;</span>
 
-p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(fill = fill, colour = line) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;)
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_6-1.png" title="plot of chunk density_6" alt="plot of chunk density_6" style="display: block; margin: auto;" /></p>
 <p>If you want to go beyond the options in the list above, you can also specify exact <span class="caps">HEX</span> colours by including them as a string preceded by a hash, e.g., &#8220;#<span class="caps">FFFFFF</span>&#8221;. Below, we have called two shades of blue for the fill and lines using their <span class="caps">HEX</span>&nbsp;codes.</p>
-<pre><code class="r">fill &lt;- &quot;#4271AE&quot;
-line &lt;- &quot;#1F3552&quot;
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(fill = fill, colour = line) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;)
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_7-1.png" title="plot of chunk density_7" alt="plot of chunk density_7" style="display: block; margin: auto;" /></p>
 <p>You can also specify the degree of transparency in the density fill area using the argument <code>alpha</code> in <code>geom_density</code>. This ranges from 0 to&nbsp;1.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(fill = fill, colour = line,
-                     alpha = 0.6) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span>
+                     <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.6</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_8-1.png" title="plot of chunk density_8" alt="plot of chunk density_8" style="display: block; margin: auto;" /></p>
 <h3>Using the white&nbsp;theme</h3>
 <p>As explained in the previous posts, we can also change the overall look of the plot using themes. We&#8217;ll start using a simple theme customisation by adding <code>theme_bw()</code>. As you can see, we can further tweak the graph using the <code>theme</code> option, which we&#8217;ve used so far to change the&nbsp;legend.</p>
-<pre><code class="r">p8 &lt;- p8 + theme_bw()
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">theme_bw</span><span class="p">()</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_9-1.png" title="plot of chunk density_9" alt="plot of chunk density_9" style="display: block; margin: auto;" /></p>
 <h3>Creating an <span class="caps">XKCD</span> style&nbsp;chart</h3>
 <p>Of course, you may want to create your own themes as well. <code>ggplot2</code> allows for a very high degree of customisation, including allowing you to use imported fonts. Below is an example of a theme Mauricio was able to create which mimics the visual style of <a href="http://xkcd.com/"><span class="caps">XKCD</span></a>. In order to create this chart, you first need to import the <span class="caps">XKCD</span> font, install it on your machine and load it into R using the <code>extrafont</code> package.
 These instructions are taken from <a href="https://www.google.com.au/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0ahUKEwiWzafchdPJAhVBpJQKHe_LDT8QFggbMAA&amp;url=https%3A%2F%2Fcran.r-project.org%2Fweb%2Fpackages%2Fxkcd%2Fvignettes%2Fxkcd-intro.pdf&amp;usg=AFQjCNE-KciGY14e-Q1buYIVmTFC0ht__Q&amp;sig2=DZUwkvIHwfNWtTtkcz94jg">here</a>:</p>
-<pre><code class="r">library(extrafont)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
 
-download.file(&quot;http://simonsoftware.se/other/xkcd.ttf&quot;,
-              dest=&quot;xkcd.ttf&quot;, mode=&quot;wb&quot;)
-system(&quot;mkdir ~/.fonts&quot;)
-system(&quot;cp xkcd.ttf  ~/.fonts&quot;)
-font_import(paths = &quot;~/.fonts&quot;, pattern=&quot;[X/x]kcd&quot;)
-fonts()
-loadfonts()
-</code></pre>
+<span class="nf">download.file</span><span class="p">(</span><span class="s">&quot;http://simonsoftware.se/other/xkcd.ttf&quot;</span><span class="p">,</span>
+              <span class="n">dest</span><span class="o">=</span><span class="s">&quot;xkcd.ttf&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;mkdir ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">system</span><span class="p">(</span><span class="s">&quot;cp xkcd.ttf  ~/.fonts&quot;</span><span class="p">)</span>
+<span class="nf">font_import</span><span class="p">(</span><span class="n">paths</span> <span class="o">=</span> <span class="s">&quot;~/.fonts&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s">&quot;[X/x]kcd&quot;</span><span class="p">)</span>
+<span class="nf">fonts</span><span class="p">()</span>
+<span class="nf">loadfonts</span><span class="p">()</span>
+</pre></div>
+
 
 <p>You can then create your&nbsp;graph:</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(colour = &quot;black&quot;, fill = &quot;#56B4E9&quot;) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme(axis.line = element_line(size=1, colour = &quot;black&quot;),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(),
-              panel.background = element_blank(),
-              plot.title=element_text(size = 20, family=&quot;xkcd-Regular&quot;),
-              text=element_text(size = 16, family=&quot;xkcd-Regular&quot;),
-              axis.text.x=element_text(colour=&quot;black&quot;, size = 12),
-              axis.text.y=element_text(colour=&quot;black&quot;, size = 12))
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;#56B4E9&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">plot.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">20</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span>
+              <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">16</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;xkcd-Regular&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">),</span>
+              <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">))</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_10-1.png" title="plot of chunk density_10" alt="plot of chunk density_10" style="display: block; margin: auto;" /></p>
 <h3>Using &#8216;The Economist&#8217;&nbsp;theme</h3>
 <p>There are a wider range of pre-built themes available as part of the <code>ggthemes</code> package (more information on these <a href="https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html">here</a>). Below we&#8217;ve applied <code>theme_economist()</code>, which approximates graphs in the Economist&nbsp;magazine.</p>
-<pre><code class="r">library(ggthemes)
-library(grid)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-fill &lt;- &quot;#4271AE&quot;
-line &lt;- &quot;#1F3552&quot;
+<span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(fill = fill, colour = line) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_economist() +
-        theme(legend.position = &quot;bottom&quot;, legend.direction = &quot;horizontal&quot;,
-              legend.box = &quot;horizontal&quot;,
-              legend.key.size = unit(1, &quot;cm&quot;),
-              plot.title = element_text(family=&quot;Tahoma&quot;),
-              text = element_text(family = &quot;Tahoma&quot;),
-              axis.title = element_text(size = 12),
-              legend.text = element_text(size = 9),
-              legend.title=element_text(face = &quot;bold&quot;, size = 9))
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_economist</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+              <span class="n">legend.box</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
+              <span class="n">legend.key.size</span> <span class="o">=</span> <span class="nf">unit</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;cm&quot;</span><span class="p">),</span>
+              <span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">),</span>
+              <span class="n">legend.text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
+              <span class="n">legend.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">))</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_11-1.png" title="plot of chunk density_11" alt="plot of chunk density_11" style="display: block; margin: auto;" /></p>
 <h3>Creating your own&nbsp;theme</h3>
 <p>As before, you can modify your plots a lot as <code>ggplot2</code> allows many customisations. Here is a custom plot where we have modified the axes, background and&nbsp;font.</p>
-<pre><code class="r">library(grid)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-fill &lt;- &quot;#4271AE&quot;
-lines &lt;- &quot;#1F3552&quot;
+<span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">lines</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p8 &lt;- ggplot(airquality, aes(x = Ozone)) +
-        geom_density(colour = lines, fill = fill,
-                 size = 1) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 200, 25),
-                              limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(axis.line = element_line(size=1, colour = &quot;black&quot;),
-              panel.grid.major = element_line(colour = &quot;#d3d3d3&quot;),
-              panel.grid.minor = element_blank(),
-              panel.border = element_blank(), panel.background = element_blank(),
-              plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text=element_text(family=&quot;Tahoma&quot;),
-              axis.text.x=element_text(colour=&quot;black&quot;, size = 9),
-              axis.text.y=element_text(colour=&quot;black&quot;, size = 9))
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="n">lines</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span>
+                 <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">axis.line</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;black&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.major</span> <span class="o">=</span> <span class="nf">element_line</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#d3d3d3&quot;</span><span class="p">),</span>
+              <span class="n">panel.grid.minor</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">panel.border</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span> <span class="n">panel.background</span> <span class="o">=</span> <span class="nf">element_blank</span><span class="p">(),</span>
+              <span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">family</span><span class="o">=</span><span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
+              <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">))</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_12-1.png" title="plot of chunk density_12" alt="plot of chunk density_12" style="display: block; margin: auto;" /></p>
 <h3>Adding&nbsp;lines</h3>
 <p>Let&#8217;s say that we want to add a cutoff value to the chart (75 parts of ozone per billion). We add the <code>geom_vline</code> option to the chart, and specify where it goes on the x-axis using the <code>xintercept</code> argument. We can customise how it looks using the <code>colour</code> and <code>linetype</code> arguments in <code>geom_vline</code>. (In the the same way, horizontal lines can be added using the <code>geom_hline</code>.)</p>
-<pre><code class="r">fill &lt;- &quot;#4271AE&quot;
-line &lt;- &quot;#1F3552&quot;
+<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="s">&quot;#4271AE&quot;</span>
+<span class="n">line</span> <span class="o">&lt;-</span> <span class="s">&quot;#1F3552&quot;</span>
 
-p8 &lt;- p8 + geom_vline(xintercept = 75, size = 1, colour = &quot;#FF3721&quot;,
-               linetype = &quot;dashed&quot;)
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="n">p8</span> <span class="o">+</span> <span class="nf">geom_vline</span><span class="p">(</span><span class="n">xintercept</span> <span class="o">=</span> <span class="m">75</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#FF3721&quot;</span><span class="p">,</span>
+               <span class="n">linetype</span> <span class="o">=</span> <span class="s">&quot;dashed&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_13-1.png" title="plot of chunk density_13" alt="plot of chunk density_13" style="display: block; margin: auto;" /></p>
 <h3>Multiple&nbsp;densities</h3>
 <p>You can also easily create multiple density plots by the levels of another variable. There are two options, in separate (panel) plots, or in the same plot. There are also a couple of variations on these we&#8217;ll discuss&nbsp;below.</p>
 <p>We first need to do a little data wrangling. In order to make the graphs a bit clearer, we&#8217;ve kept only months &#8220;5&#8221; (May), &#8220;6&#8221; (June) and &#8220;7&#8221; (July) in a new dataset <code>airquality_trimmed</code>. We also need to convert this variable into either a character or factor variable. We have created a new factor variable <code>Month.f</code>.</p>
 <p>In order to produce a panel plot by month, we add the <code>facet_grid(. ~ Month.f)</code> option to the plot. Note that we&#8217;ve also changed the scale of the x-axis to make it fit a little more neatly in the panel&nbsp;format.</p>
-<pre><code class="r">airquality_trimmed &lt;- airquality[which(airquality$Month == 5 |
-                                       airquality$Month == 6 |
-                                       airquality$Month == 7), ]
-airquality_trimmed$Month.f &lt;- factor(airquality_trimmed$Month,
-                                     labels = c(&quot;May&quot;, &quot;June&quot;, &quot;July&quot;))
+<div class="highlight"><pre><span></span><span class="n">airquality_trimmed</span> <span class="o">&lt;-</span> <span class="n">airquality</span><span class="nf">[which</span><span class="p">(</span><span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">5</span> <span class="o">|</span>
+                                       <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">6</span> <span class="o">|</span>
+                                       <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">7</span><span class="p">),</span> <span class="n">]</span>
+<span class="n">airquality_trimmed</span><span class="o">$</span><span class="n">Month.f</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="o">$</span><span class="n">Month</span><span class="p">,</span>
+                                     <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;May&quot;</span><span class="p">,</span> <span class="s">&quot;June&quot;</span><span class="p">,</span> <span class="s">&quot;July&quot;</span><span class="p">))</span>
 
-p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone)) +
-        geom_density(fill = fill, colour = line,
-                     alpha = 0.6) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 50),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;)) +
-        facet_grid(. ~ Month.f)
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span>
+                     <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.6</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">50</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">facet_grid</span><span class="p">(</span><span class="n">. </span><span class="o">~</span> <span class="n">Month.f</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_14-1.png" title="plot of chunk density_14" alt="plot of chunk density_14" style="display: block; margin: auto;" /></p>
 <p>An alternative to a panel plot is the <em>volcano plot</em>. This plot swaps the axes (so the variable of interest is on the y-axis and the density is on the x-axis), and reflects the density. In order to create this plot, we replace <code>geom_density</code> with <code>stat_density</code>, and include the arguments <code>aes(ymax = ..density..,  ymin = -..density..)</code> and <code>geom = "ribbon"</code> to create a density plot, the usual <code>fill</code>, <code>colour</code> and <code>alpha</code> arguments, and <code>position = "identity"</code>. We also need to add a <code>coord_flip()</code> option to the&nbsp;plot.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone)) +
-        stat_density(aes(ymax = ..density..,  ymin = -..density..),
-                     geom = &quot;ribbon&quot;,
-                     fill = fill, colour = line, alpha = 0.6,
-                     position = &quot;identity&quot;) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                              breaks = seq(0, 200, 25),
-                              limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;,
-                           breaks = seq(-0.03, 0.03, 0.03)) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;)) +
-        facet_grid(. ~ Month.f) +
-        coord_flip()
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">stat_density</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">..density..</span><span class="p">,</span>  <span class="n">ymin</span> <span class="o">=</span> <span class="m">-.</span><span class="n">.density..</span><span class="p">),</span>
+                     <span class="n">geom</span> <span class="o">=</span> <span class="s">&quot;ribbon&quot;</span><span class="p">,</span>
+                     <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.6</span><span class="p">,</span>
+                     <span class="n">position</span> <span class="o">=</span> <span class="s">&quot;identity&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                              <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                              <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">-0.03</span><span class="p">,</span> <span class="m">0.03</span><span class="p">,</span> <span class="m">0.03</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">facet_grid</span><span class="p">(</span><span class="n">. </span><span class="o">~</span> <span class="n">Month.f</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">coord_flip</span><span class="p">()</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_15-1.png" title="plot of chunk density_15" alt="plot of chunk density_15" style="display: block; margin: auto;" /></p>
 <p>In order to plot the three months in the same plot, we add several things. Firstly, in the <code>ggplot</code> function, we add a <code>fill = Month.f</code> argument to <code>aes</code>. Secondly, in order to more clearly see the graph, we add the argument <code>position = "identity"</code> to the <code>geom_density</code> option. This controls the position of the curves respectively. Finally, you can customise the colours of the histograms by adding the <code>scale_fill_brewer</code> to the plot from the <code>RColorBrewer</code> package. <a href="http://moderndata.plot.ly/create-colorful-graphs-in-r-with-rcolorbrewer-and-plotly/">This</a> blog post describes the available&nbsp;packages.</p>
-<pre><code class="r">library(RColorBrewer)
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span>
 
-p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone, fill = Month.f)) +
-        geom_density(position=&quot;identity&quot;, alpha=0.6) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;)) +
-        scale_fill_brewer(palette=&quot;Accent&quot;)
-p8
-</code></pre>
+<span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="m">0.6</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_fill_brewer</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s">&quot;Accent&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_16-1.png" title="plot of chunk density_16" alt="plot of chunk density_16" style="display: block; margin: auto;" /></p>
 <p>These densities are a little hard to see. One way we can make it easier to see them is to stack the densities on top of each other. To do so, we swap <code>position = "stack"</code> for <code>position = "identity"</code> in <code>geom_density</code>.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone, fill = Month.f)) +
-        geom_density(position = &quot;stack&quot;, alpha = 0.6) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;)) +
-        scale_fill_brewer(palette=&quot;Accent&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">position</span> <span class="o">=</span> <span class="s">&quot;stack&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="m">0.6</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_fill_brewer</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s">&quot;Accent&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_17-1.png" title="plot of chunk density_17" alt="plot of chunk density_17" style="display: block; margin: auto;" /></p>
 <p>Another way to make it a little easier to see the densities by dropping out the fill. To do this need a few changes. We need to swap the option <code>fill = Month.f</code> in <code>ggplot</code> for <code>colour = Month.f</code>. We add the <code>fill = NA</code> to <code>geom_density</code>, and we&#8217;ve also added <code>size = 1</code> to make it easier to see the lines. Finally, we change the <code>scale_fill_brewer()</code> option for <code>scale_colour_brewer()</code>.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone, colour = Month.f)) +
-        geom_density(position=&quot;identity&quot;, fill = NA, size = 1) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;)) +
-        scale_colour_brewer(palette=&quot;Accent&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">Month.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="kc">NA</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_colour_brewer</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s">&quot;Accent&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_18-1.png" title="plot of chunk density_18" alt="plot of chunk density_18" style="display: block; margin: auto;" /></p>
 <h3>Formatting the&nbsp;legend</h3>
 <p>Finally, we can format the legend. Firstly, we can change the position by adding the <code>legend.position = "bottom"</code> argument to the <code>theme</code> option, which moves the legend under the plot. Secondly, we can fix the title by adding the <code>labs(fill="Month")</code> option to the&nbsp;plot.</p>
-<pre><code class="r">p8 &lt;- ggplot(airquality_trimmed, aes(x = Ozone, colour = Month.f)) +
-        geom_density(position=&quot;identity&quot;, fill = NA, size = 1) +
-        scale_x_continuous(name = &quot;Mean ozone in\nparts per billion&quot;,
-                           breaks = seq(0, 200, 25),
-                           limits=c(0, 200)) +
-        scale_y_continuous(name = &quot;Density&quot;) +
-        ggtitle(&quot;Density plot of mean ozone&quot;) +
-        theme_bw() +
-        theme(plot.title = element_text(size = 14, family = &quot;Tahoma&quot;, face = &quot;bold&quot;),
-              text = element_text(size = 12, family = &quot;Tahoma&quot;),
-              legend.position = &quot;bottom&quot;) +
-        scale_colour_brewer(palette=&quot;Accent&quot;) +
-        labs(colour = &quot;Month&quot;)
-p8
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p8</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">airquality_trimmed</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="n">Month.f</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">geom_density</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="kc">NA</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Mean ozone in\nparts per billion&quot;</span><span class="p">,</span>
+                           <span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">,</span> <span class="m">25</span><span class="p">),</span>
+                           <span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">200</span><span class="p">))</span> <span class="o">+</span>
+        <span class="nf">scale_y_continuous</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Density&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Density plot of mean ozone&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
+        <span class="nf">theme</span><span class="p">(</span><span class="n">plot.title</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">14</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">,</span> <span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">),</span>
+              <span class="n">text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">12</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s">&quot;Tahoma&quot;</span><span class="p">),</span>
+              <span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">scale_colour_brewer</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="s">&quot;Accent&quot;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="nf">labs</span><span class="p">(</span><span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;Month&quot;</span><span class="p">)</span>
+<span class="n">p8</span>
+</pre></div>
+
 
 <p><img src="/figure/density_19-1.png" title="plot of chunk density_19" alt="plot of chunk density_19" style="display: block; margin: auto;" /></p>
         <hr class="divider-short"/>

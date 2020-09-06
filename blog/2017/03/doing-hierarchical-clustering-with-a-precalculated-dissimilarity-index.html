@@ -78,59 +78,68 @@
         </div>
         <p>Hierarchical clustering functionality in R is great, right? Between <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/dist.html"><code>dist</code></a> and <a href="http://cc.oulu.fi/~jarioksa/softhelp/vegan/html/vegdist.html"><code>vegdist</code></a> it is possible to base your clustering on almost any method you want, from cosine to <a href="https://blog.csiro.au/going-nuts-with-the-canberra-distance/">Canberra</a>. However, what if you do want to use a different or custom method, and you&#8217;ve already calculated the distances separately? All of the documentation for the <code>hclust</code> function asks you to start with raw data from which R can calculate the distances between pairs. How do you get <code>hclust</code> to read in pre-calculated distance&nbsp;scores?</p>
 <p>In this example, let&#8217;s say I&#8217;ve already manually calculated the <a href="https://en.wikipedia.org/wiki/Jaccard_index">Jaccard dissimilarity</a> between each pair of cars from the <code>mtcars</code> dataset, and put them in a data.frame called <code>carJaccard</code>.</p>
-<pre><code class="r">head(carJaccard)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">head</span><span class="p">(</span><span class="n">carJaccard</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>##                car1      car2 jaccardDissimilarity
-## 1         Mazda RX4 Mazda RX4          0.000000000
-## 2     Mazda RX4 Wag Mazda RX4          0.002471232
-## 3        Datsun 710 Mazda RX4          0.237474920
-## 4    Hornet 4 Drive Mazda RX4          0.251866514
-## 5 Hornet Sportabout Mazda RX4          0.461078746
-## 6           Valiant Mazda RX4          0.211822414
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="err">##                car1      car2 jaccardDissimilarity</span>
+<span class="err">## 1         Mazda RX4 Mazda RX4          0.000000000</span>
+<span class="err">## 2     Mazda RX4 Wag Mazda RX4          0.002471232</span>
+<span class="err">## 3        Datsun 710 Mazda RX4          0.237474920</span>
+<span class="err">## 4    Hornet 4 Drive Mazda RX4          0.251866514</span>
+<span class="err">## 5 Hornet Sportabout Mazda RX4          0.461078746</span>
+<span class="err">## 6           Valiant Mazda RX4          0.211822414</span>
+</pre></div>
+
 
 <p>So how do we get <code>hclust</code> to recognise this as a distance matrix? The first step is to reshape this data.frame into a regular matrix. We can do this using <code>acast</code> from the <code>reshape2</code> package.</p>
-<pre><code class="r">library(reshape2)
-regularMatrix &lt;- acast(carJaccard, car1 ~ car2, value.var = &quot;jaccardDissimilarity&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">reshape2</span><span class="p">)</span>
+<span class="n">regularMatrix</span> <span class="o">&lt;-</span> <span class="nf">acast</span><span class="p">(</span><span class="n">carJaccard</span><span class="p">,</span> <span class="n">car1</span> <span class="o">~</span> <span class="n">car2</span><span class="p">,</span> <span class="n">value.var</span> <span class="o">=</span> <span class="s">&quot;jaccardDissimilarity&quot;</span><span class="p">)</span>
+</pre></div>
+
 
 <p>We now need to convert this into a distance matrix. The first step is to make sure that we don&#8217;t have any <span class="caps">NA</span>&#8217;s in the matrix, which happens when you have pairings created in your matrix that don&#8217;t exist in your dataframe of dissimilarity scores. If there are any, these should be replaced with whatever value indicates complete dissimilarity for your chosen metric (in the case of Jaccard dissimilarity, this is&nbsp;1).</p>
-<pre><code class="r">regularMatrix[is.na(regularMatrix)] &lt;- 1
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">regularMatrix</span><span class="nf">[is.na</span><span class="p">(</span><span class="n">regularMatrix</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="m">1</span>
+</pre></div>
+
 
 <p>We are now able to convert our matrix into a distance matrix like&nbsp;so:</p>
-<pre><code class="r">distanceMatrix &lt;- as.dist(regularMatrix)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">distanceMatrix</span> <span class="o">&lt;-</span> <span class="nf">as.dist</span><span class="p">(</span><span class="n">regularMatrix</span><span class="p">)</span>
+</pre></div>
+
 
 <p>Let&#8217;s throw it into <code>hclust</code> and see how we&nbsp;went!</p>
-<pre><code class="r">clusters &lt;- hclust(distanceMatrix, method = &quot;ward.D2&quot;)
-plot(clusters)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">clusters</span> <span class="o">&lt;-</span> <span class="nf">hclust</span><span class="p">(</span><span class="n">distanceMatrix</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&quot;ward.D2&quot;</span><span class="p">)</span>
+<span class="nf">plot</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img src="/figure/cars_dendrogram-1.png" title="Clustered cars!" style="display: block; margin: auto;" /></p>
 <p>Great! As you can see from the dendogram above, we&#8217;ve ended up with what looks to be some fairly sensible looking clusters (well, at least to someone like me that knows nothing about cars - the ones with the same names are together so that looks&nbsp;good!).</p>
 <p>We can also use the results of our clustering exercise to create groups based on a selected cutoff using the <code>cutree</code> function from the <code>stats</code> package. Looking at the dendrogram above, 0.5 looks like it will get us a good number of&nbsp;groups:</p>
-<pre><code class="r">group &lt;- cutree(clusters, h = 0.5)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">group</span> <span class="o">&lt;-</span> <span class="nf">cutree</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="m">0.5</span><span class="p">)</span>
+</pre></div>
+
 
 <p>(As an aside, you can also specify the number of groups you want using the <code>k</code> argument in <code>cutree</code> rather than the <code>h</code>, or height, argument. Check out <code>help(cutree)</code> for more details on&nbsp;this.)</p>
 <p>The output of <code>cutree</code> looks &#8230; weird. Where are our groups? Never fear, we just need to take one final step in order to connect up our groupings with our car&nbsp;names.</p>
-<pre><code class="r">groups &lt;- as.data.frame(group)
-groups$cars &lt;- rownames(groups)
-rownames(groups) &lt;- NULL
-groups &lt;- groups[order(groups$group), ]
-head(groups)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">groups</span> <span class="o">&lt;-</span> <span class="nf">as.data.frame</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+<span class="n">groups</span><span class="o">$</span><span class="n">cars</span> <span class="o">&lt;-</span> <span class="nf">rownames</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+<span class="nf">rownames</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="kc">NULL</span>
+<span class="n">groups</span> <span class="o">&lt;-</span> <span class="n">groups</span><span class="nf">[order</span><span class="p">(</span><span class="n">groups</span><span class="o">$</span><span class="n">group</span><span class="p">),</span> <span class="n">]</span>
+<span class="nf">head</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>##    group          cars
-## 1      1     Mazda RX4
-## 2      1 Mazda RX4 Wag
-## 3      1    Datsun 710
-## 8      1     Merc 240D
-## 9      1      Merc 230
-## 10     1      Merc 280
-</code></pre>
+
+<div class="highlight"><pre><span></span><span class="err">##    group          cars</span>
+<span class="err">## 1      1     Mazda RX4</span>
+<span class="err">## 2      1 Mazda RX4 Wag</span>
+<span class="err">## 3      1    Datsun 710</span>
+<span class="err">## 8      1     Merc 240D</span>
+<span class="err">## 9      1      Merc 230</span>
+<span class="err">## 10     1      Merc 280</span>
+</pre></div>
+
 
 <p>As you can see, we just need to convert the results of <code>cutree</code> to a data.frame, which has the car names as the row names. In order to make it a bit neater, I&#8217;ve pulled the car names out into a column and ordered them based on the&nbsp;clusters.</p>
 <p>As a final note, you may have noticed that I kept referring to <strong>dissimilarity</strong> scores in this post - this is for good reason! <code>hclust</code> is based on dissimilarity between pairs, rather than their similarity. I made this mistake the first time I used it and ended up with, to my puzzlement, a set of groups containing the most disparate pairs in the whole dataset! So learn from my foolishness and make sure you are using dissimilarity scores from the&nbsp;outset.</p>

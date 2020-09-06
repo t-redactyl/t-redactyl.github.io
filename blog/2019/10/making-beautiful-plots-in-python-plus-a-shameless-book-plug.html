@@ -89,16 +89,17 @@
 <p>The package also includes the useful faceting functions that are used in <code>ggplot2</code>, so you can create subplots like the one&nbsp;below.</p>
 <p><img src="/figure/plotnine_boxplot.png" title="Boxplot" style="display: block; margin: auto;" /></p>
 <p>Hassan has made the syntax of <code>plotnine</code> as close to that of <code>ggplot2</code> as possible, so the overall experience is quite intuitive for someone who is familiar with using <code>ggplot2</code>. For example, in order to create a histogram with a customised title and axis labels, as in the code below, you can see that you use the same <code>ggplot()</code> and <code>geom_histogram()</code> functions to create the plot that you would use in R. You can also see that, like in R, you can specify the metric used by the histogram, its binwidth, and the spacing of the x-axis, although you can see we&#8217;ve used <code>numpy</code><span class="quo">&#8216;</span>s <code>arange</code> function to create the breaks rather than the <code>seq</code> function you might use in R. Finally, <code>plotnine</code> uses the same <code>ggtitle</code>, <code>xlab</code> and <code>ylab</code> functions to allow you to label your title and your&nbsp;axes.</p>
-<pre><code class="python">p7 = (
-  ggplot(diamonds, aes(&quot;price&quot;)) 
-  + geom_histogram(aes(y=&quot;..count..&quot;), binwidth=500) 
-  + scale_x_continuous(breaks=np.arange(0, 22500, 2500)) 
-  + ggtitle(&quot;Price of diamonds by carat&quot;) 
-  + xlab(&quot;Price of diamond (US$)&quot;) 
-  + ylab(&quot;Frequency of price&quot;)
-     )
-p7
-</code></pre>
+<div class="highlight"><pre><span></span><span class="n">p7</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;price&quot;</span><span class="p">))</span> 
+  <span class="o">+</span> <span class="n">geom_histogram</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="s2">&quot;..count..&quot;</span><span class="p">),</span> <span class="n">binwidth</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">22500</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span> 
+  <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by carat&quot;</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Price of diamond (US$)&quot;</span><span class="p">)</span> 
+  <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Frequency of price&quot;</span><span class="p">)</span>
+     <span class="p">)</span>
+<span class="n">p7</span>
+</pre></div>
+
 
 <p><img src="/figure/plotnine_histogram.png" title="Histogram" style="display: block; margin: auto;" /></p>
 <p>Overall, I really recommend <code>plotnine</code> as an alternative to <code>matplotlib</code>  in Python, especially for when you need to create presentation-ready charts. <a href="https://leanpub.com/plotnine-guide">Our book</a> is available on Leanpub, should you need some extra help learning how to use the package or want to push your charts to the next level. Finally, I want to give a huge thanks to Hassan for all of his hard work in building and maintaining this wonderful implementation of <code>ggplot2</code> in&nbsp;Python!</p>

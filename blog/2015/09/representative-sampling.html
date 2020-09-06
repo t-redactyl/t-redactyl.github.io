@@ -85,14 +85,15 @@
 <h2>Choosing a representative&nbsp;sample</h2>
 <h3>Sample&nbsp;size</h3>
 <p>Sample size is a key element to representative sampling as it increases your chances of gaining sufficient information about the population, rather than having your statistics influenced by anomalous observations. For example, imagine if by chance we sampled a much higher than average value. Let&#8217;s see how this influences a sample of 30 page views compared to a sample of 10. We&#8217;ll generate samples drawn from a Poisson distribution with a mean of 220 views per day, and add an outlier of 260 views per day to&nbsp;each:</p>
-<pre><code class="r">set.seed(567)
+<div class="highlight"><pre><span></span><span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
 
-# Sample of 30 (29 from the Poisson distribution and an outlier of 260)
-sample1 &lt;- c(rpois(29, lambda = 220), 260)
+<span class="c1"># Sample of 30 (29 from the Poisson distribution and an outlier of 260)</span>
+<span class="n">sample1</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rpois</span><span class="p">(</span><span class="m">29</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">),</span> <span class="m">260</span><span class="p">)</span>
 
-# Sample of 10 (9 from the Poisson distribution and an outlier of 260)
-sample2 &lt;- c(rpois(9, lambda = 220), 260)
-</code></pre>
+<span class="c1"># Sample of 10 (9 from the Poisson distribution and an outlier of 260)</span>
+<span class="n">sample2</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rpois</span><span class="p">(</span><span class="m">9</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">),</span> <span class="m">260</span><span class="p">)</span>
+</pre></div>
+
 
 <p>Compared to the population mean, the mean of the sample of 30 is 221.5 whereas the mean of the sample of 10 is 224.4. As you can see, the smaller sample is far more influenced by the extreme value than the larger&nbsp;one. </p>
 <p>A sufficient sample size depends on a lot of things. For example, if the event we were trying to describe was rare (e.g., 1 event per 100 days), a sample of 30 would likely be too small to assess its mean occurrence. When conducting hypothesis testing, the correct sample size is generally calculated using <a href="https://en.wikipedia.org/wiki/Statistical_power"><strong>power</strong></a> calculations, something I won&#8217;t get into here as it can get veeeeery&nbsp;complicated.</p>
@@ -100,20 +101,21 @@ sample2 &lt;- c(rpois(9, lambda = 220), 260)
 <h3>Representativeness</h3>
 <p>However, a sufficient sample size won&#8217;t be enough if the data are not representative. Representativeness means that the data are sampled from all observations in the population and excludes anything that is outside the population. Representativeness is violated when the sample is biased to a subset of the population or when the sample includes observations from outside the population of&nbsp;interest.</p>
 <p>Let&#8217;s simulate the number of page views our website received per day in 2014. As you can see in the R code below, I&#8217;ve included increased page views for our peak periods of Easter, Black Friday/Christmas, and the post-Christmas&nbsp;sales. </p>
-<pre><code class="r"># Simulate some data for 2014, with mean page views of 220 per day.
-days &lt;- seq(as.Date(&quot;2014/1/1&quot;), as.Date(&quot;2014/12/31&quot;), &quot;days&quot;)
-page.views &lt;- rpois(365, lambda = 220)
-views &lt;- data.frame(days, page.views)
+<div class="highlight"><pre><span></span><span class="c1"># Simulate some data for 2014, with mean page views of 220 per day.</span>
+<span class="n">days</span> <span class="o">&lt;-</span> <span class="nf">seq</span><span class="p">(</span><span class="nf">as.Date</span><span class="p">(</span><span class="s">&quot;2014/1/1&quot;</span><span class="p">),</span> <span class="nf">as.Date</span><span class="p">(</span><span class="s">&quot;2014/12/31&quot;</span><span class="p">),</span> <span class="s">&quot;days&quot;</span><span class="p">)</span>
+<span class="n">page.views</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">365</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
+<span class="n">views</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">page.views</span><span class="p">)</span>
 
-# Generate post Christmas sale peak period (January 1-10) with mean page views of 400 per day.
-views$page.views[views$days &gt;= &quot;2014/01/01&quot; &amp; views$days &lt;= &quot;2014/01/10&quot;] &lt;- rpois(10, lambda = 400)
+<span class="c1"># Generate post Christmas sale peak period (January 1-10) with mean page views of 400 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/01/01&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/01/10&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">10</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">400</span><span class="p">)</span>
 
-# Generate Easter peak period (April 1-21) with mean page views of 350 per day.
-views$page.views[views$days &gt;= &quot;2014/04/01&quot; &amp; views$days &lt;= &quot;2014/04/21&quot;] &lt;- rpois(21, lambda = 350)
+<span class="c1"># Generate Easter peak period (April 1-21) with mean page views of 350 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/04/01&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/04/21&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">21</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">350</span><span class="p">)</span>
 
-# Generate Black Friday and Christmas peak periods (November 28-December 31) mean page views of 500 per day.
-views$page.views[views$days &gt;= &quot;2014/11/28&quot; &amp; views$days &lt;= &quot;2014/12/31&quot;] &lt;- rpois(34, lambda = 500)
-</code></pre>
+<span class="c1"># Generate Black Friday and Christmas peak periods (November 28-December 31) mean page views of 500 per day.</span>
+<span class="n">views</span><span class="o">$</span><span class="n">page.views[views</span><span class="o">$</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="s">&quot;2014/11/28&quot;</span> <span class="o">&amp;</span> <span class="n">views</span><span class="o">$</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="s">&quot;2014/12/31&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">34</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">500</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img alt="plot of chunk ggplot2_chunk" src="/figure/ggplot2_chunk-1.png"> </p>
 <p>If you look at the graph above, you can see that for most of the year the page views sit fairly consistently around a mean of 220 (as shown in the dotted black line). If we sampled any time outside of the peak periods, we would be pretty safe in assuming we have a representative sample. However, what if we sampled between March 15 and April 14? We would catch some of the Easter peak period in our sample and our sample would no longer represent typical (non-peak) daily page views - instead, we would overestimate our page views by including observations from the peak period population in our&nbsp;sample.</p>

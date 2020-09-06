@@ -88,28 +88,30 @@
 <h2>What did I&nbsp;do?</h2>
 <p>As I spoke about in the last post, one of the biggest issues you will face with remembering what you did in your analysis is if you do things manually. As with Python, R has some great functionality for downloading data from online sources and cleaning up those data once you&#8217;ve imported&nbsp;them.</p>
 <p>It&#8217;s straightforward to access structured data from online sources and import them into R as data.frames. Below, I&#8217;ve created a function to download the .csv file containing the life expectancy data that I talked about in the last post. As you can see, you only need to use a couple of commands (the <code>getURL</code> and <code>textConnection</code> commands from the RCurl package). As well as being easy, it is completely&nbsp;reproducible!</p>
-<pre><code class="r">install.packages(&quot;RCurl&quot;); library(RCurl)
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;RCurl&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">RCurl</span><span class="p">)</span>
 
-dataImport &lt;- function(dataurl) {
-  url &lt;- dataurl
-  dl &lt;- getURL(dataurl, ssl.verifyhost=FALSE, ssl.verifypeer=FALSE)
-  read.csv(textConnection(dl), header=T)
-}
+<span class="n">dataImport</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">dataurl</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">url</span> <span class="o">&lt;-</span> <span class="n">dataurl</span>
+  <span class="n">dl</span> <span class="o">&lt;-</span> <span class="nf">getURL</span><span class="p">(</span><span class="n">dataurl</span><span class="p">,</span> <span class="n">ssl.verifyhost</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">,</span> <span class="n">ssl.verifypeer</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+  <span class="nf">read.csv</span><span class="p">(</span><span class="nf">textConnection</span><span class="p">(</span><span class="n">dl</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="bp">T</span><span class="p">)</span>
+<span class="p">}</span>
 
-life &lt;- dataImport(&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;)
-</code></pre>
+<span class="n">life</span> <span class="o">&lt;-</span> <span class="nf">dataImport</span><span class="p">(</span><span class="s">&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;</span><span class="p">)</span>
+</pre></div>
+
 
 <p>R also has great functionality for cleaning up datasets. Below, you can see I was able to create a short function using only commands from base R to select the appropriate subset of columns and rows in our newly imported dataset, as well as rename the remaining&nbsp;columns.</p>
-<pre><code class="r">cleaningData &lt;- function(data, startrow, columnyear, year, colsToKeep, columnNames) {
-  df &lt;- data[c(startrow:nrow(data)) &amp; data[[columnyear]] == year, ]
-  df &lt;- df[ , colsToKeep]
-  names(df) &lt;- columnNames
-  df
-}
+<div class="highlight"><pre><span></span><span class="n">cleaningData</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">startrow</span><span class="p">,</span> <span class="n">columnyear</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">colsToKeep</span><span class="p">,</span> <span class="n">columnNames</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">df</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="nf">[c</span><span class="p">(</span><span class="n">startrow</span><span class="o">:</span><span class="nf">nrow</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">data[[columnyear]]</span> <span class="o">==</span> <span class="n">year</span><span class="p">,</span> <span class="n">]</span>
+  <span class="n">df</span> <span class="o">&lt;-</span> <span class="n">df[</span> <span class="p">,</span> <span class="n">colsToKeep]</span>
+  <span class="nf">names</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="n">columnNames</span>
+  <span class="n">df</span>
+<span class="p">}</span>
 
-life &lt;- cleaningData(life, 2, &quot;X.1&quot;, &quot; 2015&quot;, c(&quot;X&quot;, &quot;X.1&quot;, &quot;Life.expectancy.at.birth..years.&quot;),
-                      c(&quot;Country&quot;, &quot;Year&quot;, &quot;LifeExpectancy&quot;))
-</code></pre>
+<span class="n">life</span> <span class="o">&lt;-</span> <span class="nf">cleaningData</span><span class="p">(</span><span class="n">life</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="s">&quot;X.1&quot;</span><span class="p">,</span> <span class="s">&quot; 2015&quot;</span><span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;X&quot;</span><span class="p">,</span> <span class="s">&quot;X.1&quot;</span><span class="p">,</span> <span class="s">&quot;Life.expectancy.at.birth..years.&quot;</span><span class="p">),</span>
+                      <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Country&quot;</span><span class="p">,</span> <span class="s">&quot;Year&quot;</span><span class="p">,</span> <span class="s">&quot;LifeExpectancy&quot;</span><span class="p">))</span>
+</pre></div>
+
 
 <h2>Why did I do&nbsp;it?</h2>
 <p>Like Python, R has its own tooling for literate statistical programming called <a href="http://rmarkdown.RStudio.com/">R Markdown</a>. Just like with Juypter notebooks, you can write chunks of markdown text alongside R code, meaning you can create easy-to-read, meaningful annotations for your analysis. You can also include results, tables and charts, allowing you to create reports and other documents from one self-contained R Markdown script. In fact, <a href="https://twitter.com/pachamaltese">Mauricio</a> and I wrote <a href="https://leanpub.com/hitchhikers_ggplot2">our book</a> on graphing in ggplot2 entirely using R&nbsp;Markdown!</p>
@@ -119,11 +121,12 @@ life &lt;- cleaningData(life, 2, &quot;X.1&quot;, &quot; 2015&quot;, c(&quot;X&q
 <p>R Markdown documents automatically start with a template. As you can see, there are two types of code within an R Markdown document. Code is placed within chunks, which are delimited by backticks and <code>{r}</code>. There are <a href="http://rmarkdown.RStudio.com/authoring_rcodechunks.html">many options</a> available that allow you to customise how the code is presented and run within the chunks, but the default is that they will simply run whatever R code is inside them. Outside of the chunks, any text written is recognised as markdown. To run an R Markdown document,  press the &#8216;Knit <span class="caps">HTML</span>&#8217; button at the top of the document. This renders the markdown and executes the R code, and spits it out in an <span class="caps">HTML</span>&nbsp;document.</p>
 <p><img src="/figure/rmarkdown_example_1.png" title="The default Rmd example file" style="display: block; margin: auto;" /></p>
 <p>You can export R Markdown documents in a variety of formats, which you can control by using the <code>knit</code> function within the <a href="https://cran.r-project.org/web/packages/knitr/knitr.pdf">knitr</a> package. To do this, we feed in our R Markdown file as the input, and specify the name of your rendered file and the desired format as the output. Here, I&#8217;m rendering our example document as a regular markdown&nbsp;file:</p>
-<pre><code class="r">install.packages(&quot;knitr&quot;); library(knitr)
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;knitr&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">knitr</span><span class="p">)</span>
 
-knit(&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.Rmd&quot;, 
-     output = &quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.md&quot;)
-</code></pre>
+<span class="nf">knit</span><span class="p">(</span><span class="s">&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.Rmd&quot;</span><span class="p">,</span> 
+     <span class="n">output</span> <span class="o">=</span> <span class="s">&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.md&quot;</span><span class="p">)</span>
+</pre></div>
+
 
 <p>And it&#8217;s really that simple! You can see how easily you can integrate literate statistical programming into your usual RStudio&nbsp;workflow. </p>
 <h2>How did I set it&nbsp;up?</h2>
@@ -132,16 +135,18 @@ knit(&quot;/Users/jodieburchell/Documents/r-reproducible/R Markdown example.Rmd&
 <h3>How do I set up a packrat&nbsp;file?</h3>
 <p>I&#8217;ll run through how to set up a packrat directory as part on an RStudio project, but <a href="https://RStudio.github.io/packrat/walkthrough.html">there</a> is also a great tutorial by RStudio on how to do so independent of a&nbsp;project.</p>
 <p>The first step is to globally install packrat on your&nbsp;machine.</p>
-<pre><code class="r">install.packages(&quot;packrat&quot;)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;packrat&quot;</span><span class="p">)</span>
+</pre></div>
+
 
 <p>Once you&#8217;ve done that, restart RStudio. This should be the only time you need to do this. Once you&#8217;re back in RStudio, create a new RStudio project in a new directory (instructions on how to do this <a href="https://support.RStudio.com/hc/en-us/articles/200526207-Using-Projects">here</a>). At this point, you&#8217;ll be asked to name your new project, and most importantly, indicate whether you want to make it a packrat project. As you can see below, it is as simple as ticking a box to initialise your packrat&nbsp;directory!</p>
 <p><img src="/figure/packrat_setup_1.png" title="Setting up a packrat project" alt="Look, it's easy!" #style="display: block; margin: auto;" /></p>
 <p>Once we&#8217;ve created our new RStudio project with packrat, you can see we have a new folder in our directory called &#8216;packrat&#8217;. Among other things, this is where your lock file lives that keeps track of all of the packages you&nbsp;install.</p>
 <p><img src="/figure/packrat_setup_2.png" title="Your new packrat project" alt="Check out the new packrat folder!" style="display: block; margin: auto;" /></p>
 <p>Installing libraries is super simple - while we are in our project we can use the regular <code>install.packages</code> command, and it will keep the installation limited to this specific project. Let&#8217;s install&nbsp;ggplot2.</p>
-<pre><code class="r">install.packages(&quot;ggplot2&quot;); library(ggplot2)
-</code></pre>
+<div class="highlight"><pre><span></span><span class="nf">install.packages</span><span class="p">(</span><span class="s">&quot;ggplot2&quot;</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+</pre></div>
+
 
 <p>If you&#8217;re following along, you can see that even if you have ggplot2 system installed, R ignores this and does a clean installation. This is because it cannot access your globally-installed version of ggplot2 and needs to install it from&nbsp;scratch.</p>
 <p>RStudio projects with packrat are set up with automatic snapshots, meaning that packrat keeps track of any changes you make to your project dependencies without you needing to explicitly snapshot them&nbsp;yourself.</p>
