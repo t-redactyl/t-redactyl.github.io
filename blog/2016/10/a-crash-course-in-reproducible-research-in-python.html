@@ -97,44 +97,42 @@
 <h2>What did I&nbsp;do?</h2>
 <p>One of the biggest tripping points when you come back to an analysis is remembering everything you did, and this is made much worse if you have any point-and-click&nbsp;steps.</p>
 <p>A common task you might find yourself normally doing manually is downloading your data. However, its really easy to lose track of where you get data from, and which file you actually used. Instead, <a href="http://pandas.pydata.org/">Pandas</a> has a number of great functions that allow you to download data directly from the web. Below, I&#8217;ve used the <code>read_csv</code> function to download a dataset directly from the <span class="caps">WHO</span> website. Note that I&#8217;ve also included the date that I downloaded the dataset, as well as the website from which I sourced it in the&nbsp;comments.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<pre><code class="python">from pandas import Series, DataFrame
+import pandas as pd
 
-<span class="c1"># Import life expectancy and predictor data from World Health Organisation Global</span>
-<span class="c1"># Health Observatory data repo (http://www.who.int/gho/en/)</span>
-<span class="c1"># Downloaded on 10th September, 2016</span>
-<span class="k">def</span> <span class="nf">dataImport</span><span class="p">(</span><span class="n">dataurl</span><span class="p">):</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">dataurl</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+# Import life expectancy and predictor data from World Health Organisation Global
+# Health Observatory data repo (http://www.who.int/gho/en/)
+# Downloaded on 10th September, 2016
+def dataImport(dataurl):
+    url = dataurl
+    return pd.read_csv(url)
 
-<span class="c1"># 1. Life expectancy (from: http://apps.who.int/gho/data/node.main.688?lang=en)</span>
-<span class="n">life</span> <span class="o">=</span> <span class="n">dataImport</span><span class="p">(</span><span class="s2">&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;</span><span class="p">)</span>
-</pre></div>
-
+# 1. Life expectancy (from: http://apps.who.int/gho/data/node.main.688?lang=en)
+life = dataImport(&quot;http://apps.who.int/gho/athena/data/xmart.csv?target=GHO/WHOSIS_000001,WHOSIS_000015&amp;profile=crosstable&amp;filter=COUNTRY:*&amp;x-sideaxis=COUNTRY;YEAR&amp;x-topaxis=GHO;SEX&quot;)
+</code></pre>
 
 <p>Another task that might be tempting to do by hand is editing your data. We&#8217;ve all been in those situations where we think, &#8220;I&#8217;ll only need to do this once, it will be much faster to do this manually!&#8221; Unfortunately, it never ends up being just once, and its also <strong>really</strong> hard to remember what you did&nbsp;later. </p>
 <p>It is relatively simple to do all of your data cleaning and manipulation in Python. Those of you who have worked with data before will know how wonderful Pandas is for data manipulation, and it’s pretty straightforward to couple Pandas functions with basic Python to do all of your standard data cleaning tasks. Below I&#8217;ve built a function that keeps a subset of columns, keeps a subset of rows, and also cleans up string columns with extra characters and converts them into&nbsp;numerics. </p>
-<div class="highlight"><pre><span></span><span class="c1"># Create function for cleaning each imported DataFrame</span>
-<span class="k">def</span> <span class="nf">cleaningData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rowsToKeep</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">colsToDrop</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">varNames</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">colsToConvert</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">year</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">rowsToKeep</span> <span class="p">:</span> <span class="p">]</span>
-    <span class="k">if</span> <span class="n">colsToDrop</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">colsToDrop</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<pre><code class="python"># Create function for cleaning each imported DataFrame
+def cleaningData(data, rowsToKeep, outcome, colsToDrop = [], varNames = [], colsToConvert = [], year = None):
+    d = data.ix[rowsToKeep : ]
+    if colsToDrop:
+        d = d.drop(d.columns[colsToDrop], axis = 1)
 
-    <span class="n">d</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">varNames</span>
+    d.columns = varNames
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;\[&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; [&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">outcome</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    if (d[outcome].dtype == 'O'):
+        if (d[outcome].str.contains(&quot;\[&quot;).any()):
+            d[outcome] = d[outcome].apply(lambda x: x.split(' [')[0])
+            d[outcome] = d[outcome].str.replace(' ', '')
 
-    <span class="n">d</span><span class="p">[</span><span class="n">colsToConvert</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">colsToConvert</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">))</span>
+    d[colsToConvert] = d[colsToConvert].apply(lambda x: pd.to_numeric(x, errors ='coerce'))
 
-    <span class="k">if</span> <span class="s1">&#39;Year&#39;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span>
-        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">d</span>
-</pre></div>
-
+    if 'Year' in list(d.columns.values):
+        d = d.loc[d['Year'] == year]
+        del d['Year']
+    return d
+</code></pre>
 
 <p>(As an aside, if you find that you&#8217;re struggling with the documentation for Pandas you might find Wes McKinney&#8217;s <a href="http://shop.oreilly.com/product/0636920023784.do">Python for Data Analysis</a> useful. It&#8217;s written by the author of the Pandas package, and is my go to guide whenever I get stuck trying to implement&nbsp;something.)</p>
 <p>The final step for making sure you know what you did is the very boring, but necessary step of cleaning house after you&#8217;ve finalised your analysis. Make sure you make a <strong>tidy script</strong> when you&#8217;re done that contains only those analyses needed to produce your final report or paper or whatever you&#8217;re producing the analysis&nbsp;for.</p>
@@ -147,14 +145,12 @@
 <p>What this translates into is lovely, easy to read sections of text that sit along their corresponding chunks of code. In Python, a really nice way to implement literate (statistical) programming is using <a href="http://jupyter.org/">Jupyter notebooks</a>. These are browser-based documents that allow you to interactively run code as well as input text, images, tables and dynamic visualisations. The text sections are written in <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a>, which means you can use nice formatting features like headings, bullet points and simple tables. <a href="https://github.com/t-redactyl/life-expectancy-analysis/blob/master/Tidy%20script%20with%20literate%20programming.ipynb">Here</a> is an example of the life expectancy analysis done in a Jupyter notebook, to give an example of how much clearer it makes&nbsp;documentation.</p>
 <h3>How do I make a Jupyter&nbsp;notebook?</h3>
 <p>It is super simple to make a Jupyter notebook. To start, open up your terminal and navigate to your analysis directory. If you haven&#8217;t already, make sure you now install the Jupyter&nbsp;package:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">jupyter</span>
-</pre></div>
-
+<pre><code class="python">!pip install jupyter
+</code></pre>
 
 <p>Now we can launch Jupyter, which will open in your default&nbsp;browser:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">jupyter</span> <span class="n">notebook</span>
-</pre></div>
-
+<pre><code class="python">!jupyter notebook
+</code></pre>
 
 <p>To start a new notebook, simply click on ‘New’ and select ‘Python 2’ under ‘Notebooks’ in the resultant dropdown menu, as&nbsp;below:</p>
 <p><img src="/figure/Jupyter_screenshot_2.png" title="Starting new Jupyter notebook" alt="This is how to start a new Jupyter notebook" style="display: block; margin: auto;" /></p>
@@ -184,64 +180,54 @@
 3. Set up <a href="https://help.github.com/articles/set-up-git/">Github authentication</a> on your&nbsp;machine.  </p>
 <p>Once you are set up with both Git and Github, the first thing to do is create a remote repo for a new project (see <a href="https://help.github.com/articles/creating-a-new-repository/">here</a> for an excellent guide on how to do so). You then need to <strong>clone</strong> a local copy of this repo to your machine, <a href="https://help.github.com/articles/cloning-a-repository/">like so</a>.</p>
 <p>Once we have our local repo, we can start working on our new Python project. Let&#8217;s say we create a new Jupyter notebook (or any kind of code file!), and start work on it. At any point (the more frequently the better), we can make a commit. In order to do so, open the terminal and navigate to the local repo for this project. We then check which files Git is keeping track of (or not) by&nbsp;typing:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">status</span>
-</pre></div>
+<pre><code class="python">!git status
+</code></pre>
 
+<pre><code>On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
 
-<div class="highlight"><pre><span></span><span class="k">On</span> <span class="n">branch</span> <span class="n">master</span>
-<span class="n">Your</span> <span class="n">branch</span> <span class="k">is</span> <span class="n">ahead</span> <span class="k">of</span> <span class="s1">&#39;origin/master&#39;</span> <span class="k">by</span> <span class="mi">2</span> <span class="n">commits</span><span class="p">.</span>
-  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git push&quot;</span> <span class="k">to</span> <span class="n">publish</span> <span class="n">your</span> <span class="k">local</span> <span class="n">commits</span><span class="p">)</span>
-<span class="n">Changes</span> <span class="k">not</span> <span class="n">staged</span> <span class="k">for</span> <span class="k">commit</span><span class="p">:</span>
-  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="k">update</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="k">committed</span><span class="p">)</span>
-  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git checkout -- &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="n">discard</span> <span class="n">changes</span> <span class="k">in</span> <span class="n">working</span> <span class="n">directory</span><span class="p">)</span>
+    [31mmodified:   2015-11-11-understanding-object-orientated-programming-in-python.ipynb[m
+    [31mmodified:   2016-06-01-web-scraping-in-python.ipynb[m
+    [31mmodified:   2016-10-04-reproducible-research-in-python.ipynb[m
 
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2015</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="n">understanding</span><span class="o">-</span><span class="k">object</span><span class="o">-</span><span class="n">orientated</span><span class="o">-</span><span class="n">programming</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2016</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="n">web</span><span class="o">-</span><span class="n">scraping</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mmodified</span><span class="p">:</span>   <span class="mi">2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="n">reproducible</span><span class="o">-</span><span class="n">research</span><span class="o">-</span><span class="k">in</span><span class="o">-</span><span class="n">python</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
 
-<span class="n">Untracked</span> <span class="n">files</span><span class="p">:</span>
-  <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add &lt;file&gt;...&quot;</span> <span class="k">to</span> <span class="n">include</span> <span class="k">in</span> <span class="n">what</span> <span class="n">will</span> <span class="n">be</span> <span class="k">committed</span><span class="p">)</span>
+    [31m.DS_Store[m
+    [31m.ipynb_checkpoints/[m
+    [31mUntitled.ipynb[m
 
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">m</span><span class="p">.</span><span class="n">DS_Store</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">m</span><span class="p">.</span><span class="n">ipynb_checkpoints</span><span class="o">/</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
-    <span class="err"></span><span class="p">[</span><span class="mi">31</span><span class="n">mUntitled</span><span class="p">.</span><span class="n">ipynb</span><span class="err"></span><span class="p">[</span><span class="n">m</span>
-
-<span class="k">no</span> <span class="n">changes</span> <span class="n">added</span> <span class="k">to</span> <span class="k">commit</span> <span class="p">(</span><span class="n">use</span> <span class="ss">&quot;git add&quot;</span> <span class="k">and</span><span class="o">/</span><span class="k">or</span> <span class="ss">&quot;git commit -a&quot;</span><span class="p">)</span>
-</pre></div>
-
-
+no changes added to commit (use "git add" and/or "git commit -a")
+</code></pre>
 <p>This is letting us know we have a number of files we&#8217;re already asking Git to track that have some uncommitted changes (the &#8216;Changes not staged for commit&#8217;) as well as one that we&#8217;re not asking Git to keep track of (the &#8216;Untracked files&#8217;). Files that Git is tracking are ones that have already been committed and which Git checks to see whether any changes have been made since the last&nbsp;commit.</p>
 <p>Let&#8217;s commit our latest changes to the file&nbsp;&#8216;2016-10-04-reproducible-research-in-python.ipynb&#8217;.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">add</span> <span class="s1">&#39;2016-10-04-reproducible-research-in-python.ipynb&#39;</span>
-</pre></div>
-
+<pre><code class="python">!git add '2016-10-04-reproducible-research-in-python.ipynb'
+</code></pre>
 
 <p>Git has now popped this file in a queue to be committed, but needs us to explicitly commit the file with a&nbsp;message.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;Completed the final section of the blog post&quot;</span>
-</pre></div>
+<pre><code class="python">!git commit -m &quot;Completed the final section of the blog post&quot;
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">[master 8f544a0] Completed the final section of the blog post</span>
-<span class="err"> 1 file changed, 5 insertions(+), 6 deletions(-)</span>
-</pre></div>
-
-
+<pre><code>[master 8f544a0] Completed the final section of the blog post
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+</code></pre>
 <p>What this command means is that we have committed our changes to the <strong>local</strong> repo. What we now need to do is push our changes to the <strong>remote</strong> repo. Pretty much every time I push to the remote, I am pushing to the <strong>origin</strong> repo on the <strong>master</strong> branch, which means I use the command&nbsp;below:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
-</pre></div>
+<pre><code class="python">!git push origin master
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Counting objects: 8, done.</span>
-<span class="err">Delta compression using up to 8 threads.</span>
-<span class="err">Compressing objects: 100% (8/8), done.</span>
-<span class="err">Writing objects: 100% (8/8), 9.43 KiB | 0 bytes/s, done.</span>
-<span class="err">Total 8 (delta 4), reused 0 (delta 0)</span>
-<span class="c">remote: Resolving deltas: 100% (4/4), completed with 1 local objects.[K</span>
-<span class="err">To https://github.com/t-redactyl/Blog-posts.git</span>
-<span class="err">   83df6d4..8f544a0  master -&gt; master</span>
-</pre></div>
-
-
+<pre><code>Counting objects: 8, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (8/8), 9.43 KiB | 0 bytes/s, done.
+Total 8 (delta 4), reused 0 (delta 0)
+remote: Resolving deltas: 100% (4/4), completed with 1 local objects.[K
+To https://github.com/t-redactyl/Blog-posts.git
+   83df6d4..8f544a0  master -&gt; master
+</code></pre>
 <p>However, if you have a more complicated repo structure that contains branches, you will need to tailor your push message to make sure you commit to the right place (see <a href="https://help.github.com/articles/pushing-to-a-remote/">this blog post</a> for more&nbsp;details).</p>
 <p>That sums up my introductory guide on how to implement reproducible research in Python - I hope you can see with some simple modifications to you (and your collaborators&#8217;) workflows, you can have confidence you are building on your previous work and be happily revisiting old projects for years to&nbsp;come!</p>
         <hr class="divider-short"/>

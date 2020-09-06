@@ -85,34 +85,28 @@
 <p>Enough with the introduction, let&#8217;s move onto setting up our&nbsp;environment!</p>
 <h2>First&nbsp;steps</h2>
 <p>The very first step is making sure that you are working with the correct version of Python. I will be working with Python 2.7 in this tutorial; if you are currently working with Python 3 my code may not work for you. In order to check your version of Python, run the below in the command line (note that the <code>!</code> in front of the below code should not be typed; it is an indication that this code should be entered into the command&nbsp;line):</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">python</span> <span class="o">-</span><span class="n">V</span>
-</pre></div>
+<pre><code class="python">!python -V
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Python 2.7.10</span>
-</pre></div>
-
-
+<pre><code>Python 2.7.10
+</code></pre>
 <p>Following this, make sure that <code>pip</code> is installed. <a href="https://pip.pypa.io/en/stable/">pip (Pip Installs Packages)</a> is the recommended install tool for Python packages, and having it is going to make your life much easier going forward. To check if you have pip installed, run <code>pip help</code> in the command line. You should get something like the&nbsp;following:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">help</span>
-</pre></div>
+<pre><code class="python">!pip help
+</code></pre>
 
+<pre><code>Usage:   
+  pip &lt;command&gt; [options]
 
-<div class="highlight"><pre><span></span><span class="k">Usage</span><span class="err">:</span><span class="w">   </span>
-<span class="w">  </span><span class="n">pip</span><span class="w"> </span><span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span><span class="w"> </span><span class="o">[</span><span class="n">options</span><span class="o">]</span><span class="w"></span>
-
-<span class="nl">Commands</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="n">install</span><span class="w">                     </span><span class="n">Install</span><span class="w"> </span><span class="n">packages</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">uninstall</span><span class="w">                   </span><span class="n">Uninstall</span><span class="w"> </span><span class="n">packages</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">freeze</span><span class="w">                      </span><span class="k">Output</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">requirements</span><span class="w"> </span><span class="nf">format</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">list</span><span class="w">                        </span><span class="n">List</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="n">packages</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">show</span><span class="w">                        </span><span class="n">Show</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="n">about</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="n">packages</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="k">search</span><span class="w">                      </span><span class="k">Search</span><span class="w"> </span><span class="n">PyPI</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">packages</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">wheel</span><span class="w">                       </span><span class="n">Build</span><span class="w"> </span><span class="n">wheels</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">requirements</span><span class="p">.</span><span class="w"></span>
-<span class="w">  </span><span class="n">help</span><span class="w">                        </span><span class="n">Show</span><span class="w"> </span><span class="n">help</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">commands</span><span class="p">.</span><span class="w"></span>
-</pre></div>
-
-
+Commands:
+  install                     Install packages.
+  uninstall                   Uninstall packages.
+  freeze                      Output installed packages in requirements format.
+  list                        List installed packages.
+  show                        Show information about installed packages.
+  search                      Search PyPI for packages.
+  wheel                       Build wheels from your requirements.
+  help                        Show help for commands.
+</code></pre>
 <p>If <code>pip</code> is not installed, <a href="http://jamie.curle.io/posts/installing-pip-virtualenv-and-virtualenvwrapper-on-os-x/">here</a> is a tutorial for installing it in <span class="caps">OSX</span> and <a href="http://www.tylerbutler.com/2012/05/how-to-install-python-pip-and-virtualenv-on-windows-with-powershell/">here</a> is another for installing it in&nbsp;Windows.</p>
 <h2>Setting up a&nbsp;virtualenv</h2>
 <p>Now that we have Python and <code>pip</code> installed, it is best practice to create a virtual environment (or <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/"><strong>virtualenv</strong></a>) to contain all of the Python packages we need to use. I know what you&#8217;re thinking - man, this seems so tedious and overly-complicated! Why can&#8217;t I just install all of these packages straight onto my system? Just hear me out - once you see the benefits of using a virtualenv, you won&#8217;t want to go back to installing your packages system-wide, I&nbsp;promise!</p>
@@ -120,87 +114,75 @@
 <p>Virtualenvs solve this issue by allowing you to create a number of self-contained environments with all of the dependencies required for a project. If you install your packages within a virtualenv, it doesn&#8217;t matter if you have multiple versions of a package contained on your computer; because the virtualenvs can&#8217;t &#8216;see&#8217; each other, you can safely have all of these versions installed simultaneously. It also doesn&#8217;t matter if you use both Python 2 and Python 3, as you can specify which version of Python you want your virtualenv to&nbsp;use.</p>
 <p>The easiest way to use virtualenvs is through a wrapper specific to your <a href="https://en.wikipedia.org/wiki/Unix_shell">shell interpreter</a>. For example, an option for both <a href="http://jamie.curle.io/posts/installing-pip-virtualenv-and-virtualenvwrapper-on-os-x/">Bash in <span class="caps">OSX</span></a> and <a href="http://www.tylerbutler.com/2012/05/how-to-install-python-pip-and-virtualenv-on-windows-with-powershell/"><span class="caps">CMD</span>.exe in Windows</a> is <a href="https://virtualenvwrapper.readthedocs.org/en/latest/">virtualenvwrapper</a>. In my case I use <a href="http://fishshell.com/">Fish</a> in <span class="caps">OSX</span>, so I will carry out the rest of this tutorial using it and its associated wrapper <a href="http://virtualfish.readthedocs.org/en/latest/index.html">virtualfish</a>.</p>
 <p>To start a new virtualenv with virtualfish, we simply go into the shell and type <code>vf new &lt;envname&gt;</code>. I&#8217;ll call this virtualenv <code>reddit_api</code>.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">vf</span> <span class="n">new</span> <span class="n">reddit_api</span>
-</pre></div>
-
+<pre><code class="python">!vf new reddit_api
+</code></pre>
 
 <p>You should find that you automatically enter the new virtualenv after you create it. If not,&nbsp;type:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">vf</span> <span class="n">activate</span> <span class="n">reddit_api</span>
-</pre></div>
-
+<pre><code class="python">!vf activate reddit_api
+</code></pre>
 
 <p>Subsequently, you can exit the virtualenv&nbsp;using:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">vf</span> <span class="n">deactivate</span>
-</pre></div>
-
+<pre><code class="python">!vf deactivate
+</code></pre>
 
 <p>A full set of virtualfish commands are <a href="http://virtualfish.readthedocs.org/en/latest/usage.html">here</a>.</p>
 <p>Now that we are in the virtualenv, let&#8217;s check that we have a nice clean environment. The only things that should be installed are pip, setuptools and&nbsp;wheel.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="nb">list</span>
-</pre></div>
+<pre><code class="python">!pip list
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">pip (7.1.2)</span>
-<span class="err">setuptools (18.2)</span>
-<span class="err">wheel (0.24.0)</span>
-</pre></div>
-
-
+<pre><code>pip (7.1.2)
+setuptools (18.2)
+wheel (0.24.0)
+</code></pre>
 <h2>Installing the required&nbsp;packages</h2>
 <p>Let&#8217;s now install all of the packages we need into our virtualenv. For this project, we will need <code>urllib2</code> and <code>json</code> to collect the <span class="caps">JSON</span> data from Reddit. We will also need <a href="http://www.numpy.org/"><code>numpy</code></a>, <a href="http://pandas.pydata.org/"><code>pandas</code></a>, <a href="http://www.scipy.org/"><code>scipy</code></a> and <a href="http://matplotlib.org/"><code>matplotlib</code></a> to run the analysis, and <a href="http://jupyter.org/"><code>jupyter</code></a> to create a reproducible&nbsp;notebook.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">urrlib2</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">json</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">numpy</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">pandas</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">scipy</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">matplotlib</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">jupyter</span>
-</pre></div>
+<pre><code class="python">!pip install urrlib2
+!pip install json
+!pip install numpy
+!pip install pandas
+!pip install scipy
+!pip install matplotlib
+!pip install jupyter
+</code></pre>
 
+<pre><code class="python">!pip list
+</code></pre>
 
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="nb">list</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">appnope (0.1.0)</span>
-<span class="err">backports-abc (0.4)</span>
-<span class="err">backports.ssl-match-hostname (3.4.0.2)</span>
-<span class="err">certifi (2015.9.6.2)</span>
-<span class="err">cycler (0.9.0)</span>
-<span class="err">decorator (4.0.4)</span>
-<span class="err">functools32 (3.2.3.post2)</span>
-<span class="err">gnureadline (6.3.3)</span>
-<span class="err">ipykernel (4.1.1)</span>
-<span class="err">ipython (4.0.0)</span>
-<span class="err">ipython-genutils (0.1.0)</span>
-<span class="err">...</span>
-<span class="err">qtconsole (4.1.0)</span>
-<span class="err">scipy (0.16.1)</span>
-<span class="err">setuptools (18.2)</span>
-<span class="err">simplegeneric (0.8.1)</span>
-<span class="err">singledispatch (3.4.0.3)</span>
-<span class="err">six (1.10.0)</span>
-<span class="err">terminado (0.5)</span>
-<span class="err">tornado (4.3)</span>
-<span class="err">traitlets (4.0.0)</span>
-<span class="err">urllib2 (0.1.13)</span>
-<span class="err">wheel (0.24.0)</span>
-</pre></div>
-
-
+<pre><code>appnope (0.1.0)
+backports-abc (0.4)
+backports.ssl-match-hostname (3.4.0.2)
+certifi (2015.9.6.2)
+cycler (0.9.0)
+decorator (4.0.4)
+functools32 (3.2.3.post2)
+gnureadline (6.3.3)
+ipykernel (4.1.1)
+ipython (4.0.0)
+ipython-genutils (0.1.0)
+...
+qtconsole (4.1.0)
+scipy (0.16.1)
+setuptools (18.2)
+simplegeneric (0.8.1)
+singledispatch (3.4.0.3)
+six (1.10.0)
+terminado (0.5)
+tornado (4.3)
+traitlets (4.0.0)
+urllib2 (0.1.13)
+wheel (0.24.0)
+</code></pre>
 <p>You can see that pip has installed all of the required packages and their&nbsp;dependencies.</p>
 <h2>Saving the best for last: freezing your&nbsp;virtualenv</h2>
 <p>Now remember how I was talking about how great virtualenvs were for reproducible research? An obvious problem you probably saw is that it is all well and good when you&#8217;re running the analysis on the computer the virtualenv was created on. But how do you get access to someone else&#8217;s&nbsp;virtualenv?</p>
 <p>Luckily, there is a super easy way to do this called <strong>freezing</strong>. This is simply where the full list of packages and their versions are exported as a .txt file. Freezing is executed like&nbsp;so:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">freeze</span> <span class="o">&gt;</span> <span class="n">stable_requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-
+<pre><code class="python">!pip freeze &gt; stable_requirements.txt
+</code></pre>
 
 <p>In order to access this list of packages, you simply load the .txt file into a new virtualenv like&nbsp;so:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">vf</span> <span class="n">new</span> <span class="n">reddit_api_2</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">stable_requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-
+<pre><code class="python">!vf new reddit_api_2
+!pip install -r stable_requirements.txt
+</code></pre>
 
 <p>This allows you to completely replicate the original virtualenv that the project was created in. The beauty of this method is that the .txt file can be stored with your script (in my case, a Jupyter notebook). For example, the script and list of dependencies can be in the same Github repo for you or others to download and install. In addition, any changes to the list of dependencies can be tracked using source control methods such as Git. This makes complete replication of your analysis seamless and&nbsp;fuss-free!</p>
 <p>And we&#8217;re done setting up! We now have a virtualenv with all of our required packages and a way of exporting those packages and their versions to keep with our script for replication purposes. We are now ready to start extracting and processing our data, which we will get to next&nbsp;week.</p>

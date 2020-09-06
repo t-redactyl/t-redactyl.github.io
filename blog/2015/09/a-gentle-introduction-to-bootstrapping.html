@@ -82,33 +82,31 @@
 <h2>What is&nbsp;bootstrapping?</h2>
 <p>Bootstrapping involves basically the same principle as calculating the <span class="caps">SEM</span> I described in the last post, except instead of <strong>sampling from the population distribution</strong>, we <strong>resample from our sample&nbsp;distribution.</strong></p>
 <p>Let&#8217;s revisit the example from the previous post. We&#8217;ve been asked to calculate the mean number of page views a website receives per day. We decided to assess this by taking a sample of the daily number of page views over a 30-day&nbsp;period:</p>
-<div class="highlight"><pre><span></span><span class="c1"># Setting seed and generating a single sample</span>
-<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
-<span class="n">sample</span> <span class="o">&lt;-</span> <span class="nf">rpois</span><span class="p">(</span><span class="m">30</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">)</span>
-</pre></div>
-
+<pre><code class="r"># Setting seed and generating a single sample
+set.seed(567)
+sample &lt;- rpois(30, lambda = 220)
+</code></pre>
 
 <p><img alt="plot of chunk bootstrap_plot_1" src="/figure/bootstrap_plot_1-1.png"> </p>
 <p>The mean of this sample is 219.6, which we will now treat as the population mean (without knowing the true population mean, we assume our sample mean is a very close&nbsp;approximation). </p>
 <p>A <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a> would be the most likely population distribution, as we are measuring a count of events over time. However, we&#8217;re not sure whether our sample of daily page views meets the assumptions of this distribution, and as such, we will bootstrap the <span class="caps">SEM</span>. To create a bootstrapped distribution of sample means, all we need to do is take repeated <strong>resamples</strong> from the distribution of our sample <strong>with replacement</strong> and take their means. The reason we must do this with replacement is because if we take a resample of 30 observations without replacement from our original sample, we will of course end up with the original sample for our&nbsp;resample! </p>
 <p>An important thing to note is that because we are relying on the sample to describe the population distribution (instead of using a known distribution such as the Poisson), we have to make sure our sample is a good representation of our population. I will cover choosing a representative sample in next week&#8217;s blog&nbsp;post.</p>
 <p>So let&#8217;s bootstrap our <span class="caps">SEM</span> in R. We will take our sample of 30 days of page views and take 1,000 resamples from this with&nbsp;replacement.</p>
-<div class="highlight"><pre><span></span><span class="c1"># Setting seed</span>
-<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
+<pre><code class="r"># Setting seed
+set.seed(567)
 
-<span class="c1"># Generate the mean of each resample and store in a vector, and store each resample in a dataframe</span>
-<span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="kc">NULL</span>
-<span class="n">resample_frame</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">(</span><span class="n">row.names</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">30</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
-<span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">s</span> <span class="o">&lt;-</span> <span class="nf">sample</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="m">30</span><span class="p">,</span> <span class="n">replace</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-    <span class="n">resample_frame</span> <span class="o">&lt;-</span> <span class="nf">cbind</span><span class="p">(</span><span class="n">resample_frame</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-    <span class="n">mn_vector</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">mn_vector</span><span class="p">,</span> <span class="nf">mean</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
-<span class="p">}</span>
+# Generate the mean of each resample and store in a vector, and store each resample in a dataframe
+mn_vector &lt;- NULL
+resample_frame &lt;- data.frame(row.names = seq(from = 1, to = 30, by = 1))
+for (i in 1 : 1000) {
+    s &lt;- sample(sample, 30, replace = TRUE)
+    resample_frame &lt;- cbind(resample_frame, s)
+    mn_vector &lt;- c(mn_vector, mean(s))
+}
 
-<span class="c1"># Name the columns in the resample dataframe</span>
-<span class="nf">names</span><span class="p">(</span><span class="n">resample_frame</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">paste0</span><span class="p">(</span><span class="s">&quot;n&quot;</span><span class="p">,</span> <span class="nf">seq</span><span class="p">(</span><span class="n">from</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">to</span> <span class="o">=</span> <span class="m">1000</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="m">1</span><span class="p">))</span>
-</pre></div>
-
+# Name the columns in the resample dataframe
+names(resample_frame) &lt;- paste0(&quot;n&quot;, seq(from = 1, to = 1000, by = 1))
+</code></pre>
 
 <p>Because we resample with replacement, each resampling gives a slightly different estimate of the mean. For example, the mean in resample 1 is 221, and the mean from resample 2 is&nbsp;222.</p>
 <p><img alt="plot of chunk bootstrap_plot_2" src="/figure/bootstrap_plot_2-1.png"> </p>
@@ -117,35 +115,33 @@
 <p>Taking the mean of this distribution of means gives us the population mean (219.7), and taking the standard deviation of this distribution gives us the <span class="caps">SEM</span> (2.6). Moreover, because this distribution of resample means is normal, we know that &plusmn;1 standard errors around the mean represents 68% of the means of the resamples, and &plusmn;2 standard errors represents 95% of the resamples. In other words, 68% of the time when we take a resample we will end up with a mean between 217.1 and 222.3, and 95% of the time when we take a resample we will end up with a mean between 214.7 and 224.7, a pretty small margin of error around our population mean of 219.6 page views per&nbsp;day.</p>
 <h2>How do I know if it is worth bootstrapping my <span class="caps">SEM</span>?</h2>
 <p>Let&#8217;s compare the result we get from just using the formula for calculating the <span class="caps">SEM</span> with the result we get from bootstrapping this sample. In the case of the Poisson distribution, this is <span class="math">\(\sqrt{\lambda / n}\)</span>.</p>
-<div class="highlight"><pre><span></span><span class="c1"># Defining lambda and n</span>
-<span class="n">lambda</span> <span class="o">&lt;-</span> <span class="nf">mean</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
-<span class="n">n</span> <span class="o">&lt;-</span> <span class="m">30</span>
+<pre><code class="r"># Defining lambda and n
+lambda &lt;- mean(sample)
+n &lt;- 30
 
-<span class="c1"># Calculating SEM</span>
-<span class="n">sem</span> <span class="o">&lt;-</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">lambda</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
-</pre></div>
-
+# Calculating SEM
+sem &lt;- sqrt(lambda / n)
+</code></pre>
 
 <p>We get a result of 2.7, which is extremely close to our bootstrapped estimate (2.6). This is because the sample we took of daily page views met the assumptions of the Poisson distribution (given that it was drawn directly from it). In this case, bootstrapping our <span class="caps">SEM</span> does not improve our estimate of the <span class="caps">SEM</span>, therefore is not worth computing over simply using the <span class="caps">SEM</span>&nbsp;formula.</p>
 <p>However, what if our population distribution did not fit a Poisson (or other) distribution? To demonstrate this, I have created a sample of 30 days of page views that is drawn from both the Poisson and uniform distributions. (If you are familiar with R, you can see I&#8217;ve created a&nbsp;Franken-distribution&#8230;)</p>
-<div class="highlight"><pre><span></span><span class="c1"># Setting seed and drawing non-Poisson sample</span>
-<span class="nf">set.seed</span><span class="p">(</span><span class="m">567</span><span class="p">)</span>
-<span class="n">sample_np</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">rpois</span><span class="p">(</span><span class="m">10</span><span class="p">,</span> <span class="n">lambda</span> <span class="o">=</span> <span class="m">220</span><span class="p">),</span> <span class="nf">runif</span><span class="p">(</span><span class="m">20</span><span class="p">,</span> <span class="n">min</span> <span class="o">=</span> <span class="m">180</span><span class="p">,</span> <span class="n">max</span> <span class="o">=</span> <span class="m">245</span><span class="p">))</span> 
+<pre><code class="r"># Setting seed and drawing non-Poisson sample
+set.seed(567)
+sample_np &lt;- c(rpois(10, lambda = 220), runif(20, min = 180, max = 245)) 
 
-<span class="c1"># Generate the mean of each resample and store in a vector</span>
-<span class="n">mn_vector_np</span> <span class="o">&lt;-</span> <span class="kc">NULL</span>
-<span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span> <span class="o">:</span> <span class="m">1000</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">s</span> <span class="o">&lt;-</span> <span class="nf">sample</span><span class="p">(</span><span class="n">sample_np</span><span class="p">,</span> <span class="m">30</span><span class="p">,</span> <span class="n">replace</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-    <span class="n">mn_vector_np</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">mn_vector_np</span><span class="p">,</span> <span class="nf">mean</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
-<span class="p">}</span>
+# Generate the mean of each resample and store in a vector
+mn_vector_np &lt;- NULL
+for (i in 1 : 1000) {
+    s &lt;- sample(sample_np, 30, replace = TRUE)
+    mn_vector_np &lt;- c(mn_vector_np, mean(s))
+}
 
-<span class="c1"># Generate bootstrapped SEM</span>
-<span class="n">b_sem</span> <span class="o">&lt;-</span> <span class="nf">sd</span><span class="p">(</span><span class="n">mn_vector_np</span><span class="p">)</span>
+# Generate bootstrapped SEM
+b_sem &lt;- sd(mn_vector_np)
 
-<span class="c1"># Generate formula-derived SEM</span>
-<span class="n">f_sem</span> <span class="o">&lt;-</span> <span class="nf">sqrt</span><span class="p">(</span><span class="nf">mean</span><span class="p">(</span><span class="n">sample_np</span><span class="p">)</span> <span class="o">/</span> <span class="m">30</span><span class="p">)</span>
-</pre></div>
-
+# Generate formula-derived SEM
+f_sem &lt;- sqrt(mean(sample_np) / 30)
+</code></pre>
 
 <p>In this case, the <span class="caps">SEM</span> we obtain using bootstrapping is 3.1, compared to 2.7 using the formula. We can see that the formula-based <span class="caps">SEM</span> slightly underestimates the amount of fuzziness in our estimate of the sample mean (as demonstrated for &plusmn;1 SEMs below). In this case we would be better off using a bootstrapped <span class="caps">SEM</span> rather than calculating it using the formula for the Poisson&nbsp;distribution.</p>
 <p><img alt="plot of chunk bootstrap_plot_4" src="/figure/bootstrap_plot_4-1.png"> </p>

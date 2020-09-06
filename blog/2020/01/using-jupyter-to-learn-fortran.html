@@ -80,78 +80,66 @@
 <h2>Option 1: Run your notebook from a Fortran&nbsp;kernel</h2>
 <p>The first option is to simply install a Fortran kernel for Jupyter, which means all of your cells will automatically run Fortran code. Peter Hill has written a very easy to use and install Fortran kernel, which you can find <a href="https://github.com/ZedThree/jupyter-fortran-kernel">here</a> along with instructions on how to run it. Once you have installed it, you simply need to select <code>Fortran</code> as your kernel type when you create a new notebook, and you&#8217;re good to&nbsp;go!</p>
 <p>Let&#8217;s see how it runs with a simple program that just prints some hardcoded&nbsp;text.</p>
-<div class="highlight"><pre><span></span><span class="n">program</span> <span class="n">simple_print</span>
-    <span class="nb">print</span> <span class="o">*</span><span class="p">,</span><span class="s1">&#39;This Fortran program just prints a line.&#39;</span>
-<span class="n">end</span> <span class="n">program</span> <span class="n">simple_print</span>
-</pre></div>
+<pre><code class="python">program simple_print
+    print *,'This Fortran program just prints a line.'
+end program simple_print
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err"> This Fortran program just prints a line.</span>
-</pre></div>
-
-
+<pre><code> This Fortran program just prints a line.
+</code></pre>
 <p>Very nice! However, we run into problems when we try to run something that requires some user input. Let&#8217;s have a look at a program that calculates people&#8217;s ages based on their year of&nbsp;birth.</p>
-<div class="highlight"><pre><span></span><span class="n">program</span> <span class="n">get_age</span>
-    <span class="n">real</span> <span class="p">::</span> <span class="n">year</span><span class="p">,</span> <span class="n">age</span>
-    <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s1">&#39;What year were you born?&#39;</span>
-    <span class="n">read</span> <span class="o">*</span><span class="p">,</span> <span class="n">year</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="mi">2020</span> <span class="o">-</span> <span class="n">year</span>
-    <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s1">&#39;Your age is&#39;</span><span class="p">,</span> <span class="n">age</span>
-<span class="n">end</span> <span class="n">program</span> <span class="n">get_age</span>
-</pre></div>
+<pre><code class="python">program get_age
+    real :: year, age
+    print *, 'What year were you born?'
+    read *, year
+    age = 2020 - year
+    print *, 'Your age is', age
+end program get_age
+</code></pre>
+
+<pre><code> What year were you born?
 
 
-<div class="highlight"><pre><span></span> <span class="n">What</span> <span class="n">year</span> <span class="n">were</span> <span class="n">you</span> <span class="n">born</span><span class="o">?</span>
+At line 5 of file /var/folders/jq/j1k41wzs0ddflbrr33twdnm00000gn/T/tmptil2332r.f90 (unit = 5, file = 'stdin')
+Fortran runtime error: End of file
 
-
-<span class="n">At</span> <span class="n">line</span> <span class="mi">5</span> <span class="n">of</span> <span class="n">file</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">folders</span><span class="o">/</span><span class="n">jq</span><span class="o">/</span><span class="n">j1k41wzs0ddflbrr33twdnm00000gn</span><span class="o">/</span><span class="n">T</span><span class="o">/</span><span class="n">tmptil2332r</span><span class="p">.</span><span class="n">f90</span> <span class="p">(</span><span class="n">unit</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">stdin</span><span class="err">&#39;</span><span class="p">)</span>
-<span class="n">Fortran</span> <span class="n">runtime</span> <span class="nl">error</span><span class="p">:</span> <span class="n">End</span> <span class="n">of</span> <span class="n">file</span>
-
-<span class="n">Error</span> <span class="n">termination</span><span class="p">.</span> <span class="nl">Backtrace</span><span class="p">:</span>
-<span class="cp">#0  0x107c406a9</span>
-<span class="cp">#1  0x107c41365</span>
-<span class="cp">#2  0x107c41ac9</span>
-<span class="cp">#3  0x107d0914b</span>
-<span class="cp">#4  0x107d03b69</span>
-<span class="cp">#5  0x107c3ad30</span>
-<span class="cp">#6  0x107c3ae0e</span>
-<span class="p">[</span><span class="n">Fortran</span> <span class="n">kernel</span><span class="p">]</span> <span class="n">Executable</span> <span class="n">exited</span> <span class="n">with</span> <span class="n">code</span> <span class="mi">2</span>
-</pre></div>
-
-
+Error termination. Backtrace:
+#0  0x107c406a9
+#1  0x107c41365
+#2  0x107c41ac9
+#3  0x107d0914b
+#4  0x107d03b69
+#5  0x107c3ad30
+#6  0x107c3ae0e
+[Fortran kernel] Executable exited with code 2
+</code></pre>
 <p>You can see that because the Fortran kernel is trying to compile and execute the program in one go, it fails when it does not receive all of the expected inputs (in this case, a single number). Luckily, there is a pretty easy way to get around this using the pre-existing magics built into&nbsp;Jupyter.</p>
 <h2>Option 2: Compile and execute Fortran scripts using Bash&nbsp;cells</h2>
 <p>A pretty simple workaround is to write the Fortran scripts to file within Jupyter and then execute using a Bash cell. We can do this using a couple of magics: <code>%%writefile</code> to create the scripts, and then <code>%%bash</code> to create our bash cell. Note that you need to do this within your Python kernel, as the Fortran kernel doesn&#8217;t recognise the <code>%%bash</code> magic. Let&#8217;s try our program to calculate age&nbsp;again.</p>
-<div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">writefile</span> <span class="n">get_age</span><span class="o">.</span><span class="n">f95</span>
+<pre><code class="python">%%writefile get_age.f95
 
-<span class="n">program</span> <span class="n">get_age</span>
-    <span class="n">real</span> <span class="p">::</span> <span class="n">year</span><span class="p">,</span> <span class="n">age</span>
-    <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s1">&#39;What year were you born?&#39;</span>
-    <span class="n">read</span> <span class="o">*</span><span class="p">,</span> <span class="n">year</span>
-    <span class="n">age</span> <span class="o">=</span> <span class="mi">2020</span> <span class="o">-</span> <span class="n">year</span>
-    <span class="nb">print</span> <span class="o">*</span><span class="p">,</span> <span class="s1">&#39;Your age is&#39;</span><span class="p">,</span> <span class="n">age</span>
-<span class="n">end</span> <span class="n">program</span> <span class="n">get_age</span>
-</pre></div>
+program get_age
+    real :: year, age
+    print *, 'What year were you born?'
+    read *, year
+    age = 2020 - year
+    print *, 'Your age is', age
+end program get_age
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Writing get_age.f95</span>
-</pre></div>
-
-
+<pre><code>Writing get_age.f95
+</code></pre>
 <p>So far, so good - it hasn&#8217;t thrown an error like last time. Now we can compile our script using <code>gfortran -ffree-form &lt;script name&gt;</code>, and execute the resulting <code>a.out</code> file. We also need to include any required inputs at the end of the cell, each on a separate line. You can see we&#8217;ve put 1984 as our input for the year for our age&nbsp;program.</p>
-<div class="highlight"><pre><span></span>%%bash
+<pre><code class="bash">%%bash
 
 gfortran -ffree-form get_age.f95
 ./a.out
-<span class="m">1984</span>
-</pre></div>
+1984
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err"> What year were you born?</span>
-<span class="err"> Your age is   36.0000000</span>
-</pre></div>
-
-
+<pre><code> What year were you born?
+ Your age is   36.0000000
+</code></pre>
 <p>While it might not be as nice as the interactive experience of executing this script at the command line, it is a great way to keep all of your work together while you are learning. I hope you&#8217;ve found this a useful guide to taking advantage of Jupyter while learning&nbsp;Fortran!</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->

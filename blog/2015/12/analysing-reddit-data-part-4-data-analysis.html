@@ -84,46 +84,39 @@
 <p>Let&#8217;s start by testing some hypotheses about the posters to the site. As we have the sex of the posters, the questions that immediately jump out at me are whether sex has a relationship with a) age and b) the type of posts (flairs) on the&nbsp;subreddit.</p>
 <h3>Does the age distribution vary by&nbsp;sex?</h3>
 <p>The first question I will explore is whether the age distribution of the posters differs between sexes. To start, I&#8217;ll compute the median age of both men and&nbsp;women.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<pre><code class="python">import numpy as np
+from pandas import Series, DataFrame
+import pandas as pd
 
-<span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterAge&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-</pre></div>
+rel_df['PosterAge'].groupby([rel_df['PosterSex']]).median()
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">PosterSex</span>
-<span class="err">F    26</span>
-<span class="err">M    27</span>
-<span class="c">Name: PosterAge, dtype: float64</span>
-</pre></div>
-
-
+<pre><code>PosterSex
+F    26
+M    27
+Name: PosterAge, dtype: float64
+</code></pre>
 <p>Hmmm, it looks like there might be a difference, with male posters being older on average than female posters. To test this, I constructed a hypothesis that men are significantly older than women (at the 0.05 level). I can assess this using a <a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Wilcoxon rank-sum test</a>, which is given by the <code>ranksums</code> <a href="http://docs.scipy.org/doc/scipy-0.16.1/reference/generated/scipy.stats.ranksums.html">function</a> in the <code>scipy</code> package. As I&#8217;m predicting that one group is larger than another I should use a one-sided test, so I divide the returned p-value by&nbsp;2.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>  
+<pre><code class="python">from scipy import stats  
 
-<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">):</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;PosterAge&#39;</span><span class="p">]</span>
+d = {}
+for key, value in rel_df.groupby('PosterSex'):
+        d['%s' % key] = value['PosterAge']
 
-<span class="n">u_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ranksums</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;F&#39;</span><span class="p">])</span>
-<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">u_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
+u_stat, p_val = stats.ranksums(d['M'], d['F'])
+print &quot;The test statistic is %1.3f, and the significance level is %1.3f.&quot; % (u_stat, p_val / 2)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">The test statistic is 2.745, and the significance level is 0.003.</span>
-</pre></div>
-
-
+<pre><code>The test statistic is 2.745, and the significance level is 0.003.
+</code></pre>
 <p>You can see that the p-value is 0.003, meaning male posters are significantly older than female&nbsp;posters.</p>
 <h3>Does flair type differ by&nbsp;sex?</h3>
 <p>Another interesting question is whether the distribution of flairs differs by sex, or in other words, does the type of questions asked on the subreddit differ for men and women? We&#8217;ll start by looking at the frequencies of posts for each sex by flair. As mentioned in the <a href="https://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">previous post</a>, we won&#8217;t be using the flairs &#8220;Breakups&#8221;, &#8220;Personal issues&#8221; or &#8220;Dating&#8221; due to the small number of posts in these&nbsp;categories.</p>
-<div class="highlight"><pre><span></span><span class="n">sex_flair</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">],</span> 
-            <span class="n">rownames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Poster Sex&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span>
-    <span class="p">[</span><span class="s1">&#39;Infidelity&#39;</span><span class="p">,</span> <span class="s1">&#39;Non-Romantic&#39;</span><span class="p">,</span> <span class="s1">&#39;Relationships&#39;</span><span class="p">,</span> <span class="s1">&#39;Updates&#39;</span><span class="p">]]</span>
-<span class="n">sex_flair</span>
-</pre></div>
-
+<pre><code class="python">sex_flair = pd.crosstab(rel_df['Flair'], rel_df['PosterSex'], 
+            rownames = ['Flair'], colnames=['Poster Sex']).ix[
+    ['Infidelity', 'Non-Romantic', 'Relationships', 'Updates']]
+sex_flair
+</code></pre>
 
 <div>
 <table class="table table-bordered">
@@ -165,9 +158,8 @@
 </div>
 
 <p>Well, that&#8217;s not the most informative table. As there are an unequal number of men and women in the sample, we need to standardise these categories in some way. The most logical way is to look at percentage of posts in each&nbsp;column:</p>
-<div class="highlight"><pre><span></span><span class="n">sex_flair</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">/</span><span class="n">c</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-</pre></div>
-
+<pre><code class="python">sex_flair.apply(lambda c: c/c.sum() * 100, axis = 0)
+</code></pre>
 
 <div>
 <table class="table table-bordered">
@@ -209,25 +201,21 @@
 </div>
 
 <p>Ah ha! Now we can see that we have two flairs that may differ by sex: women are more likely to have questions about non-romantic relationships, whereas men are more likely to ask questions about romantic relationships. Let&#8217;s test this more formally. The test we would use here is a <a href="https://en.wikipedia.org/wiki/Chi-squared_test">Chi-squared test</a>, which can be performed in Python using the <code>chi2_contingency</code> <a href="http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html">function</a> in the <code>scipy</code> package.</p>
-<div class="highlight"><pre><span></span><span class="n">chi2</span><span class="p">,</span> <span class="n">p_val</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">exp_vals</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">chi2_contingency</span><span class="p">(</span><span class="n">sex_flair</span><span class="p">)</span>
-<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">chi2</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">chi2, p_val, df, exp_vals = stats.chi2_contingency(sex_flair)
+print &quot;The test statistic is %1.3f, and the significance level is %1.3f.&quot; % (chi2, p_val)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">The test statistic is 13.768, and the significance level is 0.003.</span>
-</pre></div>
-
-
+<pre><code>The test statistic is 13.768, and the significance level is 0.003.
+</code></pre>
 <p>Again, we can see that the test is significant, with a p-value of 0.003. What this tells us is that the observed frequencies in our <a href="https://en.wikipedia.org/wiki/Contingency_table">contingency table</a> between flair and sex are different from what would be expected if the two variables did not have a relationship. Therefore, we know that the sex of the poster significantly affects what kind of topics they post about. However, I should stress that as this is an <a href="https://en.wikipedia.org/wiki/Omnibus_test">omnibus test</a> we can&#8217;t say specifically that men and women differ in how frequently they post about non-romantic and relationships topics; we&#8217;d need further (<a href="https://en.wikipedia.org/wiki/Post_hoc_analysis">post-hoc</a>) testing for&nbsp;that.</p>
 <h2>Questions about the readers of the&nbsp;subreddit</h2>
 <p>Now that we&#8217;ve had a brief look at the posters to the subreddit, let&#8217;s have a look at how the readers of the subreddit behave. This time, let&#8217;s have a look at the <code>DayOfWeek</code>, <code>Score</code> and <code>Comments</code> variables. More specifically, we&#8217;ll look at whether the overall post score and number of comments it attracts differs by the day of the week it is posted. To start, let&#8217;s look at the median score and comments each post attracts per day of the&nbsp;week:</p>
-<div class="highlight"><pre><span></span><span class="n">score_com_day</span> <span class="o">=</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">)[</span>
-    <span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">,</span> <span class="s1">&#39;Comments&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-<span class="n">score_com_day</span> <span class="o">=</span> <span class="n">score_com_day</span><span class="o">.</span><span class="n">reindex</span><span class="p">([</span><span class="s1">&#39;Mon&#39;</span><span class="p">,</span> <span class="s1">&#39;Tues&#39;</span><span class="p">,</span> <span class="s1">&#39;Weds&#39;</span><span class="p">,</span> <span class="s1">&#39;Thurs&#39;</span><span class="p">,</span> 
-                                       <span class="s1">&#39;Fri&#39;</span><span class="p">,</span> <span class="s1">&#39;Sat&#39;</span><span class="p">,</span> <span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
-<span class="n">score_com_day</span>
-</pre></div>
-
+<pre><code class="python">score_com_day = rel_df.groupby('DayOfWeek')[
+    ['Score', 'Comments']].median()
+score_com_day = score_com_day.reindex(['Mon', 'Tues', 'Weds', 'Thurs', 
+                                       'Fri', 'Sat', 'Sun'])
+score_com_day
+</code></pre>
 
 <div>
 <table class="table table-bordered">
@@ -284,61 +272,54 @@
 </div>
 
 <p>It looks like there may be some variation in both scores and comments across the week, but it&#8217;s a little hard to see in a tabular format. To get a better sense of the pattern, let&#8217;s create line graphs plotting each column in the table&nbsp;above:</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.font_manager</span> <span class="k">as</span> <span class="nn">fm</span>
-<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<pre><code class="python">import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+%matplotlib inline
 
-<span class="c1"># Create plot template with two graph boxes</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">720</span><span class="o">/</span><span class="mi">120</span><span class="p">,</span> <span class="mi">420</span><span class="o">/</span><span class="mi">120</span><span class="p">),</span> <span class="n">dpi</span> <span class="o">=</span> <span class="mi">120</span><span class="p">)</span>
+# Create plot template with two graph boxes
+fig = plt.figure(figsize = (720/120, 420/120), dpi = 120)
 
-<span class="c1"># Create subplot 1 for median scores</span>
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">score_com_day</span><span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;solid&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#FF3721&#39;</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Score&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Day of Week&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+# Create subplot 1 for median scores
+ax1 = fig.add_subplot(1, 2, 1)
+score_com_day['Score'].plot(linestyle='solid', color='#FF3721')
+ax1.set_title('Score')
+plt.xlabel('Day of Week', fontsize=10)
+plt.tick_params(axis='both', which='major', labelsize=8)
 
-<span class="c1"># Create subplot 2 for median comments</span>
-<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">score_com_day</span><span class="p">[</span><span class="s1">&#39;Comments&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#4271AE&#39;</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Comments&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Day of Week&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-</pre></div>
-
+# Create subplot 2 for median comments
+ax2 = fig.add_subplot(1, 2, 2)
+score_com_day['Comments'].plot(linestyle='dashed', color='#4271AE')
+ax2.set_title('Comments')
+plt.xlabel('Day of Week', fontsize=10)
+plt.tick_params(axis='both', which='major', labelsize=8)
+</code></pre>
 
 <p><img src="/figure/score_comments_plot.png" title="Score/comments plot" alt="Plot of score and comments per day of week" style="display: block; margin: auto;" /></p>
 <p>Now we can see it a bit more clearly! Posts that are created on weekdays, particularly Thursdays, have lower scores than those created on a weekend. However, the opposite is true for the number of comments, where posts created on a weekend and early in the week receive far fewer comments than those created mid-week (Tuesday to&nbsp;Thursday).</p>
 <p>Before we start trying to interpret these results, let&#8217;s test whether the day of the week is significantly related to the score and comments. We&#8217;ll use another omnibus test, the <a href="https://en.wikipedia.org/wiki/Kruskal%E2%80%93Wallis_one-way_analysis_of_variance">Kruskal–Wallis one-way analysis of variance</a> to test this, which can be performed using the <code>kruskalwallis</code> <a href="http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.mstats.kruskalwallis.html">function</a> in the <code>scipy</code> package. This tells us whether there is a significant difference between any of the days of the week in the score or number of comments, but again doesn&#8217;t tell us which days of the week are significantly&nbsp;different.</p>
-<div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">):</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Score&#39;</span><span class="p">]</span>
+<pre><code class="python">d = {}
+for key, value in rel_df.groupby('DayOfWeek'):
+        d['%s' % key] = value['Score']
 
-<span class="n">H</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">kruskalwallis</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Mon&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Tues&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Weds&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Thurs&#39;</span><span class="p">],</span> 
-                                       <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Fri&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sat&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
-<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
-</pre></div>
+H, p_val = stats.mstats.kruskalwallis(d['Mon'], d['Tues'], d['Weds'], d['Thurs'], 
+                                       d['Fri'], d['Sat'], d['Sun'])
+print &quot;The test statistic is %1.3f, and the significance level is %1.3f.&quot; % (H, p_val)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">The test statistic is 11.280, and the significance level is 0.080.</span>
-</pre></div>
-
-
+<pre><code>The test statistic is 11.280, and the significance level is 0.080.
+</code></pre>
 <p>We can see that the day of the week does <strong>not</strong> significantly affect the score a post receives, with the Kruskall-Wallis test having a p-value of&nbsp;0.080.</p>
-<div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rel_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;DayOfWeek&#39;</span><span class="p">):</span>
-        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Comments&#39;</span><span class="p">]</span>
+<pre><code class="python">d = {}
+for key, value in rel_df.groupby('DayOfWeek'):
+        d['%s' % key] = value['Comments']
 
-<span class="n">H</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">kruskalwallis</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Mon&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Tues&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Weds&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Thurs&#39;</span><span class="p">],</span> 
-                                       <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Fri&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sat&#39;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;Sun&#39;</span><span class="p">])</span>
-<span class="nb">print</span> <span class="s2">&quot;The test statistic is </span><span class="si">%1.3f</span><span class="s2">, and the significance level is </span><span class="si">%1.3f</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">p_val</span><span class="p">)</span>
-</pre></div>
+H, p_val = stats.mstats.kruskalwallis(d['Mon'], d['Tues'], d['Weds'], d['Thurs'], 
+                                       d['Fri'], d['Sat'], d['Sun'])
+print &quot;The test statistic is %1.3f, and the significance level is %1.3f.&quot; % (H, p_val)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">The test statistic is 13.387, and the significance level is 0.037.</span>
-</pre></div>
-
-
+<pre><code>The test statistic is 13.387, and the significance level is 0.037.
+</code></pre>
 <p>However, the day of the week does significantly affect the number of comments a post attracts (although at p = 0.037 in a sample of 1,000, this is not the most compelling result). Perhaps readers are a bit more motivated to spend time on this subreddit during the week, maybe procrastinating from work? We&#8217;d again need post-hoc analyses to confirm the difference lies between mid-week and the rest of the&nbsp;week.</p>
 <h2>Summing&nbsp;up</h2>
 <p>In our brief analysis we found that male posters are significantly older than female posters, that male and female posters write in about different topics, and that the day of the week affects the number of comments a post attracts (but not its overall&nbsp;score).</p>

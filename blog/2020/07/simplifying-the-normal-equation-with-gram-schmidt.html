@@ -176,71 +176,58 @@ $$</div>
 <h2>Using <span class="math">\(Q\)</span> to solve linear&nbsp;regression</h2>
 <p>Now we know how to calculate our orthonormal vector <span class="math">\(Q\)</span>, we can finally use it to obtain our regression coefficients <span class="math">\(b\)</span> and our predicted values <span class="math">\(\hat y\)</span>. In the last post, we used a small dataset to demonstrate the normal equation, and showed how to get the <span class="math">\(b\)</span><span class="quo">&#8216;</span>s and <span class="math">\(\hat y\)</span> using this method. We&#8217;ll use this same example to demonstrate how to do the same using an orthonormal&nbsp;matrix.</p>
 <p>Firstly, let&#8217;s load in the required packages, and create our dataset matrix <span class="math">\(X\)</span> and outcome vector <span class="math">\(y\)</span>.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">qr</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">norm</span>
+<pre><code class="python">import math
+import numpy as np
+from numpy.linalg import qr, inv, norm
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">]])</span>
-</pre></div>
-
+X = np.array([[1, 1], [1, 2], [1, 3]])
+y = np.array([[3], [6], [7]])
+</code></pre>
 
 <p>In order to calculate our orthonormal matrix, we can use the <code>qr</code> method from <code>numpy.linalg</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">Q</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">qr</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-<span class="n">Q</span>
-</pre></div>
+<pre><code class="python">Q, R = qr(X)
+Q
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[-5.77350269e-01,  7.07106781e-01],</span>
-<span class="err">       [-5.77350269e-01,  5.55111512e-17],</span>
-<span class="err">       [-5.77350269e-01, -7.07106781e-01]])</span>
-</pre></div>
-
-
+<pre><code>array([[-5.77350269e-01,  7.07106781e-01],
+       [-5.77350269e-01,  5.55111512e-17],
+       [-5.77350269e-01, -7.07106781e-01]])
+</code></pre>
 <p>Let&#8217;s confirm that <code>numpy</code> is giving us the same values that we would using the equations we defined&nbsp;above:</p>
-<div class="highlight"><pre><span></span><span class="c1"># Calculate G</span>
-<span class="n">F_T_g</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">F_T_F</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">G</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">F_T_g</span><span class="o">/</span><span class="n">F_T_F</span><span class="p">)</span><span class="o">*</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<pre><code class="python"># Calculate G
+F_T_g = X[:, 0].transpose().dot(X[:, 1])
+F_T_F = X[:, 0].transpose().dot(X[:, 0])
+G = X[:, 1] - (F_T_g/F_T_F)*X[:, 0]
 
-<span class="c1"># Turn F and G into unit vectors</span>
-<span class="n">F</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">G</span> <span class="o">=</span> <span class="n">G</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+# Turn F and G into unit vectors
+F = X[:, 0] / norm(X[:, 0])
+G = G / norm(G)
 
-<span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">F</span><span class="p">,</span> <span class="n">G</span><span class="p">))</span>
-</pre></div>
+np.column_stack((F, G))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 0.57735027, -0.70710678],</span>
-<span class="err">       [ 0.57735027,  0.        ],</span>
-<span class="err">       [ 0.57735027,  0.70710678]])</span>
-</pre></div>
-
-
+<pre><code>array([[ 0.57735027, -0.70710678],
+       [ 0.57735027,  0.        ],
+       [ 0.57735027,  0.70710678]])
+</code></pre>
 <p>We can see we have the same values, albeit with the signs&nbsp;reversed.</p>
 <p>We can now calculate our <span class="math">\(b\)</span><span class="quo">&#8216;</span>s by using our simplified equation, <span class="math">\(b = Q^Ty\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-<span class="n">b</span>
-</pre></div>
+<pre><code class="python">b = Q.transpose().dot(y)
+b
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[-9.23760431],</span>
-<span class="err">       [-2.82842712]])</span>
-</pre></div>
-
-
+<pre><code>array([[-9.23760431],
+       [-2.82842712]])
+</code></pre>
 <p>As you can see, these are a different set of coefficients from what you would get using <span class="math">\(X\)</span>. However, we can get the same <span class="math">\(\hat y\)</span> by calculating <span class="math">\(Qb\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">y_hat</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-<span class="n">y_hat</span>
-</pre></div>
+<pre><code class="python">y_hat = Q.dot(b)
+y_hat
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[3.33333333],</span>
-<span class="err">       [5.33333333],</span>
-<span class="err">       [7.33333333]])</span>
-</pre></div>
-
-
+<pre><code>array([[3.33333333],
+       [5.33333333],
+       [7.33333333]])
+</code></pre>
 <p>As you can see, these are the exact same <span class="math">\(\hat y\)</span> values that we obtained using the normal equation with <span class="math">\(X\)</span>, and what <code>sklearn</code> produced for us in the last&nbsp;post.</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->

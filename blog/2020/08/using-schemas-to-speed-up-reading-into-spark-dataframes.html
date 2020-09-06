@@ -80,92 +80,82 @@
 <p>When using <code>spark.read_csv</code> to read in a <span class="caps">CSV</span> in PySpark, the most straightforward way is to set the <code>inferSchema</code> argument to <code>True</code>. This means that PySpark will attempt to check the data in order to work out what type of data each column&nbsp;is. </p>
 <p>The problem with this operation is that it&#8217;s quite memory intensive, especially for large datasets, as Spark needs to look at a sufficient amount of data in order to correctly infer the type. Imagine that you have a column with integers in the first 1000 rows, but then a string in the 1001th row. If PySpark had inferred this column was an <code>IntegerType</code> based on the top few rows, then we would end up with missing values for each of the rows containing a string. As such, PySpark either needs to scan the whole dataset, or randomly sample enough rows to infer the&nbsp;type.</p>
 <p>One way we can get around this is by determining the type of the data beforehand and passing this information to PySpark using an schema. The syntax for this is pretty straightforward. Each column&#8217;s name and type is defined using the <code>StructField</code> method from <code>pyspark.sql</code>:</p>
-<div class="highlight"><pre><span></span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;trip_id&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
+<pre><code class="python">StructField(&quot;trip_id&quot;, StringType(), True)
+</code></pre>
 
 <p>The three arguments that <code>StructField</code> takes are the name you&#8217;d like to give the column, the column&#8217;s data type, and whether the field can contain null values (as a boolean). The available column data types are also in <code>pyspark.sql</code>, and cover a wide type of possible data types, from string, float and integer to boolean and datetime. A <code>StructField</code> is created for each column, and these are passed as a list to <code>pyspark.sql</code><span class="quo">&#8216;</span>s <code>StructType</code>. This schema can then be passed to <code>spark.read.csv</code><span class="quo">&#8216;</span>s <code>schema</code> argument.</p>
-<div class="highlight"><pre><span></span><span class="n">StructType</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;trip_id&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;call_type&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)]</span>
-<span class="p">)</span>
-</pre></div>
-
+<pre><code class="python">StructType(
+    [StructField(&quot;trip_id&quot;, StringType(), True),
+    StructField(&quot;call_type&quot;, StringType(), True)]
+)
+</code></pre>
 
 <p>In order to test how much faster it is to use a schema, I will be using the <a href="https://archive.ics.uci.edu/ml/datasets/Taxi+Service+Trajectory+-+Prediction+Challenge,+ECML+PKDD+2015">Taxi Service Trajectory</a> dataset from the <span class="caps">UCI</span> Machine Learning Repository. This dataset has 9 columns and around 1.7 million&nbsp;rows.</p>
 <p>We&#8217;ll first set up our <code>SparkSession</code> to be able to access our data on&nbsp;S3:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkConf</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
-<span class="kn">import</span> <span class="nn">sagemaker_pyspark</span>
-<span class="kn">import</span> <span class="nn">botocore.session</span>
+<pre><code class="python">from pyspark import SparkConf
+from pyspark.sql import SparkSession
+import sagemaker_pyspark
+import botocore.session
 
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">LongType</span><span class="p">,</span> <span class="n">BooleanType</span>
+from time import time
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, LongType, BooleanType
 
-<span class="n">session</span> <span class="o">=</span> <span class="n">botocore</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get_session</span><span class="p">()</span>
-<span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_credentials</span><span class="p">()</span>
+session = botocore.session.get_session()
+credentials = session.get_credentials()
 
-<span class="n">conf</span> <span class="o">=</span> <span class="p">(</span><span class="n">SparkConf</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.driver.extraClassPath&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sagemaker_pyspark</span><span class="o">.</span><span class="n">classpath_jars</span><span class="p">())))</span>
+conf = (SparkConf()
+        .set(&quot;spark.driver.extraClassPath&quot;, &quot;:&quot;.join(sagemaker_pyspark.classpath_jars())))
 
-<span class="n">spark</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">SparkSession</span>
-    <span class="o">.</span><span class="n">builder</span>
-    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">)</span> \
-    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.access.key&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">access_key</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fs.s3a.secret.key&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">secret_key</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;schema_test&quot;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
-<span class="p">)</span>
-</pre></div>
-
+spark = (
+    SparkSession
+    .builder
+    .config(conf=conf) \
+    .config('fs.s3a.access.key', credentials.access_key)
+    .config('fs.s3a.secret.key', credentials.secret_key)
+    .appName(&quot;schema_test&quot;)
+    .getOrCreate()
+)
+</code></pre>
 
 <p>We&#8217;ll also set up our data&nbsp;path:</p>
-<div class="highlight"><pre><span></span><span class="n">bucket</span> <span class="o">=</span> <span class="s2">&quot;sagemaker-pyspark&quot;</span>
-<span class="n">data_key</span> <span class="o">=</span> <span class="s2">&quot;train.csv&quot;</span>
-<span class="n">data_location</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3a://</span><span class="si">{bucket}</span><span class="s2">/</span><span class="si">{data_key}</span><span class="s2">&quot;</span>
-</pre></div>
-
+<pre><code class="python">bucket = &quot;sagemaker-pyspark&quot;
+data_key = &quot;train.csv&quot;
+data_location = f&quot;s3a://{bucket}/{data_key}&quot;
+</code></pre>
 
 <p>Let&#8217;s first time how long it takes to read in these data when PySpark has to infer the&nbsp;schema:</p>
-<div class="highlight"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<pre><code class="python">t1 = time()
 
-<span class="n">data_inferred</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">data_location</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">inferSchema</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+data_inferred = spark.read.csv(data_location, header = 'True', inferSchema = True)
 
-<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Completed in </span><span class="si">%s</span><span class="s1"> sec.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)))</span>
-</pre></div>
+t2 = time()
+print('Completed in %s sec.' % (str(t2 - t1)))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Completed in 28.1013503074646 sec.</span>
-</pre></div>
-
-
+<pre><code>Completed in 28.1013503074646 sec.
+</code></pre>
 <p>We&#8217;ll now compare how long it takes when we explicitly tell PySpark what the data schema&nbsp;is:</p>
-<div class="highlight"><pre><span></span><span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<pre><code class="python">t1 = time()
 
-<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;trip_id&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;call_type&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;origin_call&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;origin_stand&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;taxi_id&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;day_type&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;missing_data&quot;</span><span class="p">,</span> <span class="n">BooleanType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;polyline&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)]</span>
-<span class="p">)</span>
-<span class="n">data_schema</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">data_location</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span> <span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span><span class="p">)</span>
+schema = StructType(
+    [StructField(&quot;trip_id&quot;, StringType(), True),
+    StructField(&quot;call_type&quot;, StringType(), True),
+    StructField(&quot;origin_call&quot;, IntegerType(), True),
+    StructField(&quot;origin_stand&quot;, IntegerType(), True),
+    StructField(&quot;taxi_id&quot;, LongType(), True),
+    StructField(&quot;timestamp&quot;, LongType(), True),
+    StructField(&quot;day_type&quot;, StringType(), True),
+    StructField(&quot;missing_data&quot;, BooleanType(), True),
+    StructField(&quot;polyline&quot;, StringType(), True)]
+)
+data_schema = spark.read.csv(data_location, header = 'False', schema = schema)
 
-<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Completed in </span><span class="si">%s</span><span class="s1"> sec.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)))</span>
-</pre></div>
+t2 = time()
+print('Completed in %s sec.' % (str(t2 - t1)))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Completed in 2.506075620651245 sec.</span>
-</pre></div>
-
-
+<pre><code>Completed in 2.506075620651245 sec.
+</code></pre>
 <p>The data are read in around 10 times faster when we give PySpark the schema rather than asking it to infer it! Obviously this is a more practical step when you have data with fewer variables, but when reading truly large data, it is an easy way to save some processing&nbsp;time.</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->

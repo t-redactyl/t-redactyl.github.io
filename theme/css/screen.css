@@ -59,6 +59,11 @@ a img {
   border: none;
 }
 
+img.banner {
+  display: block;
+  margin: auto;
+}
+
 /* line 116, ../../../.rvm/gems/ruby-1.9.3-p551/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
 article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
   display: block;

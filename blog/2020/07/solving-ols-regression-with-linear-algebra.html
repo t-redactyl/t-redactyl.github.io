@@ -104,22 +104,21 @@
 </div>
 
 <p>We believe there is some underlying relationship between these variables, which can be modelled in the form of a line <span class="math">\(y = b_0 + b_1x_1\)</span>, where <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span> are the intercept and the <span class="math">\(x_1\)</span> coefficient respectively. However, when we plot our points, we can see that no straight line would go through all 3 of our points. Instead, looking ahead a bit, we can see that linear regression instead attempts to fit a line that is as close as possible to each of the points we have&nbsp;observed.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="n">ggplot</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<pre><code class="python">from plotnine import *
+from plotnine import ggplot
+import pandas as pd
 
-<span class="n">test_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;hours_study&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-                          <span class="s2">&quot;test_score&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]})</span>
+test_data = pd.DataFrame({&quot;hours_study&quot;: [1, 2, 3],
+                          &quot;test_score&quot;: [3, 6, 7]})
 
-<span class="p">(</span><span class="n">ggplot</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;hours_study&quot;</span><span class="p">,</span> <span class="s2">&quot;test_score&quot;</span><span class="p">))</span> 
-    <span class="o">+</span> <span class="n">geom_point</span><span class="p">()</span>
-    <span class="o">+</span> <span class="n">geom_smooth</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s2">&quot;grey&quot;</span><span class="p">)</span>
-    <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Daily hours of study (average)&quot;</span><span class="p">)</span>
-    <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Test score&quot;</span><span class="p">)</span>
-    <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
-<span class="p">)</span>
-</pre></div>
-
+(ggplot(test_data, aes(&quot;hours_study&quot;, &quot;test_score&quot;)) 
+    + geom_point()
+    + geom_smooth(method = &quot;lm&quot;, se = False, colour = &quot;grey&quot;)
+    + xlab(&quot;Daily hours of study (average)&quot;)
+    + ylab(&quot;Test score&quot;)
+    + theme_bw()
+)
+</code></pre>
 
 <p><img src="/figure/normal_equation_1.png" title="Linear regression trend" style="display: block; margin: auto;" /></p>
 <p>We can see this clearly from a mathematical viewpoint as well. Each of our points will lie on the line <span class="math">\(y = b_0 + b_1x_1\)</span> only under the following conditions: if <span class="math">\(b_0 + b_1 \cdotp 1 = 3\)</span>, the first observation is on the line; if <span class="math">\(b_0 + b_1 \cdotp 2 = 6\)</span>, the second observation is on the line; and if <span class="math">\(b_0 + b_1 \cdotp 3 = 7\)</span> the third observation is on the&nbsp;line.</p>
@@ -160,31 +159,25 @@ X^TXb = X^Ty
 $$</div>
 <p>This equation will give us a new set of linear equations. If we solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>, then we will get the correct coefficients to find <span class="math">\(\hat y\)</span>, our closest vector to <span class="math">\(y\)</span> that lies in <span class="math">\(C(X)\)</span>.</p>
 <p>Let&#8217;s see this in action with our example dataset. For the lefthand side, we want to calculate our new matrix <span class="math">\(X^TX\)</span>.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<pre><code class="python">import numpy as np
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
-<span class="n">X_T_X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-<span class="n">X_T_X</span>
-</pre></div>
+X = np.array([[1, 1], [1, 2], [1, 3]])
+X_T_X = X.transpose().dot(X)
+X_T_X
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 3,  6],</span>
-<span class="err">       [ 6, 14]])</span>
-</pre></div>
-
-
+<pre><code>array([[ 3,  6],
+       [ 6, 14]])
+</code></pre>
 <p>For the righthand side, we want to calculate our new vector <span class="math">\(X^Ty\)</span>.</p>
-<div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">]])</span>
-<span class="n">X_T_y</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-<span class="n">X_T_y</span>
-</pre></div>
+<pre><code class="python">y = np.array([[3], [6], [7]])
+X_T_y = X.transpose().dot(y)
+X_T_y
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[16],</span>
-<span class="err">       [36]])</span>
-</pre></div>
-
-
+<pre><code>array([[16],
+       [36]])
+</code></pre>
 <p>We can now put these together to create our new system of simultaneous equations, and solve these for <span class="math">\(b_0\)</span> and <span class="math">\(b_1\)</span>.</p>
 <div class="math">$$
 X^TXb = X^Ty = \begin{bmatrix} 3 &amp; 6 \\ 6 &amp; 14 \end{bmatrix} \begin{bmatrix} b_0 \\ b_1 \end{bmatrix} = \begin{bmatrix} 16 \\ 36 \end{bmatrix}
@@ -209,47 +202,37 @@ e = y - \hat y = \begin{bmatrix} 3 \\[4pt] 6 \\[4pt] 7 \end{bmatrix} - \begin{bm
 $$</div>
 <p>Each of the components of <span class="math">\(e\)</span> represents the vertical distance between our line of best fit and our observed <span class="math">\(y\)</span>, as shown in the graph at the beginning of this post. For example, <span class="math">\(y_1\)</span> <span class="dquo">&#8220;</span>misses&#8221; the line by <span class="math">\(-\frac{1}{3}\)</span> of a test score&nbsp;grade.</p>
 <p>We can confirm that <span class="math">\(e\)</span> is indeed orthogonal to <span class="math">\(C(X)\)</span> by picking any vector from that space and calculating its dot product with <span class="math">\(e\)</span>. Let&#8217;s try this out with <span class="math">\((1, 2, 3)\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">x_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
-<span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">]])</span>
-<span class="n">x_1</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">x_1 = np.array([[1], [2], [3]])
+e = np.array([[-1/3], [2/3], [-1/3]])
+x_1.transpose().dot(e)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[0.]])</span>
-</pre></div>
-
-
+<pre><code>array([[0.]])
+</code></pre>
 <h2>Confirming our&nbsp;result</h2>
 <p>Finally, let&#8217;s compare the result we got from our normal equation approach to the result given by <code>sklearn</code><span class="quo">&#8216;</span>s implementation of linear regression. Let&#8217;s start by fitting our model, with the <span class="math">\(X\)</span> and <span class="math">\(y\)</span> matrices we defined&nbsp;above:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<pre><code class="python">from sklearn.linear_model import LinearRegression
 
-<span class="n">reg</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</pre></div>
-
+reg = LinearRegression().fit(X, y)
+</code></pre>
 
 <p>We&#8217;ll retrieve the model intercept (<span class="math">\(b_0\)</span>) and <span class="math">\(x_1\)</span> coefficient (<span class="math">\(b_1\)</span>)&nbsp;estimates:</p>
-<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model intercept (b_0): </span><span class="si">{reg.intercept_}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model coefficient (b_1): </span><span class="si">{reg.coef_}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">print(f&quot;Model intercept (b_0): {reg.intercept_}&quot;)
+print(f&quot;Model coefficient (b_1): {reg.coef_}&quot;)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Model intercept (b_0): [1.33333333]</span>
-<span class="err">Model coefficient (b_1): [[0. 2.]]</span>
-</pre></div>
-
-
+<pre><code>Model intercept (b_0): [1.33333333]
+Model coefficient (b_1): [[0. 2.]]
+</code></pre>
 <p>Finally, we&#8217;ll use this model to predict the best fitting values from <span class="math">\(X\)</span>, that is, to generate <span class="math">\(\hat y\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generate y-hat:</span><span class="se">\n</span><span class="s2"> {reg.predict(X)}&quot;</span><span class="p">)</span> 
-</pre></div>
+<pre><code class="python">print(f&quot;Generate y-hat:\n {reg.predict(X)}&quot;) 
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">Generate y-hat:</span>
-<span class="err"> [[3.33333333]</span>
-<span class="err"> [5.33333333]</span>
-<span class="err"> [7.33333333]]</span>
-</pre></div>
-
-
+<pre><code>Generate y-hat:
+ [[3.33333333]
+ [5.33333333]
+ [7.33333333]]
+</code></pre>
 <p>We can see that our use of the normal method has achieve the exact same values given by the standard Python implementation of linear&nbsp;regression!</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->

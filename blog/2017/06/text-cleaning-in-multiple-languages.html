@@ -80,336 +80,259 @@
 <p>In this post, my ultimate aim of cleaning is to transform text from sentences into a standardised <a href="https://en.wikipedia.org/wiki/Bag-of-words_model">bag-of-words</a> for further analysis, but you can pick and choose from these methods to get your text into the format most suitable for you. To demonstrate the flexibility of these packages, I&#8217;ll show you how we can process both English and Spanish texts (and by extension a few other common languages) using similar&nbsp;methods.</p>
 <h2>Our example&nbsp;texts</h2>
 <p>For our example texts, let&#8217;s use some famous opening lines from both English and Spanish novels. On the English side, we have &#8216;Pride and Prejudice&#8217; by Jane Austen, &#8216;The Making of Americans&#8217; by Gertrude Stein, &#8216;The Old Man and the Sea&#8217; by Ernest Hemingway, and &#8216;Adventures of Huckleberry Finn&#8217; by Mark Twain. On the Spanish side, we have &#8216;Don Quixote&#8217; by Miguel de Cervantes, &#8216;Cien años de soledad&#8217; (&#8216;One Hundred Years of Solitude&#8217;) by Gabriel García Márquez, &#8216;El túnel&#8217; (&#8216;The Tunnel&#8217;) by Ernesto Sábato, and &#8216;La familia de Pascual Duarte&#8217; (&#8216;The Family of Pascual Duarte&#8217;) by Camilo José&nbsp;Cela.</p>
-<div class="highlight"><pre><span></span><span class="c1"># English texts</span>
-<span class="n">engTexts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;Once an angry man dragged his father along the ground through his own orchard. &quot;Stop!&quot; cried the groaning old man at last, &quot;Stop! I did not drag my father beyond this tree.&quot;&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;He was an old man who fished alone in a skiff in the Gulf Stream and he had gone eighty-four days now without taking a fish.&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;You don</span><span class="se">\&#39;</span><span class="s1">t know about me without you have read a book by the name of The Adventures of Tom Sawyer; but that ain</span><span class="se">\&#39;</span><span class="s1">t no matter.&#39;</span><span class="p">]</span>
-</pre></div>
+<pre><code class="python"># English texts
+engTexts = [u'It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.',
+            u'Once an angry man dragged his father along the ground through his own orchard. &quot;Stop!&quot; cried the groaning old man at last, &quot;Stop! I did not drag my father beyond this tree.&quot;',
+            u'He was an old man who fished alone in a skiff in the Gulf Stream and he had gone eighty-four days now without taking a fish.',
+            u'You don\'t know about me without you have read a book by the name of The Adventures of Tom Sawyer; but that ain\'t no matter.']
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="c1"># Spanish texts</span>
-<span class="n">espTexts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no hace mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor.&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;Muchos años después, frente al pelotón de fusilamiento, el coronel Aureliano Buendía había de recordar aquella tarde remota en que su padre lo llevó a conocer el hielo.&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;Bastará decir que soy Juan Pablo Castel, el pintor que mató a María Iribarne; supongo que el proceso está en el recuerdo de todos y que no se necesitan mayores explicaciones sobre mi persona.&#39;</span><span class="p">,</span>
-            <span class="sa">u</span><span class="s1">&#39;Yo, señor, no soy malo, aunque no me faltarían motivos para serlo.&#39;</span><span class="p">]</span>
-</pre></div>
-
+<pre><code class="python"># Spanish texts
+espTexts = [u'En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no hace mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor.',
+            u'Muchos años después, frente al pelotón de fusilamiento, el coronel Aureliano Buendía había de recordar aquella tarde remota en que su padre lo llevó a conocer el hielo.',
+            u'Bastará decir que soy Juan Pablo Castel, el pintor que mató a María Iribarne; supongo que el proceso está en el recuerdo de todos y que no se necesitan mayores explicaciones sobre mi persona.',
+            u'Yo, señor, no soy malo, aunque no me faltarían motivos para serlo.']
+</code></pre>
 
 <h2>Expanding&nbsp;contractions</h2>
 <p>In English, it is pretty common for us to use contractions of words, such as isn&#8217;t, you&#8217;re and should&#8217;ve. However, these contractions cause all sorts of problems for normalisation and standardisation algorithms (which we&#8217;ll speak about more later in this post). As such, it is best to get rid of them, and the easiest way to do so expand all of these contractions prior to further cleaning&nbsp;steps.</p>
 <p>An easy way of doing this is to simply find the contractions and replace them with their full form. <a href="https://gist.github.com/nealrs/96342d8231b75cf4bb82">This gist</a> has a nice little function, <code>expandContractions()</code>, that does just that. In the below code I am using an <a href="https://gist.github.com/t-redactyl/aff518d750f47f0ef6c20f04ef6fb823">updated function</a> where I&#8217;ve included <code>text.lower()</code> (as suggested by a user on the original post) to make sure words at the start of a sentence are included. Let&#8217;s try it on our fourth English sentence, which has a number of&nbsp;contractions:</p>
-<div class="highlight"><pre><span></span><span class="n">expandContractions</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-</pre></div>
+<pre><code class="python">expandContractions(engTexts[3])
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;you do not know about me without you have read a book by the name of the adventures of tom sawyer; but that am not no matter.&#39;</span>
-</pre></div>
-
-
+<pre><code>u'you do not know about me without you have read a book by the name of the adventures of tom sawyer; but that am not no matter.'
+</code></pre>
 <p>It&#8217;s a bit grammatically incorrect, but you&#8217;ll see later in this post that this is not very important for what we&#8217;re trying to do. Let&#8217;s go ahead and replace this&nbsp;sentence:</p>
-<div class="highlight"><pre><span></span><span class="n">engTexts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">expandContractions</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<pre><code class="python">engTexts[3] = expandContractions(engTexts[3])
 
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">engTexts</span><span class="p">)</span>
-</pre></div>
+from pprint import pprint
+pprint(engTexts)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">[u&#39;It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.&#39;,</span>
-<span class="err"> u&#39;Once an angry man dragged his father along the ground through his own orchard. &quot;Stop!&quot; cried the groaning old man at last, &quot;Stop! I did not drag my father beyond this tree.&quot;&#39;,</span>
-<span class="err"> u&#39;He was an old man who fished alone in a skiff in the Gulf Stream and he had gone eighty-four days now without taking a fish.&#39;,</span>
-<span class="err"> u&#39;you do not know about me without you have read a book by the name of the adventures of tom sawyer; but that am not no matter.&#39;]</span>
-</pre></div>
-
-
+<pre><code>[u'It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.',
+ u'Once an angry man dragged his father along the ground through his own orchard. "Stop!" cried the groaning old man at last, "Stop! I did not drag my father beyond this tree."',
+ u'He was an old man who fished alone in a skiff in the Gulf Stream and he had gone eighty-four days now without taking a fish.',
+ u'you do not know about me without you have read a book by the name of the adventures of tom sawyer; but that am not no matter.']
+</code></pre>
 <h2>Standardising your signal&nbsp;words</h2>
 <p>Bag-of-words analyses rely on getting the frequency of all of the &#8216;signal&#8217; words in a piece of text, or those that are likely to characterise what the piece of text is about. For example, in the opening lines to <em>Pride and Prejudice</em> words such as &#8216;man&#8217;, &#8216;fortune&#8217; and &#8216;wife&#8217; give a pretty good idea of what the sentence is about. As you might guess, these frequencies rely on these signal words being in the exact same format. However, the same word often has different representations depending on the context. The word &#8216;camp&#8217;, for example, can be &#8216;camped&#8217;, &#8216;camps&#8217; and &#8216;camping&#8217;, but these words all ultimately mean the same thing and should be grouped together in a bag-of-words&nbsp;analysis.</p>
 <p>One way of addressing this is <a href="https://en.wikipedia.org/wiki/Stemming">stemming</a>. Stemming is where you strip words back to a base form that is common to related words, even if that is not the actual grammatical root of the word. For example, &#8216;judging&#8217; would be stripped back to &#8216;judg&#8217;, although the actual correct root is&nbsp;&#8216;judge&#8217;.</p>
 <p>As we&#8217;re interested in processing both English and Spanish texts, we&#8217;ll use the <a href="http://snowballstem.org/">Snowball stemmer</a> from Python&#8217;s <span class="caps">NLTK</span>. This stemmer has support for a <a href="http://snowballstem.org/algorithms/">wide variety of languages</a>, including French, Italian, German, Dutch, Swedish, Russian and&nbsp;Finnish.</p>
 <p>Let&#8217;s import the package, and assign the English and Spanish stemmers to different&nbsp;variables.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nltk.stem.snowball</span> <span class="kn">import</span> <span class="n">SnowballStemmer</span>
+<pre><code class="python">from nltk.stem.snowball import SnowballStemmer
 
-<span class="n">sbEng</span> <span class="o">=</span> <span class="n">SnowballStemmer</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
-<span class="n">sbEsp</span> <span class="o">=</span> <span class="n">SnowballStemmer</span><span class="p">(</span><span class="s1">&#39;spanish&#39;</span><span class="p">)</span>
-</pre></div>
-
+sbEng = SnowballStemmer('english')
+sbEsp = SnowballStemmer('spanish')
+</code></pre>
 
 <p>To run the stemmers over our sentences, we need to split the sentences into a list of words and run the stemmer over each of the words. We still want to do some more processing, so we&#8217;ll join them back into a sentence with the <code>join()</code> function for now, but we will eventually tokenise these when we&#8217;re happy with our&nbsp;cleaning.</p>
-<div class="highlight"><pre><span></span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">sbEng</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)])</span>
-</pre></div>
+<pre><code class="python">' '.join([sbEng.stem(item) for item in (engTexts[0]).split(' ')])
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;it is a truth univers acknowledged, that a singl man in possess of a good fortune, must be in want of a wife.&#39;</span>
-</pre></div>
-
-
+<pre><code>u'it is a truth univers acknowledged, that a singl man in possess of a good fortune, must be in want of a wife.'
+</code></pre>
 <p>This looks alright, but not completely accurate. We can see that &#8216;universally&#8217; has been stemmed to &#8216;univers&#8217; and &#8216;possession&#8217; has been stemmed to &#8216;possess&#8217;, which could be useful in grouping related words, but other words, like &#8216;is&#8217; and &#8216;acknowledged&#8217; have not been&nbsp;touched.</p>
-<div class="highlight"><pre><span></span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">sbEsp</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">(</span><span class="n">espTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)])</span>
-</pre></div>
+<pre><code class="python">' '.join([sbEsp.stem(item) for item in (espTexts[0]).split(' ')])
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;lug manch cuy nombr quer acord hac tiemp viv hidalg lanz astiller adarg antigu rocin flac galg corredor&#39;</span>
-</pre></div>
-
-
+<pre><code>u'lug manch cuy nombr quer acord hac tiemp viv hidalg lanz astiller adarg antigu rocin flac galg corredor'
+</code></pre>
 <p>The Spanish text also has some problems. Nouns that don&#8217;t need to be stemmed, such as &#8216;lugar&#8217; (place) and &#8216;tiempo&#8217; (time), have been reduced to unnecessary base forms. In addition, verbs that come from common roots are stemmed inconsistently. For example, the verb &#8216;quiero&#8217; (I want) is reduced to &#8216;quier&#8217;, but you can see that another form of this verb, &#8216;queremos&#8217; (we want) would be stemmed to &#8216;quer&#8217;&nbsp;below.</p>
-<div class="highlight"><pre><span></span><span class="n">sbEsp</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="s1">&#39;queremos&#39;</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">sbEsp.stem('queremos')
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;quer&#39;</span>
-</pre></div>
-
-
+<pre><code>u'quer'
+</code></pre>
 <p>In order to address this, there is a more sophisticated approach called <a href="https://en.wikipedia.org/wiki/Stemming#Lemmatisation_algorithms">lemmatisation</a>. Lemmatisation takes into account whether a word in a sentence is a noun, verb, adjective, etc., which is known as tagging a word&#8217;s <a href="https://en.wikipedia.org/wiki/Part_of_speech">part-of-speech</a>. This means the algorithm can apply more appropriate rules about how to standardise words. For example, nouns can be singularised (and in Spanish, have their genders set to&nbsp;masculine).</p>
 <p>We will use a package called <a href="http://www.clips.ua.ac.be/pattern">pattern</a> which includes both English and Spanish lemmatisation (among many other functions). <code>pattern</code>, like <code>Snowball</code>, also supports lemmatisation in a small number of other languages. Let&#8217;s install <code>pattern</code>, and then import the English and Spanish&nbsp;packages:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">pattern</span>
-</pre></div>
+<pre><code class="python">!pip install pattern
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pattern.en</span> <span class="k">as</span> <span class="nn">lemEng</span>
-<span class="kn">import</span> <span class="nn">pattern.es</span> <span class="k">as</span> <span class="nn">lemEsp</span>
-</pre></div>
-
+<pre><code class="python">import pattern.en as lemEng
+import pattern.es as lemEsp
+</code></pre>
 
 <p>Using this package, we can easily tag the part-of-speech of each word, and then run the lemmatisation algorithm over it. Have a look at this&nbsp;example:</p>
-<div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="n">lemEng</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;I ate many pizzas&#39;</span><span class="p">,</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
-</pre></div>
+<pre><code class="python">pprint(lemEng.parse('I ate many pizzas', lemmata=True).split(' '))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">[u&#39;I/PRP/B-NP/O/i&#39;,</span>
-<span class="err"> u&#39;ate/VBD/B-VP/O/eat&#39;,</span>
-<span class="err"> u&#39;many/JJ/B-NP/O/many&#39;,</span>
-<span class="err"> u&#39;pizzas/NNS/I-NP/O/pizza&#39;]</span>
-</pre></div>
-
-
+<pre><code>[u'I/PRP/B-NP/O/i',
+ u'ate/VBD/B-VP/O/eat',
+ u'many/JJ/B-NP/O/many',
+ u'pizzas/NNS/I-NP/O/pizza']
+</code></pre>
 <p>This output is a little confusing, but you can see that there are a few bits of information associated with each word. Let&#8217;s just take the word &#8216;pizzas&#8217;, for&nbsp;example:</p>
-<div class="highlight"><pre><span></span><span class="n">lemEng</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;I ate many pizzas&#39;</span><span class="p">,</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span>
-</pre></div>
+<pre><code class="python">lemEng.parse('I ate many pizzas', lemmata=True).split(' ')[3]
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;pizzas/NNS/I-NP/O/pizza&#39;</span>
-</pre></div>
-
-
+<pre><code>u'pizzas/NNS/I-NP/O/pizza'
+</code></pre>
 <p>We can see that it is tagged as &#8216;<span class="caps">NNS</span>&#8217;, which indicates that it is a plural noun (information on all possible tags is <a href="http://www.clips.ua.ac.be/pages/mbsp-tags">here</a>). More importantly for us, because the algorithm knows that it is a plural noun it can correctly lemmatise it to&nbsp;&#8216;pizza&#8217;.</p>
 <p>Now that we know what is going on under the hood, we can jump to pulling the lemmatised words out. Let&#8217;s try again with the first sentence in our English&nbsp;set:</p>
-<div class="highlight"><pre><span></span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lemEng</span><span class="o">.</span><span class="n">Sentence</span><span class="p">(</span><span class="n">lemEng</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">lemmata</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">' '.join(lemEng.Sentence(lemEng.parse(engTexts[0], lemmata=True)).lemmata)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;it be a truth universally acknowledge , that a single man in possession of a good fortune , must be in want of a wife .&#39;</span>
-</pre></div>
-
-
+<pre><code>u'it be a truth universally acknowledge , that a single man in possession of a good fortune , must be in want of a wife .'
+</code></pre>
 <p>This looks a lot better - it has changed &#8216;is&#8217; to &#8216;be&#8217;, and &#8216;acknowledged&#8217; to &#8216;acknowledge&#8217;. Now let&#8217;s try our first Spanish sentence&nbsp;again.</p>
-<div class="highlight"><pre><span></span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lemEsp</span><span class="o">.</span><span class="n">Sentence</span><span class="p">(</span><span class="n">lemEsp</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">espTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">lemmata</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">' '.join(lemEsp.Sentence(lemEsp.parse(espTexts[0], lemmata=True)).lemmata)
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;en un lugar de el mancha , de cuyo nombre no querer acordarme , no hacer mucho tiempo que viv\xe3\xada un hidalgo de el de lanzar en astillero , adarga antiguo , roc\xe3\xadn flaco y galgo corredor .&#39;</span>
-</pre></div>
-
-
+<pre><code>u'en un lugar de el mancha , de cuyo nombre no querer acordarme , no hacer mucho tiempo que viv\xe3\xada un hidalgo de el de lanzar en astillero , adarga antiguo , roc\xe3\xadn flaco y galgo corredor .'
+</code></pre>
 <p>This is <em>much</em> better. It has left &#8216;lugar&#8217; and &#8216;tiempo&#8217; alone, and has changed &#8216;quiero&#8217; to its correct root &#8216;querer&#8217;. Given that this is the nicest possible result for standardising our words, let&#8217;s do this for all of our sentences before moving onto the next&nbsp;step.</p>
-<div class="highlight"><pre><span></span><span class="n">engTexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lemEng</span><span class="o">.</span><span class="n">Sentence</span><span class="p">(</span><span class="n">lemEng</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">lemmata</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">engTexts</span><span class="p">]</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">engTexts</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">engTexts = [' '.join(lemEng.Sentence(lemEng.parse(sentence, lemmata=True)).lemmata) for sentence in engTexts]
+pprint(engTexts)
+</code></pre>
 
+<pre><code>[u'it be a truth universally acknowledge , that a single man in possession of a good fortune , must be in want of a wife .',
+ u'once an angry man drag his father along the ground through his own orchard .\n" stop !\n" cry the groan old man at last , " stop !\nI do not drag my father beyond this tree .\n"',
+ u'he be an old man who fish alone in a skiff in the gulf stream and he have go eighty-four day now without take a fish .',
+ u'you do not know about me without you have read a book by the name of the adventure of tom sawyer ; but that be not no matter .']
+</code></pre>
+<pre><code class="python">espTexts = [' '.join(lemEsp.Sentence(lemEsp.parse(sentence, lemmata=True)).lemmata) for sentence in espTexts]
+pprint(espTexts)
+</code></pre>
 
-<div class="highlight"><pre><span></span><span class="err">[u&#39;it be a truth universally acknowledge , that a single man in possession of a good fortune , must be in want of a wife .&#39;,</span>
-<span class="err"> u&#39;once an angry man drag his father along the ground through his own orchard .\n&quot; stop !\n&quot; cry the groan old man at last , &quot; stop !\nI do not drag my father beyond this tree .\n&quot;&#39;,</span>
-<span class="err"> u&#39;he be an old man who fish alone in a skiff in the gulf stream and he have go eighty-four day now without take a fish .&#39;,</span>
-<span class="err"> u&#39;you do not know about me without you have read a book by the name of the adventure of tom sawyer ; but that be not no matter .&#39;]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">espTexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lemEsp</span><span class="o">.</span><span class="n">Sentence</span><span class="p">(</span><span class="n">lemEsp</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">lemmata</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">lemmata</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">espTexts</span><span class="p">]</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">espTexts</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[u&#39;lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor&#39;,</span>
-<span class="err"> u&#39;a\xf1o despu\xe9s frente pelot\xf3n fusilamiento coronel aureliano buend\xeda haber recordar aquella tarde remoto padre llevar conocer hielo&#39;,</span>
-<span class="err"> u&#39;bastar\xe1 decir ser juan pablo castel pintor matar mar\xeda iribarne suponer proceso recuerdo necesitar mayor explicaci\xf3n persona&#39;,</span>
-<span class="err"> u&#39;se\xf1or ser malo aunque faltar\xedan motivo serlo&#39;]</span>
-</pre></div>
-
-
+<pre><code>[u'lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor',
+ u'a\xf1o despu\xe9s frente pelot\xf3n fusilamiento coronel aureliano buend\xeda haber recordar aquella tarde remoto padre llevar conocer hielo',
+ u'bastar\xe1 decir ser juan pablo castel pintor matar mar\xeda iribarne suponer proceso recuerdo necesitar mayor explicaci\xf3n persona',
+ u'se\xf1or ser malo aunque faltar\xedan motivo serlo']
+</code></pre>
 <h2>Dealing with&nbsp;numbers</h2>
 <p>The first line of the Old Man and the Sea has something kind of annoying - a number. Even worse, it&#8217;s written out as a word. For my purposes, numbers are not very useful and should be stripped out, although, of course, you might need them left in for your&nbsp;analysis!</p>
 <p>To do this, we can use this <a href="https://gist.github.com/t-redactyl/4297c8e01e5b37e8a4fdb0fea2ed93dd">function</a> that I wrote, based on the <a href="https://github.com/ghewgill/text2num">text2num</a> package. All this function does is strip out any words related to numbers in English, as well as numbers themselves, as part of this text cleaning process. Let&#8217;s run it over our piece of text containing&nbsp;&#8216;eighty-four&#8217;:</p>
-<div class="highlight"><pre><span></span><span class="n">remove_numbers</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-</pre></div>
+<pre><code class="python">remove_numbers(engTexts[2])
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;he be an old man who fish alone in a skiff in the gulf stream and he have go day now without take a fish .&#39;</span>
-</pre></div>
-
-
+<pre><code>u'he be an old man who fish alone in a skiff in the gulf stream and he have go day now without take a fish .'
+</code></pre>
 <p>It&#8217;s done the job! Let&#8217;s now update that piece of&nbsp;text:</p>
-<div class="highlight"><pre><span></span><span class="n">engTexts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">remove_numbers</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-</pre></div>
-
+<pre><code class="python">engTexts[2] = remove_numbers(engTexts[2])
+</code></pre>
 
 <h2>Normalising our&nbsp;text</h2>
 <p>Obviously our text still contains a lot of rubbish that needs to be cleaned up. Some important things we need to get rid of prior to tokenising the sentences are the punctuation marks and all of that extra whitespace. Another thing we want to get rid of are non-signal, or <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>, that are likely to be common across texts, such as &#8216;a&#8217;, &#8216;the&#8217;, and &#8216;in&#8217;. These tasks fall into a process called <a href="https://en.wikipedia.org/wiki/Text_normalization">normalisation</a>, and surprise, surprise, there is another multi-language package called <a href="https://github.com/davidmogar/cucco">cucco</a> that can do all of the most common normalisation tasks in English, Spanish and about 10 other languages. Please note that this blog post uses Cucco 1.0.0 - if you wish to use the package as I have in this post, download the tar.gz file from <a href="https://pypi.python.org/pypi/cucco/1.0.0">here</a> and install as&nbsp;below:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">file</span><span class="o">/</span><span class="n">cucco</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="mf">0.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
-</pre></div>
-
+<pre><code class="python">!pip install path/to/file/cucco-1.0.0.tar.gz
+</code></pre>
 
 <p>Let&#8217;s now import <code>cucco</code> for both English and&nbsp;Spanish:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cucco</span> <span class="kn">import</span> <span class="n">Cucco</span>
+<pre><code class="python">from cucco import Cucco
 
-<span class="n">normEng</span> <span class="o">=</span> <span class="n">Cucco</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">)</span>
-<span class="n">normEsp</span> <span class="o">=</span> <span class="n">Cucco</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s1">&#39;es&#39;</span><span class="p">)</span>
-</pre></div>
-
+normEng = Cucco(language='en')
+normEsp = Cucco(language='es')
+</code></pre>
 
 <p>Cucco has a function called <code>normalize()</code> which, as a default, runs all of its normalisation procedures over a piece of text. While convenient, we don&#8217;t want to do this as it gets rid of accent marks, and we want to keep these in our Spanish text (we&#8217;ll talk about how to get our special characters back in the next section). Instead, we&#8217;ll run three specific functions over our text: <code>remove_stop_words</code>, <code>replace_punctuation</code> and <code>remove_extra_whitespaces</code>. We can run these in order by putting them in a list and adding this as an argument to <code>normalize()</code>. Let&#8217;s try it with our first lines from the English and Spanish&nbsp;texts.</p>
-<div class="highlight"><pre><span></span><span class="n">norms</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;remove_stop_words&#39;</span><span class="p">,</span> <span class="s1">&#39;replace_punctuation&#39;</span><span class="p">,</span> <span class="s1">&#39;remove_extra_whitespaces&#39;</span><span class="p">]</span>
-<span class="n">normEng</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">engTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">norms</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">norms = ['remove_stop_words', 'replace_punctuation', 'remove_extra_whitespaces']
+normEng.normalize(engTexts[0], norms)
+</code></pre>
 
+<pre><code>u'truth universally acknowledge single man possession good fortune must want wife'
+</code></pre>
+<pre><code class="python">normEsp.normalize(espTexts[0], norms)
+</code></pre>
 
-<div class="highlight"><pre><span></span><span class="err">u&#39;truth universally acknowledge single man possession good fortune must want wife&#39;</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">normEsp</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">espTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">norms</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor&#39;</span>
-</pre></div>
-
-
+<pre><code>u'lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor'
+</code></pre>
 <p>Looks great! Let&#8217;s apply this over all of our&nbsp;texts.</p>
-<div class="highlight"><pre><span></span><span class="n">engTexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">normEng</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">norms</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">engTexts</span><span class="p">]</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">engTexts</span><span class="p">)</span>
-</pre></div>
+<pre><code class="python">engTexts = [normEng.normalize(sentence, norms) for sentence in engTexts]
+pprint(engTexts)
+</code></pre>
 
+<pre><code>[u'truth universally acknowledge single man possession good fortune must want wife',
+ u'angry man drag father along ground orchard stop cry groan old man last stop I drag father beyond tree',
+ u'old man fish alone skiff gulf stream go day now without take fish',
+ u'know without read book name adventure tom sawyer matter']
+</code></pre>
+<pre><code class="python">espTexts = [normEsp.normalize(sentence, norms) for sentence in espTexts]
+pprint(espTexts)
+</code></pre>
 
-<div class="highlight"><pre><span></span><span class="err">[u&#39;truth universally acknowledge single man possession good fortune must want wife&#39;,</span>
-<span class="err"> u&#39;angry man drag father along ground orchard stop cry groan old man last stop I drag father beyond tree&#39;,</span>
-<span class="err"> u&#39;old man fish alone skiff gulf stream go day now without take fish&#39;,</span>
-<span class="err"> u&#39;know without read book name adventure tom sawyer matter&#39;]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">espTexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">normEsp</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">norms</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">espTexts</span><span class="p">]</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">espTexts</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[u&#39;lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor&#39;,</span>
-<span class="err"> u&#39;a\xf1o despu\xe9s frente pelot\xf3n fusilamiento coronel aureliano buend\xeda haber recordar aquella tarde remoto padre llevar conocer hielo&#39;,</span>
-<span class="err"> u&#39;bastar\xe1 decir ser juan pablo castel pintor matar mar\xeda iribarne suponer proceso recuerdo necesitar mayor explicaci\xf3n persona&#39;,</span>
-<span class="err"> u&#39;se\xf1or ser malo aunque faltar\xedan motivo serlo&#39;]</span>
-</pre></div>
-
-
+<pre><code>[u'lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo roc\xedn flaco galgo corredor',
+ u'a\xf1o despu\xe9s frente pelot\xf3n fusilamiento coronel aureliano buend\xeda haber recordar aquella tarde remoto padre llevar conocer hielo',
+ u'bastar\xe1 decir ser juan pablo castel pintor matar mar\xeda iribarne suponer proceso recuerdo necesitar mayor explicaci\xf3n persona',
+ u'se\xf1or ser malo aunque faltar\xedan motivo serlo']
+</code></pre>
 <h2>Dealing with&nbsp;mojibake</h2>
 <p><a href="https://en.wikipedia.org/wiki/Mojibake">Mojibake??</a> What the heck is that?? It is a very cute term for that very annoying thing that happens when your text gets changed from one form of encoding to another and your special characters and punctuation turn into that crazy character salad. (In fact, the German term for this, <em>Buchstabensalat</em> means &#8216;letter salad&#8217;.) As we&#8217;ve already noticed, this has happened with all of the special characters (like á and ñ) in our Spanish&nbsp;sentences.</p>
 <p>The good news is that it is pretty easy to reclaim our special characters. However, the bad news is that we need to jump over to Python 3 to do so. We can use a Python 3 package called <a href="https://github.com/LuminosoInsight/python-ftfy">ftfy</a>, or &#8216;fixes text for you&#8217;, which is designed to deal with these encoding issues. Let&#8217;s go ahead and install&nbsp;it:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip3</span> <span class="n">install</span> <span class="n">ftfy</span>
-</pre></div>
-
+<pre><code class="python">!pip3 install ftfy
+</code></pre>
 
 <p>We can use the <code>fix_encoding()</code> function to get rid of all of that ugly mojibake. Let&#8217;s see how it goes with our first line of Spanish&nbsp;text:</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ftfy</span>
+<pre><code class="python">import ftfy
 
-<span class="nb">print</span><span class="p">(</span><span class="n">ftfy</span><span class="o">.</span><span class="n">fix_encoding</span><span class="p">(</span><span class="n">espTexts</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-</pre></div>
+print(ftfy.fix_encoding(espTexts[0]))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo rocín flaco galgo corredor</span>
-</pre></div>
-
-
+<pre><code>lugar mancha cuyo nombre querer acordarme hacer tiempo vivir hidalgo lanzar astillero adarga antiguo rocín flaco galgo corredor
+</code></pre>
 <p>Nice! It has worked beautifully, with the &#8216;í&#8217; put back into &#8216;rocín&#8217;. Now we can fix up all of our text in preparation for the last&nbsp;step.</p>
-<div class="highlight"><pre><span></span><span class="n">espTexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">ftfy</span><span class="o">.</span><span class="n">fix_encoding</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">espTexts</span><span class="p">]</span>
-<span class="n">espTexts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</pre></div>
+<pre><code class="python">espTexts = [ftfy.fix_encoding(sentence) for sentence in espTexts]
+espTexts[1]
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">&#39;año después frente pelotón fusilamiento coronel aureliano buendía haber recordar aquella tarde remoto padre llevar conocer hielo&#39;</span>
-</pre></div>
-
-
+<pre><code>'año después frente pelotón fusilamiento coronel aureliano buendía haber recordar aquella tarde remoto padre llevar conocer hielo'
+</code></pre>
 <h2>Tokenising the text and getting the&nbsp;frequencies</h2>
 <p>We have finally cleaned this text to a point where we can tokenise it and get the frequencies of all of the words. This is very straightforward in <span class="caps">NLTK</span> - we simply use the the <code>word_tokenize</code> function from the <a href="http://www.nltk.org/api/nltk.tokenize.html">tokenize package</a>. We&#8217;ll import it below and run it over our lists of English and Spanish text&nbsp;separately.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span>
-</pre></div>
+<pre><code class="python">from nltk.tokenize import word_tokenize
+</code></pre>
 
+<pre><code class="python">engTokens = [word_tokenize(text) for text in engTexts]
+print(engTokens)
+</code></pre>
 
-<div class="highlight"><pre><span></span><span class="n">engTokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">engTexts</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">engTokens</span><span class="p">)</span>
-</pre></div>
+<pre><code>[['truth', 'universally', 'acknowledge', 'single', 'man', 'possession', 'good', 'fortune', 'must', 'want', 'wife'], ['angry', 'man', 'drag', 'father', 'along', 'ground', 'orchard', 'stop', 'cry', 'groan', 'old', 'man', 'last', 'stop', 'I', 'drag', 'father', 'beyond', 'tree'], ['old', 'man', 'fish', 'alone', 'skiff', 'gulf', 'stream', 'go', 'day', 'now', 'without', 'take', 'fish'], ['know', 'without', 'read', 'book', 'name', 'adventure', 'tom', 'sawyer', 'matter']]
+</code></pre>
+<pre><code class="python">espTokens = [word_tokenize(text) for text in espTexts]
+espTokens
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="err">[[&#39;truth&#39;, &#39;universally&#39;, &#39;acknowledge&#39;, &#39;single&#39;, &#39;man&#39;, &#39;possession&#39;, &#39;good&#39;, &#39;fortune&#39;, &#39;must&#39;, &#39;want&#39;, &#39;wife&#39;], [&#39;angry&#39;, &#39;man&#39;, &#39;drag&#39;, &#39;father&#39;, &#39;along&#39;, &#39;ground&#39;, &#39;orchard&#39;, &#39;stop&#39;, &#39;cry&#39;, &#39;groan&#39;, &#39;old&#39;, &#39;man&#39;, &#39;last&#39;, &#39;stop&#39;, &#39;I&#39;, &#39;drag&#39;, &#39;father&#39;, &#39;beyond&#39;, &#39;tree&#39;], [&#39;old&#39;, &#39;man&#39;, &#39;fish&#39;, &#39;alone&#39;, &#39;skiff&#39;, &#39;gulf&#39;, &#39;stream&#39;, &#39;go&#39;, &#39;day&#39;, &#39;now&#39;, &#39;without&#39;, &#39;take&#39;, &#39;fish&#39;], [&#39;know&#39;, &#39;without&#39;, &#39;read&#39;, &#39;book&#39;, &#39;name&#39;, &#39;adventure&#39;, &#39;tom&#39;, &#39;sawyer&#39;, &#39;matter&#39;]]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">espTokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">espTexts</span><span class="p">]</span>
-<span class="n">espTokens</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[[&#39;lugar&#39;, &#39;mancha&#39;, &#39;cuyo&#39;, &#39;nombre&#39;, &#39;querer&#39;, &#39;acordarme&#39;, &#39;hacer&#39;, &#39;tiempo&#39;, &#39;vivir&#39;, &#39;hidalgo&#39;, &#39;lanzar&#39;, &#39;astillero&#39;, &#39;adarga&#39;, &#39;antiguo&#39;, &#39;rocín&#39;, &#39;flaco&#39;, &#39;galgo&#39;, &#39;corredor&#39;], [&#39;año&#39;, &#39;después&#39;, &#39;frente&#39;, &#39;pelotón&#39;, &#39;fusilamiento&#39;, &#39;coronel&#39;, &#39;aureliano&#39;, &#39;buendía&#39;, &#39;haber&#39;, &#39;recordar&#39;, &#39;aquella&#39;, &#39;tarde&#39;, &#39;remoto&#39;, &#39;padre&#39;, &#39;llevar&#39;, &#39;conocer&#39;, &#39;hielo&#39;], [&#39;bastará&#39;, &#39;decir&#39;, &#39;ser&#39;, &#39;juan&#39;, &#39;pablo&#39;, &#39;castel&#39;, &#39;pintor&#39;, &#39;matar&#39;, &#39;maría&#39;, &#39;iribarne&#39;, &#39;suponer&#39;, &#39;proceso&#39;, &#39;recuerdo&#39;, &#39;necesitar&#39;, &#39;mayor&#39;, &#39;explicación&#39;, &#39;persona&#39;], [&#39;señor&#39;, &#39;ser&#39;, &#39;malo&#39;, &#39;aunque&#39;, &#39;faltarían&#39;, &#39;motivo&#39;, &#39;serlo&#39;]]</span>
-</pre></div>
-
-
+<pre><code>[['lugar', 'mancha', 'cuyo', 'nombre', 'querer', 'acordarme', 'hacer', 'tiempo', 'vivir', 'hidalgo', 'lanzar', 'astillero', 'adarga', 'antiguo', 'rocín', 'flaco', 'galgo', 'corredor'], ['año', 'después', 'frente', 'pelotón', 'fusilamiento', 'coronel', 'aureliano', 'buendía', 'haber', 'recordar', 'aquella', 'tarde', 'remoto', 'padre', 'llevar', 'conocer', 'hielo'], ['bastará', 'decir', 'ser', 'juan', 'pablo', 'castel', 'pintor', 'matar', 'maría', 'iribarne', 'suponer', 'proceso', 'recuerdo', 'necesitar', 'mayor', 'explicación', 'persona'], ['señor', 'ser', 'malo', 'aunque', 'faltarían', 'motivo', 'serlo']]
+</code></pre>
 <p>We&#8217;re now going to do a very simple frequency count of all of the words in each of the language&#8217;s texts, using the <code>FreqDist</code> function from <code>nltk</code>. Let&#8217;s import the&nbsp;package:</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nltk</span> <span class="kn">import</span> <span class="n">FreqDist</span>
-</pre></div>
-
+<pre><code class="python">from nltk import FreqDist
+</code></pre>
 
 <p>Before we can use the tokenised list of words, we need to flatten it. We can then run the <code>FreqDist</code> method over it and get the top 10 results for each&nbsp;language.</p>
-<div class="highlight"><pre><span></span><span class="n">flatList</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">sentList</span> <span class="ow">in</span> <span class="n">engTokens</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentList</span><span class="p">]</span>
-<span class="n">engFreq</span> <span class="o">=</span> <span class="n">FreqDist</span><span class="p">(</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">flatList</span><span class="p">)</span>
+<pre><code class="python">flatList = [word for sentList in engTokens for word in sentList]
+engFreq = FreqDist(word for word in flatList)
 
-<span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="n">engFreq</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">frequency</span><span class="p">))</span>
-</pre></div>
+for word, frequency in engFreq.most_common(10):
+print(u'{}: {}'.format(word, frequency))
+</code></pre>
 
+<pre><code>man: 4
+drag: 2
+father: 2
+stop: 2
+old: 2
+fish: 2
+without: 2
+truth: 1
+universally: 1
+acknowledge: 1
+</code></pre>
+<pre><code class="python">flatList = [word for sentList in espTokens for word in sentList]
+espFreq = FreqDist(word for word in flatList)
 
-<div class="highlight"><pre><span></span><span class="n">man</span><span class="o">:</span> <span class="mi">4</span>
-<span class="n">drag</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">father</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">stop</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">old</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">fish</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">without</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">truth</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">universally</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">acknowledge</span><span class="o">:</span> <span class="mi">1</span>
-</pre></div>
+for word, frequency in espFreq.most_common(10):
+print(u'{}: {}'.format(word, frequency))
+</code></pre>
 
-
-<div class="highlight"><pre><span></span><span class="n">flatList</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">sentList</span> <span class="ow">in</span> <span class="n">espTokens</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentList</span><span class="p">]</span>
-<span class="n">espFreq</span> <span class="o">=</span> <span class="n">FreqDist</span><span class="p">(</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">flatList</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="n">espFreq</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">frequency</span><span class="p">))</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">ser</span><span class="o">:</span> <span class="mi">2</span>
-<span class="n">lugar</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">mancha</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">cuyo</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">nombre</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">querer</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">acordarme</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">hacer</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">tiempo</span><span class="o">:</span> <span class="mi">1</span>
-<span class="n">vivir</span><span class="o">:</span> <span class="mi">1</span>
-</pre></div>
-
-
+<pre><code>ser: 2
+lugar: 1
+mancha: 1
+cuyo: 1
+nombre: 1
+querer: 1
+acordarme: 1
+hacer: 1
+tiempo: 1
+vivir: 1
+</code></pre>
 <p>And that&#8217;s it! This is obviously not the most useful metric (as we only have 4 sentences in each corpus), but you can see that we&#8217;ve arrived at something that, with more data, would form a solid foundation for a bag-of-words analysis. You can also see that while it is a bit of work to strip a text down to a useable form, there are plenty of Python packages to make this work pretty painless, even if you&#8217;re working across a number of&nbsp;languages.</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->
