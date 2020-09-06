@@ -19,25 +19,25 @@
 
     <link
       rel="canonical"
-      href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-4-data-analysis.html"
+      href="https://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-4-data-analysis.html"
     />
 
-    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
 
     <link
-      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
       type="application/atom+xml"
       rel="alternate"
       title="Standard error Full Atom Feed"
     />
       <link
-      href="http://t-redactyl.github.io/theme/css/screen.css"
+      href="https://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -64,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png" />
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -74,10 +74,10 @@
         <div class="meta">
           written <time datetime="2015-12-09T00:00:00+01:00">December 09, 2015</time>
           in <span class="categories">
-            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/pandas.html">pandas</a>,            <a href="http://t-redactyl.github.io/tag/scipy.html">scipy</a>,            <a href="http://t-redactyl.github.io/tag/matplotlib.html">matplotlib</a>,            <a href="http://t-redactyl.github.io/tag/hypothesis-testing.html">hypothesis testing</a>          </span>
+            <a href="https://t-redactyl.github.io/tag/python.html">python</a>,            <a href="https://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="https://t-redactyl.github.io/tag/pandas.html">pandas</a>,            <a href="https://t-redactyl.github.io/tag/scipy.html">scipy</a>,            <a href="https://t-redactyl.github.io/tag/matplotlib.html">matplotlib</a>,            <a href="https://t-redactyl.github.io/tag/hypothesis-testing.html">hypothesis testing</a>          </span>
         </div>
-        <p>This week ends a 4-part series on extracting and analysing <span class="caps">JSON</span>-encoded data from reddit, using the subreddit <a href="https://www.reddit.com/r/relationships#hme">/r/relationships</a> as an example. In the first two entries I <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">set up the environment</a> and <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">collected the data</a>. <a href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">Last week</a>, I finished by cleaning the data and doing some basic analyses. This week we&#8217;ll finish with some fairly simple bivariate analyses. We&#8217;ll answer some questions about both posters to the subreddit and how the readers react to these posts, and play around with visualisation in <code>matplotlib</code>. In the interest of brevity (i.e., not having to check parametric assumptions), I&#8217;ll be using non-parametric tests, but if you were doing this properly (not being lazy!) you would need to complete all of these checks and consider the use of parametric&nbsp;tests.</p>
-<p>(<strong>Note</strong>: If you have been following this tutorial from the beginning, I have made a correction to Part 1. When I initially created my virtualenv, I forgot to install the <code>scipy</code> package. If you do not have <code>scipy</code> installed, please <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">go back</a> and install that before&nbsp;starting.)</p>
+        <p>This week ends a 4-part series on extracting and analysing <span class="caps">JSON</span>-encoded data from reddit, using the subreddit <a href="https://www.reddit.com/r/relationships#hme">/r/relationships</a> as an example. In the first two entries I <a href="https://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">set up the environment</a> and <a href="https://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">collected the data</a>. <a href="https://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">Last week</a>, I finished by cleaning the data and doing some basic analyses. This week we&#8217;ll finish with some fairly simple bivariate analyses. We&#8217;ll answer some questions about both posters to the subreddit and how the readers react to these posts, and play around with visualisation in <code>matplotlib</code>. In the interest of brevity (i.e., not having to check parametric assumptions), I&#8217;ll be using non-parametric tests, but if you were doing this properly (not being lazy!) you would need to complete all of these checks and consider the use of parametric&nbsp;tests.</p>
+<p>(<strong>Note</strong>: If you have been following this tutorial from the beginning, I have made a correction to Part 1. When I initially created my virtualenv, I forgot to install the <code>scipy</code> package. If you do not have <code>scipy</code> installed, please <a href="https://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">go back</a> and install that before&nbsp;starting.)</p>
 <p>So let&#8217;s see what relationships problems the good people of reddit write in&nbsp;about!</p>
 <p><img src="/figure/Lichtenstein_picture.jpg" title="Lichtenstein picture" alt="Copy of Lichtenstein print" style="display: block; margin: auto;" /></p>
 <h2>Questions about posters to the&nbsp;subreddit</h2>
@@ -117,7 +117,7 @@
 
 <p>You can see that the p-value is 0.003, meaning male posters are significantly older than female&nbsp;posters.</p>
 <h3>Does flair type differ by&nbsp;sex?</h3>
-<p>Another interesting question is whether the distribution of flairs differs by sex, or in other words, does the type of questions asked on the subreddit differ for men and women? We&#8217;ll start by looking at the frequencies of posts for each sex by flair. As mentioned in the <a href="http://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">previous post</a>, we won&#8217;t be using the flairs &#8220;Breakups&#8221;, &#8220;Personal issues&#8221; or &#8220;Dating&#8221; due to the small number of posts in these&nbsp;categories.</p>
+<p>Another interesting question is whether the distribution of flairs differs by sex, or in other words, does the type of questions asked on the subreddit differ for men and women? We&#8217;ll start by looking at the frequencies of posts for each sex by flair. As mentioned in the <a href="https://t-redactyl.github.io/blog/2015/12/analysing-reddit-data-part-3-cleaning-and-describing-the-data.html">previous post</a>, we won&#8217;t be using the flairs &#8220;Breakups&#8221;, &#8220;Personal issues&#8221; or &#8220;Dating&#8221; due to the small number of posts in these&nbsp;categories.</p>
 <div class="highlight"><pre><span></span><span class="n">sex_flair</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">rel_df</span><span class="p">[</span><span class="s1">&#39;PosterSex&#39;</span><span class="p">],</span> 
             <span class="n">rownames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Flair&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Poster Sex&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span>
     <span class="p">[</span><span class="s1">&#39;Infidelity&#39;</span><span class="p">,</span> <span class="s1">&#39;Non-Romantic&#39;</span><span class="p">,</span> <span class="s1">&#39;Relationships&#39;</span><span class="p">,</span> <span class="s1">&#39;Updates&#39;</span><span class="p">]]</span>
@@ -367,11 +367,11 @@
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>

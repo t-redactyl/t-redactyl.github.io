@@ -19,25 +19,25 @@
 
     <link
       rel="canonical"
-      href="http://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"
+      href="https://t-redactyl.github.io/blog/2020/07/solving-ols-regression-with-linear-algebra.html"
     />
 
-    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
 
     <link
-      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
       type="application/atom+xml"
       rel="alternate"
       title="Standard error Full Atom Feed"
     />
       <link
-      href="http://t-redactyl.github.io/theme/css/screen.css"
+      href="https://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -64,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png" />
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -74,9 +74,9 @@
         <div class="meta">
           written <time datetime="2020-07-13T00:00:00+02:00">July 13, 2020</time>
           in <span class="categories">
-            <a href="http://t-redactyl.github.io/tag/maths.html">maths</a>,            <a href="http://t-redactyl.github.io/tag/linear-algebra.html">linear algebra</a>,            <a href="http://t-redactyl.github.io/tag/python.html">python</a>          </span>
+            <a href="https://t-redactyl.github.io/tag/maths.html">maths</a>,            <a href="https://t-redactyl.github.io/tag/linear-algebra.html">linear algebra</a>,            <a href="https://t-redactyl.github.io/tag/python.html">python</a>          </span>
         </div>
-        <p>When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &#8220;calculus&#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating <span class="caps">OLS</span> regression until I completed Andrew Ng&#8217;s brilliant <a href="https://www.coursera.org/learn/machine-learning/home/welcome">Machine Learning</a> course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&#8217;d like to get an overview of these, feel free to look at my earlier blog posts <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">here</a>, <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html">here</a> and <a href="http://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html">here</a>. It will also assume familiarity with <span class="caps">OLS</span>&nbsp;regression.</p>
+        <p>When I first learned least-squares linear regression in my undergrad degree, I remember that we approached it in the &#8220;calculus&#8221; way: taking the sum of the squared differences for each observation and solving a massive (and tedious) equation until we arrived at our coefficients and line of best fit. I actually had no idea there was an alternative way of calculating <span class="caps">OLS</span> regression until I completed Andrew Ng&#8217;s brilliant <a href="https://www.coursera.org/learn/machine-learning/home/welcome">Machine Learning</a> course on Coursera, and while taking my linear algebra unit I fully understood how it works. I&#8217;ll go through the logic and calculations in this blog post, and hopefully you will see how much more elegant it is than the more traditional approach. This blog post will assume some basic understanding of matrix operations: if you&#8217;d like to get an overview of these, feel free to look at my earlier blog posts <a href="https://t-redactyl.github.io/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">here</a>, <a href="https://t-redactyl.github.io/blog/2020/06/working-with-matrices-inversion.html">here</a> and <a href="https://t-redactyl.github.io/blog/2020/06/working-with-matrices-powers-and-transposition.html">here</a>. It will also assume familiarity with <span class="caps">OLS</span>&nbsp;regression.</p>
 <p>Say we are trying to predict students&#8217; test scores (out of 10), and the one measurement we have is the average number of hours of study they did a day for this test. Let&#8217;s also say (in order to keep the calculations under control) that we only have 3 observations. Our dataset therefore looks like&nbsp;this:</p>
 <div>
 <table class="table table-bordered">
@@ -273,11 +273,11 @@ $$</div>
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>

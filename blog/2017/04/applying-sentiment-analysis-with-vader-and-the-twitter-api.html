@@ -19,25 +19,25 @@
 
     <link
       rel="canonical"
-      href="http://t-redactyl.github.io/blog/2017/04/applying-sentiment-analysis-with-vader-and-the-twitter-api.html"
+      href="https://t-redactyl.github.io/blog/2017/04/applying-sentiment-analysis-with-vader-and-the-twitter-api.html"
     />
 
-    <link href="http://t-redactyl.github.io/favicon.png" rel="icon" />
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
 
     <link
-      href="http://t-redactyl.github.io/feeds/all.atom.xml"
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
       type="application/atom+xml"
       rel="alternate"
       title="Standard error Full Atom Feed"
     />
       <link
-      href="http://t-redactyl.github.io/theme/css/screen.css"
+      href="https://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="http://t-redactyl.github.io/theme/css/tomorrow.css"
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -64,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="http://t-redactyl.github.io/theme/images/home.png" />
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -74,10 +74,10 @@
         <div class="meta">
           written <time datetime="2017-04-15T00:00:00+02:00">April 15, 2017</time>
           in <span class="categories">
-            <a href="http://t-redactyl.github.io/tag/python.html">python</a>,            <a href="http://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="http://t-redactyl.github.io/tag/text-mining.html">text mining</a>          </span>
+            <a href="https://t-redactyl.github.io/tag/python.html">python</a>,            <a href="https://t-redactyl.github.io/tag/programming-tips.html">programming tips</a>,            <a href="https://t-redactyl.github.io/tag/text-mining.html">text mining</a>          </span>
         </div>
-        <p>A few months ago, I posted a <a href="http://t-redactyl.github.io/blog/2017/01/how-do-we-feel-about-new-years-resolutions-according-to-sentiment-analysis.html">blog post</a> about a small project I did where I analysed how people felt about the New Year&#8217;s resolutions they post on Twitter. In this post, we&#8217;ll go through the under-the-hood details of how I carried out this analysis, as well as some of the issues I encountered that are pretty typical of a text mining&nbsp;project.</p>
-<p>If you&#8217;re interested in getting a bit more detail on the package I used to do the sentiment analysis, <span class="caps">VADER</span>, you can see this in <a href="http://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last week&#8217;s blog post</a>. If not, let&#8217;s jump straight into&nbsp;it!</p>
+        <p>A few months ago, I posted a <a href="https://t-redactyl.github.io/blog/2017/01/how-do-we-feel-about-new-years-resolutions-according-to-sentiment-analysis.html">blog post</a> about a small project I did where I analysed how people felt about the New Year&#8217;s resolutions they post on Twitter. In this post, we&#8217;ll go through the under-the-hood details of how I carried out this analysis, as well as some of the issues I encountered that are pretty typical of a text mining&nbsp;project.</p>
+<p>If you&#8217;re interested in getting a bit more detail on the package I used to do the sentiment analysis, <span class="caps">VADER</span>, you can see this in <a href="https://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last week&#8217;s blog post</a>. If not, let&#8217;s jump straight into&nbsp;it!</p>
 <h2>Setting up your&nbsp;app</h2>
 <p>To do this analysis, I pulled data from <a href="https://dev.twitter.com/rest/public/search">Twitter&#8217;s public search <span class="caps">API</span></a>, which allows you to pull historical results from up to a week ago. To get started, you will need to create a Twitter account (if you don&#8217;t already have one), and then jump over to Twitter&#8217;s <a href="https://apps.twitter.com/">application management portal</a>. If you&#8217;ve never done this before, what we are doing here is creating a unique &#8216;identity&#8217; that will allow Twitter to work out who we are when we&#8217;re accessing their public <span class="caps">API</span>. This is a way for them to boot off users or apps that are using the <span class="caps">API</span> too heavily or doing dodgy stuff like spamming the&nbsp;site.</p>
 <p>Once in there, hit the &#8216;Create New App&#8217; button, and you&#8217;ll be prompted to enter a name, description and website for your app. It doesn&#8217;t really matter what you write in here - just make sure that the name is not so generic that you can distinguish one app from&nbsp;another.</p>
@@ -118,7 +118,7 @@
 </pre></div>
 
 
-<p>Let&#8217;s have a look at these data, which are in <span class="caps">JSON</span> format. For those of you who haven&#8217;t worked with <span class="caps">JSON</span> before, in order to get our data out we just need to find how to reference it properly in the structure, which is a series of nested Python lists and dictionaries. (I&#8217;ve written in more detail on how to work your way through a <span class="caps">JSON</span> file <a href="http://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">here</a>). In our case, all of the data about each tweet is contained in a dictionary. Each dictionary is contained in a list, and this list is contained at index 1 of an overarching list. Thus the below code returns the tweet text for tweet number 12 in our&nbsp;dataset:</p>
+<p>Let&#8217;s have a look at these data, which are in <span class="caps">JSON</span> format. For those of you who haven&#8217;t worked with <span class="caps">JSON</span> before, in order to get our data out we just need to find how to reference it properly in the structure, which is a series of nested Python lists and dictionaries. (I&#8217;ve written in more detail on how to work your way through a <span class="caps">JSON</span> file <a href="https://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-2-extracting-the-data.html">here</a>). In our case, all of the data about each tweet is contained in a dictionary. Each dictionary is contained in a list, and this list is contained at index 1 of an overarching list. Thus the below code returns the tweet text for tweet number 12 in our&nbsp;dataset:</p>
 <div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">12</span><span class="p">][</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
 </pre></div>
 
@@ -147,7 +147,7 @@
 <h2>Putting it in a&nbsp;DataFrame</h2>
 <p>We now have a list of up to 20,000 dictionaries containing all of the metadata about each tweet (I say up to, as your particular query may not have enough matches from the past week). We now want to pull out specific information about each tweet, as well as generate our sentiment&nbsp;metrics.</p>
 <p>For my particular analysis, I used the tweet text and the number of favourites each tweet received, but feel free to play and explore the huge amount of metadata you get back about each tweet for your own purposes - it&#8217;s honestly a bit creepy how much data you can readily&nbsp;access!</p>
-<p>Another thing I am going to do at this step is to generate the sentiment scores for each tweet. As we saw in the <a href="http://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last post</a>, the <code>polarity_scores()</code> method from <span class="caps">VADER</span> generates all 4 of these for a piece of text. All we need to do is to run this method over each tweet, and select one sentiment metric at a time. This will be a bit clearer in the code&nbsp;below.</p>
+<p>Another thing I am going to do at this step is to generate the sentiment scores for each tweet. As we saw in the <a href="https://t-redactyl.github.io/blog/2017/04/using-vader-to-handle-sentiment-analysis-with-social-media-text.html">last post</a>, the <code>polarity_scores()</code> method from <span class="caps">VADER</span> generates all 4 of these for a piece of text. All we need to do is to run this method over each tweet, and select one sentiment metric at a time. This will be a bit clearer in the code&nbsp;below.</p>
 <p>The first thing we need to do is create separate lists for each piece of information we want to get from the <span class="caps">JSON</span> files. These will be the basis for columns in our&nbsp;DataFrame.</p>
 <div class="highlight"><pre><span></span><span class="n">tweet</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">number_favourites</span> <span class="o">=</span> <span class="p">[]</span>
@@ -377,11 +377,11 @@
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="http://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
