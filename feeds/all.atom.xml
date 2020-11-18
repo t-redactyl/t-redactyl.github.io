@@ -1,5 +1,355 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2020-09-07T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Training and evaluating a Word2Vec model using BlazingText in Sagemaker</title><link href="https://t-redactyl.github.io/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html" rel="alternate"></link><published>2020-09-07T00:00:00+02:00</published><updated>2020-09-07T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-09-07:/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html</id><summary type="html">&lt;p&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker has a &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html"&gt;number of inbuilt algorithms&lt;/a&gt;, which are not only easier to use with the Sagemaker set up but are also optimised to work with &lt;span class="caps"&gt;AWS&lt;/span&gt; architecture. At my previous job, we used &lt;a href="https://en.wikipedia.org/wiki/Word_embedding"&gt;word embeddings&lt;/a&gt; extensively to help solve &lt;a href="https://en.wikipedia.org/wiki/Natural_language_processing"&gt;&lt;span class="caps"&gt;NLP&lt;/span&gt;&lt;/a&gt; problems. We found that &lt;span class="caps"&gt;AWS&lt;/span&gt;&amp;#8217;s implementation of …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker has a &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html"&gt;number of inbuilt algorithms&lt;/a&gt;, which are not only easier to use with the Sagemaker set up but are also optimised to work with &lt;span class="caps"&gt;AWS&lt;/span&gt; architecture. At my previous job, we used &lt;a href="https://en.wikipedia.org/wiki/Word_embedding"&gt;word embeddings&lt;/a&gt; extensively to help solve &lt;a href="https://en.wikipedia.org/wiki/Natural_language_processing"&gt;&lt;span class="caps"&gt;NLP&lt;/span&gt;&lt;/a&gt; problems. We found that &lt;span class="caps"&gt;AWS&lt;/span&gt;&amp;#8217;s implementation of the &lt;a href="https://en.wikipedia.org/wiki/Word2vec"&gt;word2vec&lt;/a&gt; algorithm, &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext.html"&gt;BlazingText&lt;/a&gt;, is indeed much faster than training on a local machine or one of our own servers, as well as having useful inbuilt evaluation metrics that can help you work out the best model hyperparameters. I&amp;#8217;ve found that models that used to take around 6 hours to train on our servers take around 30 minutes to an hour to train using BlazingText. As you&amp;#8217;ll see, the implementation on Sagemaker also makes it easier for you to compare models with different hyperparameters and keep track of the different models you&amp;#8217;ve&amp;nbsp;trained.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2020-11-18T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Automatic word2vec model tuning using Sagemaker</title><link href="https://t-redactyl.github.io/blog/2020/11/automatic-word2vec-model-tuning-using-sagemaker.html" rel="alternate"></link><published>2020-11-18T00:00:00+01:00</published><updated>2020-11-18T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-11-18:/blog/2020/11/automatic-word2vec-model-tuning-using-sagemaker.html</id><summary type="html">&lt;p&gt;In this post, we continue our discussion about how to use &lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker&amp;#8217;s BlazingText to train a word2vec model. In the &lt;a href="https://t-redactyl.github.io/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html"&gt;last post&lt;/a&gt; we learned how to set up, train and evaluate a single model. However, we essentially selected our hyperparameters at random, meaning our model is not likely …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this post, we continue our discussion about how to use &lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker&amp;#8217;s BlazingText to train a word2vec model. In the &lt;a href="https://t-redactyl.github.io/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html"&gt;last post&lt;/a&gt; we learned how to set up, train and evaluate a single model. However, we essentially selected our hyperparameters at random, meaning our model is not likely to be performing as well as it could. Traditionally, we would either do a &lt;a href="https://en.wikipedia.org/wiki/Hyperparameter_optimization#Grid_search"&gt;grid search&lt;/a&gt; to exhaustively find the best combination of hyperparameters, or a &lt;a href="https://en.wikipedia.org/wiki/Hyperparameter_optimization#Random_search"&gt;random search&lt;/a&gt; to sample from these&amp;nbsp;combinations. &lt;/p&gt;
+&lt;p&gt;Sagemaker offers a third alternative, which is to use a method called &lt;a href="https://en.wikipedia.org/wiki/Hyperparameter_optimization#Bayesian_optimization"&gt;Bayesian optimisation&lt;/a&gt;. I will not pretend to understand how this works in detail, but the general idea is that, starting from a seed set of hyperparameters, the optimiser checks how each model performs against our objective metric and then tries to pick a set of hyperparameters that will improve the model performance in the next round of training. The tuning then continues until either the model cannot be further improved, or the maximum number of training rounds has been reached. This &lt;a href="https://www.youtube.com/watch?v=xpZFNIOaQns"&gt;excellent video from &lt;span class="caps"&gt;AWS&lt;/span&gt;&lt;/a&gt; explains in more detail how it has been implemented in&amp;nbsp;Sagemaker.&lt;/p&gt;
+&lt;p&gt;In this post I&amp;#8217;ll take you through how to tune a set of word2vec models using Sagemaker&amp;#8217;s inbuilt objective metric, the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 goldsets, as well as discuss some practical considerations such as the cost of this tuning and the potential limitations of the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 for some &lt;span class="caps"&gt;NLP&lt;/span&gt;&amp;nbsp;tasks.&lt;/p&gt;
+&lt;h2&gt;Setting up our&amp;nbsp;tuning&lt;/h2&gt;
+&lt;p&gt;In order to get started, we&amp;#8217;ll use the exact same set up for the execution role, S3 bucket, training image and Sagemaker estimator which I discussed in the last post. We&amp;#8217;ll also start with the same set of hyperparameter we used for our last&amp;nbsp;model.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;boto3&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sagemaker&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sagemaker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;get_execution_role&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sagemaker.tuner&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IntegerParameter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;CategoricalParameter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ContinuousParameter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+                             &lt;span class="n"&gt;HyperparameterTuner&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;role&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;get_execution_role&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;bucket_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;sagemaker-blog-corpus-nlp&amp;#39;&lt;/span&gt;
+&lt;span class="n"&gt;tags&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Key&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;user:application&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Value&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;BlazingText&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
+
+&lt;span class="n"&gt;region_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;boto3&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Session&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;region_name&lt;/span&gt;
+&lt;span class="n"&gt;container&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sagemaker&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;amazon&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;amazon_estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_image_uri&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;region_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;blazingtext&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;latest&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Create estimator object&lt;/span&gt;
+&lt;span class="n"&gt;bt_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sagemaker&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Estimator&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;container&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;role&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;train_instance_count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;train_instance_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ml.c5.xlarge&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;train_volume_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;train_max_run&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;36000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;base_job_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;blazingtext-blogs-sentences&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;input_mode&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;File&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;output_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;s3://&lt;/span&gt;&lt;span class="si"&gt;{}&lt;/span&gt;&lt;span class="s1"&gt;/models/blazingtext&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bucket_name&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="n"&gt;tags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tags&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Set initial hyperparameters&lt;/span&gt;
+&lt;span class="n"&gt;bt_model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_hyperparameters&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;mode&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;batch_skipgram&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;epochs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;min_count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;sampling_threshold&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.0001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;learning_rate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.05&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;window_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;vector_dim&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;negative_samples&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;batch_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;evaluation&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;subwords&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Get path to training data&lt;/span&gt;
+&lt;span class="n"&gt;input_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;s3://&lt;/span&gt;&lt;span class="si"&gt;{bucket_name}&lt;/span&gt;&lt;span class="s2"&gt;/cleaned_sentences.csv&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In order to use the automatic tuner rather than just training a single model, we need to take a couple of extra steps here. Firstly, we need to decide which hyperparameters we wish to tune and what ranges of possible values we&amp;#8217;d like the tuner to test for each one. &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext-tuning.html"&gt;This page&lt;/a&gt; gives a guide on the most important hyperparameters and their recommended ranges for&amp;nbsp;testing.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;hyperparameter_ranges&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;mode&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;CategoricalParameter&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;batch_skipgram&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;cbow&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;learning_rate&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ContinuousParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;0.005&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.05&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;scaling_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Logarithmic&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;window_size&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;IntegerParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;30&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;vector_dim&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;IntegerParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;min_count&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;IntegerParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;negative_samples&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;IntegerParameter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next, we need to set up our tuner. We indicate that we want the tuner to use the BlazingText estimator we created, and maximise the mean correlation with the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 gold sets in order to optimise the model. We&amp;#8217;ve also told the tuner to only try to test the hyperparameters we included in our &lt;code&gt;hyperparameter_ranges&lt;/code&gt; dictionary above. Finally, we&amp;#8217;ve also told the model that we only want to do up to 12 rounds of tuning, and that the model can run up to two training jobs in&amp;nbsp;parallel.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;objective_metric_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;train:mean_rho&amp;#39;&lt;/span&gt;
+
+&lt;span class="n"&gt;tuner&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;HyperparameterTuner&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;bt_model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;objective_metric_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;hyperparameter_ranges&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;max_jobs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;max_parallel_jobs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;objective_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Maximize&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;tags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tags&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We are finally ready to kick off our tuning job! Unlike when training a single job, when we execute this cell we won&amp;#8217;t get any feedback in the notebook. However, you can go to your Sagemaker dashboard and look at &lt;code&gt;Hyperparameter Tuning Jobs&lt;/code&gt; under &lt;code&gt;Training&lt;/code&gt; and you&amp;#8217;ll be able to see that the job has started. You&amp;#8217;re also able to shut down your Sagemaker notebook instance while you wait for the tuning job to finish. This is also something you might want to set to run overnight, as the total training time for these models was around 7.5&amp;nbsp;hours.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;tuner&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fit&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;train&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;input_data&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="n"&gt;wait&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Comparing our models and picking the best&amp;nbsp;performing&lt;/h2&gt;
+&lt;p&gt;Once our tuning job is finished, we can retrieve all of our model hyperparameters and performance metrics using Sagemaker search. The following code will retrieve all models contained in the S3 bucket I am using for this project, as I&amp;#8217;ve asked it to retrieve all models from buckets containing &lt;code&gt;blog-corpus-nlp&lt;/code&gt;. I took this code directly from &lt;a href="https://www.youtube.com/watch?v=xpZFNIOaQns"&gt;the video on automatic tuning&lt;/a&gt; that I discussed at the beginning of this&amp;nbsp;post.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;smclient&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;boto3&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;service_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;sagemaker&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;search_params&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;MaxResults&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;Resource&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;TrainingJob&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;SearchExpression&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;Filters&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;Name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;InputDataConfig.DataSource.S3DataSource.S3Uri&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;Operator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Contains&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;Value&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;blog-corpus-nlp&amp;quot;&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="s2"&gt;&amp;quot;Name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;TrainingJobStatus&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="s2"&gt;&amp;quot;Operator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Equals&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="s2"&gt;&amp;quot;Value&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Completed&amp;quot;&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;smclient&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;search_params&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;These results are returned in a rather messy &lt;span class="caps"&gt;JSON&lt;/span&gt;, so in order to make it a bit easier to check and compare these models, I&amp;#8217;ll extract the relevant data I want and put it in a &lt;code&gt;pandas&lt;/code&gt; DataFrame. I&amp;#8217;ll also rank the table so that the models that performed best against the objective metric are at the top of the&amp;nbsp;DataFrame.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;extractModelInfo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model_dict&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;model_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model_dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TrainingJobName&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;bs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model_dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;BillableTimeInSeconds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;score&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model_dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;FinalMetricDataList&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Value&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;hyperparams&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model_dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;HyperParameters&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+    &lt;span class="n"&gt;d1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;model_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;model_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;billableSeconds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;bs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;mean_rho&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;d1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;hyperparams&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;desired_fields&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;model_name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;mean_rho&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;learning_rate&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;min_count&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;negative_samples&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+                  &lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;vector_dim&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;window_size&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;billableSeconds&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;results_df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;extractModelInfo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Results&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TrainingJob&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; 
+                           &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Results&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]))])&lt;/span&gt;
+&lt;span class="n"&gt;results_df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;results_df&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;results_df&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;skipgram&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+                            &lt;span class="n"&gt;desired_fields&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort_values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;mean_rho&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ascending&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;results_df&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;model_name&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;mean_rho&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;learning_rate&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;min_count&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;negative_samples&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;mode&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;vector_dim&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;window_size&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;billableSeconds&lt;/b&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-010-4a414e1b&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7449&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0116&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;32&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;6&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;100&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;28&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1385&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-009-218d44a5&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7447&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0054&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;38&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;25&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;100&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;24&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;3163&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-009-218d44a5&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7447&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0054&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;38&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;25&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;100&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;24&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;3163&lt;/td&gt;
+    &lt;/tr&gt;
+        &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-011-269247ac&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7427&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0055&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;38&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;25&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;99&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;24&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;3705&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-004-88f21ab4&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7377&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0059&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;36&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;18&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;80&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;24&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;2348&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-006-a80fdc2a&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7368&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.00642&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;49&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;23&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;65&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;22&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;2727&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-005-0c7e32d9&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7357&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0060&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;36&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;18&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;79&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;24&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;2492&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-007-d617ec0b&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7352&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0066&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;49&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;23&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;66&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;22&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;2491&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-012-4b6fa554&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7337&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0105&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;39&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;11&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;90&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;30&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1962&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-002-43d5a552&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7311&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0270&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;40&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;17&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;93&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;23&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;2587&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-008-b935f3c1&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7211&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0056&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;47&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;9&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;50&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;20&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1289&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-001-2eab54f0&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.7201&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0150&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;28&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;21&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;batch_skipgram&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;77&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;8&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;1889&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;blazingtext-200627-1812-003-c735efa6&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.6310&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;0.0101&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;23&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;10&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;cbow&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;57&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;15&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;769&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As you can see, the best performing model used a skipgram architecture, had a learning rate of 0.01, a minimum count for each term of 32, used 6 negative samples, used a 100 dimension vector size and used a rather generous window size of 28 for checking proximate words. It also outperformed our previous model, with a &lt;code&gt;mean_rho&lt;/code&gt; score of 0.74 (compared to 0.72 for the model we trained in the last&amp;nbsp;post).&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s check the neighbours we get from this model for the same two queries &amp;#8220;family&amp;#8221; and &amp;#8220;sad&amp;#8221; that we checked for the untuned model from the last&amp;nbsp;post.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;aws&lt;/span&gt; &lt;span class="n"&gt;s3&lt;/span&gt; &lt;span class="n"&gt;cp&lt;/span&gt; &lt;span class="n"&gt;s3&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="n"&gt;sagemaker&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;blog&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;corpus&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;nlp&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;blazingtext&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;blazingtext&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;200627&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1812&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;010&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;a414e1b&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gz&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;tar&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xz&lt;/span&gt;    
+&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;pip&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;gensim&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;gensim.models&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;KeyedVectors&lt;/span&gt;
+&lt;span class="n"&gt;word_vectors&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;KeyedVectors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load_word2vec_format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;data/best_tuning_model/vectors.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;binary&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;word_vectors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;most_similar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;family&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[(&amp;#39;relatives&amp;#39;, 0.7486746907234192),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;grandparents&amp;#39;, 0.7312743663787842),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;uncles&amp;#39;, 0.7192485928535461),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;cousins&amp;#39;, 0.7149008512496948),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;aunts&amp;#39;, 0.7009657621383667),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;parents&amp;#39;, 0.6931362152099609),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;aunt&amp;#39;, 0.6655760407447815),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;grandpa&amp;#39;, 0.6604502201080322),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;nephews&amp;#39;, 0.6573513150215149),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;grandmother&amp;#39;, 0.6546939611434937)]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;word_vectors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;most_similar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;sad&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[(&amp;#39;saddening&amp;#39;, 0.7043677568435669),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;depressing&amp;#39;, 0.6888615489006042),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;happy&amp;#39;, 0.676035463809967),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;unhappy&amp;#39;, 0.6721015572547913),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;depressed&amp;#39;, 0.6692825555801392),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;cry&amp;#39;, 0.6438484191894531),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;pathetic&amp;#39;, 0.6382129192352295),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;upset&amp;#39;, 0.6326898336410522),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;angry&amp;#39;, 0.6272262930870056),&lt;/span&gt;
+&lt;span class="err"&gt; (&amp;#39;heartbroken&amp;#39;, 0.6254571080207825)]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Overall, the neighbours look around as good for &amp;#8220;family&amp;#8221; as for the previous model, but seem to look a little better for &amp;#8220;sad&amp;#8221;, showing more relevant terms and less&amp;nbsp;typos.&lt;/p&gt;
+&lt;h2&gt;How much did this training&amp;nbsp;cost?&lt;/h2&gt;
+&lt;p&gt;I was a little worried when I first started this experiment at home, as I was concerned that running a Sagemaker &lt;span class="caps"&gt;ML&lt;/span&gt; training instance for over 7 hours might be really expensive! Happily, the &lt;code&gt;ml.c5.xlarge&lt;/code&gt; instances are surprisingly affordable, priced at &lt;span class="caps"&gt;US&lt;/span&gt;\&lt;span class="math"&gt;\(0.272 per hour in the Frankfurt region. The Sagemaker notebook instances are also reasonably priced, costing US\\)&lt;/span&gt;0.0536 per hour. My total bill for running this entire training job is &lt;span class="caps"&gt;US&lt;/span&gt;\$2.84. Just remember to shut down your Sagemaker notebook instances when you&amp;#8217;re not using them, as they can add up quickly if you forget about them for a couple of&amp;nbsp;days!&lt;/p&gt;
+&lt;h2&gt;A few final thoughts about the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 as a&amp;nbsp;metric&lt;/h2&gt;
+&lt;p&gt;As you can see, for this general-purpose, English language dataset, the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 metrics seemed to work very well for helping us evaluate and tune our word2vec models. However, there are some issues that some with using these datasets which you might want to be aware of for your own &lt;span class="caps"&gt;NLP&lt;/span&gt; projects. I encountered a few of these issues while using the Sagemaker automatic tuning process at my previous&amp;nbsp;job.&lt;/p&gt;
+&lt;p&gt;Firstly, the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 goldsets are entirely in English, and from what I could find out there is no option to specify the language of the training data and adjust the gold sets used to evaluate the model accordingly. This really limits their utility for non-English language &lt;span class="caps"&gt;NLP&lt;/span&gt;&amp;nbsp;tasks.&lt;/p&gt;
+&lt;p&gt;Secondly, given that the associations between word pairs in the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 are general, they may not capture associations in more specific domains. For example, in a general context, &amp;#8220;java&amp;#8221; might represent coffee and &amp;#8220;python&amp;#8221; might present a snake, and therefore be considered completely unrelated. However, in a job context, &amp;#8220;Java&amp;#8221; and &amp;#8220;Python&amp;#8221; would be much more likely to represent programming languages and therefore be quite&amp;nbsp;similar.&lt;/p&gt;
+&lt;p&gt;In addition, &lt;a href="https://arxiv.org/pdf/1605.02276.pdf"&gt;this interesting paper&lt;/a&gt; lists a number of other potential limitations of using the &lt;span class="caps"&gt;WS&lt;/span&gt;-353 for tuning, including issues with averaging over similarity and relatedness (which can semantically represent quite different things) and the potential for overfitting to these small&amp;nbsp;datasets.&lt;/p&gt;
+&lt;p&gt;These considerations definitely don&amp;#8217;t invalidate the use of the BlazingText objective metric (well, at least for English-language tasks); however, like everything in data science it means that the tuning process should not be treated as a silver bullet, but should be evaluated within the context of the &lt;span class="caps"&gt;NLP&lt;/span&gt; task you&amp;nbsp;have.&lt;/p&gt;
+&lt;p&gt;I hope this and the previous article gave you a practical overview on how to train word2vec models using BlazingText, its advantages over training locally, and how to potentially leverage the automatic tuning process to make a better performing&amp;nbsp;model.&lt;/p&gt;</content><category term="misc"></category><category term="aws"></category><category term="sagemaker"></category><category term="machine learning"></category></entry><entry><title>Training and evaluating a Word2Vec model using BlazingText in Sagemaker</title><link href="https://t-redactyl.github.io/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html" rel="alternate"></link><published>2020-09-07T00:00:00+02:00</published><updated>2020-09-07T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-09-07:/blog/2020/09/training-and-evaluating-a-word2vec-model-using-blazingtext-in-sagemaker.html</id><summary type="html">&lt;p&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker has a &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html"&gt;number of inbuilt algorithms&lt;/a&gt;, which are not only easier to use with the Sagemaker set up but are also optimised to work with &lt;span class="caps"&gt;AWS&lt;/span&gt; architecture. At my previous job, we used &lt;a href="https://en.wikipedia.org/wiki/Word_embedding"&gt;word embeddings&lt;/a&gt; extensively to help solve &lt;a href="https://en.wikipedia.org/wiki/Natural_language_processing"&gt;&lt;span class="caps"&gt;NLP&lt;/span&gt;&lt;/a&gt; problems. We found that &lt;span class="caps"&gt;AWS&lt;/span&gt;&amp;#8217;s implementation of …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;span class="caps"&gt;AWS&lt;/span&gt; Sagemaker has a &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html"&gt;number of inbuilt algorithms&lt;/a&gt;, which are not only easier to use with the Sagemaker set up but are also optimised to work with &lt;span class="caps"&gt;AWS&lt;/span&gt; architecture. At my previous job, we used &lt;a href="https://en.wikipedia.org/wiki/Word_embedding"&gt;word embeddings&lt;/a&gt; extensively to help solve &lt;a href="https://en.wikipedia.org/wiki/Natural_language_processing"&gt;&lt;span class="caps"&gt;NLP&lt;/span&gt;&lt;/a&gt; problems. We found that &lt;span class="caps"&gt;AWS&lt;/span&gt;&amp;#8217;s implementation of the &lt;a href="https://en.wikipedia.org/wiki/Word2vec"&gt;word2vec&lt;/a&gt; algorithm, &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext.html"&gt;BlazingText&lt;/a&gt;, is indeed much faster than training on a local machine or one of our own servers, as well as having useful inbuilt evaluation metrics that can help you work out the best model hyperparameters. I&amp;#8217;ve found that models that used to take around 6 hours to train on our servers take around 30 minutes to an hour to train using BlazingText. As you&amp;#8217;ll see, the implementation on Sagemaker also makes it easier for you to compare models with different hyperparameters and keep track of the different models you&amp;#8217;ve&amp;nbsp;trained.&lt;/p&gt;
 &lt;p&gt;In this post and the next, I&amp;#8217;ll show you how to train and evaluate a word2vec model using BlazingText, but if you would like more detail &lt;a href="https://www.youtube.com/watch?v=G2tX0YpNHfc"&gt;this video&lt;/a&gt; gives a very good overview of the word2vec algorithm and how it is implemented on &lt;span class="caps"&gt;AWS&lt;/span&gt;.&lt;/p&gt;
 &lt;h2&gt;Getting a&amp;nbsp;dataset&lt;/h2&gt;
 &lt;p&gt;For this analysis, I used the well known &lt;a href="http://u.cs.biu.ac.il/~koppel/BlogCorpus.htm"&gt;Blog Authorship Corpus&lt;/a&gt;, which consists of 681,288 posts from &lt;code&gt;blogger.com&lt;/code&gt;. In order to use these data to train a word2vec model, I extracted each post, split it into its composite sentences and wrote each sentence to a new line. I then did some light normalisation, including converting the text to lowercase and removing punctuation, newline characters, and extra whitespace. If you would like some guidance on the sort of steps you can take to normalise text data, you can see &lt;a href="https://t-redactyl.github.io/blog/2017/06/text-cleaning-in-multiple-languages.html"&gt;my previous blog post&lt;/a&gt; on this&amp;nbsp;topic.&lt;/p&gt;
