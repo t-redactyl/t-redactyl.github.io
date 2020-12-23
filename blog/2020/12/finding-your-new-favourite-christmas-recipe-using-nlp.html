@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Finding your new favourite Christmas recipe using NLP</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Finding your new favourite Christmas recipe using NLP written December 24, 2020 in nlp,machine learning">
+  <meta name="keywords" content="python, data science, aws, sagemaker, s3, pyspark, blazingtext, word2vec, w2v, nlp" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2020/12/finding-your-new-favourite-christmas-recipe-using-nlp.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Finding your new favourite Christmas recipe using NLP</h1>
+        <div class="meta">
+          written <time datetime="2020-12-24T00:00:00+01:00">December 24, 2020</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/nlp.html">nlp</a>,            <a href="https://t-redactyl.github.io/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p>With a full coronavirus shutdown in Germany, Christmas this year in Berlin will be very quiet. I have been keeping myself entertained for the last couple of weeks by watching old seasons of <a href="https://thegreatbritishbakeoff.co.uk/">The Great British Bakeoff</a>, so between that and the mountain of Christmas baking I&#8217;ve been doing, I felt rather inspired revisit my old tradition of making a Christmas-themed blog&nbsp;post. </p>
+<p>In this post, I will build a simple word2vec model from a dataset of <span class="caps">BBC</span> Good Food Christmas recipes, kindly scraped and posted to Kaggle by <a href="https://www.kaggle.com/gjbroughton/christmas-recipes">Gary Broughton</a>. We will then use this model to find the most similar recipes to one we might like to cook from the dataset, in order to recommend other things we could&nbsp;cook.</p>
+<h2>Reading in and cleaning the&nbsp;data</h2>
+<p>Let&#8217;s first load in the dataset, as well as import our&nbsp;dependencies.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ujson</span> <span class="k">as</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">nltk</span> <span class="kn">import</span> <span class="n">tokenize</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">Word2Vec</span>
+<span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">KeyedVectors</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;christmas_and_ny_2020/christmas_data/recipes.json&#39;</span><span class="p">))</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+</pre></div>
+
+
+<p>I want to train this dataset in such a way that I link the semantic information contained in recipes and the recipe titles together. As such, we&#8217;re going to include each recipe name in the training dataset. However, we want to make sure that our recipe names are different to the rest of the model vocabulary. The easiest way to do so is to use an <span class="caps">ID</span> label that is distinct from anything in the vocabulary, instead of using the title itself. In this case, we&#8217;re going to convert the rest of the training data to lowercase, so we can use the word &#8220;recipe&#8221; in uppercase, plus a number (e.g., <code>RECIPE1</code>).</p>
+<div class="highlight"><pre><span></span><span class="c1"># Create unique recipe marker</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;RECIPE</span><span class="si">{i}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+</pre></div>
+
+
+<p>We now need to decide which text we&#8217;re going to use to train our model. I decided that the ingredients and methods columns contain the most relevant information. However, as the sentences from the ingredients section and those from the methods sections are such different lengths, this might cause some issues when setting the word2vec window size. For example, a sentence in the ingredients section might be &#8220;2kg turkey&#8221;, compared to &#8220;Thoroughly wash the carrots and then cut them into small pieces.&#8221; in the methods section. As such, I decided to combine all of the ingredients for a recipe into one&nbsp;sentence. </p>
+<p>I felt that the measurements in the ingredients column just added noise to this model, so I compiled a manual list of all of the measurement terms I could see and cleansed them out of the ingredients list. I also removed all of the numbers, converted all characters to lowercase, and removed any extra&nbsp;whitespace.</p>
+<p>Once the cleaning was done, I merged the <code>recipe_tag</code> column created above with the cleaned ingredients sentences, making it the first &#8220;word&#8221; in each training sentence we will feed to our word2vec&nbsp;model.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Create sentences with ingredients</span>
+<span class="n">measurements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;tbsp&quot;</span><span class="p">,</span> <span class="s2">&quot;tsp&quot;</span><span class="p">,</span> <span class="s2">&quot;cup&quot;</span><span class="p">,</span> <span class="s2">&quot;cups&quot;</span><span class="p">,</span> <span class="s2">&quot;knob&quot;</span><span class="p">,</span> <span class="s2">&quot;ml&quot;</span><span class="p">,</span> <span class="s2">&quot;pack&quot;</span><span class="p">,</span> <span class="s2">&quot;oz&quot;</span><span class="p">,</span> <span class="s2">&quot;fl oz&quot;</span><span class="p">,</span> <span class="s2">&quot;bunch&quot;</span><span class="p">,</span> 
+                <span class="s2">&quot;bag&quot;</span><span class="p">,</span> <span class="s2">&quot;sprigs&quot;</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="s2">&quot;pinch&quot;</span><span class="p">,</span> <span class="s2">&quot;box&quot;</span><span class="p">,</span> <span class="s2">&quot;kg&quot;</span><span class="p">,</span> <span class="p">]</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;ingredients_joined&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Ingredients&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;ingredients_joined&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ingredients_joined&quot;</span><span class="p">]</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[^a-zA-Z]&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\b(</span><span class="si">{}</span><span class="s2">)\b&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">measurements</span><span class="p">)),</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                           <span class="p">)</span>
+
+<span class="c1"># # Create final column for output</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ingredients_joined&quot;</span><span class="p">]</span>
+<span class="n">ingredient_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]]</span>
+</pre></div>
+
+
+<p>For the methods section, I first exploded out each list into a separate row. I then checked if there were still multiple sentences per row, and if so, used <code>nltk</code><span class="quo">&#8216;</span>s <code>sent_tokenize</code> to split them. I then exploded these split paragraphs one last time, so every sentence was in its own&nbsp;row.</p>
+<p>I then applied the same cleaning and normalisation steps to the methods data as I had for the ingredients data above, as well as merging the sentences with the <code>recipe_tag</code>.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Create sentences with methods</span>
+<span class="n">method_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">,</span> <span class="s2">&quot;Method&quot;</span><span class="p">]]</span>
+<span class="n">method_df</span> <span class="o">=</span> <span class="n">method_df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;Method&quot;</span><span class="p">)</span>
+<span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;Method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;Method&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">tokenize</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span>
+<span class="n">method_df</span> <span class="o">=</span> <span class="n">method_df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;Method&quot;</span><span class="p">)</span>
+
+<span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;Method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;Method&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^a-zA-Z]&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Create final column for output</span>
+<span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;Method&quot;</span><span class="p">]</span>
+<span class="n">method_df</span> <span class="o">=</span> <span class="n">method_df</span><span class="p">[[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]]</span>
+</pre></div>
+
+
+<p>Let&#8217;s check how long each sentence is in the ingredients and methods&nbsp;datasets.</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average number of tokens in a sentence (ingredients): </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">ingredient_df</span><span class="p">[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average number of tokens in a sentence (methods): </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">method_df</span><span class="p">[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Average number of tokens in a sentence (ingredients): 32.0</span>
+<span class="err">Average number of tokens in a sentence (methods): 15.0</span>
+</pre></div>
+
+
+<p>We can see that the sentences in the ingredients dataset are around twice as long as those in the methods dataset, so we haven&#8217;t quite resolved our sentence length issue, but we can play with this by testing different window size&nbsp;parameters.</p>
+<p>Let&#8217;s combine our two datasets and have a look at how big our final dataset&nbsp;is.</p>
+<div class="highlight"><pre><span></span><span class="n">all_sentences</span> <span class="o">=</span> <span class="n">ingredient_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of sentences (ingredients only): {len(ingredient_df)}&quot;</span><span class="p">)</span> 
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of sentences (methods only): {len(method_df)}&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of sentences (ingredients and methods): {len(all_sentences)}&quot;</span><span class="p">)</span> 
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Number of sentences (ingredients only): 1617</span>
+<span class="err">Number of sentences (methods only): 20036</span>
+<span class="err">Number of sentences (ingredients and methods): 21653</span>
+</pre></div>
+
+
+<p>We can see our training data is a tiny 21,653 sentences, which is definitely not enough data to train a good-quality word2vec model. Short of sourcing another model with publically available weights for transfer learning, or sourcing more data, we could try <code>gensim</code><span class="quo">&#8216;</span>s <code>intersect_word2vec_format</code> method. <a href="https://tedboy.github.io/nlps/generated/generated/gensim.models.Word2Vec.intersect_word2vec_format.html">This method</a> allows us to load in a pretrained model that has been trained on a much larger corpus, and replace our weaker vectors with those from the pretrained model when the vocabularies overlap. Let&#8217;s see how we&nbsp;go.</p>
+<p>We first prepare our data for training. We need to convert the rows of our <code>training_sentences</code> column into a list of lists. The data also contained a number of <code>nan</code>s, so I removed them by keeping only rows which were of type <code>list</code>.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Convert sentences into list of lists for training</span>
+<span class="n">all_sentences_training</span> <span class="o">=</span> <span class="n">all_sentences</span><span class="p">[</span><span class="s2">&quot;training_sentences&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;\s&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+<span class="c1"># Remove nans</span>
+<span class="n">all_sentences_training</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_sentences_training</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">]</span>
+</pre></div>
+
+
+<h2>Training the&nbsp;model</h2>
+<p>Let&#8217;s now train a model on our data. I didn&#8217;t do any formal hyperparameter tuning, but from eyeballing the results I seemed to get the best neighbours with a window size of 20 and a minimum vocabulary count of 5 (which is quite high in this small dataset). As the pretrained model that I want to inject into my model has 300 dimensions, I have to use the same number in order for them to merge&nbsp;correctly.</p>
+<div class="highlight"><pre><span></span><span class="n">all_sentences_model</span> <span class="o">=</span> <span class="n">Word2Vec</span><span class="p">(</span><span class="n">sentences</span><span class="o">=</span><span class="n">all_sentences_training</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> 
+                               <span class="n">min_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now let&#8217;s load and inject in our pretrained model. We&#8217;ll use the <a href="https://code.google.com/archive/p/word2vec/">Google News model</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;christmas_and_ny_2020/christmas_data/GoogleNews-vectors-negative300.bin&#39;</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">all_sentences_model</span><span class="o">.</span><span class="n">intersect_word2vec_format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>And that&#8217;s it! As usual, the data cleaning and preparation took up most of our time, with just a few lines to train the models&nbsp;themselves.</p>
+<h2>Testing the model&nbsp;out</h2>
+<p>Let&#8217;s test out the model with a few recipes. We&#8217;ll first create a function to restrict the list of neighbours to just recipes, and then merge these recipe IDs with their titles and&nbsp;descriptions.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">retrieve_top_recipes</span><span class="p">(</span><span class="n">recipe_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topn</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the top 50 neighbours for a query, filters the neighbours list to only recipe IDs</span>
+<span class="sd">    and merges the IDs with their name and description.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nbrs</span> <span class="o">=</span> <span class="n">all_sentences_model</span><span class="o">.</span><span class="n">wv</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">recipe_id</span><span class="p">,</span> <span class="n">topn</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">recipe_nbrs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">nbrs</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)],</span> 
+                               <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">,</span> <span class="s2">&quot;cs&quot;</span><span class="p">])</span>
+    <span class="n">desc_nbrs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">recipe_nbrs</span><span class="p">[</span><span class="n">recipe_nbrs</span><span class="p">[</span><span class="s2">&quot;cs&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.7</span><span class="p">],</span> 
+                         <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Description&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe_tag&quot;</span><span class="p">]],</span> 
+                         <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;recipe_tag&quot;</span><span class="p">)</span>
+
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">recipe_id</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipe_tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">recipe_id</span><span class="p">,</span> <span class="s2">&quot;Description&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;REFERENCE RECIPE:</span><span class="se">\n</span><span class="si">{name}</span><span class="se">\n</span><span class="si">{description}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CLOSELY RELATED RECIPES:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">desc_nbrs</span><span class="p">[:</span><span class="n">topn</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{row[&#39;Name&#39;]}</span><span class="se">\n</span><span class="si">{row[&#39;Description&#39;]}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="p">)</span>
+</pre></div>
+
+
+<p>Let&#8217;s first consider what we can make for our main meal at Christmas. Let&#8217;s see what is similar to <code>RECIPE1613</code>, &#8220;Crispy Roast&nbsp;Duck&#8221;:</p>
+<div class="highlight"><pre><span></span><span class="n">retrieve_top_recipes</span><span class="p">(</span><span class="s2">&quot;RECIPE1613&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">REFERENCE</span> <span class="n">RECIPE</span><span class="p">:</span>
+<span class="n">Crispy</span> <span class="n">Roast</span> <span class="n">Duck</span>
+<span class="n">Duck</span> <span class="n">basted</span> <span class="k">to</span> <span class="n">perfection</span><span class="p">,</span> <span class="n">ideal</span> <span class="k">for</span> <span class="n">a</span> <span class="n">Sunday</span> <span class="n">lunch</span> <span class="k">or</span> <span class="n">special</span> <span class="n">occasion</span>
+
+<span class="n">CLOSELY</span> <span class="n">RELATED</span> <span class="n">RECIPES</span><span class="p">:</span>
+<span class="n">Marmalade</span> <span class="n">glazed</span> <span class="n">roast</span> <span class="n">duck</span>
+<span class="n">it</span><span class="s1">&#39;s Areet looking actually just doesn&#39;</span><span class="n">t</span> <span class="n">taste</span> <span class="n">very</span> <span class="n">good</span><span class="p">.</span>
+
+<span class="n">Chestnut</span> <span class="o">&amp;</span> <span class="n">wild</span> <span class="n">mushroom</span> <span class="n">stuffed</span> <span class="n">three</span><span class="o">-</span><span class="n">bird</span> <span class="n">roast</span>
+<span class="n">You</span><span class="s1">&#39;ll need a little skill and patience to pull off this elegant multi-bird roast of chicken, pheasant and duck, but there&#39;</span><span class="n">s</span> <span class="k">no</span> <span class="n">other</span> <span class="n">main</span> <span class="n">course</span> <span class="n">quite</span> <span class="k">like</span> <span class="n">it</span>
+
+<span class="n">Easy</span> <span class="n">coq</span> <span class="n">au</span> <span class="n">vin</span>
+<span class="n">Didn</span><span class="s1">&#39;t look like the picture at all but it was delicious!</span>
+
+<span class="s1">Game terrine</span>
+<span class="s1">John Torode shows how to prepare classic coarse set terrine with duck and mixed game of your choice</span>
+
+<span class="s1">Sticky treacle-glazed ham</span>
+<span class="s1">James uses the steam-roast method to cook his Christmas ham, so you don&#39;</span><span class="n">t</span> <span class="n">need</span> <span class="n">an</span> <span class="n">enormous</span> <span class="n">pan</span> <span class="k">to</span> <span class="n">boil</span> <span class="n">it</span> <span class="k">in</span>
+</pre></div>
+
+
+<p>Not bad! We have a number of other poultry and then meat dishes&nbsp;recommended.</p>
+<p>What about dessert? What else could we have other than <code>RECIPE25</code>, &#8220;Classic Christmas&nbsp;pudding&#8221;?</p>
+<div class="highlight"><pre><span></span><span class="n">retrieve_top_recipes</span><span class="p">(</span><span class="s2">&quot;RECIPE21&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">REFERENCE</span> <span class="n">RECIPE</span><span class="p">:</span>
+<span class="n">Easy</span> <span class="n">Christmas</span> <span class="n">pudding</span>
+<span class="n">So</span> <span class="k">are</span> <span class="k">all</span> <span class="n">the</span> <span class="n">cups</span> <span class="n">the</span> <span class="n">same</span> <span class="k">size</span> <span class="k">as</span> <span class="n">the</span> <span class="n">butter</span> <span class="n">cup</span><span class="o">?</span> <span class="n">Specifying</span> <span class="n">cup</span> <span class="k">size</span> <span class="n">would</span> <span class="n">be</span> <span class="n">helpful</span><span class="p">.</span> <span class="n">Thanks</span>
+
+<span class="n">CLOSELY</span> <span class="n">RELATED</span> <span class="n">RECIPES</span><span class="p">:</span>
+<span class="n">Honey</span> <span class="n">saffron</span> <span class="n">Christmas</span> <span class="n">cake</span>
+<span class="n">Has</span> <span class="k">all</span> <span class="n">the</span> <span class="n">flavours</span> <span class="k">of</span> <span class="n">Christmas</span> <span class="k">without</span> <span class="n">being</span> <span class="n">too</span> <span class="n">heavy</span> <span class="k">and</span> <span class="n">can</span> <span class="n">be</span> <span class="n">made</span> <span class="k">at</span> <span class="n">the</span> <span class="k">last</span> <span class="k">minute</span> <span class="n">too</span>
+
+<span class="n">Christmas</span> <span class="n">morning</span> <span class="n">spiced</span> <span class="n">bread</span>
+<span class="n">This</span> <span class="n">festive</span> <span class="n">bread</span> <span class="n">can</span> <span class="n">be</span> <span class="n">made</span> <span class="n">ahead</span> <span class="k">and</span> <span class="n">frozen</span> <span class="k">and</span> <span class="n">makes</span> <span class="n">a</span> <span class="n">lovely</span> <span class="k">treat</span> <span class="k">for</span> <span class="n">breakfast</span> <span class="k">on</span> <span class="n">Christmas</span> <span class="n">morning</span>
+
+<span class="n">Gingery</span> <span class="n">Christmas</span> <span class="n">cake</span>
+<span class="n">A</span> <span class="n">good</span> <span class="n">glug</span> <span class="k">of</span> <span class="n">ginger</span> <span class="n">wine</span> <span class="n">makes</span> <span class="n">this</span> <span class="n">cake</span> <span class="n">a</span> <span class="n">little</span> <span class="n">different</span> <span class="k">from</span> <span class="n">the</span> <span class="n">norm</span><span class="p">.</span> <span class="n">It</span><span class="s1">&#39;s also lighter than its predecessors, so you can have two pieces!</span>
+
+<span class="s1">Christmas pudding with citrus &amp; spice</span>
+<span class="s1">A fruity pud, served with orange custard cream, makes the perfect end to the traditional Christmas meal</span>
+
+<span class="s1">Granny Cook&#39;</span><span class="n">s</span> <span class="n">Christmas</span> <span class="n">pud</span>
+<span class="k">If</span> <span class="n">you</span> <span class="n">prefer</span> <span class="n">a</span> <span class="n">lighter</span><span class="p">,</span> <span class="n">fruity</span> <span class="n">Christmas</span> <span class="n">pudding</span><span class="p">,</span> <span class="k">share</span> <span class="n">Sarah</span> <span class="n">Cook</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">family</span> <span class="n">recipe</span><span class="p">,</span> <span class="n">which</span> <span class="n">makes</span> <span class="n">three</span> <span class="n">sizes</span> <span class="k">of</span> <span class="n">pud</span>
+</pre></div>
+
+
+<p>We&#8217;re getting some interesting recommendations, including some alternative Christmas pudding ideas, as well as other&nbsp;desserts.</p>
+<p>What about snacks? Let&#8217;s see what is similar to <code>RECIPE11</code>, Mary Berry&#8217;s Christmas&nbsp;chutney.</p>
+<div class="highlight"><pre><span></span><span class="n">retrieve_top_recipes</span><span class="p">(</span><span class="s2">&quot;RECIPE11&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">REFERENCE</span> <span class="n">RECIPE</span><span class="p">:</span>
+<span class="n">Mary</span> <span class="n">Berry</span><span class="s1">&#39;s Christmas chutney</span>
+<span class="s1">A perfect match for cheese and cold meats, and delicious in turkey sandwiches</span>
+
+<span class="s1">CLOSELY RELATED RECIPES:</span>
+<span class="s1">Courgette &amp; tomato chutney</span>
+<span class="s1">A chunky and vibrant homemade pickle flavoured with yellow mustard seeds- keep as an accompaniment or present as a gift</span>
+
+<span class="s1">Granny Cook&#39;</span><span class="n">s</span> <span class="n">Christmas</span> <span class="n">pud</span>
+<span class="k">If</span> <span class="n">you</span> <span class="n">prefer</span> <span class="n">a</span> <span class="n">lighter</span><span class="p">,</span> <span class="n">fruity</span> <span class="n">Christmas</span> <span class="n">pudding</span><span class="p">,</span> <span class="k">share</span> <span class="n">Sarah</span> <span class="n">Cook</span><span class="s1">&#39;s family recipe, which makes three sizes of pud</span>
+
+<span class="s1">Christmas spiced red cabbage</span>
+<span class="s1">This classic side can be made up to two days in advance. For maximum flavour, cook the cabbage down really well over a low heat until it&#39;</span><span class="n">s</span> <span class="n">really</span> <span class="n">sticky</span>
+
+<span class="n">Best</span> <span class="n">ever</span> <span class="n">roast</span> <span class="n">potatoes</span>
+<span class="n">This</span> <span class="n">recipe</span> <span class="k">is</span> <span class="n">very</span> <span class="k">similar</span> <span class="k">to</span> <span class="n">the</span> <span class="n">way</span> <span class="n">I</span><span class="s1">&#39;ve been roasting potatoes for some years. I don&#39;</span><span class="n">t</span> <span class="n">place</span> <span class="n">them</span> <span class="k">in</span> <span class="n">the</span> <span class="n">fridge</span> <span class="n">once</span> <span class="n">boiled</span> <span class="n">but</span> <span class="k">return</span> <span class="n">them</span> <span class="k">to</span> <span class="n">the</span> <span class="n">empty</span> <span class="n">pan</span> <span class="n">over</span> <span class="n">a</span> <span class="n">low</span> <span class="n">heat</span> <span class="k">and</span> <span class="n">steam</span> <span class="n">them</span> <span class="k">off</span> <span class="k">for</span> <span class="n">a</span> <span class="n">few</span> <span class="n">minutes</span> <span class="n">whilst</span> <span class="n">moving</span> <span class="n">them</span> <span class="n">around</span> <span class="k">with</span> <span class="n">a</span> <span class="n">wooden</span> <span class="n">spatula</span><span class="p">.</span> <span class="n">This</span> <span class="k">in</span> <span class="n">an</span> <span class="n">effort</span> <span class="k">to</span> <span class="n">remove</span> <span class="k">as</span> <span class="n">much</span> <span class="n">water</span> <span class="k">as</span> <span class="n">possible</span><span class="p">.</span> <span class="n">It</span> <span class="n">seems</span> <span class="k">to</span> <span class="n">me</span> <span class="n">that</span> <span class="n">water</span> <span class="k">is</span> <span class="n">the</span> <span class="n">sworn</span> <span class="n">enemy</span> <span class="k">of</span> <span class="n">crusty</span> <span class="n">roast</span> <span class="n">potatoes</span><span class="p">.</span> <span class="k">Then</span> <span class="n">roast</span> <span class="k">for</span> <span class="n">perhaps</span> <span class="n">just</span> <span class="k">under</span> <span class="n">the</span> <span class="n">hour</span> <span class="n">but</span> <span class="n">take</span> <span class="n">a</span> <span class="n">look</span> <span class="k">after</span> <span class="mi">35</span> <span class="n">minutes</span><span class="p">.</span> <span class="n">I</span> <span class="n">agree</span> <span class="k">on</span> <span class="n">the</span> <span class="n">Maris</span> <span class="n">Pipers</span><span class="p">....</span>
+</pre></div>
+
+
+<p>We can see the results here are (mostly) in some way related to the original chutney we were searching for, but are much less focused than what we were getting for the duck and pudding recipes. Due to the small size of the model, even with the enrichment from the Google pretrained model there were still issues with&nbsp;quality.</p>
+<p>So that&#8217;s it! I hope you enjoyed this little exercise in using <span class="caps">NLP</span> to get some ideas for Christmas cooking. Have a great Christmas, stay safe, and eat&nbsp;well!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>
