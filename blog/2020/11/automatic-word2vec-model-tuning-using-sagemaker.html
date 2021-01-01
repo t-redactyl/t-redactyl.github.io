@@ -81,7 +81,7 @@
 <p>In this post I&#8217;ll take you through how to tune a set of word2vec models using Sagemaker&#8217;s inbuilt objective metric, the <span class="caps">WS</span>-353 goldsets, as well as discuss some practical considerations such as the cost of this tuning and the potential limitations of the <span class="caps">WS</span>-353 for some <span class="caps">NLP</span>&nbsp;tasks.</p>
 <h2>Setting up our&nbsp;tuning</h2>
 <p>In order to get started, we&#8217;ll use the exact same set up for the execution role, S3 bucket, training image and Sagemaker estimator which I discussed in the last post. We&#8217;ll also start with the same set of hyperparameter we used for our last&nbsp;model.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">import</span> <span class="nn">sagemaker</span>
 <span class="kn">from</span> <span class="nn">sagemaker</span> <span class="kn">import</span> <span class="n">get_execution_role</span>
 <span class="kn">from</span> <span class="nn">sagemaker.tuner</span> <span class="kn">import</span> <span class="p">(</span><span class="n">IntegerParameter</span><span class="p">,</span> <span class="n">CategoricalParameter</span><span class="p">,</span> <span class="n">ContinuousParameter</span><span class="p">,</span> 
@@ -124,12 +124,11 @@
 <span class="p">)</span>
 
 <span class="c1"># Get path to training data</span>
-<span class="n">input_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{bucket_name}</span><span class="s2">/cleaned_sentences.csv&quot;</span>
-</pre></div>
-
+<span class="n">input_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">/cleaned_sentences.csv&quot;</span>
+</code></pre></div>
 
 <p>In order to use the automatic tuner rather than just training a single model, we need to take a couple of extra steps here. Firstly, we need to decide which hyperparameters we wish to tune and what ranges of possible values we&#8217;d like the tuner to test for each one. <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext-tuning.html">This page</a> gives a guide on the most important hyperparameters and their recommended ranges for&nbsp;testing.</p>
-<div class="highlight"><pre><span></span><span class="n">hyperparameter_ranges</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="n">hyperparameter_ranges</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;mode&#39;</span><span class="p">:</span> <span class="n">CategoricalParameter</span><span class="p">([</span><span class="s1">&#39;batch_skipgram&#39;</span><span class="p">,</span> <span class="s1">&#39;cbow&#39;</span><span class="p">]),</span>
     <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span> <span class="n">ContinuousParameter</span><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">scaling_type</span><span class="o">=</span><span class="s2">&quot;Logarithmic&quot;</span><span class="p">),</span>
     <span class="s1">&#39;window_size&#39;</span><span class="p">:</span> <span class="n">IntegerParameter</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
@@ -137,11 +136,10 @@
     <span class="s1">&#39;min_count&#39;</span><span class="p">:</span> <span class="n">IntegerParameter</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
     <span class="s1">&#39;negative_samples&#39;</span><span class="p">:</span> <span class="n">IntegerParameter</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">25</span><span class="p">)</span>
 <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Next, we need to set up our tuner. We indicate that we want the tuner to use the BlazingText estimator we created, and maximise the mean correlation with the <span class="caps">WS</span>-353 gold sets in order to optimise the model. We&#8217;ve also told the tuner to only try to test the hyperparameters we included in our <code>hyperparameter_ranges</code> dictionary above. Finally, we&#8217;ve also told the model that we only want to do up to 12 rounds of tuning, and that the model can run up to two training jobs in&nbsp;parallel.</p>
-<div class="highlight"><pre><span></span><span class="n">objective_metric_name</span> <span class="o">=</span> <span class="s1">&#39;train:mean_rho&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="n">objective_metric_name</span> <span class="o">=</span> <span class="s1">&#39;train:mean_rho&#39;</span>
 
 <span class="n">tuner</span> <span class="o">=</span> <span class="n">HyperparameterTuner</span><span class="p">(</span>
     <span class="n">bt_model</span><span class="p">,</span>
@@ -152,17 +150,15 @@
     <span class="n">objective_type</span><span class="o">=</span><span class="s1">&#39;Maximize&#39;</span><span class="p">,</span>
     <span class="n">tags</span><span class="o">=</span><span class="n">tags</span>
 <span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We are finally ready to kick off our tuning job! Unlike when training a single job, when we execute this cell we won&#8217;t get any feedback in the notebook. However, you can go to your Sagemaker dashboard and look at <code>Hyperparameter Tuning Jobs</code> under <code>Training</code> and you&#8217;ll be able to see that the job has started. You&#8217;re also able to shut down your Sagemaker notebook instance while you wait for the tuning job to finish. This is also something you might want to set to run overnight, as the total training time for these models was around 7.5&nbsp;hours.</p>
-<div class="highlight"><pre><span></span><span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">},</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">},</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
 
 <h2>Comparing our models and picking the best&nbsp;performing</h2>
 <p>Once our tuning job is finished, we can retrieve all of our model hyperparameters and performance metrics using Sagemaker search. The following code will retrieve all models contained in the S3 bucket I am using for this project, as I&#8217;ve asked it to retrieve all models from buckets containing <code>blog-corpus-nlp</code>. I took this code directly from <a href="https://www.youtube.com/watch?v=xpZFNIOaQns">the video on automatic tuning</a> that I discussed at the beginning of this&nbsp;post.</p>
-<div class="highlight"><pre><span></span><span class="n">smclient</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="n">service_name</span> <span class="o">=</span> <span class="s2">&quot;sagemaker&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">smclient</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="n">service_name</span> <span class="o">=</span> <span class="s2">&quot;sagemaker&quot;</span><span class="p">)</span>
 
 <span class="n">search_params</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;MaxResults&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
@@ -183,11 +179,10 @@
     <span class="p">}</span>
 <span class="p">}</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">smclient</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">**</span><span class="n">search_params</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>These results are returned in a rather messy <span class="caps">JSON</span>, so in order to make it a bit easier to check and compare these models, I&#8217;ll extract the relevant data I want and put it in a <code>pandas</code> DataFrame. I&#8217;ll also rank the table so that the models that performed best against the objective metric are at the top of the&nbsp;DataFrame.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="k">def</span> <span class="nf">extractModelInfo</span><span class="p">(</span><span class="n">model_dict</span><span class="p">):</span>
@@ -207,8 +202,7 @@
 <span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">results_df</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;skipgram&quot;</span><span class="p">,</span> 
                             <span class="n">desired_fields</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;mean_rho&quot;</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 <span class="n">results_df</span>
-</pre></div>
-
+</code></pre></div>
 
 <div>
 <table class="table table-bordered">
@@ -375,19 +369,17 @@
 
 <p>As you can see, the best performing model used a skipgram architecture, had a learning rate of 0.01, a minimum count for each term of 32, used 6 negative samples, used a 100 dimension vector size and used a rather generous window size of 28 for checking proximate words. It also outperformed our previous model, with a <code>mean_rho</code> score of 0.74 (compared to 0.72 for the model we trained in the last&nbsp;post).</p>
 <p>Let&#8217;s check the neighbours we get from this model for the same two queries &#8220;family&#8221; and &#8220;sad&#8221; that we checked for the untuned model from the last&nbsp;post.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">sagemaker</span><span class="o">-</span><span class="n">blog</span><span class="o">-</span><span class="n">corpus</span><span class="o">-</span><span class="n">nlp</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">-</span><span class="mi">200627</span><span class="o">-</span><span class="mi">1812</span><span class="o">-</span><span class="mi">010</span><span class="o">-</span><span class="mi">4</span><span class="n">a414e1b</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span> <span class="o">|</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xz</span>    
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">sagemaker</span><span class="o">-</span><span class="n">blog</span><span class="o">-</span><span class="n">corpus</span><span class="o">-</span><span class="n">nlp</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">-</span><span class="mi">200627</span><span class="o">-</span><span class="mi">1812</span><span class="o">-</span><span class="mi">010</span><span class="o">-</span><span class="mi">4</span><span class="n">a414e1b</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span> <span class="o">|</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xz</span>    
 <span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">gensim</span>
 
 <span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">KeyedVectors</span>
 <span class="n">word_vectors</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="s1">&#39;data/best_tuning_model/vectors.txt&#39;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;family&quot;</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;family&quot;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[(&#39;relatives&#39;, 0.7486746907234192),</span>
+<div class="highlight"><pre><span></span><code><span class="err">[(&#39;relatives&#39;, 0.7486746907234192),</span>
 <span class="err"> (&#39;grandparents&#39;, 0.7312743663787842),</span>
 <span class="err"> (&#39;uncles&#39;, 0.7192485928535461),</span>
 <span class="err"> (&#39;cousins&#39;, 0.7149008512496948),</span>
@@ -397,14 +389,12 @@
 <span class="err"> (&#39;grandpa&#39;, 0.6604502201080322),</span>
 <span class="err"> (&#39;nephews&#39;, 0.6573513150215149),</span>
 <span class="err"> (&#39;grandmother&#39;, 0.6546939611434937)]</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;sad&quot;</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;sad&quot;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[(&#39;saddening&#39;, 0.7043677568435669),</span>
+<div class="highlight"><pre><span></span><code><span class="err">[(&#39;saddening&#39;, 0.7043677568435669),</span>
 <span class="err"> (&#39;depressing&#39;, 0.6888615489006042),</span>
 <span class="err"> (&#39;happy&#39;, 0.676035463809967),</span>
 <span class="err"> (&#39;unhappy&#39;, 0.6721015572547913),</span>
@@ -414,8 +404,7 @@
 <span class="err"> (&#39;upset&#39;, 0.6326898336410522),</span>
 <span class="err"> (&#39;angry&#39;, 0.6272262930870056),</span>
 <span class="err"> (&#39;heartbroken&#39;, 0.6254571080207825)]</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Overall, the neighbours look around as good for &#8220;family&#8221; as for the previous model, but seem to look a little better for &#8220;sad&#8221;, showing more relevant terms and less&nbsp;typos.</p>
 <h2>How much did this training&nbsp;cost?</h2>

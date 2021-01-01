@@ -97,39 +97,33 @@ AI &amp;= \begin{bmatrix} 4 &amp; 3 \\ 6 &amp; 5 \end{bmatrix} \begin{bmatrix} 1
 \end{aligned}
 $$</div>
 <p>In order to do this in Numpy, we can generate an identity matrix using the <code>identity</code> function, passing the number of rows (and columns) as the&nbsp;argument.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
 <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">I</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1., 0.],</span>
 <span class="err">       [0., 1.]])</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">AI</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">AI</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
 <span class="n">AI</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[4., 3.],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[4., 3.],</span>
 <span class="err">       [6., 5.]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Unlike most matrix multiplications, we get the same result if we multiply <span class="math">\(AI\)</span> or <span class="math">\(IA\)</span>, as both results just simplify to <span class="math">\(A\)</span>: <span class="math">\(AI = IA = A\)</span>. This means that matrix multiplication by the identity is&nbsp;commutative.</p>
-<div class="highlight"><pre><span></span><span class="n">IA</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">IA</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="n">IA</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[4., 3.],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[4., 3.],</span>
 <span class="err">       [6., 5.]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <h3>Inverse of a&nbsp;matrix</h3>
 <p>The inverse of a matrix is another matrix by which you multiply that matrix to get the identity matrix. This is comparable to the inverse with numbers, where the <a href="https://www.mathsisfun.com/numbers/inverse.html">inverse of a number is what you multiply that number by to get 1</a>. You may have noticed that I referred to <strong>the</strong> inverse of a matrix. This is because every matrix that can be inverted has only one unique inverse. The inverse of the matrix is indicated by writing the name of the original matrix with a little <span class="math">\(-1\)</span> superscript (<a href="https://www.mathsisfun.com/numbers/inverse.html">which is exactly the same notation as for the multiplicative inverse for numbers</a>). For example, the matrix <span class="math">\(Z\)</span> would have the inverse <span class="math">\(Z^{-1}\)</span>.</p>
@@ -160,37 +154,31 @@ AA^{-1} &amp;= \begin{bmatrix}(4 \times \frac{5}{2} + 3 \times -3) &amp; (4\time
 $$</div>
 <p>Unfortunately, finding the inverse of matrices that are bigger than <span class="math">\(2 \times 2\)</span> is less straightforward. There are a few methods to do it, but they are beyond the scope of this blog post. A couple of nice (and gentle) introductions to these can be found <a href="https://www.mathsisfun.com/algebra/matrix-inverse-row-operations-gauss-jordan.html">here</a> and <a href="https://www.mathsisfun.com/algebra/matrix-inverse-minors-cofactors-adjugate.html">here</a>.</p>
 <p>In order to calculate the inverse of a matrix in Numpy, we can use the <code>inv</code> function from the <code>linalg</code> subpackage.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
 
 <span class="n">Ainv</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="n">Ainv</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 2.5, -1.5],</span>
 <span class="err">       [-3. ,  2. ]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Let&#8217;s check it is the correct inverse by multiplying it by <span class="math">\(A\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">))</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ainv</span><span class="p">))</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1., 0.],</span>
 <span class="err">       [0., 1.]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Like with multiplication by the identity matrix, multiplication by the inverse is also commutative. This is because, as we just saw above, multiplying <span class="math">\(A\)</span> by its inverse simplifies to <span class="math">\(I\)</span>, so <span class="math">\(AA^{-1} = A^{-1}A = I\)</span>. Let&#8217;s confirm this is true using&nbsp;Numpy:</p>
-<div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">Ainv</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">Ainv</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1., 0.],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1., 0.],</span>
 <span class="err">       [0., 1.]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You&#8217;ve probably guessed from what I said earlier that not all matrices are invertible. Firstly, only square matrices are invertible. In addition, if any of the columns are a combination of any of the other columns in the matrix, then you cannot invert the matrix (in other words, when any of the columns are a linear combination of any of the other columns). Let&#8217;s see why this is the case. Let&#8217;s say we have a matrix <span class="math">\(B\)</span>, where the second column is a multiple of the first&nbsp;column:</p>
 <div class="math">$$
@@ -206,12 +194,11 @@ B^{-1} &amp;= \frac{1}{(1 \times 6) - (2 \times 3)}\begin{bmatrix}6 &amp; -2\\-3
 $$</div>
 <p>But wait! Our determinant is <span class="math">\(\frac{1}{0}\)</span>, which is undefined. This means we can&#8217;t go any further in solving this equation, making our matrix uninvertible. Such non-invertible matrices are called &#8220;singular&#8221; or &#8220;degenerate&#8221;&nbsp;matrices.</p>
 <p>Let&#8217;s see what happens when we try to pass our matrix <span class="math">\(B\)</span> to Numpy&#8217;s <code>inv</code> function:</p>
-<div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<div class="highlight"><pre><span></span><code><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 <span class="n">inv</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="c1">---------------------------------------------------------------------------</span>
+<div class="highlight"><pre><span></span><code><span class="c1">---------------------------------------------------------------------------</span>
 
 <span class="n">LinAlgError</span>                               <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="k">call</span> <span class="k">last</span><span class="p">)</span>
 
@@ -240,8 +227,7 @@ $$</div>
 
 
 <span class="n">LinAlgError</span><span class="p">:</span> <span class="n">Singular</span> <span class="n">matrix</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Numpy tells us clearly that this matrix is non-invertible, exactly for the reasons we talked about&nbsp;above.</p>
 <p>That caps off our discussion of matrix inversion. In the next post, we&#8217;ll finish up this series on matrix operations by talking about powers of a matrix and matrix&nbsp;transposition.</p>

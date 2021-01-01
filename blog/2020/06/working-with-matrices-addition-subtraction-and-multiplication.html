@@ -89,18 +89,16 @@ A = \begin{bmatrix}1 &amp; 2\\3 &amp; 4\\5 &amp; 6\end{bmatrix}
 $$</div>
 <p>a matrix called <span class="math">\(A\)</span> with 3 rows and 2 columns, or a <span class="math">\(3 \times 2\)</span>&nbsp;matrix.</p>
 <p>We can represent this matrix in Python using a Numpy array. Notice that we&#8217;ve assigned each row of the matrix to a separate list, and then passed this list of lists as an argument to Numpy&#8217;s <code>array</code> function.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 <span class="n">A</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1, 2],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1, 2],</span>
 <span class="err">       [3, 4],</span>
 <span class="err">       [5, 6]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <h2>Referring to matrix&nbsp;elements</h2>
 <p>Let&#8217;s go back to the Excel spreadsheet above. You&#8217;re probably used to the Excel notation of referring to elements in the spreadsheet using their column name and row number. For example, to get the element <code>2</code> in the spreadsheet above, you&#8217;d refer to cell B1, with the columns denoted by letters and the rows by&nbsp;numbers.</p>
@@ -110,22 +108,18 @@ A = \begin{bmatrix}a_{11} &amp; a_{12}\\a_{21} &amp; a_{22}\\a_{31} &amp; a_{32}
 $$</div>
 <p>In this case we&#8217;d reference the element 2 using <span class="math">\(a_{12}\)</span>. Unlike our Excel spreadsheet, however, we reference the row first and then the column. Also note that the convention when working with matrices is to refer to a matrix using a capital letter (<span class="math">\(A\)</span>), and components of the matrix by a lowercase letter (<span class="math">\(a\)</span>).</p>
 <p>In Numpy, we can get elements from our array by using this row, column notation. However, because Python is zero-indexed, we need to subtract 1 from each of the row and column numbers, meaning <span class="math">\(a_{12}\)</span> becomes <code>(0, 1)</code> in our Numpy&nbsp;array:</p>
-<div class="highlight"><pre><span></span><span class="n">A</span><span class="o">.</span><span class="n">item</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">A</span><span class="o">.</span><span class="n">item</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">2</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">2</span>
+</code></pre></div>
 
 <p>In addition, we can also refer to elements by their index in the matrix, treating each element as though it was part of a single list. In this case, <code>2</code> is at index <code>1</code> of the&nbsp;matrix:</p>
-<div class="highlight"><pre><span></span><span class="n">A</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">A</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">2</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">2</span>
+</code></pre></div>
 
 <h2>Matrix&nbsp;operations</h2>
 <p>There are a number of mathematical operations we can do with matrices. In this post, we&#8217;ll explore how to add and subtract matrices, how to multiply a matrix by a scalar, and how to multiply a matrix by another matrix. In the next post, I&#8217;ll explain matrix inversion (and when it is possible), and in the final post in this series we&#8217;ll cover powers of a matrix and matrix&nbsp;transposition.</p>
@@ -142,36 +136,31 @@ $$</div>
 C = (A + B) = \begin{bmatrix}(1 + 7) &amp; (2 + 8)\\(3 + 9) &amp; (4 + 10)\\(5 + 11) &amp; (6 + 12)\end{bmatrix} = \begin{bmatrix}8 &amp; 10\\12 &amp; 14\\16 &amp; 18\end{bmatrix}
 $$</div>
 <p>In Numpy, we can simply use the <code>+</code> operator, which correctly calculates this elementwise addition for each&nbsp;matrix.</p>
-<div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]])</span>
+<div class="highlight"><pre><span></span><code><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]])</span>
 <span class="n">C</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="n">B</span>
 <span class="n">C</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 8, 10],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 8, 10],</span>
 <span class="err">       [12, 14],</span>
 <span class="err">       [16, 18]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>This operation can also be extended to allow us to subtract a matrix from another matrix, where instead of adding each number in the two matrices, we would subtract one from the other. In Numpy we similarly use the <code>-</code> operator to perform this&nbsp;operation.</p>
-<div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="n">B</span> <span class="o">-</span> <span class="n">A</span>
+<div class="highlight"><pre><span></span><code><span class="n">D</span> <span class="o">=</span> <span class="n">B</span> <span class="o">-</span> <span class="n">A</span>
 <span class="n">D</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[6, 6],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[6, 6],</span>
 <span class="err">       [6, 6],</span>
 <span class="err">       [6, 6]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>What happens if we try to add or subtract two matrices of different sizes? Let&#8217;s try adding <span class="math">\(A\)</span> to a matrix made up of the first two rows of <span class="math">\(B\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">A</span> <span class="o">+</span> <span class="n">B</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">+</span> <span class="n">B</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="c1">---------------------------------------------------------------------------</span>
+<div class="highlight"><pre><span></span><code><span class="c1">---------------------------------------------------------------------------</span>
 
 <span class="n">ValueError</span>                                <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="k">call</span> <span class="k">last</span><span class="p">)</span>
 
@@ -180,8 +169,7 @@ $$</div>
 
 
 <span class="n">ValueError</span><span class="p">:</span> <span class="n">operands</span> <span class="n">could</span> <span class="k">not</span> <span class="n">be</span> <span class="n">broadcast</span> <span class="n">together</span> <span class="k">with</span> <span class="n">shapes</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Numpy gives us a very helpful error message, reminding us that matrices must be the same shape in order to be added (or&nbsp;subtracted).</p>
 <h3>Multiplying a matrix by a&nbsp;scalar</h3>
@@ -191,16 +179,14 @@ $$</div>
 E = 2A = \begin{bmatrix}(2 \times 1) &amp; (2 \times 2)\\(2 \times 3) &amp; (2 \times 4)\\(2 \times 5) &amp; (2 \times 6)\end{bmatrix} = \begin{bmatrix}2 &amp; 4\\6 &amp; 8\\10 &amp; 12\end{bmatrix}
 $$</div>
 <p>In Numpy, similar to matrix addition and subtraction, we can just use the <code>*</code> operator to multiply each element by the scalar&nbsp;2:</p>
-<div class="highlight"><pre><span></span><span class="n">E</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">A</span>
+<div class="highlight"><pre><span></span><code><span class="n">E</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">A</span>
 <span class="n">E</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 2,  4],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 2,  4],</span>
 <span class="err">       [ 6,  8],</span>
 <span class="err">       [10, 12]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <h3>Matrix&nbsp;multiplication</h3>
 <p>So we&#8217;ve seen that matrices can be multiplied by scalars. Can we also multiply a matrix by another matrix? Just like with matrix addition and subtraction, this depends on the size of the two matrices. However, unlike addition and subtraction, the matrices don&#8217;t have to be the same size. Instead the number of <strong>columns</strong> in the first matrix must be the same as the number of <strong>rows</strong> in the second matrix. We&#8217;ll see why by doing an&nbsp;example.</p>
@@ -229,36 +215,31 @@ G = AF = \begin{bmatrix}38 &amp; 41 &amp; 44 &amp; 47\\86 &amp; 93 &amp; 100 &am
 $$</div>
 <p>And there we have it! We have ended up with a new <span class="math">\(3 \times 4\)</span> matrix: that is, a matrix with the same number of rows as the first matrix and the same number of columns as the second&nbsp;matrix.</p>
 <p>As hinted at in the name of operation that gets each element in our multiplication, the function to multiply two matrices in Numpy is called <code>dot</code>. </p>
-<div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">]])</span>
+<div class="highlight"><pre><span></span><code><span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">]])</span>
 <span class="n">G</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
 <span class="n">G</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 38,  41,  44,  47],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 38,  41,  44,  47],</span>
 <span class="err">       [ 86,  93, 100, 107],</span>
 <span class="err">       [134, 145, 156, 167]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Alternatively, we can use the <code>@</code> operator as a&nbsp;shortcut:</p>
-<div class="highlight"><pre><span></span><span class="n">G</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">F</span>
+<div class="highlight"><pre><span></span><code><span class="n">G</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">F</span>
 <span class="n">G</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 38,  41,  44,  47],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 38,  41,  44,  47],</span>
 <span class="err">       [ 86,  93, 100, 107],</span>
 <span class="err">       [134, 145, 156, 167]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>What happens if we try to multiply two matrices that are not the right size? Let&#8217;s try multiplying <span class="math">\(A\)</span> and <span class="math">\(F\)</span> the other way around, meaning we&#8217;re trying to multiply a <span class="math">\(2 \times 4\)</span> matrix by a <span class="math">\(3 \times 2\)</span>&nbsp;matrix:</p>
-<div class="highlight"><pre><span></span><span class="n">F</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">F</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="c1">---------------------------------------------------------------------------</span>
+<div class="highlight"><pre><span></span><code><span class="c1">---------------------------------------------------------------------------</span>
 
 <span class="n">ValueError</span>                                <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="k">call</span> <span class="k">last</span><span class="p">)</span>
 
@@ -267,31 +248,26 @@ $$</div>
 
 
 <span class="n">ValueError</span><span class="p">:</span> <span class="n">shapes</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="k">and</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">not</span> <span class="n">aligned</span><span class="p">:</span> <span class="mi">4</span> <span class="p">(</span><span class="n">dim</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="p">(</span><span class="n">dim</span> <span class="mi">0</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>As can be seen, Numpy throws a very useful error message which tells us that the number of columns in our first matrix (<code>dim 1</code>) is not the same as the number of rows in our second matrix (<code>dim 0</code>). This error message can be a lifesaver when you&#8217;re trying to do more complicated operations involving&nbsp;matrices!</p>
 <p>This leads to one final point about matrix multiplication that might have already occurred to you. Matrix multiplication often only works in one direction, where it might be possible to multiply <span class="math">\(AF\)</span> but not to multiply <span class="math">\(FA\)</span>. What&#8217;s more, even if it is possible to multiply the matrices both ways, the result will (usually) not be the same: <span class="math">\(AF \neq FA\)</span>. (In mathematical language, this means matrix multiplication is not <a href="https://www.mathsisfun.com/associative-commutative-distributive.html">commutative</a>.)</p>
 <p>Let&#8217;s try this out by multiplying <span class="math">\(A\)</span> by a version of <span class="math">\(F\)</span> where we drop the last column (giving us a <span class="math">\(3 \times 2\)</span> matrix and a <span class="math">\(2 \times 3\)</span> matrix). First, we multiply calculate <span class="math">\(AF_{\textrm{trimmed}}\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">F</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">F</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 38,  41,  44],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 38,  41,  44],</span>
 <span class="err">       [ 86,  93, 100],</span>
 <span class="err">       [134, 145, 156]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Next, let&#8217;s try it the other way around, calculating <span class="math">\(F_{\textrm{trimmed}}A\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">F</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">F</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[103, 136],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[103, 136],</span>
 <span class="err">       [139, 184]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We can see that not only are they not the same matrices, they are not even the same size, with <span class="math">\(AF_{\textrm{trimmed}}\)</span> being a <span class="math">\(3 \times 3\)</span> matrix, and <span class="math">\(F_{\textrm{trimmed}}A\)</span> being a <span class="math">\(2 \times 2\)</span>&nbsp;matrix.</p>
 <p>I hope this was a useful introduction to what matrices are, and how to do some basic operations on them in Python. Next post we&#8217;ll move on to matrix inversion, which is a more advanced and interesting&nbsp;operation.</p>

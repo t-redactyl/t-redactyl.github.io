@@ -84,64 +84,54 @@ A^2 = AA = \begin{bmatrix}4 &amp; 3\\6 &amp; 5\end{bmatrix}\begin{bmatrix}4 &amp
 $$</div>
 <p>You can probably guess that, because of the way that matrix multiplication works, we can only raise square matrices to a power. We can raise square matrices to any (positive) power in the same way: if we want to get the cube of <span class="math">\(A\)</span>, or <span class="math">\(A^3\)</span>, we multiply the matrix by itself 3 times, if we want <span class="math">\(A^4\)</span>, we multiply it by itself 4 times, and so&nbsp;on.</p>
 <p>In Numpy, we can use the <code>matrix_power</code> function from the <code>linalg</code> subpackage to calculate the power of a matrix. The first argument is the matrix, and the second is the power you&#8217;d like to raise the matrix&nbsp;to.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">matrix_power</span>
 
 <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
 <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[34, 27],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[34, 27],</span>
 <span class="err">       [54, 43]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Powers of matrices follow the <a href="https://www.mathplanet.com/education/algebra-1/exponents-and-exponential-functions/properties-of-exponents">same rules as do powers of a number</a>. Let&#8217;s have a look at a couple of examples of these. Say we have two <a href="https://www.mathsisfun.com/definitions/integer.html">integers</a>, <span class="math">\(m\)</span> and <span class="math">\(n\)</span>. If we have two matrices, <span class="math">\(A^m\)</span> and <span class="math">\(A^n\)</span> and we multiply them, we get <span class="math">\(A^mA^n = A^{m+n}\)</span>. Similarly, if we have the matrix <span class="math">\(A^m\)</span> and we raise it to <span class="math">\(n\)</span>, then we get <span class="math">\((A^m)^n = A^{mn}\)</span>.</p>
 <p>Let&#8217;s try this out in Numpy, by comparing the results of <span class="math">\(A^5\)</span> to <span class="math">\(A^2A^3\)</span>:</p>
-<div class="highlight"><pre><span></span><span class="n">A_5</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">A_5</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="n">A_5</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[22930, 18237],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[22930, 18237],</span>
 <span class="err">       [36474, 29009]])</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">A_2</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">A_2</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">A_3</span> <span class="o">=</span> <span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
 <span class="n">A_2</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A_3</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[22930, 18237],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[22930, 18237],</span>
 <span class="err">       [36474, 29009]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We can also raise matrices to negative powers. We&#8217;ve already seen an example of this with the inverse of a matrix, which is written as <span class="math">\(A^{-1}\)</span>. In order to raise a matrix to the power of <span class="math">\(-2\)</span>, we simply need to multiply the inverse by itself. This logic can then be extended in the same way as we did for raising the matrix to a positive&nbsp;power. </p>
 <p>Let&#8217;s see this in Numpy by comparing the function to calculate the inverse to raising our matrix to the power of <code>-1</code>. As we can see, they are exactly the&nbsp;same.</p>
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
 
 <span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 2.5, -1.5],</span>
 <span class="err">       [-3. ,  2. ]])</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">matrix_power</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">array([[ 2.5, -1.5],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 2.5, -1.5],</span>
 <span class="err">       [-3. ,  2. ]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <h2>Matrix transposition and symmetrical&nbsp;matrices</h2>
 <p>The final thing we will cover is matrix transposition. This is simply what happens if you flip the rows and columns of a matrix. Let&#8217;s have a look at this with matrix <span class="math">\(B\)</span>:</p>
@@ -154,27 +144,23 @@ B^T = \begin{bmatrix}1 &amp; 3 &amp; 5\\2 &amp; 4 &amp; 6\end{bmatrix}
 $$</div>
 <p>And what would the transpose of <span class="math">\(B^T\)</span> look like (in other words, what is <span class="math">\((B^T)^T)\)</span>? Well, if we flip the rows and columns again, we just end up back at our original matrix! In other words, <span class="math">\((B^T)^T = B\)</span>.</p>
 <p>In order to transpose a matrix using Numpy, we use the <code>transpose</code> function on that&nbsp;matrix:</p>
-<div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<div class="highlight"><pre><span></span><code><span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 <span class="n">B_T</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
 <span class="n">B_T</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1, 3, 5],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1, 3, 5],</span>
 <span class="err">       [2, 4, 6]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We can also reverse the transposition by calling <code>transpose</code> on our new transposed matrix, <code>B_T</code>:</p>
-<div class="highlight"><pre><span></span><span class="n">B_T</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">B_T</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">array([[1, 2],</span>
+<div class="highlight"><pre><span></span><code><span class="err">array([[1, 2],</span>
 <span class="err">       [3, 4],</span>
 <span class="err">       [5, 6]])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>As usual, square matrices behave a little differently to non-square matrices, in that the diagonal values of the matrix don&#8217;t move when you take the transpose of the matrix. If we go back to our square matrix <span class="math">\(A\)</span>, and take the transpose, we end up&nbsp;with:</p>
 <div class="math">$$

@@ -79,15 +79,13 @@
         <p>In <a href="https://t-redactyl.github.io/blog/2015/11/analysing-reddit-data-part-1-setting-up-the-environment.html">last week&#8217;s post</a>, we covered the basics of setting up our environment so we can extract data from reddit. Now it&#8217;s time to start on the meat of this topic. This week I will show you how to use the reddit public <span class="caps">API</span> to retrieve <span class="caps">JSON</span>-encoded data from the subreddit /r/relationships, although this technique will translate to both the reddit mainpage and other subreddits. As I mentioned last week, this is aimed at people who are completely new to working with <span class="caps">JSON</span> data, so we will go through everything&nbsp;step-by-step.</p>
 <h2>Setting&nbsp;up</h2>
 <p>To start, let&#8217;s set up our environment and start a new Jupyter notebook. Last week, I described how to set up a virtualenv for this project using <a href="http://fishshell.com/">Fish</a> and <a href="http://virtualfish.readthedocs.org/en/latest/index.html">virtualfish</a> in <span class="caps">OSX</span>. With this set up, we start by navigating to the folder we have created for this project (I recommend a local Git repo) and entering our&nbsp;virtualenv:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">cd</span> <span class="o">~/</span><span class="n">Documents</span><span class="o">/</span><span class="n">reddit_api</span>
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">cd</span> <span class="o">~/</span><span class="n">Documents</span><span class="o">/</span><span class="n">reddit_api</span>
 <span class="err">!</span><span class="n">vf</span> <span class="n">activate</span> <span class="n">reddit_api</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Now that we are in the virtualenv, we launch&nbsp;Jupyter:</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">ipython</span> <span class="n">notebook</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">ipython</span> <span class="n">notebook</span>
+</code></pre></div>
 
 <p>Jupyter will then open in your default browser. If you have an empty working directory, you will get something like&nbsp;this:</p>
 <p><img src="/figure/Jupyter_screenshot_1.png" title="Jupyter home screen" alt="This is the blank Jupyter notebook homepage" style="display: block; margin: auto;" /></p>
@@ -101,31 +99,27 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
 <p>To retrieve the data in a <span class="caps">JSON</span>-encoded format, we simply add .json to the end of this request (i.e., <a href="https://www.reddit.com/r/relationships/top/.json">https://www.reddit.com/r/relationships/top/.json</a>). However, there is an issue with this request - by default, it is only giving us the top posts from the last 24 hours. You can see from the <span class="caps">API</span> documentation that this request is a listing, therefore it takes the parameters <code>after</code>, <code>before</code>, <code>limit</code>, <code>count</code> and <code>show</code>. There is also an additional parameter <code>t</code> not mentioned on this page, which limits the time period of the posts to show. So in order to get the top posts of all time, we need to change our request to <a href="https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all">https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all</a>. Additionally, if we want a specific number of posts (let&#8217;s start with one), we add the limit parameter to get <a href="https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all">https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all&amp;limit=1</a>. If we put this into our browser, we end up with the&nbsp;following:</p>
 <p><img src="/figure/rrel_top_json.png" title="rrelationships top post json" alt="JSON-encoded data from the top post on subreddit relationships" style="display: block; margin: auto;" /></p>
 <p>Gahh, what happened here?! I am sure you can see snippets of the data you want in there but it&#8217;s a mess. In order to start decoding this, let&#8217;s move over to reading the data in with Python. We first need to load in the required&nbsp;modules:</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">urllib2</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">urllib2</span>
 <span class="kn">import</span> <span class="nn">json</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We next need to send a request for the data we want. Before we can do this, we need have a look at the <a href="https://github.com/reddit/reddit/wiki/API">rules</a> that reddit has set up for accessing their site. The two most important rules for our current exercise is a) that we need to create a unique <a href="https://en.wikipedia.org/wiki/User_agent">UserAgent</a> string, and b) that we need to limit the number of requests we send to less than 30 a minute (i.e., one every two seconds). reddit requires that the UserAgent string contains your username, so if you don&#8217;t have a reddit account you will need to <a href="https://www.reddit.com/register">sign up</a> so you can get&nbsp;one.</p>
 <p>We are now ready to send our&nbsp;request:</p>
-<div class="highlight"><pre><span></span><span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;osx:r/relationships.single.result:v1.0 (by /u/&lt;PutYourUserNameHere&gt;)&#39;</span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;osx:r/relationships.single.result:v1.0 (by /u/&lt;PutYourUserNameHere&gt;)&#39;</span><span class="p">}</span>
 <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all&amp;limit=1&#39;</span>
 <span class="n">req</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">hdr</span><span class="p">)</span>
 <span class="n">text_data</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>In order to convert this into <span class="caps">JSON</span>-encoded data, we need to run the loads method from the json module on&nbsp;it:</p>
-<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text_data</span><span class="p">)</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text_data</span><span class="p">)</span>
+</code></pre></div>
 
 <p>If we call <code>dir</code> on the <code>data</code> object we just created, we can see that there is a method called <code>values</code>. If we call the values method on <code>data</code>, we can see that the contents of the post are contained in a series of nested dictionaries and&nbsp;lists.</p>
-<div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="o">[</span><span class="n">u&#39;Listing&#39;,</span>
+<div class="highlight"><pre><span></span><code><span class="o">[</span><span class="n">u&#39;Listing&#39;,</span>
 <span class="n"> {u&#39;after&#39;: u&#39;t3_3hw1jh&#39;,</span>
 <span class="n">  u&#39;before&#39;: None,</span>
 <span class="n">  u&#39;children&#39;: [{u&#39;data&#39;: {u&#39;approved_by&#39;: None,</span>
@@ -182,32 +176,27 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
 <span class="w">     </span><span class="n">u</span><span class="s1">&#39;visited&#39;</span><span class="err">:</span><span class="w"> </span><span class="k">False</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">u</span><span class="s1">&#39;kind&#39;</span><span class="err">:</span><span class="w"> </span><span class="n">u</span><span class="s1">&#39;t3&#39;</span><span class="err">}]</span><span class="p">,</span><span class="w"></span>
 <span class="w">  </span><span class="n">u</span><span class="s1">&#39;modhash&#39;</span><span class="err">:</span><span class="w"> </span><span class="n">u</span><span class="s1">&#39;&#39;</span><span class="err">}]</span><span class="w"></span>
-</pre></div>
-
+</code></pre></div>
 
 <p>If, for example, we wanted to access the title of the post, it is nested within the following structure: [&#8216;Listing&#8217;, {&#8216;children&#8217;: [{&#8216;data&#8217;: {&#8216;title&#8217;:}}]}]. In other words, the nesting structure goes as follows: list -&gt; dictionary -&gt; list -&gt; dictionary -&gt; dictionary. We can therefore access it using a combination of list and dictionary&nbsp;indexing:</p>
-<div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;children&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;children&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">u</span><span class="s1">&#39;[UPDATE]My [26 F] with my husband [29 M] 1 year, he has been diagnosed with terminal cancer, how to make it count?&#39;</span><span class="w"></span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">u</span><span class="s1">&#39;[UPDATE]My [26 F] with my husband [29 M] 1 year, he has been diagnosed with terminal cancer, how to make it count?&#39;</span><span class="w"></span>
+</code></pre></div>
 
 <p>As all of the other data we want is in the same dictionary as <code>title</code>, we simply need to exchange the <code>title</code> key for the relevant key. For example, the total post score is under the <code>score</code> key. Getting the specific data you might want from reddit is a matter of going through and matching the information in the dictionary to data in the post to figure out what is&nbsp;what.</p>
 <p>We now know how to extract information from a single post. Let&#8217;s move up to extracting information from a larger number of&nbsp;posts.</p>
 <h2>Getting and storing larger quantities of&nbsp;data</h2>
 <p>The methods above can be easily generalised in order to obtain larger quantities of data from reddit. However, there is one further hurdle to overcome. As you can see from the documentation, reddit only allows you to pull 100 posts at a time from the top board of a subreddit. We need some way of tracking the last post we get from each request and then starting the next request after this post. Luckily, each post has a unique identifier which is stored in the <code>name</code> key:</p>
-<div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;children&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;children&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">u&#39;t3_3hw1jh&#39;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">u&#39;t3_3hw1jh&#39;</span>
+</code></pre></div>
 
 <p>We simply couple this with the <code>after</code> parameter in a loop in order to get the number of posts we want. In other words, we will send a request for the first 100 posts, obtain the identifier of the final post in that request, and ask that the next request of 100 start at the first post after this post. In our case, let&#8217;s extract the first 1000 posts. As part of extracting the data, we will keep only the content assigned to the <code>children</code> key in the first dictionary. This makes it possible to put all of the separate requests together in a collection (in this case, a list). In order to make sure we don&#8217;t accidentally exceed reddit&#8217;s request limit of 30 requests per minute, we&#8217;ll use the <code>sleep</code> method from the <code>time</code> module to place a pause of 2 seconds in between each iteration of the&nbsp;loop.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">time</span>
 
 <span class="n">hdr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;osx:r/relationships.multiple.results:v1.0 (by /u/&lt;PutYourUserNameHere&gt;)&#39;</span><span class="p">}</span>
 <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.reddit.com/r/relationships/top/.json?sort=top&amp;t=all&amp;limit=100&#39;</span>
@@ -224,20 +213,17 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
     <span class="n">text_data</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text_data</span><span class="p">)</span>
     <span class="n">data_all</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;children&#39;</span><span class="p">]</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Let&#8217;s check that we have retrieved the correct number of posts by checking the length of our&nbsp;list:</p>
-<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">data_all</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nb">len</span><span class="p">(</span><span class="n">data_all</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">1000</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">1000</span>
+</code></pre></div>
 
 <p>Now that we have our data in raw <span class="caps">JSON</span> format, we can simply use another loop to extract the desired information from each post. In this case, I have decided to get the date of posting, title, flair, number of comments and total&nbsp;score.</p>
-<div class="highlight"><pre><span></span><span class="n">article_title</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight"><pre><span></span><code><span class="n">article_title</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">article_flairs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">article_date</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">article_comments</span> <span class="o">=</span> <span class="p">[]</span>
@@ -249,11 +235,10 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
     <span class="n">article_date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;created_utc&#39;</span><span class="p">])</span>
     <span class="n">article_comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;num_comments&#39;</span><span class="p">])</span>
     <span class="n">article_score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_all</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;score&#39;</span><span class="p">])</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Now we&#8217;re pretty much there! The final step is creating a <code>pandas DataFrame</code> using these lists of&nbsp;results.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -263,12 +248,10 @@ In this post, we will be looking at the most popular posts of all time on /r/rel
                     <span class="s1">&#39;Comments&#39;</span><span class="p">:</span> <span class="n">article_comments</span><span class="p">,</span>
                     <span class="s1">&#39;Score&#39;</span><span class="p">:</span> <span class="n">article_score</span><span class="p">})</span>
 <span class="n">rel_df</span> <span class="o">=</span> <span class="n">rel_df</span><span class="p">[[</span><span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;Title&#39;</span><span class="p">,</span> <span class="s1">&#39;Flair&#39;</span><span class="p">,</span> <span class="s1">&#39;Comments&#39;</span><span class="p">,</span> <span class="s1">&#39;Score&#39;</span><span class="p">]]</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">rel_df</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">rel_df</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</code></pre></div>
 
 <div>
 <table class="table table-bordered">

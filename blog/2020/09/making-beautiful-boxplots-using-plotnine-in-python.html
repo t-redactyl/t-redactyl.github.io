@@ -82,7 +82,7 @@
 <p>With that out of the way, let&#8217;s get on with creating our boxplot in <code>plotnine</code>! In this tutorial, we will work towards creating the line plot below. We will take you from a basic line plot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/plotnine_boxplot_final.png" title="Final boxplot" style="display: block; margin: auto;" /></p>
 <p>The first step is to import all of the required packages. For this we need<code>pandas</code> and its <code>DataFrame</code> class to read in and manipulate our data, <code>plotnine</code> to get our data and create our graphs, and <code>numpy</code> to do some basic numeric calculations in our&nbsp;graphing.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">plotnine</span>
@@ -90,72 +90,65 @@
 <span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="n">data</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We then need to load in the data, as&nbsp;below.</p>
-<div class="highlight"><pre><span></span><span class="n">diamonds</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diamonds</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">diamonds</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diamonds</span>
+</code></pre></div>
 
 <h2>Basic ggplot&nbsp;structure</h2>
 <p>In order to initialise a boxplot we tell <code>ggplot</code> that <code>diamonds</code> is our data, and specify that our x-axis plots the <code>cut</code> variable and our y-axis plots the <code>price</code> variable. You may have noticed that we put our variables inside a method called <code>aes</code>. This is short for aesthetic mappings, and determines how the different variables you want to use will be mapped to parts of the graph. As you can see below, <code>ggplot</code> has mapped <code>cut</code> to the x-axis and <code>price</code> to the&nbsp;y-axis.</p>
 <p>You might have also noticed that there is nothing in the plot. In order to render our data, we need to tell <code>ggplot</code> how we want to visually represent&nbsp;it.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_1.png" title="Boxplot 1" style="display: block; margin: auto;" /></p>
 <h2>Basic&nbsp;boxplot</h2>
 <p>We can do this using <code>geoms</code>. In the case of a boxplot, we use the <code>geom_boxplot()</code> geom.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_2.png" title="Boxplot 2" style="display: block; margin: auto;" /></p>
 <h2>Customising axis&nbsp;labels</h2>
 <p>In order to change the axis labels, we have used the <code>xlab</code> and <code>ylab</code> options. In each, we add the desired name as an&nbsp;argument.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Price of diamond (USD)&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_3.png" title="Boxplot 3" style="display: block; margin: auto;" /></p>
 <p><code>ggplot</code> also allows for the use of multiline names (in both axes and titles). Here, we&#8217;ve changed the y-axis label so that it goes over two lines using the <code>\n</code> character to break the&nbsp;line.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Price of diamond</span><span class="se">\n</span><span class="s2">(USD)&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_4.png" title="Boxplot 4" style="display: block; margin: auto;" /></p>
 <h2>Changing axis&nbsp;ticks</h2>
 <p>To change the x-axis tick marks, we can use the <code>scale_x_continuous</code> option. Similarly, to change the y-axis we can use the <code>scale_y_continuous</code> option. Here we will change the y-axis to every $2500 rather than the default of $5000. We can change the breaks using the <code>breaks</code> option, which takes a list of values as an argument. You can shortcut having to type in the whole list manually using numpy&#8217;s <code>arange</code> <a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.arange.html">function</a> which generates a sequence from your selected start, stop and step values respectively. Note that because of Python&#8217;s indexing, you need to set the <code>stop</code> argument to be one number more than your desired&nbsp;maximum.</p>
 <p>Similarly, you can use the <code>limits</code> argument to define the minimum and maximum values of your axis. We&#8217;ve also included this in our <code>scale_y_continuous</code> option, increasing the maximum value to&nbsp;$20000.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">ylab</span><span class="p">(</span><span class="s2">&quot;Price of diamond</span><span class="se">\n</span><span class="s2">(USD)&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">scale_y_continuous</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20001</span><span class="p">,</span> <span class="mi">2500</span><span class="p">),</span> <span class="n">limits</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20000</span><span class="p">])</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_5.png" title="Boxplot 5" style="display: block; margin: auto;" /></p>
 <h2>Adding a&nbsp;title</h2>
 <p>To add a title, we include the option <code>ggtitle</code> and include the name of the graph as a string&nbsp;argument.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -165,13 +158,12 @@
     <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by cut&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_6.png" title="Boxplot 6" style="display: block; margin: auto;" /></p>
 <h2>Changing the colour of the&nbsp;boxes</h2>
 <p>To change the line and fill colours of the box plot, we add a valid colour to the <code>colour</code> and <code>fill</code> arguments in <code>geom_boxplot()</code>. <code>plotnine</code> uses the colour palette utilised by <code>matplotlib</code>, and the full set of named colours recognised by <code>ggplot</code> is <a href="https://matplotlib.org/examples/color/named_colors.html">here</a>. Let&#8217;s try changing our box lines and fills to <code>rebeccapurple</code> and <code>lightskyblue</code> respectively.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;rebeccapurple&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;lightskyblue&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -181,12 +173,11 @@
     <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by cut&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_7.png" title="Boxplot 7" style="display: block; margin: auto;" /></p>
 <p>If you want to go beyond the options in the list above, you can also specify exact <span class="caps">HEX</span> colours by including them as a string preceded by a hash, e.g., <code>"#FFFFFF"</code>. Below, we have called two shades of blue for the fill and lines using their <span class="caps">HEX</span>&nbsp;codes.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -196,12 +187,11 @@
     <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by cut&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_8.png" title="Boxplot 8" style="display: block; margin: auto;" /></p>
 <p>You can also specify the degree of transparency in the box fill area using the argument <code>alpha</code> in <code>geom_boxplot()</code>. This ranges from 0 to&nbsp;1.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">,</span> 
                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -212,12 +202,11 @@
     <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by cut&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_9.png" title="Boxplot 9" style="display: block; margin: auto;" /></p>
 <p>Finally, you can change the appearance of the outliers as well, using the arguments <code>outlier.colour</code> and <code>outlier.shape</code> in <code>geom_boxplot</code> to change the colour and shape respectively. The shape arguments for <code>plotnine</code> are the same as those available in <code>matplotlib</code>, and are therefore a little more limited than those in R&#8217;s implementation of <code>ggplot2</code>. Nonetheless, there is a good range of options. The allowed arguments are <a href="https://matplotlib.org/api/markers_api.html">here</a>. Here we will make the outliers small solid circles (using <code>outlier.shape="."</code>) and make them coloured <code>steelblue</code> (using <code>outlier.colour="steelblue"</code>). </p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span>
         <span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span>
@@ -233,13 +222,12 @@
     <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="s2">&quot;Price of diamonds by cut&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_10.png" title="Boxplot 10" style="display: block; margin: auto;" /></p>
 <h2>Using the white&nbsp;theme</h2>
 <p>As explained in the previous chapters, we can also change the overall look of the plot using themes. We&#8217;ll start using a simple theme customisation by adding <code>theme_bw()</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span>
         <span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span>
@@ -256,22 +244,20 @@
     <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_11.png" title="Boxplot 11" style="display: block; margin: auto;" /></p>
 <h2>Creating an <span class="caps">XKCD</span> style&nbsp;chart</h2>
 <p>Of course, you may want to create your own themes as well. <code>ggplot</code> allows for a very high degree of customisation, including allowing you to use imported fonts. <code>plotnine</code> already has a <code>theme_xkcd()</code> implementation, but we&#8217;ve instead created one from scratch to demonstrate how to use imported fonts and some of the other options in <code>theme</code> to tweak the overall look of the&nbsp;graph.</p>
 <p>In order to create this chart, you first need to download the <span class="caps">XKCD</span> font, which Randall Munroe has kindly provided <a href="xkcd.com/1350/xkcd-Regular.otf">here</a>. Once you have it, you can load it into Python using the <code>matplotlib.font_manager</code> class.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.font_manager</span> <span class="k">as</span> <span class="nn">fm</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.font_manager</span> <span class="k">as</span> <span class="nn">fm</span>
 
 <span class="n">fpath</span> <span class="o">=</span> <span class="s2">&quot;path/to/file/xkcd-Regular.otf&quot;</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>As this is an imported font, we can&#8217;t change its size directly within the graph. Instead, we need to alter our imported font objects to change the size. As we want a different font size for the title and the body, we will create 2 different font objects, <code>title_text</code> and <code>body_set</code>.</p>
 <p>We can then call methods on these objects (the list of available methods is <a href="https://matplotlib.org/api/font_manager_api.html">here</a>). For the title, we&#8217;ll change the font to size 18 and make it bold using the <code>set_size()</code> and <code>set_weight</code> methods. Similarly, we&#8217;ll change the body text to size&nbsp;12.</p>
-<div class="highlight"><pre><span></span><span class="c1"># Create font objects</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create font objects</span>
 <span class="n">title_text</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fpath</span><span class="p">)</span>
 <span class="n">body_text</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">FontProperties</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="n">fpath</span><span class="p">)</span>
 
@@ -280,11 +266,10 @@
 <span class="n">title_text</span><span class="o">.</span><span class="n">set_weight</span><span class="p">(</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
 
 <span class="n">body_text</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>In order to get the plot to look more like the <span class="caps">XKCD</span> artstyle, we&#8217;ll make a few more changes. We can alter the values of <code>axis_line_x</code> and <code>axis_line_y</code> to change the thickness of the axis lines. We can also get rid of the boxes around the legend by setting the argument of <code>legend_key</code> to <code>element_blank()</code>. We can remove the grid line by changing the value of four parameters: <code>panel_grid_major</code>, <code>panel_grid_minor</code>, <code>panel_border</code> and <code>panel_background</code>. To use the <span class="caps">XKCD</span> font that we just imported, we need to change the values of both <code>plot_title</code> and <code>text</code>. Finally, to change the colour of the text to black (from its default grey), we change the values of <code>axis_text_x</code> and <code>axis_text_y</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#56B4E9&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -306,14 +291,13 @@
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_12.png" title="Boxplot 12" style="display: block; margin: auto;" /></p>
 <h2>Using the ‘Five Thirty Eight’&nbsp;theme</h2>
 <p>There are a wider range of pre-built themes available as part of the <code>ggplot</code> package (more information on these <a href="http://plotnine.readthedocs.io/en/stable/api.html#themes">here</a>). Below we&#8217;ve applied <code>theme_538()</code>, which approximates graphs in the nice FiveThirtyEight
 website. As you can see, we&#8217;ve used the commercially available fonts <a href="https://commercialtype.com/catalog/atlas/atlas_grotesk">‘Atlas Grotesk’</a> and <a href="https://www.myfonts.com/fonts/tipografiaramis/decima-mono-pro/">‘Decima Mono Pro’</a> in <code>axis_title</code>, <code>plot_title</code> and <code>text</code>. This is just to make the plots exactly like those on the site, and is entirely&nbsp;optional.</p>
-<div class="highlight"><pre><span></span><span class="n">agm</span> <span class="o">=</span> <span class="s2">&quot;path/to/file/AtlasGrotesk-Medium.otf&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">agm</span> <span class="o">=</span> <span class="s2">&quot;path/to/file/AtlasGrotesk-Medium.otf&quot;</span>
 <span class="n">agr</span> <span class="o">=</span> <span class="s2">&quot;path/to/file/AtlasGrotesk-Regular.otf&quot;</span>
 <span class="n">dp</span> <span class="o">=</span> <span class="s2">&quot;path/to/file/DecimaMonoPro.otf&quot;</span>
 
@@ -326,10 +310,9 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
 <span class="n">title_text</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
 <span class="n">axis_text</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">body_text</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -345,13 +328,12 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_13.png" title="Boxplot 12" style="display: block; margin: auto;" /></p>
 <h2>Creating your own&nbsp;theme</h2>
 <p>Now that we&#8217;ve explored some of the options available in plot customisation, we can now build our own completely customised graph. Changing the <code>size</code> and <code>colour</code> arguments of <code>axis_line</code> allows us to thicken the lines and change their colour to black. Similarly, changing the colour argument passed to <code>panel_grid_major</code> means that all of our major grid lines are now light grey. We removed the minor grid lines and background by changing the arguments of <code>panel_grid_minor</code>, <code>panel_border</code> and <code>panel_background</code>, and finally, we&#8217;ve changed the font using the standard font&nbsp;Tahoma.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -373,17 +355,15 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_14.png" title="Boxplot 13" style="display: block; margin: auto;" /></p>
 <h2>Boxplot&nbsp;extras</h2>
 <p>An extra feature you can add to boxplots is to overlay all of the points for that group on each boxplot in order to get an idea of the sample size of the group. This can be achieved using by adding the <code>geom_jitter()</code> option. As <code>diamonds</code> is a large dataset, we&#8217;ll first take a small sample to illustrate&nbsp;this.</p>
-<div class="highlight"><pre><span></span><span class="n">diamonds_sample</span> <span class="o">=</span> <span class="n">diamonds</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">diamonds_sample</span> <span class="o">=</span> <span class="n">diamonds</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds_sample</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">geom_jitter</span><span class="p">()</span>
@@ -406,13 +386,12 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_15.png" title="Boxplot 14" style="display: block; margin: auto;" /></p>
 <p>We can see that the <code>Fair</code> group has a smaller sample than the other categories, indicating that it may not give as reliable information as the other cut&nbsp;types.</p>
 <p>Another thing you can do with your boxplot is add a notch to the box where the median sits to give a clearer visual indication of how the data are distributed within the <span class="caps">IQR</span>. You achieve this by adding the argument <code>notch=True</code> to the <code>geom_boxplot()</code> geom.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">,</span> 
                    <span class="n">notch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -435,21 +414,19 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_16.png" title="Boxplot 15" style="display: block; margin: auto;" /></p>
 <h2>Grouping by another&nbsp;variable</h2>
 <p>You can also easily group boxplots by the levels of another variable. There are two options, in separate (panel) plots, or in the same&nbsp;plot.</p>
 <p>We first need to do a little data wrangling. To create our grouping variable, we&#8217;ll median-split <code>carat</code> so that this is categorical, and made it into a new labelled factor variable called <code>carat_c</code>.</p>
 <p>In order to produce a panel plot by this categorical carat variable, we add the <code>facet_grid(".~carat_c")</code> option to the plot. Note that unlike in R&#8217;s <code>ggplot</code>, you need to include the arguments in <code>facet_grid</code> in quote&nbsp;marks.</p>
-<div class="highlight"><pre><span></span><span class="n">diamonds</span><span class="p">[</span><span class="s2">&quot;carat_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">qcut</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">diamonds</span><span class="p">[</span><span class="s2">&quot;carat_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">qcut</span><span class="p">(</span>
     <span class="n">diamonds</span><span class="p">[</span><span class="s2">&quot;carat&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Lower carat&quot;</span><span class="p">,</span> <span class="s2">&quot;Higher carat&quot;</span><span class="p">]</span>
 <span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s2">&quot;#1F3552&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;#4271AE&quot;</span><span class="p">)</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -472,12 +449,11 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="o">+</span> <span class="n">facet_grid</span><span class="p">(</span><span class="s2">&quot;. ~ carat_c&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_17.png" title="Boxplot 16" style="display: block; margin: auto;" /></p>
 <p>In order to plot the two <code>carat</code> levels in the same plot, we need to add a couple of things. Firstly, in the <code>ggplot</code> function, we add a <code>fill=carat_c</code> argument to <code>aes</code>. Secondly, we change the manual colours using the schemes from <a href="http://colorbrewer2.org/">ColorBrewer</a>. Here we have used the <code>scale_fill_brewer</code> option with the quantitative scale <code>Accent</code>. More information on using <code>scale_colour_brewer</code> is <a href="http://plotnine.readthedocs.io/en/stable/generated/plotnine.scales.scale_color_brewer.html#plotnine.scales.scale_color_brewer">here</a>. </p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;carat_c&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -502,13 +478,12 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
     <span class="o">+</span> <span class="n">scale_fill_brewer</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;qual&quot;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;Accent&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_18.png" title="Boxplot 17" style="display: block; margin: auto;" /></p>
 <h2>Formatting the&nbsp;legend</h2>
 <p>Finally, we can format the legend. Firstly, we can change the position by adding the <code>legend_position="bottom"</code> argument to the <code>theme</code> option, which moves the legend under the plot. We can change the orientation of the legend to horizontal by then adding <code>legend_direction="horizontal"</code> to <code>theme</code>. We can also centre the legend by adding <code>legend_title_align="center"</code>. We can adjust the legend position using <code>legend_box_spacing=0.4</code>. We can get rid of the grey background behind the legend keys using <code>legend_key=element_blank()</code>. Lastly, we can fix the title by adding the <code>name="Diamond carat"</code> argument to the <code>scale_fill_brewer</code> option.</p>
-<div class="highlight"><pre><span></span><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">p10</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ggplot</span><span class="p">(</span><span class="n">diamonds</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;carat_c&quot;</span><span class="p">))</span>
     <span class="o">+</span> <span class="n">geom_boxplot</span><span class="p">()</span>
     <span class="o">+</span> <span class="n">xlab</span><span class="p">(</span><span class="s2">&quot;Diamond cut&quot;</span><span class="p">)</span>
@@ -537,8 +512,7 @@ website. As you can see, we&#8217;ve used the commercially available fonts <a hr
                         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Diamond carat&quot;</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">p10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/plotnine_boxplot_19.png" title="Boxplot 18" style="display: block; margin: auto;" /></p>
 <p>And with that, we have recreated the plot at the beginning of this blog post! I hope you found this helped you get your feet wet with <code>plotnine</code> and see the potential you have to create plots as beautiful as those from <code>ggplot</code>.</p>

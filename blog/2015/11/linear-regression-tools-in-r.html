@@ -78,78 +78,71 @@
         </div>
         <p>Choosing the right <a href="https://en.wikipedia.org/wiki/Linear_regression">linear regression</a> model for your data can be an overwhelming venture, especially when you have a large number of available predictors. Luckily R has a wide array of in-built and user-written tools to make this process easier. In this week&#8217;s blog post I will describe some of the tools I commonly&nbsp;use.</p>
 <p>For illustration I will use the <a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html">mtcars</a> dataset. The first step as always is to load in the&nbsp;data.</p>
-<div class="highlight"><pre><span></span><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
 <span class="nf">data</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>I will also do a little bit of data cleaning by creating labelled factor variables for the categorical&nbsp;variables.</p>
-<div class="highlight"><pre><span></span><span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Automatic&quot;</span><span class="p">,</span> <span class="s">&quot;Manual&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">am.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Automatic&quot;</span><span class="p">,</span> <span class="s">&quot;Manual&quot;</span><span class="p">)</span>
 <span class="n">mtcars</span><span class="o">$</span><span class="n">cyl.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">cyl</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">cyl.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;4 cyl&quot;</span><span class="p">,</span> <span class="s">&quot;6 cyl&quot;</span><span class="p">,</span> <span class="s">&quot;8 cyl&quot;</span><span class="p">)</span>
 <span class="n">mtcars</span><span class="o">$</span><span class="n">vs.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">vs</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">vs.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;V engine&quot;</span><span class="p">,</span> <span class="s">&quot;Straight engine&quot;</span><span class="p">)</span>
 <span class="n">mtcars</span><span class="o">$</span><span class="n">gear.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">gear</span><span class="p">);</span> <span class="nf">levels</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">gear.f</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;3 gears&quot;</span><span class="p">,</span> <span class="s">&quot;4 gears&quot;</span><span class="p">,</span> <span class="s">&quot;5 gears&quot;</span><span class="p">)</span>
 <span class="n">mtcars</span><span class="o">$</span><span class="n">carb.f</span> <span class="o">&lt;-</span> <span class="nf">as.factor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">carb</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We&#8217;re now ready to go through our model building tools. Similarly to <a href="https://t-redactyl.github.io/blog/2015/10/interpreting-linear-regression-coefficients.html">last week&#8217;s blog post</a>, I want to examine how well transmission type (<code>am</code>) predicts a car&#8217;s miles per gallon (<code>mpg</code>), taking into account other covariates and their interactions as&nbsp;appropriate.</p>
 <h2>Normality, linearity and&nbsp;multicollinearity</h2>
 <p>The first step to building the model is checking whether the data meet the assumptions of linear regression. A really neat way to simultaneously check the <a href="https://en.wikipedia.org/wiki/Normal_distribution">normality</a> of the outcome, the <a href="https://en.wikipedia.org/wiki/Linearity">linearity</a> of the relationships between the outcome and the predictors and the <a href="https://en.wikipedia.org/wiki/Correlation_and_dependence">intercorrelations</a> between the predictors is the <strong>ggpairs</strong> plot in the very handy <a href="https://cran.r-project.org/web/packages/GGally/GGally.pdf">GGally R package</a>. Before we run the ggpairs plot, I&#8217;ll rearrange the dataframe so the columns are in a more useful order for scanning the plot (with <code>mpg</code> and <code>am</code> as the first&nbsp;columns).</p>
-<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">GGally</span><span class="p">)</span>
-<span class="n">mtcars</span> <span class="o">&lt;-</span> <span class="n">mtcars[</span> <span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">9</span><span class="p">,</span> <span class="m">2</span><span class="o">:</span><span class="m">8</span><span class="p">,</span> <span class="m">10</span><span class="o">:</span><span class="m">16</span><span class="p">)</span><span class="n">]</span>
-<span class="n">g</span> <span class="o">=</span> <span class="nf">ggpairs</span><span class="p">(</span><span class="n">mtcars[</span> <span class="p">,</span> <span class="m">1</span><span class="o">:</span><span class="m">11</span><span class="n">]</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="nf">list</span><span class="p">(</span><span class="n">continuous</span> <span class="o">=</span> <span class="s">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s">&quot;loess&quot;</span><span class="p">)))</span>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">);</span> <span class="nf">library</span><span class="p">(</span><span class="n">GGally</span><span class="p">)</span>
+<span class="n">mtcars</span> <span class="o">&lt;-</span> <span class="n">mtcars</span><span class="p">[</span> <span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">9</span><span class="p">,</span> <span class="m">2</span><span class="o">:</span><span class="m">8</span><span class="p">,</span> <span class="m">10</span><span class="o">:</span><span class="m">16</span><span class="p">)]</span>
+<span class="n">g</span> <span class="o">=</span> <span class="nf">ggpairs</span><span class="p">(</span><span class="n">mtcars</span><span class="p">[</span> <span class="p">,</span> <span class="m">1</span><span class="o">:</span><span class="m">11</span><span class="p">],</span> <span class="n">lower</span> <span class="o">=</span> <span class="nf">list</span><span class="p">(</span><span class="n">continuous</span> <span class="o">=</span> <span class="s">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s">&quot;loess&quot;</span><span class="p">)))</span>
 <span class="n">g</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img alt="plot of chunk ggpairs_plot" src="/figure/ggpairs_plot-1.png"> </p>
 <p>Note that this plot doesn&#8217;t work with factor variables, and the only categorical variables that should be included are either binary or ordinal. We can see that <code>mpg</code> is roughly normal (albeit a little positively skewed), and that the continuous variables and ordinal variables have linear relationship with <code>mpg</code>. We can also see there are a few very high intercorrelations between the potential predictor variables, but it is a little hard to pick these out in the volume of&nbsp;information.</p>
 <p>A quick and easy alternative for finding <a href="https://en.wikipedia.org/wiki/Multicollinearity">collinear</a> pairs is using the <code>spec.cor</code> function written by <a href="http://joshuawiley.com/">Joshua Wiley</a>. This handy little function allows you to set a cutoff correlation level (in this case, 0.8), and it will return all pairs that correlate at or above that&nbsp;level.</p>
-<div class="highlight"><pre><span></span><span class="n">spec.cor</span> <span class="o">&lt;-</span> <span class="nf">function </span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> <span class="p">{</span> 
+<div class="highlight"><pre><span></span><code><span class="n">spec.cor</span> <span class="o">&lt;-</span> <span class="nf">function </span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> <span class="p">{</span> 
     <span class="n">x</span> <span class="o">&lt;-</span> <span class="nf">cor</span><span class="p">(</span><span class="n">dat</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> 
-    <span class="n">x</span><span class="nf">[upper.tri</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="kc">TRUE</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="kc">NA</span> 
+    <span class="n">x</span><span class="p">[</span><span class="nf">upper.tri</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="kc">TRUE</span><span class="p">)]</span> <span class="o">&lt;-</span> <span class="kc">NA</span> 
     <span class="n">i</span> <span class="o">&lt;-</span> <span class="nf">which</span><span class="p">(</span><span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">r</span><span class="p">,</span> <span class="n">arr.ind</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> 
-    <span class="nf">data.frame</span><span class="p">(</span><span class="nf">matrix</span><span class="p">(</span><span class="nf">colnames</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="nf">[as.vector</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="n">]</span><span class="p">,</span> <span class="n">ncol</span> <span class="o">=</span> <span class="m">2</span><span class="p">),</span> <span class="n">value</span> <span class="o">=</span> <span class="n">x[i]</span><span class="p">)</span> 
+    <span class="nf">data.frame</span><span class="p">(</span><span class="nf">matrix</span><span class="p">(</span><span class="nf">colnames</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="nf">as.vector</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span> <span class="n">ncol</span> <span class="o">=</span> <span class="m">2</span><span class="p">),</span> <span class="n">value</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> 
 <span class="p">}</span> 
 
-<span class="nf">spec.cor</span><span class="p">(</span><span class="n">mtcars[</span> <span class="p">,</span> <span class="m">2</span><span class="o">:</span><span class="m">11</span><span class="n">]</span><span class="p">,</span> <span class="m">0.8</span><span class="p">)</span>
-</pre></div>
+<span class="nf">spec.cor</span><span class="p">(</span><span class="n">mtcars</span><span class="p">[</span> <span class="p">,</span> <span class="m">2</span><span class="o">:</span><span class="m">11</span><span class="p">],</span> <span class="m">0.8</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##     X1   X2      value</span>
+<div class="highlight"><pre><span></span><code><span class="err">##     X1   X2      value</span>
 <span class="err">## 1 disp  cyl  0.9020329</span>
 <span class="err">## 2   hp  cyl  0.8324475</span>
 <span class="err">## 3   vs  cyl -0.8108118</span>
 <span class="err">## 4   wt disp  0.8879799</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>In this case we can see we have four collinear pairs of predictors. I&#8217;ve decided I will keep <code>wt</code> and discard <code>disp</code>, <code>hp</code> and <code>vs</code>. My choice was based on simple predictor reduction as I don&#8217;t know anything about the content area and variables, but I might have made a different decision (e.g., keeping <code>hp</code> and <code>vs</code>) if one of those variables was particularly important or&nbsp;interpretable.</p>
 <h2>Predictor&nbsp;selection</h2>
 <p>The next step is selecting the predictors to include in the model alongside <code>am</code>. As I don&#8217;t know anything about the predictors, I will select to enter them into the model based purely on their relationship with the outcome (with higher correlations meaning they will be entered sooner). I wrote a function below which correlates each predictor with the outcome and ranks them (as absolute values) in descending&nbsp;order.</p>
-<div class="highlight"><pre><span></span><span class="n">cor.list</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">cor.list</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">()</span>
 <span class="n">outcome.cor</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">predictor</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">x</span> <span class="o">&lt;-</span> <span class="nf">cor</span><span class="p">(</span><span class="n">mtcars</span><span class="o">$</span><span class="n">mpg</span><span class="p">,</span> <span class="n">predictor</span><span class="p">)</span>
     <span class="n">cor.list</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="n">cor.list</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 <span class="p">}</span>
-<span class="n">cor.list</span> <span class="o">&lt;-</span> <span class="nf">sapply</span><span class="p">(</span><span class="n">mtcars[</span> <span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">3</span><span class="p">,</span> <span class="m">6</span><span class="o">:</span><span class="m">8</span><span class="p">,</span> <span class="m">10</span><span class="o">:</span><span class="m">11</span><span class="p">)</span><span class="n">]</span><span class="p">,</span> <span class="n">outcome.cor</span><span class="p">)</span>
+<span class="n">cor.list</span> <span class="o">&lt;-</span> <span class="nf">sapply</span><span class="p">(</span><span class="n">mtcars</span><span class="p">[</span> <span class="p">,</span> <span class="nf">c</span><span class="p">(</span><span class="m">3</span><span class="p">,</span> <span class="m">6</span><span class="o">:</span><span class="m">8</span><span class="p">,</span> <span class="m">10</span><span class="o">:</span><span class="m">11</span><span class="p">)],</span> <span class="n">outcome.cor</span><span class="p">)</span>
 <span class="nf">sort</span><span class="p">(</span><span class="nf">abs</span><span class="p">(</span><span class="n">cor.list</span><span class="p">),</span> <span class="n">decreasing</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##        wt       cyl      drat      carb      gear      qsec </span>
+<div class="highlight"><pre><span></span><code><span class="err">##        wt       cyl      drat      carb      gear      qsec </span>
 <span class="err">## 0.8676594 0.8521620 0.6811719 0.5509251 0.4802848 0.4186840</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You can see the predictor that has the strongest bivariate relationship with <code>mpg</code> is <code>wt</code>, then <code>cyl</code>, etc. We will use this order to enter variables into our model on top of <code>am</code>. One way of working out if adding a new variable improves the fit of the model is comparing models using the <code>anova</code> function. This function compares two nested models and returns the F-change and its associated significance level when adding the new&nbsp;variable(s). </p>
 <p>When building the nested models, I will add one main effect at a time, following the bivariate relationship strength between each predictor and the outcome. I have written a function below which tests pairs of nested models and stores the two models and the significance of the F-change in a dataframe to make it easy to check whether a change improves the model fit. You can see I have run the models one by one and checked them, and only retained variables that improved model&nbsp;fit.</p>
-<div class="highlight"><pre><span></span><span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">data.frame</span><span class="p">()</span>
 <span class="n">lmfit.table</span> <span class="o">&lt;-</span> <span class="nf">function</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">models</span> <span class="o">&lt;-</span> <span class="nf">sub</span><span class="p">(</span><span class="s">&quot;Model 1: &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="nf">attr</span><span class="p">(</span><span class="nf">anova</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">),</span> <span class="s">&quot;heading&quot;</span><span class="p">)</span><span class="n">[2]</span><span class="p">)</span>
+    <span class="n">models</span> <span class="o">&lt;-</span> <span class="nf">sub</span><span class="p">(</span><span class="s">&quot;Model 1: &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="nf">attr</span><span class="p">(</span><span class="nf">anova</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">),</span> <span class="s">&quot;heading&quot;</span><span class="p">)[</span><span class="m">2</span><span class="p">])</span>
     <span class="n">x</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="nf">sub</span><span class="p">(</span><span class="s">&quot;\\n.*&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">models</span><span class="p">),</span>
            <span class="nf">sub</span><span class="p">(</span><span class="s">&quot;.*Model 2: &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">models</span><span class="p">),</span> 
-           <span class="nf">round</span><span class="p">(</span><span class="nf">anova</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">)</span><span class="o">$</span><span class="s">&quot;Pr(&gt;F)&quot;</span><span class="n">[2]</span><span class="p">,</span> <span class="m">3</span><span class="p">))</span>
+           <span class="nf">round</span><span class="p">(</span><span class="nf">anova</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">)</span><span class="o">$</span><span class="s">&quot;Pr(&gt;F)&quot;</span><span class="p">[</span><span class="m">2</span><span class="p">],</span> <span class="m">3</span><span class="p">))</span>
     <span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">rbind</span><span class="p">(</span><span class="n">lmfits</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 <span class="p">}</span>
 
@@ -158,7 +151,7 @@
 
 <span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">lmfit.table</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">)</span>
 <span class="nf">for </span><span class="p">(</span><span class="n">i</span> <span class="n">in</span> <span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">lmfits[</span> <span class="p">,</span> <span class="n">i]</span> <span class="o">&lt;-</span> <span class="nf">as.character</span><span class="p">(</span><span class="n">lmfits[</span> <span class="p">,</span> <span class="n">i]</span><span class="p">)</span>
+    <span class="n">lmfits</span><span class="p">[</span> <span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="nf">as.character</span><span class="p">(</span><span class="n">lmfits</span><span class="p">[</span> <span class="p">,</span> <span class="n">i</span><span class="p">])</span>
 <span class="p">}</span>
 <span class="nf">names</span><span class="p">(</span><span class="n">lmfits</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Model 1&quot;</span><span class="p">,</span> <span class="s">&quot;Model 2&quot;</span><span class="p">,</span> <span class="s">&quot;p-value of model improvement&quot;</span><span class="p">)</span>
 
@@ -179,8 +172,7 @@
 
 <span class="nf">require</span><span class="p">(</span><span class="n">knitr</span><span class="p">)</span>
 <span class="n">lmfits</span>
-</pre></div>
-
+</code></pre></div>
 
 <div>
 <table class="table table-bordered">
@@ -227,7 +219,7 @@
 </div>
 
 <p>There were two variables that improved model fit in addition to <code>am</code>, which were <code>wt</code> and <code>cyl</code>. I will now check whether adding interaction terms between these variables and these variables improves model&nbsp;fit:</p>
-<div class="highlight"><pre><span></span><span class="n">model8</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">cyl.f</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">model8</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">cyl.f</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
 <span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">lmfit.table</span><span class="p">(</span><span class="n">model3</span><span class="p">,</span> <span class="n">model8</span><span class="p">)</span>
 
 <span class="n">model9</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">cyl.f</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">cyl.f</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
@@ -236,9 +228,8 @@
 <span class="n">model10</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
 <span class="n">lmfits</span> <span class="o">&lt;-</span> <span class="nf">lmfit.table</span><span class="p">(</span><span class="n">model2</span><span class="p">,</span> <span class="n">model10</span><span class="p">)</span>
 
-<span class="n">lmfits[7</span><span class="o">:</span><span class="m">9</span><span class="p">,</span> <span class="n">]</span>
-</pre></div>
-
+<span class="n">lmfits</span><span class="p">[</span><span class="m">7</span><span class="o">:</span><span class="m">9</span><span class="p">,</span> <span class="p">]</span>
+</code></pre></div>
 
 <div>
 <table class="table table-bordered">
@@ -270,90 +261,77 @@
 </div>
 
 <p>We now have two viable models, <code>model8</code> and <code>model10</code>. To select between these, I will have a look at the <a href="https://en.wikipedia.org/wiki/Coefficient_of_determination"><span class="math">\(R^2\)</span></a> and <a href="https://en.wikipedia.org/wiki/Variance_inflation_factor">variance inflation factor (<span class="caps">VIF</span>)</a> (in the <a href="https://cran.r-project.org/web/packages/car/car.pdf">car package</a>) of each of the&nbsp;models.</p>
-<div class="highlight"><pre><span></span><span class="nf">require</span><span class="p">(</span><span class="n">car</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nf">require</span><span class="p">(</span><span class="n">car</span><span class="p">)</span>
 <span class="nf">round</span><span class="p">(</span><span class="nf">summary</span><span class="p">(</span><span class="n">model10</span><span class="p">)</span><span class="o">$</span><span class="n">r.squared</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">## [1] 0.833</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="err">## [1] 0.833</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">vif</span><span class="p">(</span><span class="n">model10</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="nf">vif</span><span class="p">(</span><span class="n">model10</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">##      am.f        wt   am.f:wt </span>
+<div class="highlight"><pre><span></span><code><span class="err">##      am.f        wt   am.f:wt </span>
 <span class="err">## 20.901259  2.728248 15.366853</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="nf">round</span><span class="p">(</span><span class="nf">summary</span><span class="p">(</span><span class="n">model8</span><span class="p">)</span><span class="o">$</span><span class="n">r.squared</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="nf">round</span><span class="p">(</span><span class="nf">summary</span><span class="p">(</span><span class="n">model8</span><span class="p">)</span><span class="o">$</span><span class="n">r.squared</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="err">## [1] 0.877</span>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="nf">vif</span><span class="p">(</span><span class="n">model8</span><span class="p">)[</span> <span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="err">## [1] 0.877</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="nf">vif</span><span class="p">(</span><span class="n">model8</span><span class="p">)</span><span class="n">[</span> <span class="p">,</span> <span class="m">1</span><span class="n">]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">##      am.f        wt     cyl.f   am.f:wt </span>
+<div class="highlight"><pre><span></span><code><span class="err">##      am.f        wt     cyl.f   am.f:wt </span>
 <span class="err">## 24.302147  3.983261  3.060691 18.189413</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>The difference in <span class="math">\(R^2\)</span> between the two models is small, but the inclusion of <code>cyl</code> in the model both increases the variance inflation and decreases the interpretability of the model. Moreover, <code>cyl</code> is highly correlated with <code>wt</code> (0.782), meaning it is likely explaining a lot of the same variance as <code>wt</code>. As such, I dropped <code>cyl</code> and the final model included <code>am</code>, <code>wt</code>, and their interaction&nbsp;term.</p>
 <h2>Model&nbsp;diagnostics</h2>
 <p>Having chosen the final model, it is time to check whether it has any issues with how it fits the data. The built-in <code>plot</code> function conveniently displays four <a href="https://en.wikipedia.org/wiki/Regression_diagnostic">diagnostic plots</a> for lm&nbsp;objects:</p>
-<div class="highlight"><pre><span></span><span class="n">final.model</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">final.model</span> <span class="o">&lt;-</span> <span class="nf">lm</span><span class="p">(</span><span class="n">mpg</span> <span class="o">~</span> <span class="n">am.f</span> <span class="o">+</span> <span class="n">wt</span> <span class="o">+</span> <span class="n">am.f</span> <span class="o">*</span> <span class="n">wt</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mtcars</span><span class="p">)</span>
 <span class="nf">par</span><span class="p">(</span><span class="n">mfrow</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">))</span>
 <span class="nf">plot</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img alt="plot of chunk diagnostic_plots" src="/figure/diagnostic_plots-1.png"> </p>
 <p>The <strong>Residuals vs Fitted</strong> plot (and its standardised version, the <strong>Scale Location</strong> plot) show that higher <span class="caps">MPG</span> values tend to have higher <a href="https://en.wikipedia.org/wiki/Errors_and_residuals">residuals</a>. In addition, there are three values with unusually high residual error (Merc <span class="caps">240DD</span>, Fiat128 and Toyota Corolla), indicating that the model is a poor fit for both cars with high <span class="caps">MPG</span> (past about 28 <span class="caps">MPG</span>) and these three car types. The <strong>Normal Q-Q</strong> plot of residuals indicates that the errors are not normally distributed, again especially for high levels of <span class="caps">MPG</span> and the three specific car models that had high residuals. Finally, the <strong>Residuals vs Leverage</strong> plot demonstrates that are a couple of values with high <a href="https://en.wikipedia.org/wiki/Leverage_(statistics)">leverage</a> and low residuals, which may possibly be biasing the trend&nbsp;line.</p>
 <p>To more closely examine the effect of variables with high leverage and/or <a href="https://en.wikipedia.org/wiki/Influential_observation">influence</a> on the regression line we can extract the hatvalues and the dfbeta values of the model respectively. First I will show the top 6&nbsp;hatvalues:</p>
-<div class="highlight"><pre><span></span><span class="n">mtcars</span><span class="o">$</span><span class="n">name</span> <span class="o">&lt;-</span> <span class="nf">row.names</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">$</span><span class="n">name</span> <span class="o">&lt;-</span> <span class="nf">row.names</span><span class="p">(</span><span class="n">mtcars</span><span class="p">)</span>
 <span class="n">mtcars</span><span class="o">$</span><span class="n">hatvalues</span> <span class="o">&lt;-</span> <span class="nf">round</span><span class="p">(</span><span class="nf">hatvalues</span><span class="p">(</span><span class="n">final.model</span><span class="p">),</span> <span class="m">3</span><span class="p">)</span>
 <span class="n">top.leverage</span> <span class="o">=</span> <span class="nf">sort</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">hatvalues</span><span class="p">(</span><span class="n">final.model</span><span class="p">),</span> <span class="m">3</span><span class="p">),</span> <span class="n">decreasing</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 <span class="nf">head</span><span class="p">(</span><span class="n">top.leverage</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##       Maserati Bora Lincoln Continental   Chrysler Imperial </span>
+<div class="highlight"><pre><span></span><code><span class="err">##       Maserati Bora Lincoln Continental   Chrysler Imperial </span>
 <span class="err">##               0.371               0.304               0.281 </span>
 <span class="err">##  Cadillac Fleetwood        Lotus Europa         Honda Civic </span>
 <span class="err">##               0.254               0.253               0.216</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>The Maserati Bora appears to have a substantially higher leverage than the others in the list. Ok, so now let&#8217;s look at the&nbsp;dfbetas:</p>
-<div class="highlight"><pre><span></span><span class="n">mtcars</span><span class="o">$</span><span class="n">dfbetas</span> <span class="o">&lt;-</span> <span class="nf">round</span><span class="p">(</span><span class="nf">dfbetas</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[</span><span class="p">,</span> <span class="m">2</span><span class="n">]</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
-<span class="n">top.influence</span> <span class="o">=</span> <span class="nf">sort</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">abs</span><span class="p">(</span><span class="nf">dfbetas</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[</span><span class="p">,</span> <span class="m">2</span><span class="n">]</span><span class="p">),</span> <span class="m">3</span><span class="p">),</span> <span class="n">decreasing</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mtcars</span><span class="o">$</span><span class="n">dfbetas</span> <span class="o">&lt;-</span> <span class="nf">round</span><span class="p">(</span><span class="nf">dfbetas</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[,</span> <span class="m">2</span><span class="p">],</span> <span class="m">3</span><span class="p">)</span>
+<span class="n">top.influence</span> <span class="o">=</span> <span class="nf">sort</span><span class="p">(</span><span class="nf">round</span><span class="p">(</span><span class="nf">abs</span><span class="p">(</span><span class="nf">dfbetas</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[,</span> <span class="m">2</span><span class="p">]),</span> <span class="m">3</span><span class="p">),</span> <span class="n">decreasing</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 <span class="nf">head</span><span class="p">(</span><span class="n">top.influence</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">## Chrysler Imperial    Toyota Corolla      Lotus Europa         Merc 240D </span>
+<div class="highlight"><pre><span></span><code><span class="err">## Chrysler Imperial    Toyota Corolla      Lotus Europa         Merc 240D </span>
 <span class="err">##             0.584             0.469             0.372             0.349 </span>
 <span class="err">##          Fiat 128          Merc 230 </span>
 <span class="err">##             0.327             0.231</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Despite its high leverage, the Maserati Bora does not have high influence. Instead, the Chrysler Imperial and the Toyota Corolla are much higher than the other models. So how do we actually tell if these values are biasing the fit of the regression line? I wrote two ggplots which label the data points by name with the highest leverage and influence values. I chose the three highest, but you can easily change the code to give you whatever number you&nbsp;want.</p>
-<div class="highlight"><pre><span></span><span class="c1"># First build a plot of the model.</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># First build a plot of the model.</span>
 <span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
 <span class="n">gp</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">wt</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">mpg</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">am.f</span><span class="p">))</span> <span class="o">+</span> 
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">alpha</span> <span class="o">=</span> <span class="m">0.7</span><span class="p">)</span> <span class="o">+</span>
-        <span class="nf">geom_abline</span><span class="p">(</span><span class="n">intercept</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[1]</span><span class="p">,</span> <span class="n">slope</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[3]</span><span class="p">,</span> 
+        <span class="nf">geom_abline</span><span class="p">(</span><span class="n">intercept</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">1</span><span class="p">],</span> <span class="n">slope</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">3</span><span class="p">],</span> 
                     <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">&quot;#FF3721&quot;</span><span class="p">)</span> <span class="o">+</span>
-        <span class="nf">geom_abline</span><span class="p">(</span><span class="n">intercept</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[1]</span> <span class="o">+</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[2]</span><span class="p">,</span> 
-                    <span class="n">slope</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[3]</span> <span class="o">+</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)</span><span class="n">[4]</span><span class="p">,</span> 
+        <span class="nf">geom_abline</span><span class="p">(</span><span class="n">intercept</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span> <span class="o">+</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">2</span><span class="p">],</span> 
+                    <span class="n">slope</span> <span class="o">=</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">3</span><span class="p">]</span> <span class="o">+</span> <span class="nf">coef</span><span class="p">(</span><span class="n">final.model</span><span class="p">)[</span><span class="m">4</span><span class="p">],</span> 
                     <span class="n">size</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">&quot;#4271AE&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_colour_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Transmission&quot;</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;#FF3721&quot;</span><span class="p">,</span> <span class="s">&quot;#4271AE&quot;</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;Miles per gallon&quot;</span><span class="p">)</span> <span class="o">+</span>    
@@ -361,22 +339,21 @@
         <span class="nf">theme_bw</span><span class="p">()</span>
 
 <span class="c1"># Leverage plot</span>
-<span class="n">g1</span> <span class="o">&lt;-</span> <span class="n">gp</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">hatvalues</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">top.leverage[3]</span><span class="p">),</span> 
+<span class="n">g1</span> <span class="o">&lt;-</span> <span class="n">gp</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">hatvalues</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">top.leverage</span><span class="p">[</span><span class="m">3</span><span class="p">]),</span> 
                      <span class="nf">aes</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span><span class="n">mpg</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="m">4</span><span class="p">,</span> <span class="n">hjust</span><span class="o">=</span><span class="m">1</span><span class="p">,</span> <span class="n">vjust</span><span class="o">=</span><span class="m">0</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Three Points with Highest Leverage (hatvalues)&quot;</span><span class="p">)</span>
 
 <span class="c1"># Influence plot</span>
-<span class="n">g2</span> <span class="o">&lt;-</span> <span class="n">gp</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence[1]</span><span class="p">),</span> 
+<span class="n">g2</span> <span class="o">&lt;-</span> <span class="n">gp</span> <span class="o">+</span> <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence</span><span class="p">[</span><span class="m">1</span><span class="p">]),</span> 
                      <span class="nf">aes</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span><span class="n">mpg</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="m">4</span><span class="p">,</span> <span class="n">hjust</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">vjust</span> <span class="o">=</span> <span class="m">0</span><span class="p">)</span> <span class="o">+</span>
-        <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence[2]</span> <span class="o">|</span> 
-                                  <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence[3]</span><span class="p">),</span> 
+        <span class="nf">geom_text</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nf">subset</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence</span><span class="p">[</span><span class="m">2</span><span class="p">]</span> <span class="o">|</span> 
+                                  <span class="nf">abs</span><span class="p">(</span><span class="n">dfbetas</span><span class="p">)</span> <span class="o">==</span> <span class="n">top.influence</span><span class="p">[</span><span class="m">3</span><span class="p">]),</span> 
                      <span class="nf">aes</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span><span class="n">mpg</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="m">4</span><span class="p">,</span> <span class="n">hjust</span> <span class="o">=</span> <span class="m">0</span><span class="p">,</span> <span class="n">vjust</span> <span class="o">=</span> <span class="m">0</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Three Points with Highest Influence (dfbetas)&quot;</span><span class="p">)</span>
 
 <span class="nf">library</span><span class="p">(</span><span class="n">gridExtra</span><span class="p">)</span>
 <span class="nf">grid.arrange</span><span class="p">(</span><span class="n">g1</span><span class="p">,</span> <span class="n">g2</span><span class="p">,</span> <span class="n">nrow</span> <span class="o">=</span> <span class="m">1</span><span class="p">,</span> <span class="n">ncol</span> <span class="o">=</span> <span class="m">2</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img alt="plot of chunk outlier_plots" src="/figure/outlier_plots-1.png"> </p>
 <p>You can see that none of the high leverage nor influence points seem to be biasing the fit of the regression&nbsp;lines.</p>

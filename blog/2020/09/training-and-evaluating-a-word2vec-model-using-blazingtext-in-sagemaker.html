@@ -81,35 +81,31 @@
 <h2>Getting a&nbsp;dataset</h2>
 <p>For this analysis, I used the well known <a href="http://u.cs.biu.ac.il/~koppel/BlogCorpus.htm">Blog Authorship Corpus</a>, which consists of 681,288 posts from <code>blogger.com</code>. In order to use these data to train a word2vec model, I extracted each post, split it into its composite sentences and wrote each sentence to a new line. I then did some light normalisation, including converting the text to lowercase and removing punctuation, newline characters, and extra whitespace. If you would like some guidance on the sort of steps you can take to normalise text data, you can see <a href="https://t-redactyl.github.io/blog/2017/06/text-cleaning-in-multiple-languages.html">my previous blog post</a> on this&nbsp;topic.</p>
 <p>Let&#8217;s have a quick look at the&nbsp;data:</p>
-<div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/training_data/cleaned_sentences.csv&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">train_file</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/training_data/cleaned_sentences.csv&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">train_file</span><span class="p">:</span>
     <span class="n">train</span> <span class="o">=</span> <span class="n">train_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">train</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">it saved my ass for this award at least</span>
+<div class="highlight"><pre><span></span><code><span class="err">it saved my ass for this award at least</span>
 <span class="err">but my advisor was telling me about the process surrounding these awards where the teachers all cast a vote for a student each student that recieves one vote is put on the ballot for further consideration</span>
 <span class="err">then they check whether they meet the requirements of a b or athletics or whatever and then cull the herd accordingly</span>
 <span class="err">after that is what he terms the most dreaded meeting of the year where the teachers essentially have to fight for the favorites and it gets incredibly awkward</span>
 <span class="err">apparenty whenever it looks like one kid may get it one teacher will then being pushing for splitting the award starting another whole row of controversey</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">7480869</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">7480869</span>
+</code></pre></div>
 
 <p>You can see from the above that the data contains around 7.4 million sentences sourced from the blogs corpus. To finish, I created a new S3 bucket, uploaded these data, and I was ready to&nbsp;go!</p>
 <h2>Setting up a BlazingText&nbsp;model</h2>
 <p>In order to be able to run our BlazingText model in Sagemaker, we need to create an <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html">execution role</a>. This is essentially a permission that you create that allows Sagemaker to perform operations on your behalf on the <span class="caps">AWS</span> servers. In our case, we will need to use this role to indicate that we are giving permission for Sagemaker to run a model for us. You might need to first set up an <span class="caps">IAM</span> role for your Sagemaker notebook in order for this to work - I have described how to do this in a <a href="https://t-redactyl.github.io/blog/2020/08/reading-s3-data-into-a-spark-dataframe-using-sagemaker.html">previous blog post</a>.</p>
 <p>You will also need to set up a few other values. We need to specify the bucket that we wish to write our model artifacts to, and we can also create some tags that will make it a bit easier to keep track of the models we are creating. Finally, we also need to get the image of the BlazingText container that we will be using to train our model. We first need to find our current <span class="caps">AWS</span> region using  <code>boto3.Session().region_name</code>, and then we pass that as an argument to the <code>get_image_uri</code> method from the <code>sagemaker</code> package. We also specify when creating the container that we want to get a <code>blazingtext</code> image, and that it should be the <code>latest</code> one&nbsp;available.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">import</span> <span class="nn">sagemaker</span>
 <span class="kn">from</span> <span class="nn">sagemaker</span> <span class="kn">import</span> <span class="n">get_execution_role</span>
 
@@ -119,13 +115,12 @@
 
 <span class="n">region_name</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">region_name</span>
 <span class="n">container</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">amazon</span><span class="o">.</span><span class="n">amazon_estimator</span><span class="o">.</span><span class="n">get_image_uri</span><span class="p">(</span><span class="n">region_name</span><span class="p">,</span> <span class="s2">&quot;blazingtext&quot;</span><span class="p">,</span> <span class="s2">&quot;latest&quot;</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Now that we have created these values, we can pass them to <code>sagemaker</code><span class="quo">&#8216;</span>s <code>Estimator</code> <a href="https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html">method</a>. In our estimator, we pass the container and the execution role we created earlier, telling Sagemaker that we want to train the model using our BlazingText image, and we give permission to do this using our execution role. The type of instance we&#8217;re using to train is a <code>ml.c5.xlarge</code> instance: this is the &#8220;basic&#8221; machine learning instance type which is available with the <a href="https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&amp;all-free-tier.sort-order=asc"><span class="caps">AWS</span> Free Tier</a> account. In this estimator, we&#8217;ve also indicated we only want to use one instance at a time with the <code>train_instance_count=1</code> argument; however, for models that use distributed training you can increase this number for faster&nbsp;training. </p>
 <p>Just as a note about the <a href="https://aws.amazon.com/sagemaker/pricing/instance-types/">Sagemaker <span class="caps">ML</span> instance types</a>: the number in the second part of the instance name (e.g., the <code>c5</code> in <code>ml.c5.xlarge</code>) indicates the generation of that instance type, where higher numbers indicate newer generations. You should always aim to use the newest version of the instance type that is available in your region, as they will always be more efficient and therefore cheaper to use than the older&nbsp;generations.</p>
 <p>We&#8217;ve specified also what we want the stem of our model name to be using <code>base_job_name</code>, where we want to write our model artifacts using <code>output_path</code>, what we want the maximum size of the volume where we want to store our input data using <code>train_volume_size</code> and how long we&#8217;re willing to let the training job run for in seconds using <code>train_max_run</code> (I set it to 5 hours so I don&#8217;t go&nbsp;broke!).</p>
-<div class="highlight"><pre><span></span><span class="n">bt_model</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">bt_model</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span>
     <span class="n">container</span><span class="p">,</span>
     <span class="n">role</span><span class="p">,</span>
     <span class="n">train_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -136,11 +131,10 @@
     <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;s3://</span><span class="si">{}</span><span class="s1">/models/blazingtext&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">),</span>
     <span class="n">tags</span><span class="o">=</span><span class="n">tags</span>
 <span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Finally, we need to select the hyperparameters for our word2vec model. <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/blazingtext_hyperparameters.html">This link</a> gives more information on each of these. I&#8217;ve chosen to use the <code>batch_skipgram</code> method in order to speed up the training&nbsp;process.</p>
-<div class="highlight"><pre><span></span><span class="n">bt_model</span><span class="o">.</span><span class="n">set_hyperparameters</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">bt_model</span><span class="o">.</span><span class="n">set_hyperparameters</span><span class="p">(</span>
     <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;batch_skipgram&quot;</span><span class="p">,</span>
     <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
     <span class="n">min_count</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
@@ -153,17 +147,15 @@
     <span class="n">evaluation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">subwords</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <h2>Training the&nbsp;model</h2>
 <p>We&#8217;re finally ready to train our model! We just need to specify the path to our data in S3, and then pass this as the value of a dictionary to our estimator&#8217;s <code>fit</code> method.</p>
-<div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{bucket_name}</span><span class="s2">/cleaned_sentences.csv&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">input_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">/cleaned_sentences.csv&quot;</span>
 <span class="n">bt_model</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">input_data</span><span class="p">},</span> <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">33</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Starting</span> <span class="n">the</span> <span class="n">training</span> <span class="n">job</span><span class="p">...</span>
+<div class="highlight"><pre><span></span><code><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">33</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Starting</span> <span class="n">the</span> <span class="n">training</span> <span class="n">job</span><span class="p">...</span>
 <span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">35</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Launching</span> <span class="n">requested</span> <span class="n">ML</span> <span class="n">instances</span><span class="p">......</span>
 <span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">42</span> <span class="n">Starting</span> <span class="o">-</span> <span class="n">Preparing</span> <span class="n">the</span> <span class="n">instances</span> <span class="k">for</span> <span class="n">training</span><span class="p">...</span>
 <span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">23</span> <span class="n">Downloading</span> <span class="o">-</span> <span class="n">Downloading</span> <span class="k">input</span> <span class="k">data</span><span class="p">...</span>
@@ -213,7 +205,7 @@
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="o">#####</span> <span class="n">Alpha</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0000</span>  <span class="n">Progress</span><span class="p">:</span> <span class="mi">100</span><span class="p">.</span><span class="mi">00</span><span class="o">%</span>  <span class="n">Million</span> <span class="n">Words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span> <span class="o">#####</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mTraining</span> <span class="n">finished</span><span class="o">!</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mAverage</span> <span class="n">throughput</span> <span class="k">in</span> <span class="n">Million</span> <span class="n">words</span><span class="o">/</span><span class="n">sec</span><span class="p">:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">27</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
-<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mTotal</span> <span class="n">training</span> <span class="n">time</span> <span class="k">in</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">653</span><span class="p">.</span><span class="mi">67</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
+<span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mTotal</span> <span class="n">training</span> <span class="k">time</span> <span class="k">in</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">653</span><span class="p">.</span><span class="mi">67</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mEvaluating</span> <span class="n">word</span> <span class="n">embeddings</span><span class="p">....</span><span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">mVectors</span> <span class="k">read</span> <span class="k">from</span><span class="p">:</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">ml</span><span class="o">/</span><span class="n">model</span><span class="o">/</span><span class="n">vectors</span><span class="p">.</span><span class="n">txt</span> <span class="err"></span><span class="p">[</span><span class="mi">0</span><span class="n">m</span>
 <span class="err"></span><span class="p">[</span><span class="mi">34</span><span class="n">m</span><span class="err">{</span>
@@ -239,8 +231,7 @@
 <span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span> <span class="mi">16</span><span class="p">:</span><span class="mi">35</span><span class="p">:</span><span class="mi">32</span> <span class="n">Completed</span> <span class="o">-</span> <span class="n">Training</span> <span class="n">job</span> <span class="n">completed</span>
 <span class="n">Training</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">729</span>
 <span class="n">Billable</span> <span class="n">seconds</span><span class="p">:</span> <span class="mi">729</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>As you can see, the <code>fit</code> method gives us an indication of the model progress, a summary of the total billable seconds, and some evaluation metrics. We&#8217;ll discuss these evaluation metrics next. You can see the model trained very quickly, taking only 12 minutes to train over 7.4 million&nbsp;sentences!</p>
 <p>If we go back to our Sagemaker dashboard, we can find all of the details of our training job. Firstly, under <code>Training</code>, we click on <code>Training Jobs</code>. Then, we can go through the list of training jobs until you find our model. Clicking on the model name, we get a page with all of the relevant information for our&nbsp;model:</p>
@@ -309,14 +300,12 @@
 </div>
 
 <p><span class="caps">AWS</span> correlates the cosine similarities from our model with the manual similarities from the relatedness, similarity and the combined datasets, using a <a href="https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient">Spearman rank correlation</a>. As you can see, the <code>fit</code> method will output each of these metrics individually as part of the model training above. Sagemaker also takes the mean of these correlations as their overall objective metric, <code>mean_rho</code>. You can see this metric in the training output above, but you can also retrieve it using the&nbsp;following:</p>
-<div class="highlight"><pre><span></span><span class="n">bt_model</span><span class="o">.</span><span class="n">training_job_analytics</span><span class="o">.</span><span class="n">dataframe</span><span class="p">()</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">bt_model</span><span class="o">.</span><span class="n">training_job_analytics</span><span class="o">.</span><span class="n">dataframe</span><span class="p">()</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">WARNING</span><span class="o">:</span><span class="n">root</span><span class="o">:</span><span class="n">Warning</span><span class="o">:</span> <span class="n">No</span> <span class="n">metrics</span> <span class="n">called</span> <span class="n">train</span><span class="o">:</span><span class="n">accuracy</span> <span class="n">found</span>
+<div class="highlight"><pre><span></span><code><span class="n">WARNING</span><span class="o">:</span><span class="n">root</span><span class="o">:</span><span class="n">Warning</span><span class="o">:</span> <span class="n">No</span> <span class="n">metrics</span> <span class="n">called</span> <span class="n">train</span><span class="o">:</span><span class="n">accuracy</span> <span class="n">found</span>
 <span class="n">WARNING</span><span class="o">:</span><span class="n">root</span><span class="o">:</span><span class="n">Warning</span><span class="o">:</span> <span class="n">No</span> <span class="n">metrics</span> <span class="n">called</span> <span class="n">validation</span><span class="o">:</span><span class="n">accuracy</span> <span class="n">found</span>
-</pre></div>
-
+</code></pre></div>
 
 <div>
 <table class="table table-bordered">
@@ -338,24 +327,21 @@
 </div>
 
 <p>If you go to the path for your model that we discussed earlier, you&#8217;ll find that Sagemaker produces three files: <code>eval.json</code>, which contains all of the metrics we just discussed above, and <code>vectors.bin</code> and <code>vectors.txt</code>, which contain our model vectors. We can download these straight to our Sagemaker notebook instance using the following&nbsp;command.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">sagemaker</span><span class="o">-</span><span class="n">blog</span><span class="o">-</span><span class="n">corpus</span><span class="o">-</span><span class="n">nlp</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">-</span><span class="n">blogs</span><span class="o">-</span><span class="n">sentences</span><span class="o">-</span><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span><span class="o">-</span><span class="mi">16</span><span class="o">-</span><span class="mi">21</span><span class="o">-</span><span class="mi">33</span><span class="o">-</span><span class="mi">136</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span> <span class="o">|</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xz</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="n">s3</span><span class="p">:</span><span class="o">//</span><span class="n">sagemaker</span><span class="o">-</span><span class="n">blog</span><span class="o">-</span><span class="n">corpus</span><span class="o">-</span><span class="n">nlp</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">/</span><span class="n">blazingtext</span><span class="o">-</span><span class="n">blogs</span><span class="o">-</span><span class="n">sentences</span><span class="o">-</span><span class="mi">2020</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">27</span><span class="o">-</span><span class="mi">16</span><span class="o">-</span><span class="mi">21</span><span class="o">-</span><span class="mi">33</span><span class="o">-</span><span class="mi">136</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span> <span class="o">-</span> <span class="o">|</span> <span class="n">tar</span> <span class="o">-</span><span class="n">xz</span>
+</code></pre></div>
 
 <p>We can now read in our model using <code>gensim</code>.</p>
-<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">gensim</span>
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">gensim</span>
 
 <span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">KeyedVectors</span>
 <span class="n">word_vectors</span> <span class="o">=</span> <span class="n">KeyedVectors</span><span class="o">.</span><span class="n">load_word2vec_format</span><span class="p">(</span><span class="s1">&#39;vectors.txt&#39;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Let&#8217;s have a look at some words to check their&nbsp;neighbours:</p>
-<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;family&quot;</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;family&quot;</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">[(&#39;grandparents&#39;, 0.8619130253791809),</span>
+<div class="highlight"><pre><span></span><code><span class="err">[(&#39;grandparents&#39;, 0.8619130253791809),</span>
 <span class="err"> (&#39;grandparent&#39;, 0.86134934425354),</span>
 <span class="err"> (&#39;uncles&#39;, 0.8494136929512024),</span>
 <span class="err"> (&#39;aunts&#39;, 0.8464415073394775),</span>
@@ -365,14 +351,12 @@
 <span class="err"> (&#39;grandmothers&#39;, 0.8248440623283386),</span>
 <span class="err"> (&#39;cousins&#39;, 0.8228892683982849),</span>
 <span class="err"> (&#39;nephews&#39;, 0.8178520202636719)]</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;sad&quot;</span><span class="p">)</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">word_vectors</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s2">&quot;sad&quot;</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">[(&#39;sadden&#39;, 0.877300500869751),</span>
+<div class="highlight"><pre><span></span><code><span class="err">[(&#39;sadden&#39;, 0.877300500869751),</span>
 <span class="err"> (&#39;happy&#39;, 0.842025876045227),</span>
 <span class="err"> (&#39;dissappointed&#39;, 0.8219696283340454),</span>
 <span class="err"> (&#39;dissappointing&#39;, 0.8199109435081482),</span>
@@ -382,13 +366,12 @@
 <span class="err"> (&#39;depressed&#39;, 0.8010575175285339),</span>
 <span class="err"> (&#39;heartbroken&#39;, 0.789728045463562),</span>
 <span class="err"> (&#39;saddening&#39;, 0.7896846532821655)]</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We can see that both of these terms have produced good neighbours, although the neighbours for &#8220;sad&#8221; do contain a number of typos (e.g., &#8220;dissappointed&#8221;). Although typos do make poor neighbours, including them in the model (rather than correcting or removing them out during the data cleaning process) does help the coverage of the&nbsp;model. </p>
 <p>Alternatively, you can alter the training of the BlazingText model to <a href="https://aws.amazon.com/blogs/machine-learning/enhanced-text-classification-and-word-vectors-using-amazon-sagemaker-blazingtext/">use subwords</a>, which allows the model to find neighbours for out-of-vocabulary (<span class="caps">OOV</span>) words which are similar to words already in the model, such as typos or inflections. However, from what I&#8217;ve worked out the only way to use a model produced by BlazingText to cover <span class="caps">OOV</span> terms is by using a Sagemaker inference endpoint, which can be&nbsp;expensive.</p>
 <p>We can also visualise how similar our most frequent terms are using <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">T-<span class="caps">SNE</span></a>, which is an algorithm which reduces our 100 dimension vectors to 2 dimensions. This will give us an idea of whether the model is generally doing a good job of positioning similar terms close to each other in the vector space. I copied this code directly from the <span class="caps">AWS</span> tutorial notebook <code>blazingtext_word2vec_text8.ipynb</code>, which you can find under the <code>Sagemaker Examples</code> tab at the top of your Jupyter notebook&nbsp;homepage. </p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">normalize</span>
 <span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pylab</span>
@@ -428,8 +411,7 @@
     <span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;tsne_blazing_text_initial.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
 
 <span class="n">plot</span><span class="p">(</span><span class="n">two_d_embeddings</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/tsne_blazing_text_initial.png" title="T-SNE plot" style="display: block; margin: auto;" /></p>
 <p>You can see that the model generally makes sense as you look over the graph. There is a cluster in the top righthand corner containing numbers, while in the bottom lefthand corner we have terms such as &#8220;blog&#8221;, &#8220;post&#8221;, &#8220;write&#8221;, &#8220;read&#8221;, &#8220;book&#8221; and &#8220;story&#8221;&nbsp;grouped.</p>

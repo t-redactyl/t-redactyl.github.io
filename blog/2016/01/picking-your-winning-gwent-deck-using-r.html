@@ -81,136 +81,118 @@
 <p><img src="/figure/gwent1.jpeg" title="Gwent 1" alt="Gwent 1" style="display: block; margin: auto;" /></p>
 <h2>Read in and clean the&nbsp;data</h2>
 <p>To get started, we&#8217;ll use this spreadsheet containing the core (non-<span class="caps">DLC</span>) gwent cards from <a href="http://gwentcards.com/">this site</a>.</p>
-<div class="highlight"><pre><span></span><span class="nf">require</span><span class="p">(</span><span class="n">XLConnect</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nf">require</span><span class="p">(</span><span class="n">XLConnect</span><span class="p">)</span>
 <span class="n">wb</span> <span class="o">=</span> <span class="nf">loadWorkbook</span><span class="p">(</span><span class="s">&quot;Gwent.xlsx&quot;</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="nf">readWorksheet</span><span class="p">(</span><span class="n">wb</span><span class="p">,</span> <span class="n">sheet</span> <span class="o">=</span> <span class="s">&quot;Sheet1&quot;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We have a little bit of cleaning to do. Firstly, to help group repeated cards, I&#8217;ll get rid of the numbers attached to these cards (e.g., 1 of 3) using a simple&nbsp;regex.</p>
-<div class="highlight"><pre><span></span><span class="n">df</span><span class="o">$</span><span class="n">Card</span> <span class="o">&lt;-</span> <span class="nf">gsub</span><span class="p">(</span><span class="s">&quot; \\(.*&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">)</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="o">$</span><span class="n">Card</span> <span class="o">&lt;-</span> <span class="nf">gsub</span><span class="p">(</span><span class="s">&quot; \\(.*&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">)</span>
+</code></pre></div>
 
 <p>The other thing I need to do is fix up the labels of the <a href="http://witcher.wikia.com/wiki/Nilfgaardian_Empire">Nilfgaardian</a> and <a href="http://witcher.wikia.com/wiki/Northern_Kingdoms">Northern Realms</a> decks, which are mislabelled in the original&nbsp;data.</p>
-<div class="highlight"><pre><span></span><span class="n">df</span><span class="o">$</span><span class="n">Deck[df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">==</span> <span class="s">&quot;Nilfgaard&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Nilfgaardian&quot;</span>
-<span class="n">df</span><span class="o">$</span><span class="n">Deck[df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">==</span> <span class="s">&quot;Norther Realms&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Northern Realms&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="o">$</span><span class="n">Deck</span><span class="p">[</span><span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">==</span> <span class="s">&quot;Nilfgaard&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Nilfgaardian&quot;</span>
+<span class="n">df</span><span class="o">$</span><span class="n">Deck</span><span class="p">[</span><span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">==</span> <span class="s">&quot;Norther Realms&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Northern Realms&quot;</span>
+</code></pre></div>
 
 <p>Ok, the data are now ready, so let&#8217;s get&nbsp;started!</p>
 <h2>Strategy 1: Win on strength&nbsp;alone</h2>
 <p><img src="/figure/gwent2.png" title="Gwent 2" alt="Gwent 2" style="display: block; margin: auto;" /></p>
 <p>The most obvious and blunt strategy is to try and win on strength alone. To see which deck is best suited to this, let&#8217;s have a look at the overall attack strength of each deck. I&#8217;ve removed the spies for reasons I will explain in the next&nbsp;strategy.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span> 
-                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span><span class="p">,</span> <span class="n">]</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span> 
+                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span><span class="p">,</span> <span class="p">],</span> <span class="n">sum</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck ATK</span>
 <span class="err">## 1        Monsters 175</span>
 <span class="err">## 2    Nilfgaardian 161</span>
 <span class="err">## 3 Northern Realms 150</span>
 <span class="err">## 4      Scoia&#39;tael 177</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We can see that the <a href="http://witcher.wikia.com/wiki/Scoia%27tael">Scoia&#8217;tael</a> deck wins when we consider the total strength of the deck. However, the total strength is not the best measure of how strong a deck is as you will only be using a limited number of cards in each game. What we need to work out is whether a deck has a lot of high-powered cards. Let&#8217;s first have a look at the distribution of attack strengths per&nbsp;deck.</p>
 <p><img src="/figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
 <p>The graph shows that the Scoia&#8217;tael and Nilfgaardian decks have the highest amount of cards at the top of the strength range. Let&#8217;s now have a look at the average strength of cards in the&nbsp;deck.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span>
-                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span><span class="p">,</span> <span class="n">]</span><span class="p">,</span> <span class="n">median</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span>
+                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span><span class="p">,</span> <span class="p">],</span> <span class="n">median</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck ATK</span>
 <span class="err">## 1        Monsters 4.0</span>
 <span class="err">## 2    Nilfgaardian 3.0</span>
 <span class="err">## 3 Northern Realms 4.5</span>
 <span class="err">## 4      Scoia&#39;tael 5.0</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Again, Scoia&#8217;tael has the highest attack strength, with a median score of 5 per card. Finally, let&#8217;s check which deck has the highest number of cards at attack strength 6 or&nbsp;above.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span>
-                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">$</span><span class="n">ATK</span> <span class="o">&gt;=</span> <span class="m">6</span><span class="p">,</span> <span class="n">]</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="o">!</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">&amp;</span>
+                         <span class="n">df</span><span class="o">$</span><span class="n">Deck</span> <span class="o">!=</span> <span class="s">&quot;Neutral&quot;</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">$</span><span class="n">ATK</span> <span class="o">&gt;=</span> <span class="m">6</span><span class="p">,</span> <span class="p">],</span> <span class="n">length</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck ATK</span>
 <span class="err">## 1        Monsters  11</span>
 <span class="err">## 2    Nilfgaardian  11</span>
 <span class="err">## 3 Northern Realms  10</span>
 <span class="err">## 4      Scoia&#39;tael  13</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Again, Scoia&#8217;tael wins out on pure strength, having 13 cards scoring at 6 or above. Therefore, <strong>if you want to try and win using strength alone, Scoia&#8217;tael is the best choice of&nbsp;deck.</strong></p>
 <h2>Strategy 2: Use spies to build number of&nbsp;cards</h2>
 <p><img src="/figure/gwent3.jpeg" title="Gwent 3" alt="Gwent 3" style="display: block; margin: auto;" /></p>
 <p>Of course, given the many special abilities of cards in gwent you&#8217;re likely going to want to use a more subtle strategy. My boyfriend and I play with a very hero-heavy Northern Realms deck, so one of our favourite strategies is to build up a huge hand using the spy cards. For those new to gwent, spy cards allow you to draw two new cards from your deck, but have the disadvantage of contributing to your opponent&#8217;s&nbsp;score.</p>
 <p>Let&#8217;s look at the distribution of spy cards in the&nbsp;decks.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> <span class="n">length</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck Card</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck Card</span>
 <span class="err">## 1         Neutral    1</span>
 <span class="err">## 2    Nilfgaardian    3</span>
 <span class="err">## 3 Northern Realms    3</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>The only decks that have spy cards are Northern Realms and Nilfgaardian, with an additional spy (the Avallac&#8217;h hero card) in the neutral deck. As such, if you want to use spies you cannot get away with supplementing your deck from the neutral deck - you will have to commit to either Northern Realms or Nilfgaardian. However, while these decks have the same number of spies, they are not quite created equal. Let&#8217;s have a look at the total value of the spy cards in each&nbsp;deck.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;spy&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> 
           <span class="n">sum</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck ATK</span>
 <span class="err">## 1         Neutral   0</span>
 <span class="err">## 2    Nilfgaardian  20</span>
 <span class="err">## 3 Northern Realms  10</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You can see that the Nilfgaardian spy cards are worth <strong>double</strong> those of the Northern Realms, contributing a hefty 20 points to your opponent&#8217;s score. As such, <strong>if you want to rely on using spies the Northern Realms deck is the best&nbsp;choice.</strong></p>
 <h2>Strategy 3: Use medics to recoup used&nbsp;cards</h2>
 <p><img src="/figure/gwent4.jpeg" title="Gwent 4" alt="Gwent 4" style="display: block; margin: auto;" /></p>
 <p>Another favourite strategy of ours is to use the medic cards. These cards recover one card of your choice from your discard pile, allowing you to play it multiple times during the game. Coupled with the decoy cards (which allow you to remove one of your cards in play and put it in your discard pile), these cards can be a powerful way to increase the value of your deck. Let&#8217;s have a look where the medics are in the&nbsp;game.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> <span class="n">length</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck Card</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck Card</span>
 <span class="err">## 1        Monsters    1</span>
 <span class="err">## 2         Neutral    1</span>
 <span class="err">## 3    Nilfgaardian    3</span>
 <span class="err">## 4 Northern Realms    1</span>
 <span class="err">## 5      Scoia&#39;tael    3</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Each deck has at least one medic, but the Nilfgaardian and Scoia&#8217;tael decks have three each. Again, there is only one neutral medic (the Yennefer of Vengerberg hero card), so you&#8217;ll need to commit to one of these decks to fully exploit the medic strategy. Let&#8217;s again have a look at the value of these&nbsp;medics:</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> 
           <span class="n">sum</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck ATK</span>
 <span class="err">## 1        Monsters   0</span>
 <span class="err">## 2         Neutral   7</span>
 <span class="err">## 3    Nilfgaardian   2</span>
 <span class="err">## 4 Northern Realms   5</span>
 <span class="err">## 5      Scoia&#39;tael   0</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Deck&quot;</span><span class="p">,</span> <span class="s">&quot;Card&quot;</span><span class="p">,</span> <span class="s">&quot;ATK&quot;</span><span class="p">)]</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;medic&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;Deck&quot;</span><span class="p">,</span> <span class="s">&quot;Card&quot;</span><span class="p">,</span> <span class="s">&quot;ATK&quot;</span><span class="p">)</span><span class="n">]</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">##                Deck                       Card ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##                Deck                       Card ATK</span>
 <span class="err">## 43         Monsters Eredin Destroyer of Worlds   0</span>
 <span class="err">## 59          Neutral     Yennefer of Vengerberg   7</span>
 <span class="err">## 78     Nilfgaardian  Etolian Auxiliary Archers   1</span>
@@ -220,41 +202,35 @@
 <span class="err">## 166      Scoia&#39;tael             Havekar Healer   0</span>
 <span class="err">## 180      Scoia&#39;tael             Havekar Healer   0</span>
 <span class="err">## 185      Scoia&#39;tael             Havekar Healer   0</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You can see that both the Nilfgaardian and Scoia&#8217;tael medics are extremely low valued cards, with all of the Scoia&#8217;tael medics worth 0, and the Nilfgaardian medics worth either 1 or 0. As such, using the medics is pretty much equivalent between the two decks - you gain the advantage of reusing high value cards at the expense of filling your hand with zero-value cards. <strong>If you want to rely on the medics, either the Nilfgaardian and Scoia&#8217;tael decks are the best&nbsp;option.</strong></p>
 <h2>Strategy 4: Use muster cards to overwhelm your&nbsp;opponent</h2>
 <p><img src="/figure/gwent5.jpeg" title="Gwent 5" alt="Gwent 5" style="display: block; margin: auto;" /></p>
 <p>The signature ability of the <a href="http://witcher.wikia.com/wiki/Monsters">Monsters</a> and Scoia&#8217;tael decks is the muster ability. This means that every card with the same name will be pulled out of the deck and into play when one of them is played. Let&#8217;s have a look at the number of muster cards in each of these&nbsp;decks.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;muster&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;muster&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> <span class="n">length</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##         Deck Card</span>
+<div class="highlight"><pre><span></span><code><span class="err">##         Deck Card</span>
 <span class="err">## 1   Monsters   18</span>
 <span class="err">## 2 Scoia&#39;tael    9</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>It looks like the Monsters deck has far more muster cards than the Scoia&#8217;tael deck. Let&#8217;s have a look at the value of the muster cards in each&nbsp;deck.</p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;muster&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">ATK</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;muster&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> <span class="n">sum</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##         Deck ATK</span>
+<div class="highlight"><pre><span></span><code><span class="err">##         Deck ATK</span>
 <span class="err">## 1   Monsters  66</span>
 <span class="err">## 2 Scoia&#39;tael  30</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>Unsurprisingly, the Monster muster cards also have a higher value than the Scoia&#8217;tael ones, summing to more than double. So what are the best value muster cards in each deck? Firstly, we&#8217;ll change the name of the muster cards to make sure that all of the ones in the same muster group have the same&nbsp;name.</p>
-<div class="highlight"><pre><span></span><span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span> <span class="o">&lt;-</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span>
-<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="nf">[grep</span><span class="p">(</span><span class="s">&quot;arachas&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Arachas&quot;</span>
-<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="nf">[grep</span><span class="p">(</span><span class="s">&quot;crone&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Crone&quot;</span>
-<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="nf">[grep</span><span class="p">(</span><span class="s">&quot;vampire&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Vampire&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span> <span class="o">&lt;-</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span>
+<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="p">[</span><span class="nf">grep</span><span class="p">(</span><span class="s">&quot;arachas&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)]</span> <span class="o">&lt;-</span> <span class="s">&quot;Arachas&quot;</span>
+<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="p">[</span><span class="nf">grep</span><span class="p">(</span><span class="s">&quot;crone&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)]</span> <span class="o">&lt;-</span> <span class="s">&quot;Crone&quot;</span>
+<span class="n">df</span><span class="o">$</span><span class="n">Muster.Combos</span><span class="p">[</span><span class="nf">grep</span><span class="p">(</span><span class="s">&quot;vampire&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)]</span> <span class="o">&lt;-</span> <span class="s">&quot;Vampire&quot;</span>
+</code></pre></div>
 
 <p>The graph below shows the total attack strength of each of the muster groups, with lines within each bar showing the value of individual&nbsp;cards.</p>
 <p><img src="/figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" /></p>
@@ -262,21 +238,18 @@
 <h2>Strategy 5: Use tight bond cards to multiply card&nbsp;strength</h2>
 <p><img src="/figure/gwent6.png" title="Gwent 6" alt="Gwent 6" style="display: block; margin: auto;" /></p>
 <p>The final strategy is tight bond, the signature strategy for the Nilfgaardian and Northern Realms decks. In this strategy, the value of all cards in the group will be multiplied by the total number of cards in that group in play. For example, if I have two cards from a group in play, the value of each will be doubled. Let&#8217;s have a look at the number of tight bond cards in each&nbsp;deck. </p>
-<div class="highlight"><pre><span></span><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="nf">[grepl</span><span class="p">(</span><span class="s">&quot;bond&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="n">]</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="nf">aggregate</span><span class="p">(</span><span class="n">Card</span> <span class="o">~</span> <span class="n">Deck</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="nf">grepl</span><span class="p">(</span><span class="s">&quot;bond&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">$</span><span class="n">Card.Abilities</span><span class="p">,</span> <span class="n">ignore.case</span> <span class="o">=</span> <span class="kc">TRUE</span><span class="p">),</span> <span class="p">],</span> <span class="n">length</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">##              Deck Card</span>
+<div class="highlight"><pre><span></span><code><span class="err">##              Deck Card</span>
 <span class="err">## 1    Nilfgaardian    9</span>
 <span class="err">## 2 Northern Realms   11</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>The number is pretty even between the decks, but obviously what matters is the (potential) value of the tight bond groups. Let&#8217;s have a graph to look at the maximum value of each of the tight bond groups. We&#8217;ll first shorten the two longest names to make sure the axis labels don&#8217;t&nbsp;overlap.</p>
-<div class="highlight"><pre><span></span><span class="n">df</span><span class="o">$</span><span class="n">Card[df</span><span class="o">$</span><span class="n">Card</span> <span class="o">==</span> <span class="s">&quot;Crinfrid Reavers Dragon Hunter&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Crinfrid Reavers&quot;</span>
-<span class="n">df</span><span class="o">$</span><span class="n">Card[df</span><span class="o">$</span><span class="n">Card</span> <span class="o">==</span> <span class="s">&quot;Poor Fucking Infantry&quot;</span><span class="n">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Poor Infantry&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">[</span><span class="n">df</span><span class="o">$</span><span class="n">Card</span> <span class="o">==</span> <span class="s">&quot;Crinfrid Reavers Dragon Hunter&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Crinfrid Reavers&quot;</span>
+<span class="n">df</span><span class="o">$</span><span class="n">Card</span><span class="p">[</span><span class="n">df</span><span class="o">$</span><span class="n">Card</span> <span class="o">==</span> <span class="s">&quot;Poor Fucking Infantry&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s">&quot;Poor Infantry&quot;</span>
+</code></pre></div>
 
 <p><img src="/figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" /></p>
 <p>You can see that the strongest tight bond group is the Nilgaardian Impera Brigade Guard, with a maximum value for the group of 48. However, the Northern Realms deck has more high scoring tight bond groups, with the Blue Stripes Commando, Crinfrid Reavers Dragon Hunter and (my favourite) Catapult groups all scoring above 30 when all are in play. In addition, each of these groups require you to use 3 or less cards to reach this maximum. As such, <strong>you should use the Northern Realms deck to best exploit the tight bond&nbsp;strategy.</strong></p>

@@ -82,70 +82,60 @@
 <h2>Python uses&nbsp;types</h2>
 <p>You will remember that Python uses a number of <a href="https://docs.python.org/2/library/stdtypes.html"><strong>types</strong></a>. A type takes the form of a value or collection of values, and each have specific <strong>methods</strong> you can call on&nbsp;them. </p>
 <p>For example, a major type is a <strong>list</strong>. Let&#8217;s say we own a cattery and we want to keep track of the cats we have at the moment. We can store their names in a&nbsp;list:</p>
-<div class="highlight"><pre><span></span><span class="n">cats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Whiskers&#39;</span><span class="p">,</span> <span class="s1">&#39;Felix&#39;</span><span class="p">,</span> <span class="s1">&#39;Charley&#39;</span><span class="p">,</span> <span class="s1">&#39;Rosebud&#39;</span><span class="p">,</span> <span class="s1">&#39;Biddy&#39;</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">cats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Whiskers&#39;</span><span class="p">,</span> <span class="s1">&#39;Felix&#39;</span><span class="p">,</span> <span class="s1">&#39;Charley&#39;</span><span class="p">,</span> <span class="s1">&#39;Rosebud&#39;</span><span class="p">,</span> <span class="s1">&#39;Biddy&#39;</span><span class="p">]</span>
 <span class="nb">print</span> <span class="n">cats</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">[&#39;Whiskers&#39;, &#39;Felix&#39;, &#39;Charley&#39;, &#39;Rosebud&#39;, &#39;Biddy&#39;]</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">[&#39;Whiskers&#39;, &#39;Felix&#39;, &#39;Charley&#39;, &#39;Rosebud&#39;, &#39;Biddy&#39;]</span>
+</code></pre></div>
 
 <p><img src="/figure/catsinboxes.png" title="cats in boxes" alt="plot of chunk interpretation" style="display: block; margin: auto;" /></p>
 <p>However, today Whiskers is going home and we are also getting a new cat (Mr. Paws). We can update our list by calling the methods &#8216;append&#8217; and&nbsp;&#8216;remove&#8217;:</p>
-<div class="highlight"><pre><span></span><span class="n">cats</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Whiskers&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">cats</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Whiskers&#39;</span><span class="p">)</span>
 <span class="n">cats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Mr. Paws&#39;</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">cats</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">[&#39;Felix&#39;, &#39;Charley&#39;, &#39;Rosebud&#39;, &#39;Biddy&#39;, &#39;Mr. Paws&#39;]</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">[&#39;Felix&#39;, &#39;Charley&#39;, &#39;Rosebud&#39;, &#39;Biddy&#39;, &#39;Mr. Paws&#39;]</span>
+</code></pre></div>
 
 <h2>Creating a class is creating a new&nbsp;type</h2>
 <p>You can see that the list type has a <strong>general</strong> form (immutable sequence of any length, containing any type of value, separated by commas and surrounded by square brackets). You can also see that we created a <strong>specific</strong> list <strong>object</strong> which contained a sequence of strings to represent our cat&nbsp;names.</p>
 <p>We can extend the functionality of Python by creating our own types. The general forms of each of these types are called <strong>classes</strong>, and  we can create a specific object which is an <strong>instance</strong> of this class. We can also define the methods we want our class to&nbsp;have.</p>
 <h2>Class&nbsp;Cat</h2>
 <p>Let&#8217;s say that we want to make a general form to describe the cats we are looking after. We will do this by defining a new type we&#8217;ll call Cat. This Cat will have a name, a temperament, and a weight (in kgs). In this first step, you can see that we are are using the keyword <code>class</code> to indicate to Python that we want to create a type, and the <code>object</code> argument indicates that this is an object. For now, this class is empty as shown by the <code>pass</code> argument.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">pass</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>If we want to create a new Cat, we simply assign it to a new variable like&nbsp;below:</p>
-<div class="highlight"><pre><span></span><span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">()</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">()</span>
+</code></pre></div>
 
 <p>This is the equivalent of creating an empty list for a list&nbsp;type.</p>
 <p>The first thing we want our Cat type to do is print the name of the cat. A (bad) way to do this is to attach a name value to the Cat object like below. This Cat now has an <strong>instance variable</strong> called <code>name</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">felix</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Felix&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">felix</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Felix&quot;</span>
 <span class="nb">print</span> <span class="n">felix</span><span class="o">.</span><span class="n">name</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">Felix</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">Felix</span>
+</code></pre></div>
 
 <p>We could then use this <code>name</code> variable in a&nbsp;function:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">name_print</span><span class="p">(</span><span class="n">cat</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">name_print</span><span class="p">(</span><span class="n">cat</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Print the name of the cat.&#39;&#39;&#39;</span>
     <span class="nb">print</span> <span class="s2">&quot;The cat is called </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">cat</span><span class="o">.</span><span class="n">name</span>
 
 <span class="n">name_print</span><span class="p">(</span><span class="n">felix</span><span class="p">)</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">The cat is called Felix.</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Felix.</span>
+</code></pre></div>
 
 <p>We can make this function a method of the Cat type by moving it into the class. Note that an important change to the code is that the <code>cat</code> parameter has been replaced with <code>self</code>. This indicates that the class refers to the specific instance to supply it with the parameter for the function, which in this case is <code>felix</code>.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">name_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -155,15 +145,13 @@
 <span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">()</span>
 <span class="n">felix</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Felix&quot;</span>
 <span class="n">felix</span><span class="o">.</span><span class="n">name_print</span><span class="p">()</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">The cat is called Felix.</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Felix.</span>
+</code></pre></div>
 
 <p>Obviously defining the instance variables outside the class is undesirable - it is inefficient and prone to mistakes. Instead, it would be better if we could just include the variables at the same time as creating a new Cat. The way we do this is to add a <strong>constructor</strong> method, which in Python is called using <code>__init__</code>. This is one of Python&#8217;s <strong>special methods</strong> that can be used within classes. You can see how we&#8217;ve included this&nbsp;below:</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -176,16 +164,14 @@
 
 <span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">(</span><span class="s2">&quot;Felix&quot;</span><span class="p">)</span>
 <span class="n">felix</span><span class="o">.</span><span class="n">name_print</span><span class="p">()</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">The cat is called Felix.</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Felix.</span>
+</code></pre></div>
 
 <p>You can see that, just like a function, the <code>__init__</code> method allows you to pass the <code>name</code> parameter to a new Cat when it is being created. You can also see that the class is again passing a reference to the instance being created using the <code>self</code> parameter. As such, the <code>__init__</code> method also requires that you attach each instance variable to the instance. You can see we did this by defining the <code>name</code> parameter as <code>self.name</code> within the&nbsp;class.</p>
 <p>You may also have noticed that I changed my <code>name_print</code> method into a method called <code>__str__</code>. This is another special method. The <code>__str__</code> method returns a string representation of the object when it is printed. As the only instance variable we have input so far is the cat&#8217;s name, that is all that string returns. <code>__init__</code> and <code>__str__</code> are just two of the many special methods Python&nbsp;has.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -198,15 +184,13 @@
 
 <span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">(</span><span class="s2">&quot;Felix&quot;</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">felix</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">The cat is called Felix.</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Felix.</span>
+</code></pre></div>
 
 <p>The final step is adding in the temperament and weight instance variables and methods to use them. We do this by simply adding them to the list of parameters within the <code>__init__</code> method, and then writing functions that define what the new methods do. In this case, a method I have included to use temperament is <code>is_friendly</code>, which returns True when the cat is friendly and False otherwise. Additionally I have included an <code>if_weighs_more</code> method for weight, which takes a second &#8220;threshold&#8221; weight as an argument and returns True if the cat weighs more and False otherwise. Finally, you may have noticed that I changed the <code>__str__</code> method. As it is supposed to be a full representation of the object, I have expanded it to include all of the instance&nbsp;variables.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">temperament</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
@@ -228,46 +212,38 @@
     <span class="k">def</span> <span class="nf">if_weighs_more</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff_weight</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Returns if cat weighs more than a specified value.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">&gt;</span> <span class="n">cutoff_weight</span>
-</pre></div>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">(</span><span class="s2">&quot;Felix&quot;</span><span class="p">,</span> <span class="s2">&quot;friendly&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">felix</span> <span class="o">=</span> <span class="n">Cat</span><span class="p">(</span><span class="s2">&quot;Felix&quot;</span><span class="p">,</span> <span class="s2">&quot;friendly&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">felix</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Felix. Its temperament is friendly. It weighs 6 kgs.</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="err">The cat is called Felix. Its temperament is friendly. It weighs 6 kgs.</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">felix</span><span class="o">.</span><span class="n">is_friendly</span><span class="p">()</span>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">True</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">felix</span><span class="o">.</span><span class="n">is_friendly</span><span class="p">()</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">felix</span><span class="o">.</span><span class="n">if_weighs_more</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">True</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">felix</span><span class="o">.</span><span class="n">if_weighs_more</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">True</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">True</span>
+</code></pre></div>
 
 <h2>Inheritance</h2>
 <p>Ok, so imagine that we have cats with special needs in our cattery. One such type of cat is older cats. Let&#8217;s pretend that older cats have some property that younger cats don&#8217;t have, which is that they get illnesses that require specific care plans. We could write an entire new Older_Cat class from scratch. However, this will create redundancy as we will be repeating all of the instance variables and methods as in the Cat&nbsp;class.</p>
 <p>We can get around this using something called <strong>inheritance</strong>. Inheritance is where a class (called the <strong>child</strong>) can inherit the properties of another class (called the <strong>parent</strong>). In our case, the Cat class is the parent, and the Older_Cat class is, ironically, the child. Below is how we would begin an inherited class. You can see that instead of passing the argument object, we pass the object Cat to this&nbsp;class.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat aged over 8 years with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">pass</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We add in the <code>__init__</code> method to this child class. You can see it works a little differently than in the parent. Instead of adding each of the Cat instance variables one-by-one to the Older_Cat class, we instead call the <code>__init__</code> method from Cat within the&nbsp;class.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat aged over 8 years with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">temperament</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
@@ -277,31 +253,25 @@
 
 <span class="n">rosebud</span> <span class="o">=</span> <span class="n">Older_Cat</span><span class="p">(</span><span class="s2">&quot;Rosebud&quot;</span><span class="p">,</span> <span class="s2">&quot;cranky&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">rosebud</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Rosebud. Its temperament is cranky. It weighs 4 kgs.</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="err">The cat is called Rosebud. Its temperament is cranky. It weighs 4 kgs.</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">rosebud</span><span class="o">.</span><span class="n">is_friendly</span><span class="p">()</span>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">False</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="n">rosebud</span><span class="o">.</span><span class="n">is_friendly</span><span class="p">()</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">rosebud</span><span class="o">.</span><span class="n">if_weighs_more</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="err">False</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="n">rosebud</span><span class="o">.</span><span class="n">if_weighs_more</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">False</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">False</span>
+</code></pre></div>
 
 <p>Ok, so the reason we have created this child class is to add in additional instance variables and methods. Below you can see that I have added the additional instance variable illness into the <code>__init__</code> method in the exact same way we added them to the parent class orginally. You can also see I have created a new method specific to Older_Cat that uses illness, called <code>has_illness</code>. This method returns a description of whether the Older_Cat has an illness, and if so, what it is and to consult the care&nbsp;plan.</p>
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Older_Cat</span><span class="p">(</span><span class="n">Cat</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A Cat aged over 8 years with name, temperament and weight components.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">temperament</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">illness</span><span class="p">):</span>
@@ -320,20 +290,16 @@
 
 <span class="n">rosebud</span> <span class="o">=</span> <span class="n">Older_Cat</span><span class="p">(</span><span class="s2">&quot;Rosebud&quot;</span><span class="p">,</span> <span class="s2">&quot;cranky&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;arthritis&quot;</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">rosebud</span>
-</pre></div>
+</code></pre></div>
 
+<div class="highlight"><pre><span></span><code><span class="err">The cat is called Rosebud. Its temperament is cranky. It weighs 4 kgs.</span>
+</code></pre></div>
 
-<div class="highlight"><pre><span></span><span class="err">The cat is called Rosebud. Its temperament is cranky. It weighs 4 kgs.</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">rosebud</span><span class="o">.</span><span class="n">has_illness</span><span class="p">()</span>
+</code></pre></div>
 
-
-<div class="highlight"><pre><span></span><span class="n">rosebud</span><span class="o">.</span><span class="n">has_illness</span><span class="p">()</span>
-</pre></div>
-
-
-<div class="highlight"><pre><span></span><span class="err">Rosebud has arthritis. Please consult care plan.</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">Rosebud has arthritis. Please consult care plan.</span>
+</code></pre></div>
 
 <p>I hope this has been a helpful overview of <span class="caps">OOP</span> and has helped you understand this really useful concept in programming. As I said at the beginning of this article, I relied heavily on the wonderful <a href="http://www.amazon.com/Practical-Programming-Introduction-Pragmatic-Programmers/dp/1934356271"><strong>Practical Programming: An Introduction to Computer Science Using Python</strong></a>, which gives a much more comprehensive coverage of this&nbsp;topic.</p>
 <p>Finally, the full code used to create the figures in this post is located in this <a href="https://gist.github.com/t-redactyl/d9c906e11391d0885978">gist on my Github page</a>.</p>

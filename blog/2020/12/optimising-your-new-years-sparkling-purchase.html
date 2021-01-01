@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Optimising your New Year’s sparkling purchase</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Optimising your New Year’s sparkling purchase written December 30, 2020 in python">
+  <meta name="keywords" content="python, new years, sparkling wine, pareto optimisation, geopandas" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2020/12/optimising-your-new-years-sparkling-purchase.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Optimising your New Year’s sparkling purchase</h1>
+        <div class="meta">
+          written <time datetime="2020-12-30T00:00:00+01:00">December 30, 2020</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/python.html">python</a>          </span>
+        </div>
+        <p>We&#8217;re all keen to say goodbye to this awful year, so I imagine most of you want to make the most of your New Year&#8217;s celebration. While many of us won&#8217;t be going anywhere, we can at least enjoy a good bottle of sparkling wine at home. In this blog post we&#8217;ll use a dataset of around 1000 sparkling wines kindly scraped and posted to Kaggle by <a href="https://www.kaggle.com/budnyak/wine-rating-and-price?select=Sparkling.csv">Anton Budnyak</a> to explore what is the best value bottle we can get for our&nbsp;money.</p>
+<h2>Reading in and screening the&nbsp;data</h2>
+<p>We&#8217;ll get started by loading in our dependencies and our&nbsp;data.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">oapackage</span>
+
+<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="n">ggplot</span><span class="p">,</span> <span class="n">options</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
+<span class="kn">from</span> <span class="nn">countryinfo</span> <span class="kn">import</span> <span class="n">countries</span>
+
+<span class="n">wine_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;christmas_and_ny_2020/ny_data/Sparkling.csv&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let&#8217;s have a look at our available&nbsp;variables.</p>
+<div class="highlight"><pre><span></span><code><span class="n">wine_df</span><span class="o">.</span><span class="n">columns</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">Index([&#39;Name&#39;, &#39;Country&#39;, &#39;Region&#39;, &#39;Winery&#39;, &#39;Rating&#39;, &#39;NumberOfRatings&#39;,</span>
+<span class="err">       &#39;Price&#39;, &#39;Year&#39;],</span>
+<span class="err">      dtype=&#39;object&#39;)</span>
+</code></pre></div>
+
+<p>Let&#8217;s have a closer look at the country&nbsp;variable.</p>
+<div class="highlight"><pre><span></span><code><span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Country&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">France            398</span>
+<span class="err">Italy             375</span>
+<span class="err">Germany            78</span>
+<span class="err">Spain              70</span>
+<span class="err">South Africa       22</span>
+<span class="err">Austria            19</span>
+<span class="err">Luxembourg          9</span>
+<span class="err">Portugal            7</span>
+<span class="err">United States       7</span>
+<span class="err">Australia           5</span>
+<span class="err">Brazil              4</span>
+<span class="err">Moldova             4</span>
+<span class="err">New Zealand         4</span>
+<span class="err">United Kingdom      3</span>
+<span class="err">Chile               1</span>
+<span class="err">Slovenia            1</span>
+<span class="c">Name: Country, dtype: int64</span>
+</code></pre></div>
+
+<p>We&#8217;ve got a good number of countries represented here, although the distribution is quite skewed. Let&#8217;s get started by visualising the ratings and prices of wines by country. We can do this by downloading a shapefile to represent the map we want (in this case the <a href="https://hub.arcgis.com/datasets/a21fdb46d23e4ef896f31475217cbb08_1">entire world</a>) and plotting our variables of interest using <code>geopandas</code>. See <a href="ttps://towardsdatascience.com/lets-make-a-map-using-geopandas-pandas-and-matplotlib-to-make-a-chloropleth-map-dddc31c1983d">here</a> and <a href="https://geopandas.org/mapping.html">here</a> for more details on how to do&nbsp;this.</p>
+<p>We&#8217;ll start by loading in our map dataframes, and removing Antarctica to make the map display a little&nbsp;nicer.</p>
+<div class="highlight"><pre><span></span><code><span class="n">world_map_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/jodieburchell/Documents/cristian-data-assignment/data/Longitude_Graticules_and_World_Countries_Boundaries-shp/99bfd9e7-bb42-4728-87b5-07f8c8ac631c2020328-1-1vef4ev.lu5nk.shp&quot;</span>
+<span class="n">world_map_df</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">world_map_path</span><span class="p">)</span>
+<span class="n">world_map_df</span> <span class="o">=</span> <span class="n">world_map_df</span><span class="p">[</span><span class="n">world_map_df</span><span class="p">[</span><span class="s2">&quot;CNTRY_NAME&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;Antarctica&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Now we&#8217;ll create a dataset which contains only the median rating and price of the wines by country, and merge it with our map dataframe. We&#8217;ll only keep those countries with at least 4 wines in the&nbsp;dataset.</p>
+<div class="highlight"><pre><span></span><code><span class="n">rating_median</span> <span class="o">=</span> <span class="n">wine_df</span><span class="p">[[</span><span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Rating&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Country&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">price_median</span> <span class="o">=</span> <span class="n">wine_df</span><span class="p">[[</span><span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Country&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">median_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rating_median</span><span class="p">,</span> <span class="n">price_median</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;Country&quot;</span><span class="p">)</span>
+<span class="c1"># Remove countries with &lt; 4 wines</span>
+<span class="n">median_df</span> <span class="o">=</span> <span class="n">median_df</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">median_df</span><span class="p">[</span><span class="s2">&quot;Country&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;United Kingdom&quot;</span><span class="p">,</span> <span class="s2">&quot;Slovenia&quot;</span><span class="p">,</span> <span class="s2">&quot;Chile&quot;</span><span class="p">]))]</span>
+
+<span class="n">wine_world_df</span> <span class="o">=</span> <span class="p">(</span><span class="n">world_map_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;CNTRY_NAME&quot;</span><span class="p">)</span>
+                 <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">median_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Country&quot;</span><span class="p">),</span> <span class="n">how</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<h2>Making our&nbsp;maps</h2>
+<p>We&#8217;ll now write a function to create our map. I won&#8217;t go into all of the customisation options I used here, but all of them are described in the two links I included about <code>geopandas</code> above.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_map</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> 
+               <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+               <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+               <span class="n">legend_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+               <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+               <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+    <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="s2">&quot;5%&quot;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontdict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="s2">&quot;22&quot;</span><span class="p">,</span> <span class="s2">&quot;fontweight&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">})</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="n">column</span><span class="p">,</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span>
+            <span class="n">legend</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="n">vmax</span><span class="p">,</span>
+            <span class="n">missing_kwds</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s1">&#39;lightgrey&#39;</span><span class="p">},</span>
+            <span class="n">legend_kwds</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">legend_label</span><span class="p">,</span>
+                           <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">},</span>
+            <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We&#8217;ll start by visualising the median ratings of the wines per&nbsp;country:</p>
+<div class="highlight"><pre><span></span><code><span class="n">m1</span> <span class="o">=</span> <span class="n">create_map</span><span class="p">(</span><span class="n">wine_world_df</span><span class="p">,</span> <span class="s2">&quot;Rating&quot;</span><span class="p">,</span> <span class="s2">&quot;Median rating of sparkling wine by country&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Median rating&quot;</span><span class="p">,</span> <span class="mf">3.6</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">)</span>
+</code></pre></div>
+
+<p><img src="/figure/ny_wine_map_rating_small.png" title="Median wine ratings" style="display: block; margin: auto;" /></p>
+<p>Unfortunately my home country of Australia doesn&#8217;t seem to be rating so well, but our neighbouring New Zealand is. A few European countries seem to produce well rated wines as well, including France (of course) and, interestingly,&nbsp;Moldova. </p>
+<p>But how much will this well-rated wine cost you? Let&#8217;s now visualise the median cost per&nbsp;bottle:</p>
+<div class="highlight"><pre><span></span><code><span class="n">create_map</span><span class="p">(</span><span class="n">wine_world_df</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">,</span> <span class="s2">&quot;Median price of sparkling wine by country&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;Median price&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">58</span><span class="p">)</span>
+</code></pre></div>
+
+<p><img src="/figure/ny_wine_map_price_small.png" title="Median wine prices" style="display: block; margin: auto;" /></p>
+<p>While France seemed to have some of the best rated wines, they are also among some of the most expensive as well. Moldova&#8217;s and New Zealand&#8217;s wines seem to be cheaper, falling below the \$20 per bottle&nbsp;mark.</p>
+<p>These visualisations give us a rough idea of which regions can give us our best bang for our buck, but can we take a more systematic approach to finding the best tradeoff between rating and&nbsp;price?</p>
+<h2>Using Pareto&nbsp;optimisation</h2>
+<p>We can solve for this relatively simply using a economic algorithm called <a href="https://en.wikipedia.org/wiki/Pareto_efficiency">Pareto optimality</a> (or Pareto efficiency). This algorithm takes multiple objectives (in our case, rating and price) and tries to find those combinations for which we cannot achieve a better outcome. These combinations lie on the <a href="https://pythonhealthcare.org/tag/pareto-front/">Pareto front</a>, which is that part of a graph between the objectives for which no better combination exists. You can see this clearly in the example below, where the Pareto front includes all those combinations that maximise both Objective A and Objective B across the entire x- and&nbsp;y-axes.</p>
+<p><img src="/figure/pareto_front_example.png" title="Pareto front example" style="display: block; margin: auto;" /></p>
+<p>To make my life easier, I found a <a href="https://oapackage.readthedocs.io/en/latest/examples/example_pareto.html">package</a> called <code>oapackage</code> in Python which includes a module to calculate Pareto-optimised combinations. We&#8217;ll use it to find out the best sparkling wines we can get across a range of different&nbsp;budgets.</p>
+<p>To start, we&#8217;ll create a variable which reverses the price field. We want to do this because we want to optimise for the lowest price, rather than the&nbsp;highest.</p>
+<div class="highlight"><pre><span></span><code><span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Price_reversed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Price&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Price&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>We then convert our columns into a numpy&nbsp;array.</p>
+<div class="highlight"><pre><span></span><code><span class="n">wine_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+<span class="n">wine_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Rating&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">wine_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wine_df</span><span class="p">[</span><span class="s2">&quot;Price_reversed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">wine_vars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wine_vars</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Using this, we then turn each pair of rating and reversed price into a 2-dimensional vector and then convert these into a <code>ParetoDoubleLong</code> so that the package can perform the Pareto&nbsp;optimisation.</p>
+<div class="highlight"><pre><span></span><code><span class="n">pareto</span> <span class="o">=</span> <span class="n">oapackage</span><span class="o">.</span><span class="n">ParetoDoubleLong</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">wine_vars</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">oapackage</span><span class="o">.</span><span class="n">doubleVector</span><span class="p">((</span><span class="n">wine_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">wine_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]))</span>
+    <span class="n">pareto</span><span class="o">.</span><span class="n">addvalue</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Finally, we get the values of our Pareto-optimised pairs. Wasn&#8217;t that&nbsp;easy?</p>
+<div class="highlight"><pre><span></span><code><span class="n">lst</span> <span class="o">=</span> <span class="n">pareto</span><span class="o">.</span><span class="n">allindices</span><span class="p">()</span>
+<span class="n">optimal_datapoints</span><span class="o">=</span><span class="n">wine_vars</span><span class="p">[:,</span><span class="n">lst</span><span class="p">]</span>
+<span class="n">optimal_datapoints</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[  4.4 ,   4.2 ,   4.3 ,   4.6 ,   4.5 ,   4.7 ],</span>
+<span class="err">       [467.  , 491.85, 484.58, 376.  , 406.1 , 131.25]])</span>
+</code></pre></div>
+
+<p>However, these values alone are not that useful without the names and descriptions of the wines. We&#8217;ll do a bit of data wrangling to merge our Pareto-optimised values with the rest of our&nbsp;dataset.</p>
+<div class="highlight"><pre><span></span><code><span class="n">p_opt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Rating&quot;</span><span class="p">:</span> <span class="n">optimal_datapoints</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                      <span class="s2">&quot;Price_reversed&quot;</span><span class="p">:</span> <span class="n">optimal_datapoints</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                      <span class="s2">&quot;Pareto_classification&quot;</span><span class="p">:</span> <span class="s2">&quot;Pareto optimal&quot;</span>
+                     <span class="p">})</span>
+
+<span class="n">optimised_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">wine_df</span><span class="p">,</span> <span class="n">p_opt</span><span class="p">,</span> 
+                        <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Rating&quot;</span><span class="p">,</span> <span class="s2">&quot;Price_reversed&quot;</span><span class="p">],</span> 
+                        <span class="n">how</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;Non-Pareto optimal&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We now have a dataset that contains a field differentiating those wines that are Pareto-optimal (i.e., our best tradeoff between price and rating). Let&#8217;s start by plotting these against the rest of the dataset. Note that I used the original price field in the plot, but reversed it so you can clearly see the Pareto&nbsp;front.</p>
+<div class="highlight"><pre><span></span><code><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="n">ggplot</span><span class="p">(</span><span class="n">optimised_df</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="s2">&quot;Rating&quot;</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s2">&quot;Pareto_classification&quot;</span><span class="p">))</span> 
+ <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+ <span class="o">+</span> <span class="n">scale_x_continuous</span><span class="p">(</span><span class="n">limits</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.2</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+ <span class="o">+</span> <span class="n">scale_y_continuous</span><span class="p">(</span><span class="n">trans</span> <span class="o">=</span> <span class="s2">&quot;reverse&quot;</span><span class="p">)</span> 
+ <span class="o">+</span> <span class="n">geom_text</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;Rating&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Price&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
+             <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+             <span class="n">size</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
+             <span class="n">data</span><span class="o">=</span><span class="n">optimised_df</span><span class="p">[</span><span class="n">optimised_df</span><span class="p">[</span><span class="s2">&quot;Pareto_classification&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Pareto optimal&quot;</span><span class="p">],</span>
+             <span class="n">nudge_y</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+ <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
+ <span class="o">+</span> <span class="n">scale_color_brewer</span><span class="p">(</span><span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;qual&quot;</span><span class="p">,</span> <span class="n">palette</span> <span class="o">=</span> <span class="s2">&quot;Dark2&quot;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Pareto class&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">p</span>
+</code></pre></div>
+
+<p><img src="/figure/ny_wine_pareto_front_small_2.png" title="Pareto front example" style="display: block; margin: auto;" /></p>
+<p>Now let&#8217;s have a closer look at what wines our Pareto optimisation&nbsp;recommends:</p>
+<div class="highlight"><pre><span></span><code><span class="n">optimised_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">optimised_df</span><span class="p">[</span><span class="s2">&quot;Pareto_classification&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Pareto optimal&quot;</span><span class="p">,</span> 
+             <span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Region&quot;</span><span class="p">,</span> <span class="s2">&quot;Winery&quot;</span><span class="p">,</span> <span class="s2">&quot;Rating&quot;</span><span class="p">,</span> <span class="s2">&quot;Price&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Price&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>Name</b></th>
+      <th style="text-align:center"><b>Year</b></th> 
+      <th style="text-align:center"><b>Country</b></th> 
+      <th style="text-align:center"><b>Region</b></th> 
+      <th style="text-align:center"><b>Winery</b></th> 
+      <th style="text-align:center"><b>Rating</b></th> 
+      <th style="text-align:center"><b>Price</b></th>       
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">Frizzantino Dolce <span class="caps">N.V.</span></td>
+      <td style="text-align:center"><span class="caps">N.V.</span></td>
+      <td style="text-align:center">Italy</td>
+      <td style="text-align:center">Emilia</td>
+      <td style="text-align:center">Gualtieri</td>
+      <td style="text-align:center">4.2</td>
+      <td style="text-align:center">3.15</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">Le Fronde Moscato d&#8217;Asti 2018</td>
+      <td style="text-align:center">2018</td>
+      <td style="text-align:center">Italy</td>
+      <td style="text-align:center">Moscato d&#8217;Asti</td>
+      <td style="text-align:center">Fontanafredda</td>
+      <td style="text-align:center">4.3</td>
+      <td style="text-align:center">10.42</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">Brut Nature <span class="caps">N.V.</span></td>
+      <td style="text-align:center"><span class="caps">N.V.</span></td>
+      <td style="text-align:center">Germany</td>
+      <td style="text-align:center">Pfalz</td>
+      <td style="text-align:center">Frank John</td>
+      <td style="text-align:center">4.4</td>
+      <td style="text-align:center">28.00</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">Cuvée Annamaria Clementi (Extra Brut) 2010</td>
+      <td style="text-align:center">2010</td>
+      <td style="text-align:center">Italy</td>
+      <td style="text-align:center">Franciacorta</td>
+      <td style="text-align:center">Ca&#8217; del Bosco</td>
+      <td style="text-align:center">4.5</td>
+      <td style="text-align:center">88.90</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">La Grande Année Brut Champagne 2012</td>
+      <td style="text-align:center">2012</td>
+      <td style="text-align:center">France</td>
+      <td style="text-align:center">Champagne</td>
+      <td style="text-align:center">Bollinger</td>
+      <td style="text-align:center">4.6</td>
+      <td style="text-align:center">119.00</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">Cristal Brut Champagne (Millésimé) 2002</td>
+      <td style="text-align:center">2002</td>
+      <td style="text-align:center">France</td>
+      <td style="text-align:center">Champagne</td>
+      <td style="text-align:center">Louis Roederer</td>
+      <td style="text-align:center">4.7</td>
+      <td style="text-align:center">363.75</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>On the cheapest end, we have a very well-rated Italian sparkling wine, the Frizzantino Dolce N.V., coming in at a bargain $3.15. On the other end we have the predictable champagnes: Bollinger La Grande Année Brut Champagne 2012 at $119 and Louis Roederer Cristal Brut Champagne (Millésimé) 2002 at an eye-watering $363.75. Interestingly, none of the New Zealand or Moldovian wines turned up in this list, suggesting that while the overall ratings for Germany and Italian wines are not as high as for New Zealand or Moldova, their best wines outshine their New Zealand and Moldovian counterparts. The sample size for the New Zealand and Moldovian wines was also really small, meaning we can&#8217;t be sure if the wines from those countries are representative or a lucky pick of really good&nbsp;examples.</p>
+<p>So what is the takeaway recommendation based on this analysis? If you can&#8217;t get your hands on one of the top wines found by the Pareto optimisation, you&#8217;re better off going for something from France, New Zealand or Moldova (assuming our tiny sample is representative). Have a wonderful New Year&#8217;s celebration, stay safe, and here&#8217;s hoping for a better&nbsp;2021!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>

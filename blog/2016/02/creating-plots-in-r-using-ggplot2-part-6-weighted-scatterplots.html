@@ -80,141 +80,127 @@
 <p>If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as <span class="caps">LOWESS</span> charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date <code>ggplot</code> and tidyverse code, and every purchase really helps us out with keeping up with new&nbsp;content.</p>
 <p><a href="https://leanpub.com/ggplot-guide"><img alt="ggplot2 book" class="banner" src="/figure/ggplot-book-banner-small.png" title="The Hitchhikers Guide to ggplot2"></a></p>
 <p>The first thing to do is load in the data, as&nbsp;below:</p>
-<div class="highlight"><pre><span></span><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><span class="nf">rm</span><span class="p">(</span><span class="n">list</span> <span class="o">=</span> <span class="nf">ls</span><span class="p">())</span>
 <span class="nf">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
 <span class="nf">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
 <span class="nf">data</span><span class="p">(</span><span class="n">airquality</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>We will then trim the data down to the final three months and turn the <code>Month</code> variable into a labelled factor variable. We end up with a new dataset called <code>aq_trim</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">aq_trim</span> <span class="o">&lt;-</span> <span class="n">airquality</span><span class="nf">[which</span><span class="p">(</span><span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">7</span> <span class="o">|</span>
+<div class="highlight"><pre><span></span><code><span class="n">aq_trim</span> <span class="o">&lt;-</span> <span class="n">airquality</span><span class="p">[</span><span class="nf">which</span><span class="p">(</span><span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">7</span> <span class="o">|</span>
                             <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">8</span> <span class="o">|</span>
-                            <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">9</span><span class="p">),</span> <span class="n">]</span>
+                            <span class="n">airquality</span><span class="o">$</span><span class="n">Month</span> <span class="o">==</span> <span class="m">9</span><span class="p">),</span> <span class="p">]</span>
 <span class="n">aq_trim</span><span class="o">$</span><span class="n">Month</span> <span class="o">&lt;-</span> <span class="nf">factor</span><span class="p">(</span><span class="n">aq_trim</span><span class="o">$</span><span class="n">Month</span><span class="p">,</span>
                         <span class="n">labels</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;July&quot;</span><span class="p">,</span> <span class="s">&quot;August&quot;</span><span class="p">,</span> <span class="s">&quot;September&quot;</span><span class="p">))</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>In this tutorial, we will work towards creating the weighted scatterplot below. We will take you from a basic scatterplot and explain all the customisations we add to the code&nbsp;step-by-step.</p>
 <p><img src="/figure/wscatter_finalgraph-1.png" title="plot of chunk wscatter_finalgraph" alt="plot of chunk wscatter_finalgraph" style="display: block; margin: auto;" /></p>
 <h3>Basic weighted&nbsp;scatterplot</h3>
 <p>Let&#8217;s start really slowly by revisiting how to create a basic scatterplot. In order to initialise this plot we tell ggplot that <code>aq_trim</code> is our data, and specify that our x-axis plots the <code>Day</code> variable and our y-axis plots the <code>Ozone</code> variable. We then instruct ggplot to render this as a scatterplot by adding the <code>geom_point()</code> option.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">()</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter1-1.png" title="plot of chunk wscatter1" alt="plot of chunk wscatter1" style="display: block; margin: auto;" /></p>
 <p>In order to turn this into a weighted scatterplot, we simply add the <code>size</code> argument to <code>ggplot(aes())</code>. In this case, we want to weight the points by the <code>Wind</code> variable.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">()</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter2-1.png" title="plot of chunk wscatter2" alt="plot of chunk wscatter2" style="display: block; margin: auto;" /></p>
 <p>You can see we already have an interesting looking pattern, where days with higher wind speed tend to have lower ozone (or in other words, better air quality). Now let&#8217;s make it&nbsp;beautiful!</p>
 <h3>Changing the shape of the data&nbsp;points</h3>
 <p>Perhaps we want the data points to be a different shape than a solid circle. We can change these by adding the <code>shape</code> argument to <code>geom_point</code>. An explanation of the allowed arguments for shape are described in <a href="http://sape.inf.usi.ch/quick-reference/ggplot2/shape">this article</a>. In this case, we will use shape 21, which is a circle that allows different colours for the outline and&nbsp;fill.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter3-1.png" title="plot of chunk wscatter3" alt="plot of chunk wscatter3" style="display: block; margin: auto;" /></p>
 <h3>Adjusting the axis&nbsp;scales</h3>
 <p>To change the x-axis tick marks, we use the <code>scale_x_continuous</code> option. Similarly, to change the y-axis we use the <code>scale_y_continuous</code> option. Here we will change the x-axis to every 5 days, rather than 10, and change the range from 1 to 31 (as 0 is not a valid value for this&nbsp;variable).</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter4-1.png" title="plot of chunk wscatter4" alt="plot of chunk wscatter4" style="display: block; margin: auto;" /></p>
 <h3>Adjusting axis labels <span class="amp">&amp;</span> adding&nbsp;title</h3>
 <p>To add a title, we include the option <code>ggtitle</code> and include the name of the graph as a string argument. To change the axis names we add <code>x</code> and <code>y</code> arguments to the <code>labs</code> command.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
             <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter5-1.png" title="plot of chunk wscatter5" alt="plot of chunk wscatter5" style="display: block; margin: auto;" /></p>
 <h3>Adjusting the colour&nbsp;palette</h3>
 <p>There are a few options for adjusting the colour. The most simple is to make every point one fixed colour. You can reference colours by name, with the full list of colours recognised by R <a href="http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf">here</a>. Let&#8217;s try making the outline <code>mediumvioletred</code> and the fill <code>springgreen</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;mediumvioletred&quot;</span><span class="p">,</span>
                    <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;springgreen&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter6-1.png" title="plot of chunk wscatter6" alt="plot of chunk wscatter6" style="display: block; margin: auto;" /></p>
 <p>You can change the colours using specific <span class="caps">HEX</span> codes instead. Here we have made the outline #000000 (black) and the fill &#8220;#40b8d0 (vivid&nbsp;cyan).</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">,</span> <span class="n">colour</span> <span class="o">=</span> <span class="s">&quot;#000000&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;#40b8d0&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter7-1.png" title="plot of chunk wscatter7" alt="plot of chunk wscatter7" style="display: block; margin: auto;" /></p>
 <p>You can also change the colour of the data points according to the levels of another variable. This can be done either as a continuous gradient, or as a levels of a factor variable. Let&#8217;s change the colour by the values of&nbsp;temperature:</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter8-1.png" title="plot of chunk wscatter8" alt="plot of chunk wscatter8" style="display: block; margin: auto;" /></p>
 <p>We can change the gradient&#8217;s colours by adding the <code>scale_fill_continuous</code> option. The <code>low</code> and <code>high</code> arguments specify the range of colours the gradient should transition&nbsp;between.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span>  <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_fill_continuous</span><span class="p">(</span><span class="n">low</span> <span class="o">=</span> <span class="s">&quot;plum1&quot;</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="s">&quot;purple4&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span>  <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_fill_continuous</span><span class="p">(</span><span class="n">low</span> <span class="o">=</span> <span class="s">&quot;plum1&quot;</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="s">&quot;purple4&quot;</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter9-1.png" title="plot of chunk wscatter9" alt="plot of chunk wscatter9" style="display: block; margin: auto;" /></p>
 <p>We can see that higher temperatures seem to have higher ozone&nbsp;levels.</p>
 <p>Let&#8217;s now change the colours of the data points by a factor variable, <code>Month</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_x_continuous</span><span class="p">(</span><span class="n">breaks</span> <span class="o">=</span> <span class="nf">seq</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">31</span><span class="p">,</span> <span class="m">5</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter10-1.png" title="plot of chunk wscatter10" alt="plot of chunk wscatter10" style="display: block; margin: auto;" /></p>
 <p>Again, we can change the colours of these data points, this time using <code>scale_fill_manual</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;steelblue&quot;</span><span class="p">,</span> <span class="s">&quot;yellowgreen&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">fill</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;steelblue&quot;</span><span class="p">,</span> <span class="s">&quot;yellowgreen&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
 
 <span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_fill_manual</span><span class="p">(</span><span class="n">values</span> <span class="o">=</span> <span class="n">fill</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter11-1.png" title="plot of chunk wscatter11" alt="plot of chunk wscatter11" style="display: block; margin: auto;" /></p>
 <h3>Adjusting the size of the data&nbsp;points</h3>
 <p>The default size of the the data points in a weighted scatterplot is mapped to the radius of the plots. If we want the data points to be proportional to the value of the weighting variable (e.g., a wind speed of 0 mph would have a value of 0), we need to use the <code>scale_size_area</code>.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_size_area</span><span class="p">(</span><span class="n">max_size</span> <span class="o">=</span> <span class="m">10</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">scale_size_area</span><span class="p">(</span><span class="n">max_size</span> <span class="o">=</span> <span class="m">10</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter12-1.png" title="plot of chunk wscatter12" alt="plot of chunk wscatter12" style="display: block; margin: auto;" /></p>
 <p>For our graph, this makes the pattern for <code>Wind</code> a little hard to see. Another way to adjust the size of the data points is to use <code>scale_size</code> and specify a desired&nbsp;range.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Air Quality in New York by Day&quot;</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">labs</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s">&quot;Day of the month&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;Ozone (ppb)&quot;</span><span class="p">)</span> <span class="o">+</span>
@@ -222,39 +208,35 @@
         <span class="nf">scale_fill_manual</span><span class="p">(</span><span class="n">values</span> <span class="o">=</span> <span class="n">fill</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">scale_size</span><span class="p">(</span><span class="n">range</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">10</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter13-1.png" title="plot of chunk wscatter13" alt="plot of chunk wscatter13" style="display: block; margin: auto;" /></p>
 <h3>Adjusting legend&nbsp;position</h3>
 <p>To adjust the position of the legend from the default spot of right of the graph, we add the <code>theme</code> option and specify the <code>legend.position = "bottom"</code> argument. We can also change the legend shape using the <code>legend.direction = "horizontal"</code> argument.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">theme</span><span class="p">(</span><span class="n">legend.position</span> <span class="o">=</span> <span class="s">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">legend.direction</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter14-1.png" title="plot of chunk wscatter14" alt="plot of chunk wscatter14" style="display: block; margin: auto;" /></p>
 <h3>Changing the legend&nbsp;titles</h3>
 <p>To change the titles of the two legends, we use the <code>labs</code> option. In order to tell ggplot2 exactly what legend you&#8217;re referring to, just have a look in the <code>ggplot</code> option and see what argument you used to create the legend in the first place. In this case we used the <code>size</code> argument for &#8220;Wind&#8221; and <code>fill</code> for &#8220;Month&#8221;, so we pass these to <code>labs</code> with our new&nbsp;titles.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">labs</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="s">&quot;Wind Speed (mph)&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;Months&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">labs</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="s">&quot;Wind Speed (mph)&quot;</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="s">&quot;Months&quot;</span><span class="p">)</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter15-1.png" title="plot of chunk wscatter15" alt="plot of chunk wscatter15" style="display: block; margin: auto;" /></p>
 <h3>Creating horizontal&nbsp;legends</h3>
 <p>It looks a little awkward having the two titles sitting on top of each other, as well as taking up unnecessary space. To place the legends next to each other, we use the <code>legend.box = "horizontal"</code> argument in <code>theme</code>. Because the boxes around the legend keys aren&#8217;t even in each of the legends, this means the legends don&#8217;t align properly. To fix this, we change the box size around the legend keys using <code>legend.key.size</code>. We need to load in the <code>grid</code> package to get this argument to&nbsp;work.</p>
-<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 <span class="n">p6</span> <span class="o">&lt;-</span> <span class="n">p6</span> <span class="o">+</span> <span class="nf">theme</span><span class="p">(</span><span class="n">legend.box</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
                  <span class="n">legend.key.size</span> <span class="o">=</span> <span class="nf">unit</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;cm&quot;</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter16-1.png" title="plot of chunk wscatter16" alt="plot of chunk wscatter16" style="display: block; margin: auto;" /></p>
 <h3>Using the white&nbsp;theme</h3>
 <p>As explained in the previous posts, we can also change the overall look of the plot using themes. We&#8217;ll start using a simple theme customisation by adding <code>theme_bw()</code> after <code>ggplot()</code>. As you can see, we can further tweak the graph using the <code>theme</code> option, which we&#8217;ve used so far to change the&nbsp;legend.</p>
-<div class="highlight"><pre><span></span><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
+<div class="highlight"><pre><span></span><code><span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
         <span class="nf">theme_bw</span><span class="p">()</span> <span class="o">+</span>
         <span class="nf">theme</span><span class="p">()</span> <span class="o">+</span>
@@ -268,14 +250,13 @@
               <span class="n">legend.box</span> <span class="o">=</span> <span class="s">&quot;horizontal&quot;</span><span class="p">,</span>
               <span class="n">legend.key.size</span> <span class="o">=</span> <span class="nf">unit</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;cm&quot;</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter17-1.png" title="plot of chunk wscatter17" alt="plot of chunk wscatter17" style="display: block; margin: auto;" /></p>
 <h3>Creating an <span class="caps">XKCD</span> style&nbsp;chart</h3>
 <p>Of course, you may want to create your own themes as well. <code>ggplot2</code> allows for a very high degree of customisation, including allowing you to use imported fonts. Below is an example of a theme Mauricio was able to create which mimics the visual style of <a href="http://xkcd.com/"><span class="caps">XKCD</span></a>. In order to create this chart, you first need to import the <span class="caps">XKCD</span> font, install it on your machine and load it into R using the <code>extrafont</code> package.
 These instructions are taken from <a href="https://www.google.com.au/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0ahUKEwiWzafchdPJAhVBpJQKHe_LDT8QFggbMAA&amp;url=https%3A%2F%2Fcran.r-project.org%2Fweb%2Fpackages%2Fxkcd%2Fvignettes%2Fxkcd-intro.pdf&amp;usg=AFQjCNE-KciGY14e-Q1buYIVmTFC0ht__Q&amp;sig2=DZUwkvIHwfNWtTtkcz94jg">here</a>:</p>
-<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">extrafont</span><span class="p">)</span>
 
 <span class="nf">download.file</span><span class="p">(</span><span class="s">&quot;http://simonsoftware.se/other/xkcd.ttf&quot;</span><span class="p">,</span>
               <span class="n">dest</span><span class="o">=</span><span class="s">&quot;xkcd.ttf&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
@@ -284,11 +265,10 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
 <span class="nf">font_import</span><span class="p">(</span><span class="n">paths</span> <span class="o">=</span> <span class="s">&quot;~/.fonts&quot;</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s">&quot;[X/x]kcd&quot;</span><span class="p">)</span>
 <span class="nf">fonts</span><span class="p">()</span>
 <span class="nf">loadfonts</span><span class="p">()</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You can then create your&nbsp;graph:</p>
-<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;#56B4E9&quot;</span><span class="p">,</span> <span class="s">&quot;#F0E442&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">fill</span> <span class="o">&lt;-</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;#56B4E9&quot;</span><span class="p">,</span> <span class="s">&quot;#F0E442&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
 
 <span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
@@ -311,13 +291,12 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
               <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">),</span>
               <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">10</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter18-1.png" title="plot of chunk wscatter18" alt="plot of chunk wscatter18" style="display: block; margin: auto;" /></p>
 <h3>Using &#8216;The Economist&#8217;&nbsp;theme</h3>
 <p>There are a wider range of pre-built themes available as part of the <code>ggthemes</code> package (more information on these <a href="https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html">here</a>). Below we&#8217;ve applied <code>theme_economist()</code>, which approximates graphs in the Economist&nbsp;magazine.</p>
-<div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nf">library</span><span class="p">(</span><span class="n">ggthemes</span><span class="p">)</span>
 
 <span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">theme_economist</span><span class="p">()</span> <span class="o">+</span>
@@ -337,13 +316,12 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
               <span class="n">legend.text</span> <span class="o">=</span> <span class="nf">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
               <span class="n">legend.title</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">face</span> <span class="o">=</span> <span class="s">&quot;bold&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter19-1.png" title="plot of chunk wscatter19" alt="plot of chunk wscatter19" style="display: block; margin: auto;" /></p>
 <h3>Creating your own&nbsp;theme</h3>
 <p>As before, you can modify your plots a lot as <code>ggplot2</code> allows many customisations. Here we present our original result shown at the top of&nbsp;page.</p>
-<div class="highlight"><pre><span></span><span class="n">fill</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;steelblue&quot;</span><span class="p">,</span> <span class="s">&quot;yellowgreen&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">fill</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;steelblue&quot;</span><span class="p">,</span> <span class="s">&quot;yellowgreen&quot;</span><span class="p">,</span> <span class="s">&quot;violetred1&quot;</span><span class="p">)</span>
 
 <span class="n">p6</span> <span class="o">&lt;-</span> <span class="nf">ggplot</span><span class="p">(</span><span class="n">aq_trim</span><span class="p">,</span> <span class="nf">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">Day</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">Month</span><span class="p">))</span> <span class="o">+</span>
         <span class="nf">geom_point</span><span class="p">(</span><span class="n">shape</span> <span class="o">=</span> <span class="m">21</span><span class="p">)</span> <span class="o">+</span>
@@ -365,8 +343,7 @@ These instructions are taken from <a href="https://www.google.com.au/url?sa=t&am
               <span class="n">axis.text.x</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">),</span>
               <span class="n">axis.text.y</span><span class="o">=</span><span class="nf">element_text</span><span class="p">(</span><span class="n">colour</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="m">9</span><span class="p">))</span>
 <span class="n">p6</span>
-</pre></div>
-
+</code></pre></div>
 
 <p><img src="/figure/wscatter21-1.png" title="plot of chunk wscatter21" alt="plot of chunk wscatter21" style="display: block; margin: auto;" /></p>
         <hr class="divider-short"/>
