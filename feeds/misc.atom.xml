@@ -1,5 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2020-12-30T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Optimising your New Year’s sparkling purchase</title><link href="https://t-redactyl.github.io/blog/2020/12/optimising-your-new-years-sparkling-purchase.html" rel="alternate"></link><published>2020-12-30T00:00:00+01:00</published><updated>2020-12-30T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-12-30:/blog/2020/12/optimising-your-new-years-sparkling-purchase.html</id><summary type="html">&lt;p&gt;We&amp;#8217;re all keen to say goodbye to this awful year, so I imagine most of you want to make the most of your New Year&amp;#8217;s celebration. While many of us won&amp;#8217;t be going anywhere, we can at least enjoy a good bottle of sparkling wine at home …&lt;/p&gt;</summary><content type="html">&lt;p&gt;We&amp;#8217;re all keen to say goodbye to this awful year, so I imagine most of you want to make the most of your New Year&amp;#8217;s celebration. While many of us won&amp;#8217;t be going anywhere, we can at least enjoy a good bottle of sparkling wine at home. In this blog post we&amp;#8217;ll use a dataset of around 1000 sparkling wines kindly scraped and posted to Kaggle by &lt;a href="https://www.kaggle.com/budnyak/wine-rating-and-price?select=Sparkling.csv"&gt;Anton Budnyak&lt;/a&gt; to explore what is the best value bottle we can get for our&amp;nbsp;money.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-01-04T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Proof by mathematical induction: introduction</title><link href="https://t-redactyl.github.io/blog/2021/01/proof-by-mathematical-induction-introduction.html" rel="alternate"></link><published>2021-01-04T00:00:00+01:00</published><updated>2021-01-04T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-01-04:/blog/2021/01/proof-by-mathematical-induction-introduction.html</id><summary type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving statements finally clicked for me. As such I decided to create a few blog posts to hopefully help anyone who is similarly stuck (and help me to remember&amp;nbsp;myself!).&lt;/p&gt;
+&lt;h2&gt;Motivating&amp;nbsp;example&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s say that we wish to prove that the sum &lt;span class="math"&gt;\(1 + 2 + 3 + 4 + \ldots + n\)&lt;/span&gt; is equal to &lt;span class="math"&gt;\(\frac{n^2 + n}{2}\)&lt;/span&gt; for every positive integer &lt;span class="math"&gt;\(n\)&lt;/span&gt;. Where do we start? We could break down this statement for each case of &lt;span class="math"&gt;\(n\)&lt;/span&gt; like&amp;nbsp;so:&lt;/p&gt;
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$S_n$$&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Sum of first } n \textrm{ positive numbers}$$ &lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\frac{n^2 + n}{2}$$&lt;/b&gt;&lt;/th&gt; 
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$S_1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$S_2$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1 + 2$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$3$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$S_3$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1 + 2 + 3$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$6$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$S_4$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1 + 2 + 3 + 4$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$10$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$S_5$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1 + 2 + 3 + 4 + 5$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$15$$&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can see that the statement is true for the first 5 cases, but the problem is that we have to prove this for all positive numbers, which is an infinite set. Even if we had the time and inclination to go through and prove each case individually, we&amp;#8217;d never be able to reach the end! We need to instead come up with some sort of rule that will generalise to every statement &lt;span class="math"&gt;\(S_n\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;This is exactly what proof by induction is designed to do. What we do first is to prove the first possible statement. In our case, we are dealing with positive integers, so the first possible case is &lt;span class="math"&gt;\(S_1\)&lt;/span&gt;. We&amp;#8217;ve already done this in the table above, showing that &lt;span class="math"&gt;\(1 =\frac{ (1^2 + 1)}{2} = \frac{2}{2} = 1\)&lt;/span&gt;. This is called the &lt;strong&gt;basis step&lt;/strong&gt;. &lt;/p&gt;
+&lt;p&gt;We can now move onto proving that all &lt;span class="math"&gt;\(S_n\)&lt;/span&gt; are true, using what is called the &lt;strong&gt;inductive step&lt;/strong&gt;. This step uses the fact that we know one statement to be true (in our case, &lt;span class="math"&gt;\(S_1\)&lt;/span&gt;), and shows that this implies the next statement to be true. To do so, we generalise our basis step &lt;span class="math"&gt;\(S_1\)&lt;/span&gt; to &lt;span class="math"&gt;\(S_k\)&lt;/span&gt;, use the fact we know it is true, and prove that if &lt;span class="math"&gt;\(S_k\)&lt;/span&gt; is true, then &lt;span class="math"&gt;\(S_{k + 1}\)&lt;/span&gt; is also true &lt;span class="math"&gt;\((S_k \Rightarrow S_{k + 1})\)&lt;/span&gt;. This results in a sort of domino effect, where if the first pair of &lt;span class="math"&gt;\(S_k \Rightarrow S_{k + 1}\)&lt;/span&gt; is true, then this means that &lt;span class="math"&gt;\(S_{k + 1} \Rightarrow S_{k + 2}\)&lt;/span&gt; is also true, and so on, covering all possible statements &lt;span class="math"&gt;\(S_n\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;In our example, this means that&amp;nbsp;if:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+1 + 2 + 3 + \ldots + k = \frac{k^2 + k}{2}
+$$&lt;/div&gt;
+&lt;p&gt;
+then: 
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+1 + 2 + 3 + \ldots + k + (k + 1) = \frac{(k + 1)^2 + (k + 1)}{2}
+$$&lt;/div&gt;
+&lt;p&gt;. &lt;/p&gt;
+&lt;p&gt;We now know one fact, that our first statement above is true. We must now prove the second one by showing that the lefthand side is equivalent to the righthand side. This looks like quite a sticky algebraic problem. However, we can use what we already know to our advantage to simplify the expression. The lefthand part of the equation is comprised of &lt;span class="math"&gt;\((1 + 2 + 3 + \ldots + k) + ((k + 1))\)&lt;/span&gt;. As we know that &lt;span class="math"&gt;\(1 + 2 + 3 + \ldots + k\)&lt;/span&gt; is the same as &lt;span class="math"&gt;\(\frac{k^2 + k}{2}\)&lt;/span&gt;, we can substitute in this expression. The rest is now a simple case of using algebraic simplification to show the two sides of the equation are indeed&amp;nbsp;equivalent:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+1 + 2 + 3 + \ldots + k + (k + 1) &amp;amp;= \frac{(k + 1)^2 + (k + 1)}{2} \\
+\frac{k^2 + k}{2} + (k + 1) &amp;amp;= \frac{(k + 1)^2 + (k + 1)}{2} \\
+k^2 + k + 2(k + 1) &amp;amp;= (k + 1)^2 + (k + 1) \\
+&amp;amp;= k^2 + 2k + 1 + k + 1 \\
+&amp;amp;= k^2 + k + 2(k + 1)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;And voilà! We have shown that, if we assume our first statement &lt;span class="math"&gt;\(S_k\)&lt;/span&gt; to be true, then the subsequent statement &lt;span class="math"&gt;\(S_{k + 1}\)&lt;/span&gt; is also&amp;nbsp;true.&lt;/p&gt;
+&lt;h2&gt;A more formal&amp;nbsp;example&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s round off this blog post by showing how a proof by induction could be laid out. We&amp;#8217;ll take a new problem. Let us say that we wish to prove that the sum &lt;span class="math"&gt;\(a + ar + ar^2 + \ldots + ar^{n - 1}\)&lt;/span&gt; is equal to &lt;span class="math"&gt;\(a\frac{1 - r^n}{1-r}\)&lt;/span&gt;, where &lt;span class="math"&gt;\(r \neq 1\)&lt;/span&gt; and &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;. As &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, this is exactly the same as the previous example, where &lt;span class="math"&gt;\(n\)&lt;/span&gt; is in the positive integers. This means our basis step will be the smallest element of that set, 1. Let&amp;#8217;s get started with laying out the&amp;nbsp;proof.&lt;/p&gt;
+&lt;p&gt;Proof:&lt;br&gt;
+(1) &lt;strong&gt;Basis step.&lt;/strong&gt; Observe that when &lt;span class="math"&gt;\(n = 1\)&lt;/span&gt;,&amp;nbsp;then:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+ar^{1 - 1} &amp;amp;= a\frac{1 - r^1}{1 - r} \\
+a^0 &amp;amp;= a \cdot \frac{1 - r}{1 - r} \\
+a &amp;amp;= a
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;(2) &lt;strong&gt;Inductive step.&lt;/strong&gt; Say that &lt;span class="math"&gt;\(k \geq 1\)&lt;/span&gt;. We will use direct proof to show that&amp;nbsp;if:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} = a\frac{1 - r^k}{1 - r}$$&lt;/div&gt;
+&lt;p&gt;
+then:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} + ar^{(k + 1) - 1} = a\frac{1 - r^{k + 1}}{1 - r}$$&lt;/div&gt;
+&lt;p&gt;.&lt;/p&gt;
+&lt;p&gt;Suppose that &lt;span class="math"&gt;\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} = a\frac{1 - r^k}{1 - r}\)&lt;/span&gt;.&amp;nbsp;Then:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} + ar^{(k + 1) - 1}  &amp;amp;= a\frac{1 - r^{k + 1}}{1 - r} \\
+a\frac{1 - r^k}{1 - r} + ar^{(k + 1) - 1} &amp;amp;= a\frac{1 - r^{k + 1}}{1 - r} \\
+\frac{1 - r^k}{1 - r} + r^k &amp;amp;= \frac{1 - r^{k + 1}}{1 - r} \\
+1 - r^k + r^k(1 - r) &amp;amp;= 1 - r^{k + 1} \\
+1 - r^k + r^k - r^{k + 1} &amp;amp;= 1 - r^{k + 1} \\
+1 - r^{k + 1} &amp;amp;= 1 - r^{k + 1}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;It follows by induction that &lt;span class="math"&gt;\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1} = a\frac{1 - r^n}{1 - r}\)&lt;/span&gt; for each &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;And that&amp;#8217;s it! It takes a bit of practice to get used to the steps, but the core of mathematical induction is proving the statement &lt;span class="math"&gt;\(S_k \Rightarrow S_{k+1}\)&lt;/span&gt;, which usually ends up being a relatively straightforward direct proof. In the next blog post, I&amp;#8217;ll cover how to prove by induction when the statement is written as a summation&amp;nbsp;formula.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category></entry><entry><title>Optimising your New Year’s sparkling purchase</title><link href="https://t-redactyl.github.io/blog/2020/12/optimising-your-new-years-sparkling-purchase.html" rel="alternate"></link><published>2020-12-30T00:00:00+01:00</published><updated>2020-12-30T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2020-12-30:/blog/2020/12/optimising-your-new-years-sparkling-purchase.html</id><summary type="html">&lt;p&gt;We&amp;#8217;re all keen to say goodbye to this awful year, so I imagine most of you want to make the most of your New Year&amp;#8217;s celebration. While many of us won&amp;#8217;t be going anywhere, we can at least enjoy a good bottle of sparkling wine at home …&lt;/p&gt;</summary><content type="html">&lt;p&gt;We&amp;#8217;re all keen to say goodbye to this awful year, so I imagine most of you want to make the most of your New Year&amp;#8217;s celebration. While many of us won&amp;#8217;t be going anywhere, we can at least enjoy a good bottle of sparkling wine at home. In this blog post we&amp;#8217;ll use a dataset of around 1000 sparkling wines kindly scraped and posted to Kaggle by &lt;a href="https://www.kaggle.com/budnyak/wine-rating-and-price?select=Sparkling.csv"&gt;Anton Budnyak&lt;/a&gt; to explore what is the best value bottle we can get for our&amp;nbsp;money.&lt;/p&gt;
 &lt;h2&gt;Reading in and screening the&amp;nbsp;data&lt;/h2&gt;
 &lt;p&gt;We&amp;#8217;ll get started by loading in our dependencies and our&amp;nbsp;data.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;geopandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;gpd&lt;/span&gt;

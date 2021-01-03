@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Proof by mathematical induction: introduction</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Proof by mathematical induction: introduction written January 04, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, proof by induction" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2021/01/proof-by-mathematical-induction-introduction.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Proof by mathematical induction: introduction</h1>
+        <div class="meta">
+          written <time datetime="2021-01-04T00:00:00+01:00">January 04, 2021</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>I&#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to <a href="https://en.wikipedia.org/wiki/Mathematical_proof">prove all sorts of statements</a>. One type of proof I really struggled with  initially was proof by <a href="https://en.wikipedia.org/wiki/Mathematical_induction">mathematical induction</a>. However, after being recommended the wonderful <a href="https://www.people.vcu.edu/~rhammack/BookOfProof/">Book of Proof by Richard Hammack</a>, this method of proving statements finally clicked for me. As such I decided to create a few blog posts to hopefully help anyone who is similarly stuck (and help me to remember&nbsp;myself!).</p>
+<h2>Motivating&nbsp;example</h2>
+<p>Let&#8217;s say that we wish to prove that the sum <span class="math">\(1 + 2 + 3 + 4 + \ldots + n\)</span> is equal to <span class="math">\(\frac{n^2 + n}{2}\)</span> for every positive integer <span class="math">\(n\)</span>. Where do we start? We could break down this statement for each case of <span class="math">\(n\)</span> like&nbsp;so:</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>$$S_n$$</b></th>
+      <th style="text-align:center"><b>$$\textrm{Sum of first } n \textrm{ positive numbers}$$ </b></th> 
+      <th style="text-align:center"><b>$$\frac{n^2 + n}{2}$$</b></th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">$$S_1$$</td>
+      <td style="text-align:center">$$1$$</td>
+      <td style="text-align:center">$$1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$S_2$$</td>
+      <td style="text-align:center">$$1 + 2$$</td>
+      <td style="text-align:center">$$3$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$S_3$$</td>
+      <td style="text-align:center">$$1 + 2 + 3$$</td>
+      <td style="text-align:center">$$6$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$S_4$$</td>
+      <td style="text-align:center">$$1 + 2 + 3 + 4$$</td>
+      <td style="text-align:center">$$10$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$S_5$$</td>
+      <td style="text-align:center">$$1 + 2 + 3 + 4 + 5$$</td>
+      <td style="text-align:center">$$15$$</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We can see that the statement is true for the first 5 cases, but the problem is that we have to prove this for all positive numbers, which is an infinite set. Even if we had the time and inclination to go through and prove each case individually, we&#8217;d never be able to reach the end! We need to instead come up with some sort of rule that will generalise to every statement <span class="math">\(S_n\)</span>. </p>
+<p>This is exactly what proof by induction is designed to do. What we do first is to prove the first possible statement. In our case, we are dealing with positive integers, so the first possible case is <span class="math">\(S_1\)</span>. We&#8217;ve already done this in the table above, showing that <span class="math">\(1 =\frac{ (1^2 + 1)}{2} = \frac{2}{2} = 1\)</span>. This is called the <strong>basis step</strong>. </p>
+<p>We can now move onto proving that all <span class="math">\(S_n\)</span> are true, using what is called the <strong>inductive step</strong>. This step uses the fact that we know one statement to be true (in our case, <span class="math">\(S_1\)</span>), and shows that this implies the next statement to be true. To do so, we generalise our basis step <span class="math">\(S_1\)</span> to <span class="math">\(S_k\)</span>, use the fact we know it is true, and prove that if <span class="math">\(S_k\)</span> is true, then <span class="math">\(S_{k + 1}\)</span> is also true <span class="math">\((S_k \Rightarrow S_{k + 1})\)</span>. This results in a sort of domino effect, where if the first pair of <span class="math">\(S_k \Rightarrow S_{k + 1}\)</span> is true, then this means that <span class="math">\(S_{k + 1} \Rightarrow S_{k + 2}\)</span> is also true, and so on, covering all possible statements <span class="math">\(S_n\)</span>. </p>
+<p>In our example, this means that&nbsp;if:
+</p>
+<div class="math">$$
+1 + 2 + 3 + \ldots + k = \frac{k^2 + k}{2}
+$$</div>
+<p>
+then: 
+</p>
+<div class="math">$$
+1 + 2 + 3 + \ldots + k + (k + 1) = \frac{(k + 1)^2 + (k + 1)}{2}
+$$</div>
+<p>. </p>
+<p>We now know one fact, that our first statement above is true. We must now prove the second one by showing that the lefthand side is equivalent to the righthand side. This looks like quite a sticky algebraic problem. However, we can use what we already know to our advantage to simplify the expression. The lefthand part of the equation is comprised of <span class="math">\((1 + 2 + 3 + \ldots + k) + ((k + 1))\)</span>. As we know that <span class="math">\(1 + 2 + 3 + \ldots + k\)</span> is the same as <span class="math">\(\frac{k^2 + k}{2}\)</span>, we can substitute in this expression. The rest is now a simple case of using algebraic simplification to show the two sides of the equation are indeed&nbsp;equivalent:</p>
+<div class="math">$$
+\begin{aligned}
+1 + 2 + 3 + \ldots + k + (k + 1) &amp;= \frac{(k + 1)^2 + (k + 1)}{2} \\
+\frac{k^2 + k}{2} + (k + 1) &amp;= \frac{(k + 1)^2 + (k + 1)}{2} \\
+k^2 + k + 2(k + 1) &amp;= (k + 1)^2 + (k + 1) \\
+&amp;= k^2 + 2k + 1 + k + 1 \\
+&amp;= k^2 + k + 2(k + 1)
+\end{aligned}
+$$</div>
+<p>And voilà! We have shown that, if we assume our first statement <span class="math">\(S_k\)</span> to be true, then the subsequent statement <span class="math">\(S_{k + 1}\)</span> is also&nbsp;true.</p>
+<h2>A more formal&nbsp;example</h2>
+<p>Let&#8217;s round off this blog post by showing how a proof by induction could be laid out. We&#8217;ll take a new problem. Let us say that we wish to prove that the sum <span class="math">\(a + ar + ar^2 + \ldots + ar^{n - 1}\)</span> is equal to <span class="math">\(a\frac{1 - r^n}{1-r}\)</span>, where <span class="math">\(r \neq 1\)</span> and <span class="math">\(n \in \mathbb{N}\)</span>. As <span class="math">\(n \in \mathbb{N}\)</span>, this is exactly the same as the previous example, where <span class="math">\(n\)</span> is in the positive integers. This means our basis step will be the smallest element of that set, 1. Let&#8217;s get started with laying out the&nbsp;proof.</p>
+<p>Proof:<br>
+(1) <strong>Basis step.</strong> Observe that when <span class="math">\(n = 1\)</span>,&nbsp;then:
+</p>
+<div class="math">$$
+\begin{aligned}
+ar^{1 - 1} &amp;= a\frac{1 - r^1}{1 - r} \\
+a^0 &amp;= a \cdot \frac{1 - r}{1 - r} \\
+a &amp;= a
+\end{aligned}
+$$</div>
+<p>(2) <strong>Inductive step.</strong> Say that <span class="math">\(k \geq 1\)</span>. We will use direct proof to show that&nbsp;if:
+</p>
+<div class="math">$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} = a\frac{1 - r^k}{1 - r}$$</div>
+<p>
+then:
+</p>
+<div class="math">$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} + ar^{(k + 1) - 1} = a\frac{1 - r^{k + 1}}{1 - r}$$</div>
+<p>.</p>
+<p>Suppose that <span class="math">\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} = a\frac{1 - r^k}{1 - r}\)</span>.&nbsp;Then:</p>
+<div class="math">$$
+\begin{aligned}
+ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{k-1} + ar^{(k + 1) - 1}  &amp;= a\frac{1 - r^{k + 1}}{1 - r} \\
+a\frac{1 - r^k}{1 - r} + ar^{(k + 1) - 1} &amp;= a\frac{1 - r^{k + 1}}{1 - r} \\
+\frac{1 - r^k}{1 - r} + r^k &amp;= \frac{1 - r^{k + 1}}{1 - r} \\
+1 - r^k + r^k(1 - r) &amp;= 1 - r^{k + 1} \\
+1 - r^k + r^k - r^{k + 1} &amp;= 1 - r^{k + 1} \\
+1 - r^{k + 1} &amp;= 1 - r^{k + 1}
+\end{aligned}
+$$</div>
+<p>It follows by induction that <span class="math">\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1} = a\frac{1 - r^n}{1 - r}\)</span> for each <span class="math">\(n \in \mathbb{N}\)</span>. </p>
+<p>And that&#8217;s it! It takes a bit of practice to get used to the steps, but the core of mathematical induction is proving the statement <span class="math">\(S_k \Rightarrow S_{k+1}\)</span>, which usually ends up being a relatively straightforward direct proof. In the next blog post, I&#8217;ll cover how to prove by induction when the statement is written as a summation&nbsp;formula.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>

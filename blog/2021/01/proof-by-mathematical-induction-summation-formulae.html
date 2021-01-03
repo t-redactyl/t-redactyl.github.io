@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Proof by mathematical induction: summation formulae</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Proof by mathematical induction: summation formulae written January 18, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, proof by induction" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/01/proof-by-mathematical-induction-summation-formulae.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Proof by mathematical induction: summation formulae</h1>
+        <div class="meta">
+          written <time datetime="2021-01-18T00:00:00+01:00">January 18, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>In the previous blog post, we talked about how to prove statements using mathematical induction. In this post, we&#8217;ll continue exploring mathematical induction, this time concentrating on statements expressed as summation&nbsp;formulae. </p>
+<h2>What are summation&nbsp;formulae?</h2>
+<p>A summation formula is simply an alternative way of expressing an sum of values to <span class="math">\(n\)</span>. We&#8217;ve already seen such expressions in the previous blog post, where we were dealing with <span class="math">\(1 + 2 + 3 + \ldots + n\)</span> and <span class="math">\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1}\)</span>. If we use the summation formula, we could express the first expression&nbsp;as:</p>
+<div class="math">$$1 + 2 + 3 + \ldots + n = \sum_{s=1}^{n} s$$</div>
+<p>which simply expresses that we want to add every number <span class="math">\(s\)</span> between 1 and <span class="math">\(n\)</span>. Similarly, the second expression can be rewritten using the summation formula&nbsp;as:</p>
+<div class="math">$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1} = \sum_{s=1}^{n} ar^{s-1}$$</div>
+<p>which indicates that we want to add <span class="math">\(ar^{s-1}\)</span> for every number <span class="math">\(s\)</span> between 1 and <span class="math">\(n\)</span>. You can see that we&#8217;ll be doing the exact same thing as with the examples in our previous post, except working with expressions in a different format. Let&#8217;s kick off again with a motivating example that we&#8217;ll go through&nbsp;step-by-step.</p>
+<h2>Motivating&nbsp;example</h2>
+<p>Let&#8217;s say we want to prove, for all <span class="math">\(n \in \mathbb{N}\)</span>, the&nbsp;statement:
+</p>
+<div class="math">$$\sum_{r=1}^{n} r^2 = \frac{1}{6}n(n + 1)(2n + 1)$$</div>
+<p>Remember, the lefthand side of the equation is equivalent to <span class="math">\(1^2 + 2^2 + 3^2 + \ldots + n^2\)</span>. Let&#8217;s first prove our basis step, <span class="math">\(n = 1\)</span>:
+</p>
+<div class="math">$$
+\begin{aligned}
+1^2 &amp;= \frac{1}{6} \cdot 1 \cdot (1 + 1)(2 \cdot 1 + 1) \\
+1 &amp;= \frac{1}{6} \cdot 1 \cdot 2 \cdot 3 \\
+&amp;= 1
+\end{aligned}
+$$</div>
+<p>Let&#8217;s now consider the inductive step. We know&nbsp;that:
+</p>
+<div class="math">$$\sum_{r=1}^{k} r^2 = \frac{1}{6}k(k + 1)(2k + 1)$$</div>
+<p>
+and we want to use this fact to show&nbsp;that:
+</p>
+<div class="math">$$\sum_{r=1}^{k + 1} r^2 = \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)$$</div>
+<p>As above, we can think of <span class="math">\(\sum_{r=1}^{k + 1} r^2\)</span> as <span class="math">\(1^2 + 2^2 + 3^2 + \ldots + k^2 + (k + 1)^2\)</span>. As <span class="math">\(\sum_{r=1}^{k} r^2 = 1^2 + 2^2 + 3^2 + \ldots + k^2\)</span>, then we can rewrite this as <span class="math">\(\sum_{r=1}^{k} r^2 + (k + 1)^2\)</span>. What we now need to solve&nbsp;is:
+</p>
+<div class="math">$$\sum_{r=1}^{k} r^2 + (k + 1)^2 = \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)$$</div>
+<p>This should be now looking familiar from the previous blog post. We now have the ability to subsitute in our definition for <span class="math">\(\sum_{r=1}^{k} r^2\)</span> from our first statement, <span class="math">\(\frac{1}{6}n(n + 1)(2n + 1)\)</span>, and from here, solve algebraically as per the examples in the last&nbsp;post:</p>
+<div class="math">$$
+\begin{aligned}
+\sum_{r=1}^{k} r^2 + (k + 1)^2 &amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) \\
+\frac{1}{6}k(k + 1)(2k + 1) + (k + 1)^2 &amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) \\
+\end{aligned}
+$$</div>
+<p>We&#8217;re going to concentrate on rearranging the lefthand side to equal the righthand side. As such, let&#8217;s flip them around to make it a bit neater when presenting the&nbsp;equation. </p>
+<div class="math">$$
+\begin{aligned}
+\frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) &amp;= \frac{1}{6}k(k + 1)(2k + 1) + (k + 1)^2 \\
+&amp;= \frac{1}{6}(k(k + 1)(2k + 1) + 6(k + 1)^2) \\
+&amp;= \frac{1}{6}(2k^3 + 3k^2 + k + 6k^2 + 12k + 6) \\
+&amp;= \frac{1}{6}(2k^3 + 9k^2 + 13k + 6) \\ 
+&amp;= \frac{1}{6}(k + 2)(2k^2 + 5k + 3) \\ 
+&amp;= \frac{1}{6}(k + 2)(2k + 3)(k + 1) \\ 
+&amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)
+\end{aligned}
+$$</div>
+<p>I first expanded the expression, and then used cubic factorisation in order to get it to look like what was already on the lefthand side. With a bit more rearrangement, we have the left and righthand sides of the equation equal, and we&#8217;re proven by induction that our original statement is&nbsp;true.</p>
+<h2>A more formal&nbsp;example</h2>
+<p>As with the last post, let&#8217;s end by laying out the proof formally with another example. This time, we want to prove by induction, that for all <span class="math">\(n \in \mathbb{N}\)</span>, <span class="math">\(\sum_{i=1}^{n} \frac{1}{i(i + 1)} = \frac{n}{n + 1}\)</span>. As we&#8217;re dealing with <span class="math">\(n \in \mathbb{N}\)</span>, our basis will be <span class="math">\(n = 1\)</span>, but the summation formula makes this clear by giving the starting index <span class="math">\(i\)</span> as 1 as&nbsp;well.</p>
+<p>(1) <strong>Basis step.</strong> Observe that when <span class="math">\(n = 1\)</span>:
+</p>
+<div class="math">$$
+\begin{aligned}
+\frac{1}{1(1 + 1)} &amp;= \frac{1}{1 + 1} \\
+\frac{1}{2} &amp;= \frac{1}{2}
+\end{aligned}
+$$</div>
+<p>which is obviously&nbsp;true.</p>
+<p>(2) <strong>Inductive step.</strong> Let <span class="math">\(k \geq 1\)</span>. We use direct proof to show that if:<br>
+</p>
+<div class="math">$$\sum_{i = 1}^{k} \frac{1}{i(i + 1)} = \frac{k}{k + 1}$$</div>
+<p>
+then:<br>
+</p>
+<div class="math">$$\sum_{i = 1}^{k + 1} \frac{1}{i(i + 1)} = \frac{k + 1}{(k + 1) + 1}$$</div>
+<p>Suppose <span class="math">\(\sum_{i = 1}^{k} \frac{1}{i(i + 1)} = \frac{k}{k + 1}\)</span>.&nbsp;Then:
+</p>
+<div class="math">$$
+\begin{aligned}
+\sum_{i = 1}^{k + 1} \frac{1}{i(i + 1)} &amp;= \sum_{i = 1}^{k} \frac{1}{i(i + 1)} + \frac{1}{(k + 1)((k + 1) + 1)} \\
+&amp;= \frac{k}{k + 1} + \frac{1}{(k + 1)(k + 2)} \\
+&amp;= \frac{k(k + 1)(k + 2) + k + 1}{(k + 1)^2(k + 2)} \\
+&amp;= \frac{k^3 + 3k^2 + 3k + 1}{(k + 1)^2(k + 2)} \\
+&amp;= \frac{(k + 1)^3}{(k + 1)^2(k + 2)} \\
+&amp;= \frac{k + 1}{k + 2} \\
+&amp;= \frac{k + 1}{(k + 1) + 1}
+\end{aligned}
+$$</div>
+<p>It follows by induction that <span class="math">\(\sum_{i=1}^{n} \frac{1}{i(i + 1)} = \frac{n}{n + 1}\)</span> for all <span class="math">\(n \in \mathbb{N}\)</span>.</p>
+<p>I hope that this and the previous blog post have helped to demystify proof by induction. In the final post in this series, we&#8217;ll tackle a special case of mathematical induction, proof by strong&nbsp;induction.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
