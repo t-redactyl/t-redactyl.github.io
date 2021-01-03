@@ -127,7 +127,7 @@
 
 <p>We&#8217;ve got a good number of countries represented here, although the distribution is quite skewed. Let&#8217;s get started by visualising the ratings and prices of wines by country. We can do this by downloading a shapefile to represent the map we want (in this case the <a href="https://hub.arcgis.com/datasets/a21fdb46d23e4ef896f31475217cbb08_1">entire world</a>) and plotting our variables of interest using <code>geopandas</code>. See <a href="ttps://towardsdatascience.com/lets-make-a-map-using-geopandas-pandas-and-matplotlib-to-make-a-chloropleth-map-dddc31c1983d">here</a> and <a href="https://geopandas.org/mapping.html">here</a> for more details on how to do&nbsp;this.</p>
 <p>We&#8217;ll start by loading in our map dataframes, and removing Antarctica to make the map display a little&nbsp;nicer.</p>
-<div class="highlight"><pre><span></span><code><span class="n">world_map_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/jodieburchell/Documents/cristian-data-assignment/data/Longitude_Graticules_and_World_Countries_Boundaries-shp/99bfd9e7-bb42-4728-87b5-07f8c8ac631c2020328-1-1vef4ev.lu5nk.shp&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="n">world_map_path</span> <span class="o">=</span> <span class="s2">&quot;path/to/data/worldmap.shp&quot;</span>
 <span class="n">world_map_df</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">world_map_path</span><span class="p">)</span>
 <span class="n">world_map_df</span> <span class="o">=</span> <span class="n">world_map_df</span><span class="p">[</span><span class="n">world_map_df</span><span class="p">[</span><span class="s2">&quot;CNTRY_NAME&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;Antarctica&quot;</span><span class="p">]</span>
 </code></pre></div>
@@ -185,7 +185,7 @@
 </code></pre></div>
 
 <p><img src="/figure/ny_wine_map_price_small.png" title="Median wine prices" style="display: block; margin: auto;" /></p>
-<p>While France seemed to have some of the best rated wines, they are also among some of the most expensive as well. Moldova&#8217;s and New Zealand&#8217;s wines seem to be cheaper, falling below the \$20 per bottle&nbsp;mark.</p>
+<p>While France seemed to have some of the best rated wines, they are also among some of the most expensive as well. Moldova&#8217;s and New Zealand&#8217;s wines seem to be cheaper, falling below the $20 per bottle&nbsp;mark.</p>
 <p>These visualisations give us a rough idea of which regions can give us our best bang for our buck, but can we take a more systematic approach to finding the best tradeoff between rating and&nbsp;price?</p>
 <h2>Using Pareto&nbsp;optimisation</h2>
 <p>We can solve for this relatively simply using a economic algorithm called <a href="https://en.wikipedia.org/wiki/Pareto_efficiency">Pareto optimality</a> (or Pareto efficiency). This algorithm takes multiple objectives (in our case, rating and price) and tries to find those combinations for which we cannot achieve a better outcome. These combinations lie on the <a href="https://pythonhealthcare.org/tag/pareto-front/">Pareto front</a>, which is that part of a graph between the objectives for which no better combination exists. You can see this clearly in the example below, where the Pareto front includes all those combinations that maximise both Objective A and Objective B across the entire x- and&nbsp;y-axes.</p>
