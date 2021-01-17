@@ -78,9 +78,9 @@
         </div>
         <p>In the previous blog post, we talked about how to prove statements using mathematical induction. In this post, we&#8217;ll continue exploring mathematical induction, this time concentrating on statements expressed as summation&nbsp;formulae. </p>
 <h2>What are summation&nbsp;formulae?</h2>
-<p>A summation formula is simply an alternative way of expressing an sum of values to <span class="math">\(n\)</span>. We&#8217;ve already seen such expressions in the previous blog post, where we were dealing with <span class="math">\(1 + 2 + 3 + \ldots + n\)</span> and <span class="math">\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1}\)</span>. If we use the summation formula, we could express the first expression&nbsp;as:</p>
+<p>A summation formula is simply an alternative way of expressing an sum of values to <span class="math">\(n\)</span>. We&#8217;ve already seen such expressions in the previous blog post, where we were dealing with <span class="math">\(1 + 2 + 3 + \ldots + n\)</span> and <span class="math">\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1}\)</span>. If we use the summation formula, we could write the first expression&nbsp;as:</p>
 <div class="math">$$1 + 2 + 3 + \ldots + n = \sum_{s=1}^{n} s$$</div>
-<p>which simply expresses that we want to add every number <span class="math">\(s\)</span> between 1 and <span class="math">\(n\)</span>. Similarly, the second expression can be rewritten using the summation formula&nbsp;as:</p>
+<p>which simply indicates that we want to add every number <span class="math">\(s\)</span> between 1 and <span class="math">\(n\)</span>. Similarly, the second expression can be rewritten using the summation formula&nbsp;as:</p>
 <div class="math">$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1} = \sum_{s=1}^{n} ar^{s-1}$$</div>
 <p>which indicates that we want to add <span class="math">\(ar^{s-1}\)</span> for every number <span class="math">\(s\)</span> between 1 and <span class="math">\(n\)</span>. You can see that we&#8217;ll be doing the exact same thing as with the examples in our previous post, except working with expressions in a different format. Let&#8217;s kick off again with a motivating example that we&#8217;ll go through&nbsp;step-by-step.</p>
 <h2>Motivating&nbsp;example</h2>
@@ -125,7 +125,7 @@ $$</div>
 &amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)
 \end{aligned}
 $$</div>
-<p>I first expanded the expression, and then used cubic factorisation in order to get it to look like what was already on the lefthand side. With a bit more rearrangement, we have the left and righthand sides of the equation equal, and we&#8217;re proven by induction that our original statement is&nbsp;true.</p>
+<p>I first expanded the expression, and then used cubic factorisation in order to get it to look like what was already on the lefthand side. With a bit more rearrangement, we have the left and righthand sides of the equation equal, and we&#8217;ve proven by induction that our original statement is&nbsp;true.</p>
 <h2>A more formal&nbsp;example</h2>
 <p>As with the last post, let&#8217;s end by laying out the proof formally with another example. This time, we want to prove by induction, that for all <span class="math">\(n \in \mathbb{N}\)</span>, <span class="math">\(\sum_{i=1}^{n} \frac{1}{i(i + 1)} = \frac{n}{n + 1}\)</span>. As we&#8217;re dealing with <span class="math">\(n \in \mathbb{N}\)</span>, our basis will be <span class="math">\(n = 1\)</span>, but the summation formula makes this clear by giving the starting index <span class="math">\(i\)</span> as 1 as&nbsp;well.</p>
 <p>(1) <strong>Basis step.</strong> Observe that when <span class="math">\(n = 1\)</span>:

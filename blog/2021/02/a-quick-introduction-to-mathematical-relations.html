@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>A quick introduction to mathematical relations</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="A quick introduction to mathematical relations written February 15, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, equivalence relations, reflexive, symmetric, transitive, equivalence classes" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/02/a-quick-introduction-to-mathematical-relations.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>A quick introduction to mathematical relations</h1>
+        <div class="meta">
+          written <time datetime="2021-02-15T00:00:00+01:00">February 15, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>An important way of thinking about a set is seeing how the elements are related to each other. For example, some elements of a set might be less than others, some might be equal, and some might belong together because they are&nbsp;even. </p>
+<p>For example, let&#8217;s say we have the set of all natural numbers, <span class="math">\(\mathbb{N}\)</span>. Some of the elements of <span class="math">\(\mathbb{N}\)</span> are related because <span class="math">\(xy = 18\)</span> (also known as the factors of 18). If we list them out, we&nbsp;get:
+</p>
+<div class="math">$$\{(1, 18), (2, 9), (3, 6), (6, 3), (9, 2), (18, 1)\}$$</div>
+<p>You probably immediately noticed a number of things about this group. Firstly, this is a set; specifically, a subset of <span class="math">\(\mathbb{N}\)</span>. Secondly, it consists of all of the ordered pairs of <span class="math">\(x \in \mathbb{N}\)</span> that satisfy the rule <span class="math">\(xy = 18\)</span>. This concept is called a relation, which in informal terms is just a set of ordered pairs of all of the members of our set of interest that conform to some rule or relationship or function. In more formal terms, for <span class="math">\(x, y \in\)</span> set <span class="math">\(X\)</span>, the relation <span class="math">\(\mathrel{R}\)</span> includes all members of <span class="math">\(X\)</span> where <span class="math">\(x\mathrel{R}y\)</span>. </p>
+<h2>Properties of&nbsp;relations</h2>
+<p>Relations have a number of properties. The first is that a relation <span class="math">\(\mathrel{R}\)</span> can be <strong>reflexive</strong>. This means that for a set <span class="math">\(A\)</span>, a <span class="math">\(\mathrel{R}\)</span> is reflexive if <span class="math">\(x\mathrel{R}x\)</span> is true for all elements of <span class="math">\(A\)</span>. Some examples of this are the equality relation, where <span class="math">\(x = x\)</span> is true, and the relation where the addition of the members is even, where <span class="math">\(x + x\)</span> will be even if <span class="math">\(x\)</span> is&nbsp;even.</p>
+<p>The second property is that a relation can be <strong>symmetric</strong>. This means that if <span class="math">\(x\mathrel{R}y\)</span> is true, then <span class="math">\(y\mathrel{R}x\)</span> is also true. Some examples of this are <span class="math">\(x + y\)</span>, where <span class="math">\(y + x\)</span> is also true, and <span class="math">\(x \cdot y\)</span>, where <span class="math">\(y \cdot x\)</span> is also&nbsp;true.</p>
+<p>The final property is that a relation can be <strong>transitive</strong>. This means that if <span class="math">\(x\mathrel{R}y\)</span> and <span class="math">\(y\mathrel{R}z\)</span> is true, then <span class="math">\(x\mathrel{R}z\)</span> is also true. Some examples of this is the less than relation, where if <span class="math">\(x &lt; y\)</span> and <span class="math">\(y &lt; z\)</span>, then <span class="math">\(x &lt; z\)</span>, and similarly, the more than relation, where <span class="math">\(x &gt; y\)</span> and <span class="math">\(y &gt; z\)</span>, then <span class="math">\(x &gt; z\)</span>. </p>
+<h2>Equivalence&nbsp;classes</h2>
+<p>When a relation satisfies all three properties above: reflexivity, symmetry and transitivity, it is known as an equivalence relation. Equivalence relations have the special property in that they partition up the entire reference set into mutually exclusive groups called <strong>equivalence classes</strong>. More formally, the union of two equivalence classes is the empty set, so  <span class="math">\([a_1] \cap [a_2] = \emptyset\)</span>, and the intersection of every equivalence class in a reference set <span class="math">\(A\)</span> is <span class="math">\(A\)</span> itself, so <span class="math">\([a_1] \cup [a_2] \cup \ldots \cup [a_n] = A\)</span>. This is because if we have a relation <span class="math">\(x\mathrel{R}y\)</span> on a set <span class="math">\(A\)</span>, then every member within an equivalence class will be <span class="math">\(\mathrel{R}\)</span>-related to each other, and moreover, an equivalence class contains every member of <span class="math">\(A\)</span> that is <span class="math">\(\mathrel{R}\)</span>-related. </p>
+<p>This is quite abstract, so let&#8217;s look at a more concrete example. Let&#8217;s make our reference set all prime numbers under 11,&nbsp;so: 
+</p>
+<div class="math">$$\{2, 3, 5, 7, 9, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97\}$$</div>
+<p> 
+and define our relation <span class="math">\(x\mathrel{R}y\)</span> as <span class="math">\(x\)</span> and <span class="math">\(y\)</span> having the same final digit. So 7 and 37 would be related, for&nbsp;instance. </p>
+<p>We first need to check whether this is an equivalence relation. <span class="math">\(\mathrel{R}\)</span> is reflexive, because every number has the same final digit as itself. It&#8217;s also symmetric, as if <span class="math">\(x\)</span> has the same final digit as <span class="math">\(y\)</span>, then <span class="math">\(y\)</span> has the same final digit as <span class="math">\(x\)</span>. Finally, it&#8217;s transitive, as if <span class="math">\(x\)</span> has the same final digit as <span class="math">\(y\)</span>, and <span class="math">\(y\)</span> has the same final digit as <span class="math">\(z\)</span>, then <span class="math">\(x\)</span> of course has the same final digit as <span class="math">\(z\)</span>. All three properties being satisfied, we know that <span class="math">\(\mathrel{R}\)</span> is an equivalence&nbsp;relation.</p>
+<p>Let&#8217;s start defining the equivalence classes. We&#8217;ll start with all of the pairs that end with 1. Our relation is <span class="math">\(P_1 = \{(11, 31), (11, 41), (11, 61), (11, 71), (31, 41), \ldots, (61, 71)\}\)</span>, and the corresponding equivalence class is <span class="math">\(C_1 = \{11, 31, 41, 61, 71\}\)</span>, or the subset of the elements of our reference set that are <span class="math">\(\mathrel{R}\)</span>-related. There are six possible digits that these prime numbers can end in, and we can make equivalence classes for them&nbsp;all:</p>
+<div class="math">$$C_2 = \{2\}, \quad C_3 = \{3, 13, 23, 43, 53, 73, 83\}, \quad C_5 = \{5\},$$</div>
+<div class="math">$$C_7 = \{7, 17, 37, 47, 67, 97\}, \quad C_9 = \{19, 29, 59, 79, 89\}$$</div>
+<p>You can see that each of these subsets are mutally exclusive, and each element within each subset has the same final digit. However, we&#8217;re not quite there yet. The notation for naming equivalence classes is <span class="math">\([x]\)</span>, where <span class="math">\([x]\)</span> is simply the equivalence class that contains <span class="math">\(x\)</span>. So instead of calling our equivalence class containing those prime numbers ending in 1 <span class="math">\(C_1\)</span>, we could call it <span class="math">\([11]\)</span>. In fact, there is nothing special about 11. It would be equally valid to call this equivalence class <span class="math">\([31]\)</span>, <span class="math">\([41]\)</span>, <span class="math">\([61]\)</span> or <span class="math">\([71]\)</span>. As long as the name references one of the elements of the equivalence class, this is fine. This also means that <span class="math">\([11] = [31] = [41] = [61] = [71]\)</span>, as they all reference the same equivalence class <span class="math">\(\{11, 31, 41, 61, 71\}\)</span>.</p>
+<h2>A more exotic&nbsp;example</h2>
+<p>Let&#8217;s finish up this post by looking at a more in-depth example. I&#8217;ll first lay out the question, then we&#8217;ll break it down and start solving&nbsp;it.</p>
+<hr>
+<p>Define the relation <span class="math">\(\mathrel{R}\)</span> on the set <span class="math">\(\mathbb{N}\)</span> by <span class="math">\(x\mathrel{R}y\)</span> if and only if there is some <span class="math">\(n \in \mathbb{Z}\)</span> such that <span class="math">\(x = 2^ny\)</span>. Prove that <span class="math">\(\mathrel{R}\)</span> is an equivalence relation. What are its equivalence&nbsp;classes?</p>
+<hr>
+<p>The first thing we need to note is that our reference set for the relation is <span class="math">\(\mathbb{N}\)</span>, the set of all natural numbers, and that the relation <span class="math">\(\mathrel{R}\)</span> is defined by <span class="math">\(x = 2^ny\)</span>. This means that for every <span class="math">\(x\)</span> in the natural numbers, there is some <span class="math">\(y\)</span> that can be multiplied by <span class="math">\(2^n\)</span> to get that number. Moreover, the <span class="math">\(n\)</span> in <span class="math">\(2^n\)</span> comes from the integers <span class="math">\(\mathbb{Z}\)</span>, so can use any integer from negative infinity to positive infinity. Some examples of this relation would be <span class="math">\(24 = 2^3 \cdot 3\)</span> and <span class="math">\(8 = 2^{-2} \cdot 32\)</span>. So in this problem, we need to find some <span class="math">\(n \in \mathbb{Z}\)</span> that will allow us to satisfy each of the properties that make up an equivalence&nbsp;relation.</p>
+<p>Starting with reflexivity, we need to show that <span class="math">\(x = 2^nx\)</span> for some <span class="math">\(n \in \mathbb{Z}\)</span>. It&#8217;s clear that the only <span class="math">\(n\)</span> that will make this true is 0, as this will convert <span class="math">\(2^n\)</span> to 1, so that <span class="math">\(x = 2^0 \cdot x = 1 \cdot x = x\)</span>. So when <span class="math">\(n = 0\)</span>, <span class="math">\(\mathrel{R}\)</span> is&nbsp;reflexive.</p>
+<p>Turning to symmetry, we want to show that if <span class="math">\(x\mathrel{R}y\)</span> is <span class="math">\(x = 2^ny\)</span>, then <span class="math">\(y\mathrel{R}x\)</span> is <span class="math">\(y = 2^mx\)</span>, where both <span class="math">\(n\)</span> and <span class="math">\(m\)</span> are integers. Notice that we don&#8217;t need to use the same integer for <span class="math">\(x\mathrel{R}y\)</span> and <span class="math">\(y\mathrel{R}x\)</span>; it just needs to be some number that meets the criteria for being an integer. To get <span class="math">\(y\mathrel{R}x\)</span>, we solve <span class="math">\(x = 2^ny\)</span> for <span class="math">\(y\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+x &amp;= 2^ny \\
+2^{-n} \cdot 2^n \cdot y &amp;= 2^{-n}x \\
+2^{n - n}y &amp;= 2^{-n}x \\
+2^0y &amp;= 2^{-n}x \\
+1 \cdot y &amp;= 2^{-n}x \\
+y &amp;= 2^{-n}x
+\end{aligned}
+$$</div>
+<p>We now have <span class="math">\(-n\)</span> as our integer power for <span class="math">\(y\mathrel{R}x\)</span>, and as <span class="math">\(-n = -1 \cdot n\)</span>, it is also an integer. To make the leap to <span class="math">\(y = 2^mx\)</span>, we simply need to define <span class="math">\(m = -n\)</span>, and we have our proof. Therefore, <span class="math">\(\mathrel{R}\)</span> is also&nbsp;reflexive.</p>
+<p>Finally, we need to show that <span class="math">\(\mathrel{R}\)</span> is transitive. Here, we assume that <span class="math">\(x\mathrel{R}y\)</span> and <span class="math">\(y\mathrel{R}z\)</span>, and we want to show that <span class="math">\(x\mathrel{R}z\)</span>. This means that we know that <span class="math">\(x = 2^ny\)</span> and <span class="math">\(y = 2^mz\)</span>, and we want to show that <span class="math">\(x = 2^kz\)</span>, where <span class="math">\(n, m\)</span> and <span class="math">\(k\)</span> are all integers. Again, note that these are not the same integers for each of the expressions. To solve this, we can substitute in our definition of <span class="math">\(y\)</span> into <span class="math">\(x = 2^ny\)</span>, and simplify&nbsp;this:</p>
+<div class="math">$$
+\begin{aligned}
+x &amp;= 2^ny \\
+&amp;= 2^n(2^mz) \\
+&amp;= 2^{m + n}z
+\end{aligned}
+$$</div>
+<p>We now have <span class="math">\(m + n\)</span> as our integer power for <span class="math">\(x\mathrel{R}z\)</span>, which as the sum of two integers is also an integer. Again, all we need to do to get to <span class="math">\(x = 2^kz\)</span> is define <span class="math">\(k = m + n\)</span>. We&#8217;ve now shown that if <span class="math">\(x\mathrel{R}y\)</span> and <span class="math">\(y\mathrel{R}z\)</span>, then <span class="math">\(x\mathrel{R}z\)</span>, so <span class="math">\(\mathrel{R}\)</span> is also&nbsp;transitive.</p>
+<p>Finally, to get our equivalence classes on <span class="math">\(\mathbb{N}\)</span>, we define <span class="math">\(n\)</span> as the only integer that satisfied all three properties, 0. When <span class="math">\(n = 0\)</span>, <span class="math">\(x = y\)</span>, which is the same as the equality relation. As such every <span class="math">\(a \in \mathbb{N}\)</span> forms an equivalence class all by itself, i.e., <span class="math">\([a] = \{a\}\)</span>. For example, <span class="math">\([2] = \{2\}\)</span>, and <span class="math">\([64] = \{64\}\)</span>.</p>
+<p>A lot of the material in this post was based on the book <a href="https://global.oup.com/booksites/content/9780198507185/">Discrete Mathematics by Norman L. Biggs</a>, whose excellent Chapter 7 gives a very clear overview of&nbsp;relations.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
