@@ -1,5 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-01-04T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Proof by mathematical induction: introduction</title><link href="https://t-redactyl.github.io/blog/2021/01/proof-by-mathematical-induction-introduction.html" rel="alternate"></link><published>2021-01-04T00:00:00+01:00</published><updated>2021-01-04T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-01-04:/blog/2021/01/proof-by-mathematical-induction-introduction.html</id><summary type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving statements finally clicked for me. As such I decided to create a few blog posts to hopefully help anyone who is similarly stuck (and help me to remember&amp;nbsp;myself!).&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-01-18T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Proof by mathematical induction: summation formulae</title><link href="https://t-redactyl.github.io/blog/2021/01/proof-by-mathematical-induction-summation-formulae.html" rel="alternate"></link><published>2021-01-18T00:00:00+01:00</published><updated>2021-01-18T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-01-18:/blog/2021/01/proof-by-mathematical-induction-summation-formulae.html</id><summary type="html">&lt;p&gt;In the previous blog post, we talked about how to prove statements using mathematical induction. In this post, we&amp;#8217;ll continue exploring mathematical induction, this time concentrating on statements expressed as summation&amp;nbsp;formulae. &lt;/p&gt;
+&lt;h2&gt;What are summation&amp;nbsp;formulae?&lt;/h2&gt;
+&lt;p&gt;A summation formula is simply an alternative way of expressing an sum of …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In the previous blog post, we talked about how to prove statements using mathematical induction. In this post, we&amp;#8217;ll continue exploring mathematical induction, this time concentrating on statements expressed as summation&amp;nbsp;formulae. &lt;/p&gt;
+&lt;h2&gt;What are summation&amp;nbsp;formulae?&lt;/h2&gt;
+&lt;p&gt;A summation formula is simply an alternative way of expressing an sum of values to &lt;span class="math"&gt;\(n\)&lt;/span&gt;. We&amp;#8217;ve already seen such expressions in the previous blog post, where we were dealing with &lt;span class="math"&gt;\(1 + 2 + 3 + \ldots + n\)&lt;/span&gt; and &lt;span class="math"&gt;\(ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1}\)&lt;/span&gt;. If we use the summation formula, we could express the first expression&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="math"&gt;$$1 + 2 + 3 + \ldots + n = \sum_{s=1}^{n} s$$&lt;/div&gt;
+&lt;p&gt;which simply expresses that we want to add every number &lt;span class="math"&gt;\(s\)&lt;/span&gt; between 1 and &lt;span class="math"&gt;\(n\)&lt;/span&gt;. Similarly, the second expression can be rewritten using the summation formula&amp;nbsp;as:&lt;/p&gt;
+&lt;div class="math"&gt;$$ar^{1-1} + ar^{2-1} + ar^{3-1} + \ldots + ar^{n-1} = \sum_{s=1}^{n} ar^{s-1}$$&lt;/div&gt;
+&lt;p&gt;which indicates that we want to add &lt;span class="math"&gt;\(ar^{s-1}\)&lt;/span&gt; for every number &lt;span class="math"&gt;\(s\)&lt;/span&gt; between 1 and &lt;span class="math"&gt;\(n\)&lt;/span&gt;. You can see that we&amp;#8217;ll be doing the exact same thing as with the examples in our previous post, except working with expressions in a different format. Let&amp;#8217;s kick off again with a motivating example that we&amp;#8217;ll go through&amp;nbsp;step-by-step.&lt;/p&gt;
+&lt;h2&gt;Motivating&amp;nbsp;example&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s say we want to prove, for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, the&amp;nbsp;statement:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{r=1}^{n} r^2 = \frac{1}{6}n(n + 1)(2n + 1)$$&lt;/div&gt;
+&lt;p&gt;Remember, the lefthand side of the equation is equivalent to &lt;span class="math"&gt;\(1^2 + 2^2 + 3^2 + \ldots + n^2\)&lt;/span&gt;. Let&amp;#8217;s first prove our basis step, &lt;span class="math"&gt;\(n = 1\)&lt;/span&gt;:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+1^2 &amp;amp;= \frac{1}{6} \cdot 1 \cdot (1 + 1)(2 \cdot 1 + 1) \\
+1 &amp;amp;= \frac{1}{6} \cdot 1 \cdot 2 \cdot 3 \\
+&amp;amp;= 1
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Let&amp;#8217;s now consider the inductive step. We know&amp;nbsp;that:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{r=1}^{k} r^2 = \frac{1}{6}k(k + 1)(2k + 1)$$&lt;/div&gt;
+&lt;p&gt;
+and we want to use this fact to show&amp;nbsp;that:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{r=1}^{k + 1} r^2 = \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)$$&lt;/div&gt;
+&lt;p&gt;As above, we can think of &lt;span class="math"&gt;\(\sum_{r=1}^{k + 1} r^2\)&lt;/span&gt; as &lt;span class="math"&gt;\(1^2 + 2^2 + 3^2 + \ldots + k^2 + (k + 1)^2\)&lt;/span&gt;. As &lt;span class="math"&gt;\(\sum_{r=1}^{k} r^2 = 1^2 + 2^2 + 3^2 + \ldots + k^2\)&lt;/span&gt;, then we can rewrite this as &lt;span class="math"&gt;\(\sum_{r=1}^{k} r^2 + (k + 1)^2\)&lt;/span&gt;. What we now need to solve&amp;nbsp;is:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{r=1}^{k} r^2 + (k + 1)^2 = \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)$$&lt;/div&gt;
+&lt;p&gt;This should be now looking familiar from the previous blog post. We now have the ability to subsitute in our definition for &lt;span class="math"&gt;\(\sum_{r=1}^{k} r^2\)&lt;/span&gt; from our first statement, &lt;span class="math"&gt;\(\frac{1}{6}n(n + 1)(2n + 1)\)&lt;/span&gt;, and from here, solve algebraically as per the examples in the last&amp;nbsp;post:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+\sum_{r=1}^{k} r^2 + (k + 1)^2 &amp;amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) \\
+\frac{1}{6}k(k + 1)(2k + 1) + (k + 1)^2 &amp;amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) \\
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We&amp;#8217;re going to concentrate on rearranging the lefthand side to equal the righthand side. As such, let&amp;#8217;s flip them around to make it a bit neater when presenting the&amp;nbsp;equation. &lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+\frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1) &amp;amp;= \frac{1}{6}k(k + 1)(2k + 1) + (k + 1)^2 \\
+&amp;amp;= \frac{1}{6}(k(k + 1)(2k + 1) + 6(k + 1)^2) \\
+&amp;amp;= \frac{1}{6}(2k^3 + 3k^2 + k + 6k^2 + 12k + 6) \\
+&amp;amp;= \frac{1}{6}(2k^3 + 9k^2 + 13k + 6) \\ 
+&amp;amp;= \frac{1}{6}(k + 2)(2k^2 + 5k + 3) \\ 
+&amp;amp;= \frac{1}{6}(k + 2)(2k + 3)(k + 1) \\ 
+&amp;amp;= \frac{1}{6}(k + 1)((k + 1) + 1)(2(k + 1) + 1)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;I first expanded the expression, and then used cubic factorisation in order to get it to look like what was already on the lefthand side. With a bit more rearrangement, we have the left and righthand sides of the equation equal, and we&amp;#8217;re proven by induction that our original statement is&amp;nbsp;true.&lt;/p&gt;
+&lt;h2&gt;A more formal&amp;nbsp;example&lt;/h2&gt;
+&lt;p&gt;As with the last post, let&amp;#8217;s end by laying out the proof formally with another example. This time, we want to prove by induction, that for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, &lt;span class="math"&gt;\(\sum_{i=1}^{n} \frac{1}{i(i + 1)} = \frac{n}{n + 1}\)&lt;/span&gt;. As we&amp;#8217;re dealing with &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, our basis will be &lt;span class="math"&gt;\(n = 1\)&lt;/span&gt;, but the summation formula makes this clear by giving the starting index &lt;span class="math"&gt;\(i\)&lt;/span&gt; as 1 as&amp;nbsp;well.&lt;/p&gt;
+&lt;p&gt;(1) &lt;strong&gt;Basis step.&lt;/strong&gt; Observe that when &lt;span class="math"&gt;\(n = 1\)&lt;/span&gt;:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+\frac{1}{1(1 + 1)} &amp;amp;= \frac{1}{1 + 1} \\
+\frac{1}{2} &amp;amp;= \frac{1}{2}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;which is obviously&amp;nbsp;true.&lt;/p&gt;
+&lt;p&gt;(2) &lt;strong&gt;Inductive step.&lt;/strong&gt; Let &lt;span class="math"&gt;\(k \geq 1\)&lt;/span&gt;. We use direct proof to show that if:&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{i = 1}^{k} \frac{1}{i(i + 1)} = \frac{k}{k + 1}$$&lt;/div&gt;
+&lt;p&gt;
+then:&lt;br&gt;
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\sum_{i = 1}^{k + 1} \frac{1}{i(i + 1)} = \frac{k + 1}{(k + 1) + 1}$$&lt;/div&gt;
+&lt;p&gt;Suppose &lt;span class="math"&gt;\(\sum_{i = 1}^{k} \frac{1}{i(i + 1)} = \frac{k}{k + 1}\)&lt;/span&gt;.&amp;nbsp;Then:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+\sum_{i = 1}^{k + 1} \frac{1}{i(i + 1)} &amp;amp;= \sum_{i = 1}^{k} \frac{1}{i(i + 1)} + \frac{1}{(k + 1)((k + 1) + 1)} \\
+&amp;amp;= \frac{k}{k + 1} + \frac{1}{(k + 1)(k + 2)} \\
+&amp;amp;= \frac{k(k + 1)(k + 2) + k + 1}{(k + 1)^2(k + 2)} \\
+&amp;amp;= \frac{k^3 + 3k^2 + 3k + 1}{(k + 1)^2(k + 2)} \\
+&amp;amp;= \frac{(k + 1)^3}{(k + 1)^2(k + 2)} \\
+&amp;amp;= \frac{k + 1}{k + 2} \\
+&amp;amp;= \frac{k + 1}{(k + 1) + 1}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;It follows by induction that &lt;span class="math"&gt;\(\sum_{i=1}^{n} \frac{1}{i(i + 1)} = \frac{n}{n + 1}\)&lt;/span&gt; for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;I hope that this and the previous blog post have helped to demystify proof by induction. In the final post in this series, we&amp;#8217;ll tackle a special case of mathematical induction, proof by strong&amp;nbsp;induction.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category></entry><entry><title>Proof by mathematical induction: introduction</title><link href="https://t-redactyl.github.io/blog/2021/01/proof-by-mathematical-induction-introduction.html" rel="alternate"></link><published>2021-01-04T00:00:00+01:00</published><updated>2021-01-04T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-01-04:/blog/2021/01/proof-by-mathematical-induction-introduction.html</id><summary type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I&amp;#8217;m currently studying abstract mathematics for my maths degree, which involves learning how to &lt;a href="https://en.wikipedia.org/wiki/Mathematical_proof"&gt;prove all sorts of statements&lt;/a&gt;. One type of proof I really struggled with  initially was proof by &lt;a href="https://en.wikipedia.org/wiki/Mathematical_induction"&gt;mathematical induction&lt;/a&gt;. However, after being recommended the wonderful &lt;a href="https://www.people.vcu.edu/~rhammack/BookOfProof/"&gt;Book of Proof by Richard Hammack&lt;/a&gt;, this method of proving statements finally clicked for me. As such I decided to create a few blog posts to hopefully help anyone who is similarly stuck (and help me to remember&amp;nbsp;myself!).&lt;/p&gt;
 &lt;h2&gt;Motivating&amp;nbsp;example&lt;/h2&gt;
 &lt;p&gt;Let&amp;#8217;s say that we wish to prove that the sum &lt;span class="math"&gt;\(1 + 2 + 3 + 4 + \ldots + n\)&lt;/span&gt; is equal to &lt;span class="math"&gt;\(\frac{n^2 + n}{2}\)&lt;/span&gt; for every positive integer &lt;span class="math"&gt;\(n\)&lt;/span&gt;. Where do we start? We could break down this statement for each case of &lt;span class="math"&gt;\(n\)&lt;/span&gt; like&amp;nbsp;so:&lt;/p&gt;
 &lt;div&gt;

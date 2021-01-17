@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Proof by mathematical induction: strong induction</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Proof by mathematical induction: strong induction written February 01, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, proof by induction" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/02/proof-by-mathematical-induction-strong-induction.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Proof by mathematical induction: strong induction</h1>
+        <div class="meta">
+          written <time datetime="2021-02-01T00:00:00+01:00">February 01, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>This blog post caps off our series on mathematical induction by discussing another type of induction: proof by strong induction. This is a type of induction that we need to use it doesn&#8217;t make sense to start from our base case. Instead, we have to establish a number of base cases before we have enough evidence to solve the <span class="math">\(k + 1\)</span> case. Let&#8217;s have a look with a concrete&nbsp;example.</p>
+<h2>Motivating&nbsp;example</h2>
+<p>Let&#8217;s say that we need to prove that for all positive integers, we want to show that <span class="math">\(x_n = 3^{n + 1} - 2^n\)</span>. So far, so familiar. However, let&#8217;s say that we&#8217;re told that <span class="math">\(x_1 = 7\)</span>, <span class="math">\(x_2 = 23\)</span>, and for <span class="math">\(n \geq 3\)</span>, <span class="math">\(x_n = 5x_{n - 1} - 6x_{n - 2}\)</span>. Ah. This is a bit different. Not only do we need to establish the truth of <span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span> with the information we know, we also have an equation involving <span class="math">\(x_{n - 1}\)</span> and <span class="math">\(x_{n - 2}\)</span>. </p>
+<p>Let&#8217;s start with the easy part. In the basis step, we show that for <span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span>, we get the above results using <span class="math">\(x_n = 3^{n + 1} - 2^n\)</span>. For <span class="math">\(x_1\)</span>:
+</p>
+<div class="math">$$
+\begin{aligned}
+x_1 &amp;= 3^{1 + 1} - 2^1 \\
+&amp;= 3^2 - 2 \\
+&amp;= 7
+\end{aligned}
+$$</div>
+<p>and for <span class="math">\(x_2\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+x_2 &amp;= 3^{2 + 1} - 2^2 \\
+&amp;= 3^3 - 4 \\
+&amp;= 23
+\end{aligned}
+$$</div>
+<p>As always, the basis step was easy. Let&#8217;s now move onto the inductive step. This is very similar to how we set up this step for regular induction. As we have already established the truth of <span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span>, we&nbsp;assume:
+</p>
+<div class="math">$$3^{k + 1} - 2^k = 5x_{k - 1} - 6x_{k - 2}$$</div>
+<p>
+to be true, and use this fact to prove that the next statement in the&nbsp;sequence:
+</p>
+<div class="math">$$3^{k + 2} - 2^{k + 1} = 5x_k - 6x_{k - 1}$$</div>
+<p>
+is also&nbsp;true.</p>
+<p>You can see that the righthand side of this equation contains two terms, <span class="math">\(x_k\)</span> and <span class="math">\(x_{k -1}\)</span>. We can define these and substitute them into <span class="math">\(5x_k - 6x_{k - 1}\)</span> in order to solve our equation, in much the same way we did for regular induction. We already know the definition of <span class="math">\(x_k\)</span> from the problem&nbsp;statement:
+</p>
+<div class="math">$$x_k = 3^{k + 1} - 2^k$$</div>
+<p>
+<span class="math">\(x_{k - 1}\)</span> is a matter of shifting back one in the sequence, using the same logic we use when shifting one forwards with <span class="math">\(x_{k + 1}\)</span>:
+</p>
+<div class="math">$$x_{k - 1} = 3^k - 2^{k - 1}$$</div>
+<p>From here, it&#8217;s pretty familiar territory. We set up our equation <span class="math">\(x_{k + 1}\)</span>, subsitute in the definitions of <span class="math">\(x_k\)</span> and <span class="math">\(x_{k + 1}\)</span>, and then solve&nbsp;algebraically.</p>
+<div class="math">$$
+\begin{aligned}
+x_{k + 1} &amp;= 5x_k - 6x_{k - 1} \\
+&amp;= 5(3^{k + 1} - 2^k) - 6(3^k - 2^{k - 1}) \\
+&amp;= 5 \cdot 3(3^k) - 6(3^k) - 5(2^k) + 3 \cdot 2(2^{k -1}) \\
+&amp;= 5 \cdot 3(3^k) - 6(3^k) - 5(2^k) + 3(2^k) \\
+&amp;= 9(3^k) - 2(2^k) \\
+&amp;= 3^{k + 2} - 2^{k + 1}
+\end{aligned}
+$$</div>
+<p>And we&#8217;ve arrived at our definition of <span class="math">\(x_n\)</span>. Having already proven this for <span class="math">\(x_1\)</span> and <span class="math">\(x_2\)</span>, and now, <span class="math">\(n \geq 3\)</span>, we&#8217;ve shown that <span class="math">\(x_n = 3^{n + 1} - 2^n\)</span> for all positive&nbsp;integers.</p>
+<h2>A more formal&nbsp;example</h2>
+<p>As with the other posts, we&#8217;ll round off by showing how to set out a strong induction proof&nbsp;formally.</p>
+<p>Let&#8217;s say we&#8217;ve been asked to prove, for all positive integers, that <span class="math">\(x_n = 3 \cdot 2^{n - 1} + 2(-1)^n\)</span>. This sequences is defined by <span class="math">\(x_1 = 1\)</span>, <span class="math">\(x_2 = 8\)</span> and <span class="math">\(x_n = x_{n - 1} + 2x_{n - 2}\)</span> for <span class="math">\(n \geq 3\)</span>.</p>
+<p>Proof.<br>
+(1) <strong>Basis step</strong> We first need to verify the results for the cases n = 1 and n = 2. When n =&nbsp;1, 
+</p>
+<div class="math">$$3 \cdot 2^{1 - 1} + 2(-1)^1 = 3 \cdot 2^0 - 2 = 1$$</div>
+<p> 
+which is indeed <span class="math">\(x_1\)</span>, and when n =&nbsp;2, 
+</p>
+<div class="math">$$3 \cdot 2^{2 - 1} + 2(-1)^2 = 3 \cdot 2 + 2 = 8$$</div>
+<p> 
+which is <span class="math">\(x_2\)</span>. As such, the definition of <span class="math">\(x_n\)</span> holds for <span class="math">\(n = 1\)</span> and <span class="math">\(n = 2\)</span>.</p>
+<p>(2) <strong>Inductive step</strong> Let <span class="math">\(k \in \mathbb{N}\)</span> with <span class="math">\(k \geq 2\)</span>, and suppose that <span class="math">\(3 \cdot 2^{n - 1} + 2(-1)^n\)</span> is true for <span class="math">\(n = 1, 2, \ldots, k\)</span>. In particular, <span class="math">\(x_k = 3 \cdot 2^{k - 1} + 2(-1)^k\)</span> and <span class="math">\(x_{k - 1} = 3 \cdot 2^{k - 2} + 2(-1)^{k - 1}\)</span>.&nbsp;Then:</p>
+<div class="math">$$
+\begin{aligned}
+x_{k + 1} &amp;= x_k + 2x_{k - 1} \\
+&amp;= 3 \cdot 2^{k - 1} + 2(-1)^k + 2(3 \cdot 2^{k - 2} + 2(-1)^{k - 1}) \\
+&amp;= 3 \cdot 2^{k - 1} + 2(-1)^k + 3 \cdot 2 \cdot 2k^{k - 2} + 2 \cdot 2(-1)^{k - 1} \\
+&amp;= 3 \cdot 2^{k - 1} + 3 \cdot 2^{k - 1} + 2(-1)^k + 2 \cdot 2(-1)^{k - 1} \\
+&amp;= 3(2^{k - 1} + 2^{k - 1}) + 2((-1)^k + 2(-1)^{k - 1}) \\
+&amp;= 3(2 \cdot 2^{k - 1}) + 2((-1)^k + (-1)^{-1} \cdot 2(-1)^k) \\
+&amp;= 3(2^k) + 2((-1)^k(1 + 2(-1)^{-1})) \\
+&amp;= 3(2^k) + 2((-1)^k(1 + 2(-1))) \\
+&amp;= 3(2^k) + 2((-1)^k(-1)^1) \\
+&amp;= 3(2^k) + 2((-1)^{k + 1})
+\end{aligned}
+$$</div>
+<p>Thus <span class="math">\(3 \cdot 2^{n - 1} + 2(-1)^n\)</span> holds for n = k + 1, therefore by strong induction, it follows that it is true for all positive&nbsp;integers.</p>
+<p>That concludes our short series on mathematical induction. I hope this has been a useful explanation for those of you who might have been stuck, and you now feel empowered to tackle this powerful form of&nbsp;proofs.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
