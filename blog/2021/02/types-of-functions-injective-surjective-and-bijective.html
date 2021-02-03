@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Types of functions: injective, surjective and bijective</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Types of functions: injective, surjective and bijective written February 22, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, functions, surjection, injection, bijection" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/02/types-of-functions-injective-surjective-and-bijective.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Types of functions: injective, surjective and bijective</h1>
+        <div class="meta">
+          written <time datetime="2021-02-22T00:00:00+01:00">February 22, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>You&#8217;re probably familiar with what a function is: it&#8217;s a formula or rule that describes a relationship between one number and another. For example, the function <span class="math">\(f(x) = |x| + 1\)</span> describes the relationship between a number and its absolute value plus 1. If you think back to our previous blog post, you can see that what we&#8217;re actually describing is a relation, where <span class="math">\(x\mathrel{R}f(x)\)</span> is given by <span class="math">\(f(x) = |x| + 1\)</span>. </p>
+<p>If we take three elements of <span class="math">\(x\)</span>, <span class="math">\(\{-1, 0, 1\}\)</span>, and pass them through <span class="math">\(f(x)\)</span>, we get the set of ordered pairs <span class="math">\(f =\{(-1, 2), (0, 1), (1, 2)\}\)</span>. However, we can also imagine this relationship in the form below, where we take the set created by our input elements and map them to the set given by our output&nbsp;elements.</p>
+<p><img src="/figure/math_functions_1_1.png" title="Mapping a function" style="display: block; margin: auto;" /></p>
+<p>The above example illustrates a few important things about functions that distinguish them from relations. Firstly, as you probably already realised, a function is designed to map the elements from one set <span class="math">\(A\)</span> onto another <span class="math">\(B\)</span>, which is denoted as <span class="math">\(f: A \rightarrow B\)</span>. In the case of our example above, we were just mapping from a set of three numbers <span class="math">\(\{-1, 0, 1\}\)</span> to another set of three numbers <span class="math">\(\{2, 1, 2\}\)</span>. </p>
+<p>However, functions can be (and usually are) used to describe the relationship between infinite sets such as the natural or real numbers. In fact, we can keep going with our example function to think about such a mapping. As our input set includes both -1 and 0, let&#8217;s imagine that our input set is the integers <span class="math">\(\mathbb{Z}\)</span>. What would then be the set be that we&#8217;re mapping to? As any <span class="math">\(f(x)\)</span> can never be smaller than 1, then the output set would be all of the natural numbers <span class="math">\(\mathbb{N}\)</span>. As such, our function <span class="math">\(f(x) = |x| + 1\)</span> would be defined as <span class="math">\(f: \mathbb{Z} \rightarrow \mathbb{N}\)</span>. </p>
+<p>This leads to two further observation about functions. While the input and output sets can be the same, they don&#8217;t have to be, as in the case of our example. This example also shows that the input set influences what the output set will contain. In our example, the input set contained only integers, so the output set can only contain positive integers. However, if our input set had been the real numbers, then our output set would have been the set of positive real numbers above&nbsp;1.</p>
+<p>The final thing to note about functions concerns how the input elements relate to the output elements. Unlike in relations, every input value <span class="math">\(x\)</span> can only map to one value in the output value <span class="math">\(f(x)\)</span>. This means that, for example, a relation that included <span class="math">\((1, 2)\)</span> and <span class="math">\((1, 3)\)</span> would be a valid relation, but would not be a&nbsp;function.</p>
+<h2>Domain, codomain and&nbsp;range</h2>
+<p>Let&#8217;s start giving some names to these parts of functions. Our input set is called the <strong>domain</strong> of a function, and the output set is called the <strong>codomain</strong>. Finally, all of the elements in the codomain that are given by <span class="math">\(f(x)\)</span> for every <span class="math">\(x\)</span> in the domain are called the <strong>range</strong> of the function. Depending on the function, the codomain and the range might be equal, or the range might be a subset of the codomain. This can be see in the example below, for <span class="math">\(g(x) = 2x\)</span>, if we imagine that both the domain and codomain are the set of&nbsp;integers.</p>
+<p><img src="/figure/math_functions_2_1.png" title="Domain, codomain and range" style="display: block; margin: auto;" /></p>
+<p>You can see that the domain maps to only some of the elements in the codomain, those for which <span class="math">\(g(x)\)</span> is twice the elements in the domain. In this case, the range (shown in pink) would be all of the even integers, a subset of <span class="math">\(\mathbb{Z}\)</span>.</p>
+<h2>Types of&nbsp;functions</h2>
+<p>You&#8217;ve probably already noticed, when looking at the two functions we&#8217;ve talked about so far, that there are different patterns in how the elements in the domain relate to elements in the codomain. In the case of <span class="math">\(f(x) = |x|+ 1\)</span>, all of the elements in the codomain map to a value in the domain, but there is not a unique one-to-one relation between them. For example, <span class="math">\(f(-1) = f(1) = 2\)</span>. In contrast, in the case of <span class="math">\(g(x) = 2x\)</span>, there is not a value in the domain for every value in the codomain. For example, there is no <span class="math">\(a\)</span> in the domain for which <span class="math">\(g(a) = 1\)</span>. </p>
+<p>These ways in which the elements in the domain and codomain have specific names. When every value <span class="math">\(a, a'\)</span> in the domain <span class="math">\(A\)</span> maps to a different <span class="math">\(f(a), f(a')\)</span> in the codomain <span class="math">\(B\)</span>, then we say that this function is <strong>injective</strong>. From our two examples, <span class="math">\(g(x) = 2x\)</span> is surjective, as every value in the domain maps to a different value in the codomain, but <span class="math">\(f(x) = |x| + 1\)</span> is not surjective, as different elements in the domain map can map to the same value in the&nbsp;codomain.</p>
+<p>Conversely, when every value <span class="math">\(b\)</span> in the codomain <span class="math">\(B\)</span> maps to a value <span class="math">\(a\)</span> in the domain <span class="math">\(A\)</span>, then we say that this function is <strong>surjective</strong>. Looking at our examples again, we can see that <span class="math">\(g(x) = 2x\)</span> is not surjective, as all of the odd integers in the codomain do not map to any value in the domain. However, <span class="math">\(f(x) = |x| + 1\)</span> is surjective for <span class="math">\(f: \mathbb{Z} \rightarrow \mathbb{N}\)</span>, as every natural number in the codomain maps to an integer in the domain. This raises an important point: whether a function is surjective depends on how the codomain is defined. If we defined the domain and codomain of <span class="math">\(f(x) = |x| + 1\)</span> as <span class="math">\(f: \mathbb{Z} \rightarrow \mathbb{Z}\)</span> then it would not be surjective, as any value of the codomain <span class="math">\(\leq 0\)</span> would not map to anything in the&nbsp;domain.</p>
+<p><img src="/figure/math_functions_3_2.png" title="Injection and surjection" style="display: block; margin: auto;" /></p>
+<p>It is also possible for functions to be neither injective nor surjective, or both injective and surjective. This can be seen in the diagram below. In the latter case, this function is called <strong>bijective</strong>, which means that this function is <a href="https://www.mathsisfun.com/sets/function-inverse.html">invertible</a> (that is, we can create a function that reverses the mapping from the domain to the&nbsp;codomain). </p>
+<p><img src="/figure/math_functions_4_1.png" title="Types of relations" style="display: block; margin: auto;" /></p>
+<p>Let&#8217;s now have a look at how we prove whether a function is injective or&nbsp;surjective.</p>
+<h2>Proving injection, surjection and&nbsp;bijection</h2>
+<p>In order to look at how to prove injection and surjection, let&#8217;s walk through an example&nbsp;problem. </p>
+<hr>
+<p>Prove that the function <span class="math">\(f: \mathbb{R} - {2} \rightarrow \mathbb{R} - {5}\)</span> defined by <span class="math">\(f(x) = \frac{5x + 1}{x - 2}\)</span> is&nbsp;bijective.</p>
+<hr>
+<p>We know that if a function is bijective, then it must be both injective and surjective. What we need to do is prove these separately, and having done that, we can then conclude that the function must be&nbsp;bijective.</p>
+<p>We&#8217;ll start with proving that the function is injective. In order to do this, what we need to do is prove that, for any two elements <span class="math">\(a, a'\)</span> in the domain <span class="math">\(A\)</span>, if <span class="math">\(a \neq a'\)</span>, then <span class="math">\(f(a) \neq f(a')\)</span>. In other words, we need to prove that any two distinct elements in the domain do not map to the same value in the&nbsp;codomain.</p>
+<p>The easiest way to do this is usually with contrapositive proof. We start with the assumption that <span class="math">\(a, a' \in A\)</span> and <span class="math">\(f(a) = f(a')\)</span>, and we want to show that this implies that <span class="math">\(a = a'\)</span>, indicating that the only way in which two elements in the codomain could be equal is if they are mapped to the same element in the domain. Let&#8217;s apply this to our&nbsp;problem.</p>
+<p>As we know that <span class="math">\(f(x) = \frac{5x + 1}{x - 2}\)</span>, then <span class="math">\(f(a) = \frac{5a + 1}{a - 2}\)</span> and <span class="math">\(f(a') = \frac{5a' + 1}{a' - 2}\)</span>. We are starting from the assumption that <span class="math">\(f(a) = f(a')\)</span>, so substituting in our definitions, we&nbsp;get:
+</p>
+<div class="math">$$
+\begin{aligned}
+\frac{5a + 1}{a - 2} = \frac{5a' + 1}{a' - 2}
+\end{aligned}
+$$</div>
+<p>
+Now we need to simplify this expression to get to <span class="math">\(a = a'\)</span>.
+</p>
+<div class="math">$$
+\begin{aligned}
+\frac{5a + 1}{a - 2} &amp;= \frac{5a' + 1}{a' - 2} \\
+(5a + 1)(a' - 2) &amp;= (5a' + 1)(a - 2) \\
+5aa' - 10a + a' - 2 &amp;= 5aa' - 10a' + a - 2 \\
+-10a + a' &amp;= -10a' + a \\
+-9a &amp;= -9a' \\
+a &amp;= a'
+\end{aligned}
+$$</div>
+<p>
+We&#8217;ve thus shown that if we pick any two arbitrary <span class="math">\(a, a'\)</span> in the domain, the only way their associated <span class="math">\(f(a), f(a') $ in the codomain can be equal is if $a, a'\)</span> are equal. Therefore our function is&nbsp;injective.</p>
+<p>With surjection, we&#8217;re trying to show that for any arbitrary <span class="math">\(b\)</span> in our codomain <span class="math">\(B\)</span>, there must be an element <span class="math">\(a\)</span> in our domain <span class="math">\(A\)</span> for which <span class="math">\(f(a) = b\)</span>. The easiest way to show this is to solve <span class="math">\(f(a) = b\)</span> for <span class="math">\(a\)</span>, and check whether the resulting function is a valid element of <span class="math">\(A\)</span>. In the case of our problem, we know <span class="math">\(f(a) = \frac{5a + 1}{a -2}\)</span>, and we&#8217;re trying solve <span class="math">\(f(a) = b\)</span> for <span class="math">\(a\)</span>. Substituting in this definition of <span class="math">\(f(a)\)</span>, we&nbsp;get:
+</p>
+<div class="math">$$
+\begin{aligned}
+\frac{5a + 1}{a -2} &amp;= b \\
+5a + 1 &amp;= b(a - 2) \\
+&amp;= ab - 2b \\
+5a - ab &amp;= -2b - 1 \\
+a(5 - b) &amp;= -2b - 1 \\
+a &amp;= \frac{-2b - 1}{5 - b}
+\end{aligned}
+$$</div>
+<p>
+As long as <span class="math">\(b \neq 5\)</span>, then <span class="math">\(a\)</span> is a valid element of <span class="math">\(\mathbb{R}\)</span>. As our domain is <span class="math">\(\mathbb{R} - \{5\}\)</span>, then this condition is satisfied. Therefore for every <span class="math">\(b \in B\)</span>, we have a corresponding <span class="math">\(a \in A\)</span> where <span class="math">\(f(a) = b\)</span>. As such, our function is also&nbsp;surjective.</p>
+<p>As we have proven that our function is both injective and surjective, we can now say that we&#8217;ve proven that it is&nbsp;bijective.</p>
+<p>As you can see, although it seems intimidating at first, the principles underlying functions and their proofs are pretty straightforward. Credit for most of the material in this post (including the third and fourth images) goes to Richard Hammack&#8217;s wonderful <a href="https://www.people.vcu.edu/~rhammack/BookOfProof/">Book of Proof</a>.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>

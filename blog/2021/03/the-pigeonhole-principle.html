@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>The pigeonhole principle</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="The pigeonhole principle written March 01, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, functions, pigeonhole principle" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/03/the-pigeonhole-principle.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>The pigeonhole principle</h1>
+        <div class="meta">
+          written <time datetime="2021-03-01T00:00:00+01:00">March 01, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>In this blog post, we&#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quality of letters <span class="math">\(m\)</span>, and a number of pigeonholes <span class="math">\(n\)</span>. If the number of letters is bigger than the number of pigeonholes, at least one of the pigeonholes will end up with more than one letter, as below. In other words, if the <a href="https://en.wikipedia.org/wiki/Cardinality">cardinality</a> (the number of elements) of the set of letters is greater than the cardinality of the set of pigeonholes, or <span class="math">\(m &gt; n\)</span>, then at least one of the pigeonholes will have more than one&nbsp;letter.</p>
+<p><img src="/figure/pigeonhole_principle_1.png" title="Pigeonhole principle" style="display: block; margin: auto;" /></p>
+<p>If you read my last blog post, you would recognise that this is an injective relationship (where every pigeonhole in our codomain maps to a letter in our domain), but it is not surjective (where there is a one-to-one relationship between every pigeonhole and letter). The underlying idea behind the pigeonhole principle is that we assume injectivity, although this doesn&#8217;t need to strictly hold for the principle to be true. We&#8217;ll discuss this more in the&nbsp;examples.</p>
+<p>The pigeonhole principle allows us to make some interesting observations about situations that feel quite far removed from functions. Let&#8217;s have a look at a couple of&nbsp;examples.</p>
+<h2>Birthday&nbsp;months</h2>
+<p>Let&#8217;s imagine we have a random group of 13 people. Within this group, at least two of these people will have their birthdays in the same&nbsp;month.</p>
+<p>In order to solve this one, we need to imagine the group of 13 people as our domain, and the months of the year as our codomain. We assume injectivity, that is, that theoretically people could be mapped to every month of the year, as in the diagram&nbsp;below. </p>
+<p><img src="/figure/pigeonhole_principle_2.png" title="Birthday months" style="display: block; margin: auto;" /></p>
+<p>As we have 13 people but only 12 months, we cannot have a bijective relationship, as 13 &lt; 12. Therefore at least 2 people have to be born in the same month. This is, of course, in the case that this function is injective for this group - if one or more birth months are not represented in this group of 13, we could have more than 2 people born in a given month. This is why we need to say at least 2 people will share a&nbsp;month.</p>
+<h2>Exam&nbsp;scores</h2>
+<p>Imagine we have 232 students enrolled in a mathematics course. The students must sit a final exam, with possible marks between 0 and 100. We&#8217;ll assume that the scores can only be integer values. At least 3 of these students will get the same exam&nbsp;mark.</p>
+<p>We think of the group of students as our domain with cardinality 232, and the marks as our codomain with cardinality 101, as below. Again, we assume injectivity, where every mark will be received by at least one student, as&nbsp;below.</p>
+<p><img src="/figure/pigeonhole_principle_3.png" title="Exam scores" style="display: block; margin: auto;" /></p>
+<p>As 232 divided by 101 has a quotient of 2, every mark will be received by at least 2 students. Then we have a remaining 31 students, who will need to be assigned marks that have already been received by at least 2 other students. Hence, at least one mark will be received by at least 3 students. More formally, since 232 &gt; 2(101), there is some mark <span class="math">\(b\)</span> such that 2 + 1 = 3 students will have <span class="math">\(f(a) = b\)</span>.</p>
+<h2>Friendship&nbsp;group</h2>
+<p>Here is a slightly more tricky example. Suppose that we have a set <span class="math">\(X\)</span> of at least 2 people. Define the function <span class="math">\(f: X \rightarrow \{0, 1, 2, ..., n -1\}\)</span> by <span class="math">\(f(x)\)</span> being the number of people in <span class="math">\(X\)</span> with whom <span class="math">\(x \in X\)</span> is friends. For the purposes of this definition, no one can be their own friend, and we also assume that the friendship is reciprocal, that is, if <span class="math">\(x\)</span> is friends with <span class="math">\(y\)</span>, then <span class="math">\(y\)</span> is friends with <span class="math">\(x\)</span>. We need to 1) explain why it is not possible for there to be <span class="math">\(x, y \in X\)</span> with <span class="math">\(f(x) = 0\)</span> <strong>and</strong> <span class="math">\(f(y) = n - 1\)</span>, and 2) show that there at least two members of <span class="math">\(X\)</span> who have the exact same number of friends in <span class="math">\(X\)</span>.</p>
+<p>There is a lot going on in this question, so we&#8217;ll start again with a diagram defining <span class="math">\(X\)</span> and <span class="math">\(\{0, 1, 2, ..., n - 1\}\)</span>.</p>
+<p><img src="/figure/pigeonhole_principle_4.png" title="Friendship group" style="display: block; margin: auto;" /></p>
+<p>Once you create these two sets, you can see something immediately. The cardinality of set <span class="math">\(X\)</span> is <span class="math">\(n\)</span>, running from person 1 to person <span class="math">\(n\)</span>. However, the cardinality of <span class="math">\(\{0, 1, 2, ..., n -1\}\)</span> is also <span class="math">\(n\)</span>, running from 0 to <span class="math">\(n - 1\)</span>. Hence, we currently have a bijection, so it would seem that the pigeonhole principle would not apply. However, we need to consider the first part of the question. Why would it be that we cannot have <span class="math">\(f(x) = 0\)</span> and <span class="math">\(f(y) = n-1\)</span> for two different people <span class="math">\(x, y\)</span> in <span class="math">\(X\)</span>?</p>
+<p>Well, what this is saying is that we simultaneously have a person who has no friends (<span class="math">\(f(x) = 0\)</span>) and a person who is friends with everyone (<span class="math">\(f(y) = n - 1\)</span>), as remember, someone cannot be friends with themselves so the maximum number of friends is <span class="math">\(n - 1\)</span>. This cannot be true, as <span class="math">\(y\)</span> would also be friends with <span class="math">\(x\)</span> if they were friends with everyone. So we cannot map to both 0 and <span class="math">\(n - 1\)</span> simultaneously. This means that the range of <span class="math">\(f\)</span> is either <span class="math">\(Y = \{0, 1, 2, ..., n -2\}\)</span> or <span class="math">\(Y = \{1, 2, ..., n -1\}\)</span> (assuming injectivity), meaning that the cardinality is <span class="math">\(n - 1\)</span>. So now the cardinality of the group of people <span class="math">\(X\)</span> is larger than the cardinality of the number of friends <span class="math">\(Y\)</span>, so as <span class="math">\(n &gt; n - 1\)</span>, at least two people in the group will have exactly the same number of&nbsp;friends.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
