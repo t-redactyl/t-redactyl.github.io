@@ -14,24 +14,30 @@
     <meta name="MobileOptimized" content="320" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="description" content="The pigeonhole principle written March 01, 2021 in maths">
+  <meta name="description" content="The pigeonhole principle written March 15, 2021 in maths">
   <meta name="keywords" content="discrete mathematics, mathematical proof, functions, pigeonhole principle" />
 
     <link
       rel="canonical"
-      href="/blog/2021/03/the-pigeonhole-principle.html"
+      href="https://t-redactyl.github.io/blog/2021/03/the-pigeonhole-principle.html"
     />
 
-    <link href="/favicon.png" rel="icon" />
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
 
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
       <link
-      href="/theme/css/screen.css"
+      href="https://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="/theme/css/tomorrow.css"
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -58,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="/theme/images/home.png" />
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -66,11 +72,11 @@
       <div class="col-md-8 col-md-offset-2">
         <h1>The pigeonhole principle</h1>
         <div class="meta">
-          written <time datetime="2021-03-01T00:00:00+01:00">March 01, 2021</time>
+          written <time datetime="2021-03-15T00:00:00+01:00">March 15, 2021</time>
           in <span class="categories">
-            <a href="/tag/maths.html">maths</a>          </span>
+            <a href="https://t-redactyl.github.io/tag/maths.html">maths</a>          </span>
         </div>
-        <p>In this blog post, we&#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quality of letters <span class="math">\(m\)</span>, and a number of pigeonholes <span class="math">\(n\)</span>. If the number of letters is bigger than the number of pigeonholes, at least one of the pigeonholes will end up with more than one letter, as below. In other words, if the <a href="https://en.wikipedia.org/wiki/Cardinality">cardinality</a> (the number of elements) of the set of letters is greater than the cardinality of the set of pigeonholes, or <span class="math">\(m &gt; n\)</span>, then at least one of the pigeonholes will have more than one&nbsp;letter.</p>
+        <p>In this blog post, we&#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quantity of letters <span class="math">\(m\)</span>, and a number of pigeonholes <span class="math">\(n\)</span>. If the number of letters is bigger than the number of pigeonholes, at least one of the pigeonholes will end up with more than one letter, as below. In other words, if the <a href="https://en.wikipedia.org/wiki/Cardinality">cardinality</a> (the number of elements) of the set of letters is greater than the cardinality of the set of pigeonholes, or <span class="math">\(m &gt; n\)</span>, then at least one of the pigeonholes will have more than one&nbsp;letter.</p>
 <p><img src="/figure/pigeonhole_principle_1.png" title="Pigeonhole principle" style="display: block; margin: auto;" /></p>
 <p>If you read my last blog post, you would recognise that this is an injective relationship (where every pigeonhole in our codomain maps to a letter in our domain), but it is not surjective (where there is a one-to-one relationship between every pigeonhole and letter). The underlying idea behind the pigeonhole principle is that we assume injectivity, although this doesn&#8217;t need to strictly hold for the principle to be true. We&#8217;ll discuss this more in the&nbsp;examples.</p>
 <p>The pigeonhole principle allows us to make some interesting observations about situations that feel quite far removed from functions. Let&#8217;s have a look at a couple of&nbsp;examples.</p>
@@ -78,7 +84,7 @@
 <p>Let&#8217;s imagine we have a random group of 13 people. Within this group, at least two of these people will have their birthdays in the same&nbsp;month.</p>
 <p>In order to solve this one, we need to imagine the group of 13 people as our domain, and the months of the year as our codomain. We assume injectivity, that is, that theoretically people could be mapped to every month of the year, as in the diagram&nbsp;below. </p>
 <p><img src="/figure/pigeonhole_principle_2.png" title="Birthday months" style="display: block; margin: auto;" /></p>
-<p>As we have 13 people but only 12 months, we cannot have a bijective relationship, as 13 &lt; 12. Therefore at least 2 people have to be born in the same month. This is, of course, in the case that this function is injective for this group - if one or more birth months are not represented in this group of 13, we could have more than 2 people born in a given month. This is why we need to say at least 2 people will share a&nbsp;month.</p>
+<p>As we have 13 people but only 12 months, we cannot have a bijective relationship, as 13 &gt; 12. Therefore at least 2 people have to be born in the same month. This is, of course, in the case that this function is injective for this group - if one or more birth months are not represented in this group of 13, we could have more than 2 people born in a given month. This is why we need to say at least 2 people will share a&nbsp;month.</p>
 <h2>Exam&nbsp;scores</h2>
 <p>Imagine we have 232 students enrolled in a mathematics course. The students must sit a final exam, with possible marks between 0 and 100. We&#8217;ll assume that the scores can only be integer values. At least 3 of these students will get the same exam&nbsp;mark.</p>
 <p>We think of the group of students as our domain with cardinality 232, and the marks as our codomain with cardinality 101, as below. Again, we assume injectivity, where every mark will be received by at least one student, as&nbsp;below.</p>
@@ -112,11 +118,11 @@
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_31_twitter.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_21_github.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
@@ -140,5 +146,14 @@
       renderMathInElement(document.body);
     </script>
 
-   </body>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
 </html>
