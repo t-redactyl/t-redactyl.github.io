@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>The greatest common divisor and the Euclidean algorithm</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="The greatest common divisor and the Euclidean algorithm written March 28, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, euclidean algorithm, gcd, greatest common divisor" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>The greatest common divisor and the Euclidean algorithm</h1>
+        <div class="meta">
+          written <time datetime="2021-03-28T00:00:00+01:00">March 28, 2021</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>In this blog post, we&#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or <span class="math">\(\gcd\)</span>, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24. One method of finding their common divisor is to find the divisors of each integer, and then see which is the largest one they have in common. So the divisors of 16&nbsp;are: 
+</p>
+<div class="math">$$\{-16, -8, -4, -2, -1, 1, 2, 4, 8, 16\}$$</div>
+<p> 
+Likewise for 24, we&nbsp;have: </p>
+<div class="math">$$\{-24, -12, -8, -6, -4, -3, -2, -1, 1, 2, 3, 4, 6, 8, 12, 24\}$$</div>
+<p> 
+Just from eyeballing these two sets, it&#8217;s obvious that the <span class="math">\(\gcd(24, 16)\)</span> is&nbsp;8. </p>
+<p>However, what do we do when the numbers are large and the set of divisors is not so manageable? We can calculate it using something called the Euclidean algorithm. The way it works is like so. We first need to consider the formal definition of division, which states that <span class="math">\(a = bq + r\)</span>, where <span class="math">\(0 \leq r &lt; b\)</span>. What this means is that we take some integer <span class="math">\(a\)</span>, divide it by <span class="math">\(b\)</span> (the divisor) <span class="math">\(q\)</span> (quotient) times, and have some remainder <span class="math">\(r\)</span> which is always smaller than the divisor <span class="math">\(b\)</span>. It turns out that these numbers are related by their greatest common divisors, where <span class="math">\(\gcd(a, b) = \gcd(b, r)\)</span>. So if we want to find the <span class="math">\(\gcd(a, b)\)</span>, we can use the fact that it is equivalent to <span class="math">\(\gcd(b, r)\)</span> to find it. This is still a bit abstract, so let&#8217;s see how it works using an&nbsp;example.</p>
+<p>Let&#8217;s say we want to find <span class="math">\(\gcd(2406, 654)\)</span>. Then we first divide 2406, working out the quotient and the&nbsp;remainder:
+</p>
+<div class="math">$$2406 = 654 \cdot 3 + 444$$</div>
+<p>So we have <span class="math">\(a = 2406\)</span>, <span class="math">\(b = 654\)</span>, <span class="math">\(q = 3\)</span> and <span class="math">\(r = 444\)</span>. We know that <span class="math">\(\gcd(2406, 654) = \gcd(654, 444)\)</span>, so we can now try to solve for the&nbsp;latter:
+</p>
+<div class="math">$$654 = 444 \cdot 1 + 210$$</div>
+<p>Now you can see that we&#8217;ve substituted in <span class="math">\(\gcd(b, r)\)</span> for <span class="math">\(\gcd(a, b)\)</span>, and we now solve for this. We can continue doing this until we end up with a remainder of 0, which means we&#8217;ve found our <span class="math">\(\gcd(a, b)\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+2406 &amp;= 654 \times 3 + 444 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(654, 444) \\
+654 &amp;= 444 \times 1 + 210 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(444, 210) \\
+444 &amp;= 210 \times 2 + 24 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(210, 24) \\
+210 &amp;= 24 \times 8 + 18 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(24, 18) \\
+24 &amp;= 18 \times 1 + 6 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(18, 6) \\
+18 &amp;= 6 \times 3 &amp;\Rightarrow gcd(2406, 654) &amp;= gcd(6, 0) = 6
+\end{aligned}
+$$</div>
+<p>We can see that when we get to <span class="math">\(\gcd(18, 6)\)</span> we have a remainder of 0, therefore <span class="math">\(\gcd(2406, 654) = 6\)</span>.</p>
+<p>We can abstract the form of this equation as&nbsp;follows:</p>
+<div class="math">$$
+\begin{aligned}
+a &amp;= bq_1 + r_1 \\
+b &amp;= r_1q_2 + r_2 \\
+r_1 &amp;= r_2q_3 + r_3 \\
+r_2 &amp;= r_3q_4 + r_4 \\
+\ldots \\
+r_{k-4} &amp;= r_{k-3}q_{k-2} + r_{k-2} \\
+r_{k-3} &amp;= r_{k-2}q_{k-1} + r_{k-1} \\
+r_{k-2} &amp;= r_{k-1}q_k
+\end{aligned}
+$$</div>
+<h2>Representing the gcd as a linear&nbsp;combination</h2>
+<p>As you&#8217;ve seen above, the Euclidean algorithm is a simple way of calculating the gcd of a pair of integers. It turns out to have other applications as well. It turns out the the gcd of any pair of integers can be represented as a linear combination, in the form <span class="math">\(d = ma + nb\)</span>, where <span class="math">\(d\)</span> is our gcd, <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are the integers we found the gcd of, and <span class="math">\(m\)</span> and <span class="math">\(n\)</span> are integers we must multiply them by in order to get the gcd. For our example above, we&#8217;d be looking for <span class="math">\(6 = 2406m + 654n\)</span>. But how do we find <span class="math">\(m\)</span> and <span class="math">\(n\)</span>? Well, we can use the results of the calculation above to get the values we&nbsp;need.</p>
+<p>Above, we defined that each line can be defined according to the values of <span class="math">\(r\)</span> and <span class="math">\(q\)</span> in the previous lines in the sequence. We can use this pattern to work out the values of <span class="math">\(m\)</span> and <span class="math">\(n\)</span>, by starting from the second last line and working our way to the&nbsp;top.</p>
+<p>Looking at the second last line, <span class="math">\(24 = 18 \times 1 + 6\)</span> can be defined as <span class="math">\(r_{k - 3} = r_{k - 2}q_{k - 1} + r_{k - 1}\)</span>, where <span class="math">\(r_{k - 3} = 24\)</span>, <span class="math">\(r_{k - 2} = 18\)</span>, <span class="math">\(q_{k - 1} = 1\)</span> and <span class="math">\(r_{k - 1} = 6\)</span>. Well <span class="math">\(r_{k - 1} = 6\)</span> is our <span class="math">\(\gcd(2406, 654)\)</span>, which is equal to <span class="math">\(d\)</span>. So we can rearrange the equation to solve for <span class="math">\(r_{k - 1}\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+r_{k - 3} &amp;= r_{k - 2}q_{k - 1} + r_{k - 1} \\
+r_{k - 3} - r_{k - 1} &amp;= r_{k - 2}q_{k - 1} \\
+-r_{k - 1} &amp;= r_{k - 2}q_{k - 1} - r_{k - 3} \\
+r_{k - 1} &amp;= -r_{k - 2}q_{k - 1} + r_{k - 3}
+\end{aligned}
+$$</div>
+<p>We can rewrite this is the form <span class="math">\(r_{k - 1} = m'r_{k - 2} + n'r_{k - 3}\)</span> by taking <span class="math">\(m' = -q_{k - 1}\)</span> and <span class="math">\(n' = 1\)</span> (we use <span class="math">\(m'\)</span> and <span class="math">\(n'\)</span> as we&#8217;re going to have to calculate a number of <span class="math">\(m\)</span>s and <span class="math">\(n\)</span>s, and we need to differentiate them). We&#8217;re now on our way to representing the equation in the form <span class="math">\(d = ma + nb\)</span>. </p>
+<p>Having solved for line <span class="math">\(k-1\)</span>, we now move to the next line <span class="math">\(k-2\)</span>. We can rearrange this line so that we go from <span class="math">\(r_{k-4} = r_{k-3}q_{k-2} + r_{k-2}\)</span> to <span class="math">\(r_{k-2} = r_{k-4} - r_{k-3}q_{k-2}\)</span>. We can now substitute this into our current equation for <span class="math">\(r_{k - 1}\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+r_{k - 1} &amp;= m'r_{k - 2} + n'r_{k - 3} \\
+&amp;= m'(r_{k-4} - r_{k-3}q_{k-2}) + n'r_{k - 3} \\
+&amp;= m'_{k-4} - m'r_{k-3}q_{k-2} + n'r_{k - 3} \\
+&amp;= m'_{k-4} - r_{k-3}(m'q_{k-2} + n')
+\end{aligned}
+$$</div>
+<p>We can now represent <span class="math">\(m'q_{k-2} + n'\)</span> as <span class="math">\(m''\)</span> and <span class="math">\(m'\)</span> as <span class="math">\(n''\)</span>. We then repeat these steps until we get to a form that contains <span class="math">\(a\)</span> and <span class="math">\(b\)</span>. You can see this in the table&nbsp;below:</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>$$\textrm{Iteration}$$</b></th>
+      <th style="text-align:center"><b>$$\textrm{Raw calculation}$$</b></th> 
+      <th style="text-align:center"><b>$$\textrm{Rewritten calculation}$$</b></th> 
+      <th style="text-align:center"><b>$$m$$</b></th> 
+      <th style="text-align:center"><b>$$n$$</b></th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">$$1$$</td>
+      <td style="text-align:center">$$r_{k-3}-r_{k-2}q_{k-1}$$</td>
+      <td style="text-align:center">$$m&#39;r_{k-2}+n&#39;r_{k-3}$$</td>
+      <td style="text-align:center">$$-q_{k-1}$$</td>
+      <td style="text-align:center">$$1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$2$$</td>
+      <td style="text-align:center">$$m&#39;(r_{k-4}-r_{k-3}q_{k-2})+n&#39;r_{k-3}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;r_{k-3}+n&#39;&#39;r_{k-4}$$</td>
+      <td style="text-align:center">$$n&#39;-m&#39;q_{k-2}$$</td>
+      <td style="text-align:center">$$m&#39;$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$3$$</td>
+      <td style="text-align:center">$$m&#39;&#39;(r_{k-5}-r_{k-4}q_{k-3})+n&#39;&#39;r_{k-4}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;r_{k-4}+n&#39;&#39;&#39;r_{k-5}$$</td>
+      <td style="text-align:center">$$n&#39;&#39;-m&#39;&#39;q_{k-3}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$4$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;(b-r_{k-5}q_{k-4})+n&#39;&#39;&#39;r_{k-5}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;&#39;r_{k-5}+n&#39;&#39;&#39;&#39;b$$</td>
+      <td style="text-align:center">$$n&#39;&#39;&#39;-m&#39;&#39;&#39;q_{k-4}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$5$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;&#39;(a-bq_{k-5})+n&#39;&#39;&#39;&#39;b$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;&#39;&#39;b+n&#39;&#39;&#39;&#39;&#39;a$<$/td>
+      <td style="text-align:center">$$n&#39;&#39;&#39;&#39;-m&#39;&#39;&#39;&#39;q_{k-5}$$</td>
+      <td style="text-align:center">$$m&#39;&#39;&#39;&#39;$$</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Let&#8217;s now apply this to our problem. To make it easier, let&#8217;s first get every value of <span class="math">\(r\)</span> and <span class="math">\(q\)</span> we&#8217;ll need to work&nbsp;with:</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>$$\textrm{Line}$$</b></th>
+      <th style="text-align:center"><b>$$r$$</b></th> 
+      <th style="text-align:center"><b>$$q$$</b></th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">$$k-1$$</td>
+      <td style="text-align:center">$$6$$</td>
+      <td style="text-align:center">$$1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$k-2$$</td>
+      <td style="text-align:center">$$18$$</td>
+      <td style="text-align:center">$$8$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$k-3$$</td>
+      <td style="text-align:center">$$24$$</td>
+      <td style="text-align:center">$$2$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$k-4$$</td>
+      <td style="text-align:center">$$210$$</td>
+      <td style="text-align:center">$$1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$k-5$$</td>
+      <td style="text-align:center">$$444$$</td>
+      <td style="text-align:center">$$3$$</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We can then solve for <span class="math">\(m\)</span> and <span class="math">\(n\)</span> like&nbsp;so:</p>
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>$$\textrm{Iteration}$$</b></th>
+      <th style="text-align:center"><b>$$\textrm{Raw calculation}$$</b></th> 
+      <th style="text-align:center"><b>$$\textrm{Rewritten calculation}$$</b></th> 
+      <th style="text-align:center"><b>$$m$$</b></th> 
+      <th style="text-align:center"><b>$$n$$</b></th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">$$1$$</td>
+      <td style="text-align:center">$$24-18\times1$$</td>
+      <td style="text-align:center">$$-1\times18+1\times24$$</td>
+      <td style="text-align:center">$$-1$$</td>
+      <td style="text-align:center">$$1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$2$$</td>
+      <td style="text-align:center">$$-1(210 - 24\times8)+1\times24$$</td>
+      <td style="text-align:center">$$19\times24+-1\times210$$</td>
+      <td style="text-align:center">$$9$$</td>
+      <td style="text-align:center">$$-1$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$3$$</td>
+      <td style="text-align:center">$$9(444-210\times2)+-1(210)$$</td>
+      <td style="text-align:center">$$-19\times210+9\times444$$</td>
+      <td style="text-align:center">$$-19$$</td>
+      <td style="text-align:center">$$9$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$4$$</td>
+      <td style="text-align:center">$$-19(654-444\times1)+9(444)$$</td>
+      <td style="text-align:center">$$28\times444+-19\times654$$</td>
+      <td style="text-align:center">$$28$$</td>
+      <td style="text-align:center">$$19$$</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">$$5$$</td>
+      <td style="text-align:center">$$28(2406-654\times3)+-19(654)$$</td>
+      <td style="text-align:center">$$-103\times654 + 28\times2406$$</td>
+      <td style="text-align:center">$$-103$$</td>
+      <td style="text-align:center">$$28$$</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Which gives us our solution to <span class="math">\(d\)</span>:</p>
+<div class="math">$$d = 28 \times 2406 + (-103) \times 654$$</div>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>

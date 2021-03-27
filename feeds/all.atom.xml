@@ -1,5 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-03-15T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>The pigeonhole principle</title><link href="https://t-redactyl.github.io/blog/2021/03/the-pigeonhole-principle.html" rel="alternate"></link><published>2021-03-15T00:00:00+01:00</published><updated>2021-03-15T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-03-15:/blog/2021/03/the-pigeonhole-principle.html</id><summary type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quantity of letters &lt;span class="math"&gt;\(m\)&lt;/span&gt;, and a number of pigeonholes &lt;span class="math"&gt;\(n\)&lt;/span&gt;. If the number of letters is bigger than the number …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quantity of letters &lt;span class="math"&gt;\(m\)&lt;/span&gt;, and a number of pigeonholes &lt;span class="math"&gt;\(n\)&lt;/span&gt;. If the number of letters is bigger than the number of pigeonholes, at least one of the pigeonholes will end up with more than one letter, as below. In other words, if the &lt;a href="https://en.wikipedia.org/wiki/Cardinality"&gt;cardinality&lt;/a&gt; (the number of elements) of the set of letters is greater than the cardinality of the set of pigeonholes, or &lt;span class="math"&gt;\(m &amp;gt; n\)&lt;/span&gt;, then at least one of the pigeonholes will have more than one&amp;nbsp;letter.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/all.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-03-28T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>The greatest common divisor and the Euclidean algorithm</title><link href="https://t-redactyl.github.io/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html" rel="alternate"></link><published>2021-03-28T00:00:00+01:00</published><updated>2021-03-28T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-03-28:/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html</id><summary type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24. One method of finding their common divisor is to find the divisors of each integer, and then see which is the largest one they have in common. So the divisors of 16&amp;nbsp;are: 
+&lt;/p&gt;
+&lt;div class="math"&gt;$$\{-16, -8, -4, -2, -1, 1, 2, 4, 8, 16\}$$&lt;/div&gt;
+&lt;p&gt; 
+Likewise for 24, we&amp;nbsp;have: &lt;/p&gt;
+&lt;div class="math"&gt;$$\{-24, -12, -8, -6, -4, -3, -2, -1, 1, 2, 3, 4, 6, 8, 12, 24\}$$&lt;/div&gt;
+&lt;p&gt; 
+Just from eyeballing these two sets, it&amp;#8217;s obvious that the &lt;span class="math"&gt;\(\gcd(24, 16)\)&lt;/span&gt; is&amp;nbsp;8. &lt;/p&gt;
+&lt;p&gt;However, what do we do when the numbers are large and the set of divisors is not so manageable? We can calculate it using something called the Euclidean algorithm. The way it works is like so. We first need to consider the formal definition of division, which states that &lt;span class="math"&gt;\(a = bq + r\)&lt;/span&gt;, where &lt;span class="math"&gt;\(0 \leq r &amp;lt; b\)&lt;/span&gt;. What this means is that we take some integer &lt;span class="math"&gt;\(a\)&lt;/span&gt;, divide it by &lt;span class="math"&gt;\(b\)&lt;/span&gt; (the divisor) &lt;span class="math"&gt;\(q\)&lt;/span&gt; (quotient) times, and have some remainder &lt;span class="math"&gt;\(r\)&lt;/span&gt; which is always smaller than the divisor &lt;span class="math"&gt;\(b\)&lt;/span&gt;. It turns out that these numbers are related by their greatest common divisors, where &lt;span class="math"&gt;\(\gcd(a, b) = \gcd(b, r)\)&lt;/span&gt;. So if we want to find the &lt;span class="math"&gt;\(\gcd(a, b)\)&lt;/span&gt;, we can use the fact that it is equivalent to &lt;span class="math"&gt;\(\gcd(b, r)\)&lt;/span&gt; to find it. This is still a bit abstract, so let&amp;#8217;s see how it works using an&amp;nbsp;example.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s say we want to find &lt;span class="math"&gt;\(\gcd(2406, 654)\)&lt;/span&gt;. Then we first divide 2406, working out the quotient and the&amp;nbsp;remainder:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$2406 = 654 \cdot 3 + 444$$&lt;/div&gt;
+&lt;p&gt;So we have &lt;span class="math"&gt;\(a = 2406\)&lt;/span&gt;, &lt;span class="math"&gt;\(b = 654\)&lt;/span&gt;, &lt;span class="math"&gt;\(q = 3\)&lt;/span&gt; and &lt;span class="math"&gt;\(r = 444\)&lt;/span&gt;. We know that &lt;span class="math"&gt;\(\gcd(2406, 654) = \gcd(654, 444)\)&lt;/span&gt;, so we can now try to solve for the&amp;nbsp;latter:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$654 = 444 \cdot 1 + 210$$&lt;/div&gt;
+&lt;p&gt;Now you can see that we&amp;#8217;ve substituted in &lt;span class="math"&gt;\(\gcd(b, r)\)&lt;/span&gt; for &lt;span class="math"&gt;\(\gcd(a, b)\)&lt;/span&gt;, and we now solve for this. We can continue doing this until we end up with a remainder of 0, which means we&amp;#8217;ve found our &lt;span class="math"&gt;\(\gcd(a, b)\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+2406 &amp;amp;= 654 \times 3 + 444 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(654, 444) \\
+654 &amp;amp;= 444 \times 1 + 210 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(444, 210) \\
+444 &amp;amp;= 210 \times 2 + 24 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(210, 24) \\
+210 &amp;amp;= 24 \times 8 + 18 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(24, 18) \\
+24 &amp;amp;= 18 \times 1 + 6 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(18, 6) \\
+18 &amp;amp;= 6 \times 3 &amp;amp;\Rightarrow gcd(2406, 654) &amp;amp;= gcd(6, 0) = 6
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We can see that when we get to &lt;span class="math"&gt;\(\gcd(18, 6)\)&lt;/span&gt; we have a remainder of 0, therefore &lt;span class="math"&gt;\(\gcd(2406, 654) = 6\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;We can abstract the form of this equation as&amp;nbsp;follows:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+a &amp;amp;= bq_1 + r_1 \\
+b &amp;amp;= r_1q_2 + r_2 \\
+r_1 &amp;amp;= r_2q_3 + r_3 \\
+r_2 &amp;amp;= r_3q_4 + r_4 \\
+\ldots \\
+r_{k-4} &amp;amp;= r_{k-3}q_{k-2} + r_{k-2} \\
+r_{k-3} &amp;amp;= r_{k-2}q_{k-1} + r_{k-1} \\
+r_{k-2} &amp;amp;= r_{k-1}q_k
+\end{aligned}
+$$&lt;/div&gt;
+&lt;h2&gt;Representing the gcd as a linear&amp;nbsp;combination&lt;/h2&gt;
+&lt;p&gt;As you&amp;#8217;ve seen above, the Euclidean algorithm is a simple way of calculating the gcd of a pair of integers. It turns out to have other applications as well. It turns out the the gcd of any pair of integers can be represented as a linear combination, in the form &lt;span class="math"&gt;\(d = ma + nb\)&lt;/span&gt;, where &lt;span class="math"&gt;\(d\)&lt;/span&gt; is our gcd, &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt; are the integers we found the gcd of, and &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt; are integers we must multiply them by in order to get the gcd. For our example above, we&amp;#8217;d be looking for &lt;span class="math"&gt;\(6 = 2406m + 654n\)&lt;/span&gt;. But how do we find &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt;? Well, we can use the results of the calculation above to get the values we&amp;nbsp;need.&lt;/p&gt;
+&lt;p&gt;Above, we defined that each line can be defined according to the values of &lt;span class="math"&gt;\(r\)&lt;/span&gt; and &lt;span class="math"&gt;\(q\)&lt;/span&gt; in the previous lines in the sequence. We can use this pattern to work out the values of &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt;, by starting from the second last line and working our way to the&amp;nbsp;top.&lt;/p&gt;
+&lt;p&gt;Looking at the second last line, &lt;span class="math"&gt;\(24 = 18 \times 1 + 6\)&lt;/span&gt; can be defined as &lt;span class="math"&gt;\(r_{k - 3} = r_{k - 2}q_{k - 1} + r_{k - 1}\)&lt;/span&gt;, where &lt;span class="math"&gt;\(r_{k - 3} = 24\)&lt;/span&gt;, &lt;span class="math"&gt;\(r_{k - 2} = 18\)&lt;/span&gt;, &lt;span class="math"&gt;\(q_{k - 1} = 1\)&lt;/span&gt; and &lt;span class="math"&gt;\(r_{k - 1} = 6\)&lt;/span&gt;. Well &lt;span class="math"&gt;\(r_{k - 1} = 6\)&lt;/span&gt; is our &lt;span class="math"&gt;\(\gcd(2406, 654)\)&lt;/span&gt;, which is equal to &lt;span class="math"&gt;\(d\)&lt;/span&gt;. So we can rearrange the equation to solve for &lt;span class="math"&gt;\(r_{k - 1}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+r_{k - 3} &amp;amp;= r_{k - 2}q_{k - 1} + r_{k - 1} \\
+r_{k - 3} - r_{k - 1} &amp;amp;= r_{k - 2}q_{k - 1} \\
+-r_{k - 1} &amp;amp;= r_{k - 2}q_{k - 1} - r_{k - 3} \\
+r_{k - 1} &amp;amp;= -r_{k - 2}q_{k - 1} + r_{k - 3}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We can rewrite this is the form &lt;span class="math"&gt;\(r_{k - 1} = m'r_{k - 2} + n'r_{k - 3}\)&lt;/span&gt; by taking &lt;span class="math"&gt;\(m' = -q_{k - 1}\)&lt;/span&gt; and &lt;span class="math"&gt;\(n' = 1\)&lt;/span&gt; (we use &lt;span class="math"&gt;\(m'\)&lt;/span&gt; and &lt;span class="math"&gt;\(n'\)&lt;/span&gt; as we&amp;#8217;re going to have to calculate a number of &lt;span class="math"&gt;\(m\)&lt;/span&gt;s and &lt;span class="math"&gt;\(n\)&lt;/span&gt;s, and we need to differentiate them). We&amp;#8217;re now on our way to representing the equation in the form &lt;span class="math"&gt;\(d = ma + nb\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;Having solved for line &lt;span class="math"&gt;\(k-1\)&lt;/span&gt;, we now move to the next line &lt;span class="math"&gt;\(k-2\)&lt;/span&gt;. We can rearrange this line so that we go from &lt;span class="math"&gt;\(r_{k-4} = r_{k-3}q_{k-2} + r_{k-2}\)&lt;/span&gt; to &lt;span class="math"&gt;\(r_{k-2} = r_{k-4} - r_{k-3}q_{k-2}\)&lt;/span&gt;. We can now substitute this into our current equation for &lt;span class="math"&gt;\(r_{k - 1}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+r_{k - 1} &amp;amp;= m'r_{k - 2} + n'r_{k - 3} \\
+&amp;amp;= m'(r_{k-4} - r_{k-3}q_{k-2}) + n'r_{k - 3} \\
+&amp;amp;= m'_{k-4} - m'r_{k-3}q_{k-2} + n'r_{k - 3} \\
+&amp;amp;= m'_{k-4} - r_{k-3}(m'q_{k-2} + n')
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We can now represent &lt;span class="math"&gt;\(m'q_{k-2} + n'\)&lt;/span&gt; as &lt;span class="math"&gt;\(m''\)&lt;/span&gt; and &lt;span class="math"&gt;\(m'\)&lt;/span&gt; as &lt;span class="math"&gt;\(n''\)&lt;/span&gt;. We then repeat these steps until we get to a form that contains &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;. You can see this in the table&amp;nbsp;below:&lt;/p&gt;
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Iteration}$$&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Raw calculation}$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Rewritten calculation}$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$m$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$n$$&lt;/b&gt;&lt;/th&gt; 
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$r_{k-3}-r_{k-2}q_{k-1}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;r_{k-2}+n&amp;#39;r_{k-3}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-q_{k-1}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$2$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;(r_{k-4}-r_{k-3}q_{k-2})+n&amp;#39;r_{k-3}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;r_{k-3}+n&amp;#39;&amp;#39;r_{k-4}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$n&amp;#39;-m&amp;#39;q_{k-2}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$3$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;(r_{k-5}-r_{k-4}q_{k-3})+n&amp;#39;&amp;#39;r_{k-4}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;r_{k-4}+n&amp;#39;&amp;#39;&amp;#39;r_{k-5}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$n&amp;#39;&amp;#39;-m&amp;#39;&amp;#39;q_{k-3}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$4$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;(b-r_{k-5}q_{k-4})+n&amp;#39;&amp;#39;&amp;#39;r_{k-5}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;&amp;#39;r_{k-5}+n&amp;#39;&amp;#39;&amp;#39;&amp;#39;b$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$n&amp;#39;&amp;#39;&amp;#39;-m&amp;#39;&amp;#39;&amp;#39;q_{k-4}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$5$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;&amp;#39;(a-bq_{k-5})+n&amp;#39;&amp;#39;&amp;#39;&amp;#39;b$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;&amp;#39;&amp;#39;b+n&amp;#39;&amp;#39;&amp;#39;&amp;#39;&amp;#39;a$&lt;$/td&gt;
+      &lt;td style="text-align:center"&gt;$$n&amp;#39;&amp;#39;&amp;#39;&amp;#39;-m&amp;#39;&amp;#39;&amp;#39;&amp;#39;q_{k-5}$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$m&amp;#39;&amp;#39;&amp;#39;&amp;#39;$$&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Let&amp;#8217;s now apply this to our problem. To make it easier, let&amp;#8217;s first get every value of &lt;span class="math"&gt;\(r\)&lt;/span&gt; and &lt;span class="math"&gt;\(q\)&lt;/span&gt; we&amp;#8217;ll need to work&amp;nbsp;with:&lt;/p&gt;
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Line}$$&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$r$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$q$$&lt;/b&gt;&lt;/th&gt; 
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$k-1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$6$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$k-2$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$18$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$8$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$k-3$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$24$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$2$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$k-4$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$210$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$k-5$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$444$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$3$$&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can then solve for &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt; like&amp;nbsp;so:&lt;/p&gt;
+&lt;div&gt;
+&lt;table class="table table-bordered"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Iteration}$$&lt;/b&gt;&lt;/th&gt;
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Raw calculation}$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$\textrm{Rewritten calculation}$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$m$$&lt;/b&gt;&lt;/th&gt; 
+      &lt;th style="text-align:center"&gt;&lt;b&gt;$$n$$&lt;/b&gt;&lt;/th&gt; 
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$24-18\times1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-1\times18+1\times24$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-1$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$2$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-1(210 - 24\times8)+1\times24$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$19\times24+-1\times210$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$9$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-1$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$3$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$9(444-210\times2)+-1(210)$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-19\times210+9\times444$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-19$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$9$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$4$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-19(654-444\times1)+9(444)$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$28\times444+-19\times654$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$28$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$19$$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style="text-align:center"&gt;$$5$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$28(2406-654\times3)+-19(654)$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-103\times654 + 28\times2406$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$-103$$&lt;/td&gt;
+      &lt;td style="text-align:center"&gt;$$28$$&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Which gives us our solution to &lt;span class="math"&gt;\(d\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$d = 28 \times 2406 + (-103) \times 654$$&lt;/div&gt;</content><category term="misc"></category><category term="maths"></category></entry><entry><title>The pigeonhole principle</title><link href="https://t-redactyl.github.io/blog/2021/03/the-pigeonhole-principle.html" rel="alternate"></link><published>2021-03-15T00:00:00+01:00</published><updated>2021-03-15T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-03-15:/blog/2021/03/the-pigeonhole-principle.html</id><summary type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quantity of letters &lt;span class="math"&gt;\(m\)&lt;/span&gt;, and a number of pigeonholes &lt;span class="math"&gt;\(n\)&lt;/span&gt;. If the number of letters is bigger than the number …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to talk about a very interesting application of functions called the piegonhole principle. The underlying idea is very simple. Imagine we have some quantity of letters &lt;span class="math"&gt;\(m\)&lt;/span&gt;, and a number of pigeonholes &lt;span class="math"&gt;\(n\)&lt;/span&gt;. If the number of letters is bigger than the number of pigeonholes, at least one of the pigeonholes will end up with more than one letter, as below. In other words, if the &lt;a href="https://en.wikipedia.org/wiki/Cardinality"&gt;cardinality&lt;/a&gt; (the number of elements) of the set of letters is greater than the cardinality of the set of pigeonholes, or &lt;span class="math"&gt;\(m &amp;gt; n\)&lt;/span&gt;, then at least one of the pigeonholes will have more than one&amp;nbsp;letter.&lt;/p&gt;
 &lt;p&gt;&lt;img src="/figure/pigeonhole_principle_1.png" title="Pigeonhole principle" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;p&gt;If you read my last blog post, you would recognise that this is an injective relationship (where every pigeonhole in our codomain maps to a letter in our domain), but it is not surjective (where there is a one-to-one relationship between every pigeonhole and letter). The underlying idea behind the pigeonhole principle is that we assume injectivity, although this doesn&amp;#8217;t need to strictly hold for the principle to be true. We&amp;#8217;ll discuss this more in the&amp;nbsp;examples.&lt;/p&gt;
 &lt;p&gt;The pigeonhole principle allows us to make some interesting observations about situations that feel quite far removed from functions. Let&amp;#8217;s have a look at a couple of&amp;nbsp;examples.&lt;/p&gt;
