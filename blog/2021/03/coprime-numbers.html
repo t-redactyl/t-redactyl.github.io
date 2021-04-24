@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Coprime numbers</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Coprime numbers written March 15, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, gcd, greatest common divisor, coprime pairs" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/03/coprime-numbers.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Coprime numbers</h1>
+        <div class="meta">
+          written <time datetime="2021-03-15T00:00:00+01:00">March 15, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>In the last blog post, we talked about divisibility and the greatest common divisor, or <span class="math">\(\gcd\)</span>. You might have been wondering already in that post what happens when two integers don&#8217;t have any common divisors? Well, in this case, as 1 divides every divisor, their <span class="math">\(\gcd\)</span> is equal to 1. Such pairs of numbers are called coprime, and they have applications in other areas of mathematics (such as modular arithmetic). In this post, we&#8217;ll have a look at a couple of ways of determining if pairs of numbers are coprime, and we&#8217;ll also have a look at a proof involving coprime&nbsp;integers.</p>
+<h2>Definition of a coprime&nbsp;pair</h2>
+<p>From the previous post, we know that when we have <span class="math">\(d = \gcd(a, b)\)</span>, then we can represent <span class="math">\(d\)</span> as a linear combination of <span class="math">\(a\)</span> and <span class="math">\(b\)</span>, such that <span class="math">\(am + bn = d\)</span>. This holds true also for coprime pairs, however, this time, <span class="math">\(am + bn = 1\)</span>. But how do we connect these two facts? We can use the following elegant proof&nbsp;below.</p>
+<p>Let&#8217;s say that we have a pair of natural numbers, <span class="math">\(a\)</span> and <span class="math">\(b\)</span>, and integers <span class="math">\(m\)</span> and <span class="math">\(n\)</span>. We know that <span class="math">\(am + bn = 1\)</span>. What we need to now show is that these numbers are coprime, that is, that the <span class="math">\(\gcd(a, b) = 1\)</span>. As we&#8217;re trying to find the <span class="math">\(\gcd(a, b)\)</span>, let&#8217;s suppose there is some common divisor of the two which we&#8217;ll call <span class="math">\(c\)</span> (where <span class="math">\(c \in \mathbb{Z}\)</span>). As <span class="math">\(c\)</span> is a divisor of both <span class="math">\(a\)</span> and <span class="math">\(b\)</span>, this means that <span class="math">\(c \mid a\)</span> and <span class="math">\(c \mid b\)</span>, and by the definition of divisibility, <span class="math">\(a = cd\)</span> and <span class="math">\(b = cf\)</span> for some <span class="math">\(d, f \in \mathbb{Z}\)</span>. We now have some new definitions of <span class="math">\(a\)</span> and <span class="math">\(b\)</span>, and we can substitute them into the linear equation we were given&nbsp;above:</p>
+<p>$$
+</p>
+<div class="math">\begin{aligned}
+am + bn &amp;= 1 \\
+cdm + cfn &amp;= 1 \\
+c(dm + fn) &amp;= 1
+\end{aligned}</div>
+<p>As <span class="math">\(dm + fn\)</span> is a linear combination of integers, it is also an integer, so let&#8217;s redefine it as <span class="math">\(g = dm + fn\)</span>, where <span class="math">\(g \in \mathbb{Z}\)</span>. So our equation above becomes <span class="math">\(1 = cg\)</span>, indicating that <span class="math">\(c \mid 1\)</span>. As <span class="math">\(c \in \mathbb{Z}\)</span>, then the only possible values of <span class="math">\(c\)</span> are <span class="math">\(\pm 1\)</span>. However, as <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are both in <span class="math">\(\mathbb{N}\)</span>, <span class="math">\(c\)</span> cannot be a negative number, so <span class="math">\(c = 1\)</span>. This means that as the only common divisor of <span class="math">\(a\)</span> and <span class="math">\(b\)</span>, <span class="math">\(c\)</span> is also the <span class="math">\(\gcd(a, b)\)</span>, meaning <span class="math">\(\gcd(a, b) = 1\)</span> and that <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are&nbsp;coprime.</p>
+<h2>Another way of defining coprime&nbsp;pairs</h2>
+<p>Let&#8217;s move onto a more complicated example. Let&#8217;s say that we&#8217;ve been asked to show that for all <span class="math">\(n \in \mathbb{N}\)</span>, the numbers <span class="math">\(9n + 8\)</span> and <span class="math">\(6n + 5\)</span> are coprime. This time the simplest path forward is to revisit the Euclidean algorithm that we discussed in the last post. We start with the idea that we&#8217;re trying to find the <span class="math">\(\gcd(9n + 8, 6n + 5)\)</span>. We start as per usual with the Euclidean algorithm, where we divide the larger number <span class="math">\(9n + 8\)</span> by the smaller number <span class="math">\(6n + 5\)</span>:</p>
+<div class="math">$$
+9n + 8 = 6n + 5 \times 1 + 3n + 3
+$$</div>
+<p>We now have <span class="math">\(\gcd(b, r)\)</span>, in this case <span class="math">\(\gcd(6n + 5, 3n + 3)\)</span>. We can proceed as normal with the Euclidean algorithm, using the fact that <span class="math">\(\gcd(a, b) = \gcd(b, r)\)</span> to seed each successive line until we get to our common&nbsp;divisor:</p>
+<div class="math">$$
+\begin{align*}
+9n + 8 &amp;= 6n + 5 \times 1 + 3n + 3 &amp;\Rightarrow gcd(9n + 8, 6n + 5) &amp;= gcd(6n + 5, 3n + 3) \\
+6n + 5 &amp;= 3n + 3 \times 1 + 3n + 2 &amp;\Rightarrow gcd(6n + 5, 3n + 3) &amp;= gcd(3n + 3, 3n + 2) \\
+3n + 3 &amp;= 3n + 2 \times 1 + 1 &amp;\Rightarrow gcd(3n + 3, 3n + 2) &amp;= gcd(3n + 2, 1)
+\end{align*}
+$$</div>
+<p>Quickly ducking out of our Euclidean algorithm, we can now simplify the equation to get rid of $3n# from both&nbsp;sides:</p>
+<div class="math">$$
+\begin{align*}
+3n + 3 = 3n + 2 \times 1 + 1 \\
+3 = 2 \times 1 + 1
+\end{align*}
+$$</div>
+<p>Continuing on, we&nbsp;get:</p>
+<div class="math">$$
+\begin{align*}
+3 &amp;= 2 \times 1 + 1 &amp;\Rightarrow gcd(3, 2) &amp;= gcd(2, 1) \\
+2 &amp;= 1 \times 1 + 1 &amp;\Rightarrow gcd(2, 1) &amp;= gcd(1, 1) \\
+1 &amp;= 1 \times 1 + 0 &amp;\Rightarrow gcd(1, 1) &amp;= gcd(1, 0)
+\end{align*}
+$$</div>
+<p>And with this, we&#8217;ve found that the <span class="math">\(\gcd(9n + 8, 6n + 5) = 1\)</span>, meaning that these integers are coprime for every <span class="math">\(n \in \mathbb{N}\)</span>.</p>
+<h2>A proof using coprime&nbsp;pairs</h2>
+<p>We&#8217;ll end this post by showing how we can exploit what we know about coprime pairs to complete a proof. Suppose that <span class="math">\(a, b \in \mathbb{N}\)</span> and that <span class="math">\(gcd(a, b) = 1\)</span>. Suppose also that <span class="math">\(a \mid r\)</span> and <span class="math">\(b \mid r\)</span>. What we need to show is that <span class="math">\(ab \mid r\)</span>.</p>
+<p>Given that <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are coprime, we know right away that <span class="math">\(am + bn = 1\)</span> for some <span class="math">\(m, n \in \mathbb{Z}\)</span>. We also know that <span class="math">\(a \mid r\)</span> and <span class="math">\(b \mid r\)</span>, so by the definition of divisibility, <span class="math">\(r = ax\)</span> and <span class="math">\(r = by\)</span> for some <span class="math">\(x, y \in mathbb{Z}\)</span>. We&#8217;re trying to show that <span class="math">\(ab \mid r\)</span>, so ideally we want some equation where <span class="math">\(r = abz\)</span>, where <span class="math">\(z\)</span> is some integer. We can exploit the fact that if we multiply <span class="math">\(am + bn = 1\)</span> by some value, the righthand side will now equal that value. Let&#8217;s try this with <span class="math">\(r\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+r(am + bn) &amp;= r \\
+ram + rbn &amp;= r
+\end{aligned}
+$$</div>
+<p>Ah ha! We have half of the problem solved, where we now have <span class="math">\(r\)</span> on one side of the equation. How do we get <span class="math">\(ab\)</span> as a common factor on the lefthand side? Well, we still have the fact that <span class="math">\(r = ax\)</span> and <span class="math">\(r = by\)</span>. We can subsitute these into our lefthand side, but we can be a little clever and use the definition that involves <span class="math">\(a\)</span> in with <span class="math">\(bn\)</span> and the definition that involves <span class="math">\(b\)</span> with <span class="math">\(am\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+ram + rbn &amp;= r \\
+by \cdot am + ax \cdot bn &amp;= r \\
+abmy + abnx &amp;= r \\
+ab(my + nx) &amp;= r
+\end{aligned}
+$$</div>
+<p>We&#8217;re almost there. The last step is to define <span class="math">\(z = my + nx\)</span>, where we know that <span class="math">\(my + nz\)</span> is in <span class="math">\(\mathbb{Z}\)</span> as a linear combination of integers, giving us <span class="math">\(r = abz\)</span>. Rewriting this, <span class="math">\(ab \mid r\)</span>, as&nbsp;required.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>

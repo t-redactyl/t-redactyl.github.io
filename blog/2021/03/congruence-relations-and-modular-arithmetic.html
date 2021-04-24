@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Congruence relations and modular arithmetic</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Congruence relations and modular arithmetic written March 23, 2021 in maths">
+  <meta name="keywords" content="discrete mathematics, mathematical proof, modular arithmetic, congruence modulo, integers modulo m" />
+
+    <link
+      rel="canonical"
+      href="/blog/2021/03/congruence-relations-and-modular-arithmetic.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Congruence relations and modular arithmetic</h1>
+        <div class="meta">
+          written <time datetime="2021-03-23T00:00:00+01:00">March 23, 2021</time>
+          in <span class="categories">
+            <a href="/tag/maths.html">maths</a>          </span>
+        </div>
+        <p>If you cast your mind back to the blog post on relations, you might remember a concept called equivalence classes. These are a consequence of when we have an equivalence relation of a set, and they partition the set into mutually exclusive&nbsp;subsets.</p>
+<p>A very important equivalence relation is the congruence relation. This relation is defined by <span class="math">\(a\)</span> being related to <span class="math">\(b\)</span> if and only if <span class="math">\(a - b\)</span> is a multiple of <span class="math">\(m\)</span>, where <span class="math">\(m\)</span> is some natural number. More formally, <span class="math">\(a \mathrel{R} b \iff m \mid (a - b)\)</span>. You can rather think of <span class="math">\(b\)</span> as what we need to subtract from <span class="math">\(a\)</span> in order to make it divisible by <span class="math">\(m\)</span>, or in other words, <span class="math">\(b\)</span> is the remainder if we divided <span class="math">\(a\)</span> by <span class="math">\(m\)</span>. We express this relation as <span class="math">\(a \equiv b (\mathrm{mod} m)\)</span>, meaning that <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are congruent modulo <span class="math">\(m\)</span>. (When they are not congruent modulo <span class="math">\(m\)</span>, we express this as <span class="math">\(a \not\equiv b\)</span>.) For example, <span class="math">\(9 \equiv 1 (\mathrm{mod} 4)\)</span>, because <span class="math">\(4 \mid (9 - 1) = 8\)</span>.</p>
+<p>A special thing about congruence relations is that they divide up the entire set of integers into equivalence classes, called congruence classes modulo <span class="math">\(m\)</span>. This is written as <span class="math">\(\mathbb{Z}_m\)</span>.For any congruence relation on <span class="math">\(\mathbb{Z}\)</span>, there are <span class="math">\(m\)</span> congruence classes modulo <span class="math">\(m\)</span>, each lining up with all of the possible values of <span class="math">\(b\)</span> when <span class="math">\(a\)</span> is divided by <span class="math">\(m\)</span>. For example, for <span class="math">\(\mathbb{Z}_4\)</span>, we have four congruence&nbsp;classes:</p>
+<div class="math">$$
+\begin{aligned}
+[0]_4 &amp;= \{\vdots, -8, -4, 0, 4, 8, \vdots\} \\
+[1]_4 &amp;= \{\vdots, -7, -3, 1, 5, 9, \vdots\} \\
+[2]_4 &amp;= \{\vdots, -6, -2, 2, 6, 10, \vdots\} \\
+[3]_4 &amp;= \{\vdots, -5, -1, 3, 7, 11, \vdots\}
+\end{aligned}
+$$</div>
+<p>You can see that all of the integers in <span class="math">\([0]_4\)</span> are those with the remainder 0 when divided by 4, those in <span class="math">\([1]_4\)</span> are those with the remainder 1 when divided by 4, and so on. For any <span class="math">\(m\)</span>, the congruence classes will range between <span class="math">\([0]_m\)</span> and <span class="math">\([m - 1]_m\)</span>. As discussed in the blog post on relations, all members of a congruence class modulo <span class="math">\(m\)</span> are considered equivalent, so <span class="math">\([1]_4\)</span> could also be called <span class="math">\([-7]_4\)</span> or <span class="math">\([9]_4\)</span>. However, class names are given based on the smallest positive integer (including 0). It also bears repeating that when values are congruent modulo <span class="math">\(m\)</span>, they belong to the same congruence class modulo <span class="math">\(m\)</span>. In the example above, we stated that <span class="math">\(9 \equiv 1 (\mathrm{mod} 4)\)</span>, and you can see that they indeed belong to the same congruence class <span class="math">\([1]_4\)</span>.</p>
+<h2>Our first&nbsp;proof</h2>
+<p>Let&#8217;s apply these facts to solve our first proof. Let&#8217;s say we are asked to show that <span class="math">\(n \equiv 7 (\mathrm{mod} 12)\)</span> implies <span class="math">\(n \equiv 3 (\mathrm{mod} 4)\)</span>, and also to check if the converse is true. We can start with our definition of the congruence of integers, which is that if <span class="math">\(n \equiv 7 (\mathrm{mod} 12)\)</span>, then <span class="math">\(12 \mid (n - 7)\)</span>, and from there use the definition of divisibility to show that this implies that <span class="math">\(n - 7 = 12a\)</span>, for some <span class="math">\(a \in \mathbb{Z}\)</span>. Now, defining <span class="math">\(n \equiv 3 (\mathrm{mod} 4)\)</span> in the same way, we get <span class="math">\(n - 3 = 4b\)</span>, for some <span class="math">\(b \in \mathbb{Z}\)</span>. So, now we want to algebraically manipulate <span class="math">\(n - 7 = 12a\)</span> so we get it in the form <span class="math">\(n - 3 = 4b\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+n - 7 &amp;= 12a \\
+n &amp;= 12a + 7 \\
+&amp;= 12a + 4 + 3 \\
+&amp;= 4(3a + 1) + 3 \\
+n - 3 &amp;= 4(3a + 1)
+\end{aligned}
+$$</div>
+<p>If we redefine <span class="math">\(b = 3a + 1\)</span>, then we have <span class="math">\(n - 3 = 4b\)</span>, as we needed. We then work back from this to get <span class="math">\(4 \mid (n - 3)\)</span>, and then finally n \equiv 3 (\mathrm{mod} 4). So <span class="math">\(n \equiv 7 (\mathrm{mod} 12)\)</span> indeed implies <span class="math">\(n \equiv 3 (\mathrm{mod} 4)\)</span>.</p>
+<p>We now move onto looking at the converse. The easiest way to do this is to check what are some members of the congruence class <span class="math">\([3]_4\)</span>, which include <span class="math">\(\{\vdots, -5, -1, 3, 7, 11, \vdots\}. If we take any of these values $n\)</span> and substitute it into <span class="math">\(12 \mid (n - 7)\)</span>, then this will be false (for example, <span class="math">\(12 \mid (11 - 7)\)</span> is false). Therefore, the converse is not&nbsp;true.</p>
+<h2>Manipulating congruence&nbsp;relations</h2>
+<p>There are a number of ways in which we can manipulate congruence relations, which come in really handy when solving problems within <span class="math">\(Z_m\)</span>. Assuming that <span class="math">\(m \in \mathbb{N}\)</span> and that <span class="math">\(a, b, c\)</span> and <span class="math">\(d \in \mathbb{Z}\)</span>, where <span class="math">\(a \equiv b (\mathrm{mod} m)\)</span> and <span class="math">\(c \equiv d (\mathrm{mod} m)\)</span>, then:
+1. <span class="math">\(a + c \equiv b + d (\mathrm{mod} m)\)</span>
+2. <span class="math">\(a - c \equiv b - d (\mathrm{mod} m)\)</span>
+3. <span class="math">\(ac \equiv bd (\mathrm{mod} m)\)</span>
+4. <span class="math">\(ka \equiv kb (\mathrm{mod} m) for every k \in \mathbb{Z}\)</span>
+5. <span class="math">\(a^n \equiv b^n (\mathrm{mod} m) for every n \in&nbsp;\mathbb{N}\)</span></p>
+<p>We can use the above to solve our next problem. We need to show that, for all <span class="math">\(n \in \mathbb{N}\)</span>, <span class="math">\(3^{3n + 1} \equiv 3 \cdot 5^n (\mathrm{mod} 11)\)</span> and that <span class="math">\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} 11)\)</span>. Hence, we then show that for all <span class="math">\(n \in \mathbb{N}\)</span>, <span class="math">\(11 \mid (3^{3n + 1} + 2^{4n + 3})\)</span>. </p>
+<p>Let&#8217;s start with showing that <span class="math">\(3^{3n + 1} \equiv 3 \cdot 5^n (\mathrm{mod} 11)\)</span>. We&#8217;ll first simply it to <span class="math">\(3 \cdot 3^{3n} \equiv 3 \cdot 5^n (\mathrm{mod} 11)\)</span>. We can see that both sides are now multiplied by 3, and working backwards from rule 3 above, the congruence relation will hold if we divide both sides by 3: <span class="math">\(3^{3n} \equiv 5^n (\mathrm{mod} 11)\)</span>. Simplifying this, we get <span class="math">\(27^n \equiv 5^n (\mathrm{mod} 11)\)</span>, which then means that both sides are raised to the same power <span class="math">\(n\)</span>. Again, working backwards from rule 5 above, we can take the <span class="math">\(\log{n}\)</span> of both sides, leaving us finally with <span class="math">\(27 \equiv 5 (\mathrm{mod} 11)\)</span>, which is true (<span class="math">\(27 - 5 = 22\)</span>, which is divisible by&nbsp;11).</p>
+<p>We can do the same thing with <span class="math">\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} 11)\)</span>. Let&#8217;s do it all in one&nbsp;go:</p>
+<div class="math">$$
+\begin{aligned}
+2^{4n + 3} &amp;\equiv 8 \cdot 5^n (\mathrm{mod} 11) \\
+2^3 \cdot 2^{4n} &amp;\equiv 8 \cdot 5^n \\
+8 \cdot 2^{4n} &amp;\equiv 8 \cdot 5^n \\
+2^{4n} &amp;\equiv 5^n \\
+16^n &amp;\equiv 5^n \\
+16 &amp;\equiv 5
+\end{aligned}
+$$</div>
+<p>We end up with <span class="math">\(16 \equiv 5 (\mathrm{mod} 11)\)</span>, which is also true (<span class="math">\(16 - 5 = 11\)</span>, which is obviously divisible by&nbsp;11!). </p>
+<p>As we&#8217;ve now proven that <span class="math">\(3^{3n + 1} \equiv 3 \cdot 5^n\)</span> and <span class="math">\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} 11)\)</span> are both true, we can now use the first rule above. We&#8217;ll add the two congruence relations together, and then manipulate the result so that one of the sides is shown to be divisible by&nbsp;11.</p>
+<div class="math">$$
+\begin{aligned}
+3^{3n + 1} + 2^{4n + 3} &amp;\equiv 3 \cdot 5^n + 8 \cdot 5^n (\mathrm{mod} 11) \\
+&amp;\equiv 5^n(3 + 8) \\
+&amp;\equiv 11(5^n) \\
+\end{aligned}
+$$</div>
+<p>We now have <span class="math">\(3^{3n + 1} + 2^{4n + 3} \equiv 11(5^n) (\mathrm{mod} 11)\)</span>. As 11 is in equivalence class <span class="math">\([0]_11\)</span> in <span class="math">\(\mathbb{Z}_11\)</span>, it is congruence with 0, so we can simplify the above to <span class="math">\(3^{3n + 1} + 2^{4n + 3} \equiv 0(5^n) = 0 (\mathrm{mod} 11)\)</span>. Hence for all <span class="math">\(n \in \mathbb{N}\)</span>, <span class="math">\(11 \mid (3^{3n + 1} + 2^{4n + 3})\)</span>.</p>
+<h2>Modular&nbsp;arithmetic</h2>
+<p>The final part of this (rather long!) blog post is on arithmetic in <span class="math">\(\mathbb{Z}_m\)</span>. In the regular integer space, we&#8217;d carry out arithmetic operations like&nbsp;so:</p>
+<div class="math">$$
+2 + 3 &amp;= 5
+2 \times 3 &amp;= 6
+$$</div>
+<p>However, in <span class="math">\(\mathbb{Z}_m\)</span>, this works a bit differently. Let&#8217;s take again <span class="math">\(\mathbb{Z}_4\)</span> again. How would the above operations&nbsp;look?</p>
+<div class="math">$$
+2 + 3 &amp;= 5 = 1
+2 \times 3 &amp;= 6 = 2
+$$</div>
+<p>We simplify the results of operations to the base member of their congruence class - in other words, those values between 0 and <span class="math">\(m - 1\)</span>. We&#8217;ll use this to solve our next problem. By working modulo 7 (<span class="math">\(\mathbb{Z}_7\)</span>), we need to prove that <span class="math">\(2^{n + 2} + 3^{2n + 1}\)</span> is divisible by&nbsp;7.</p>
+<p>The way to approach this problem is simply to try and simplify each part of the expression in modulo 7. Starting with <span class="math">\(2^{n + 2}\)</span>, we&nbsp;have:</p>
+<div class="math">$$
+\begin{aligned}
+2^{n + 2} &amp;= 2^2 \cdot 2^n (\mathrm{mod} 7) \\
+&amp;= 4 \cdot 2^n
+\end{aligned}
+$$</div>
+<p>This does not simply further in modulo 7. Looking now at <span class="math">\(3^{2n + 1}\)</span>:</p>
+<div class="math">$$
+\begin{aligned}
+3^{2n + 1} &amp;= 3 \cdot 3^{2n} (\mathrm{mod} 7) \\
+&amp;= 3 \cdot 9^n \\
+&amp;= 3 \cdot 2^n
+\end{aligned}
+$$</div>
+<p>We now add these two simplified results back together to&nbsp;get:</p>
+<div class="math">$$
+4(2^n) + 3(2^n) = 7(2^n) (\mathrm{mod} 7) \\
+$$</div>
+<p>Therefore in modulo 7, we&#8217;ve shown that <span class="math">\(2^{n + 2} + 3^{2n + 1}\)</span> is divisible by 7, as&nbsp;required.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>

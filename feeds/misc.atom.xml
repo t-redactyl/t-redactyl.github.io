@@ -1,5 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-03-28T00:00:00+01:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>The greatest common divisor and the Euclidean algorithm</title><link href="https://t-redactyl.github.io/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html" rel="alternate"></link><published>2021-03-28T00:00:00+01:00</published><updated>2021-03-28T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-03-28:/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html</id><summary type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24. One method of finding their common divisor is to find the divisors of each integer, and then see which is the largest one they have in common. So the divisors of 16&amp;nbsp;are: 
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Standard error - misc</title><link href="https://t-redactyl.github.io/" rel="alternate"></link><link href="https://t-redactyl.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://t-redactyl.github.io/</id><updated>2021-04-26T00:00:00+02:00</updated><subtitle>learnings and projects in data science</subtitle><entry><title>Congruence relations and modular arithmetic</title><link href="https://t-redactyl.github.io/blog/2021/04/congruence-relations-and-modular-arithmetic.html" rel="alternate"></link><published>2021-04-26T00:00:00+02:00</published><updated>2021-04-26T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-04-26:/blog/2021/04/congruence-relations-and-modular-arithmetic.html</id><summary type="html">&lt;p&gt;If you cast your mind back to the blog post on relations, you might remember a concept called equivalence classes. These are a consequence of when we have an equivalence relation of a set, and they partition the set into mutually exclusive&amp;nbsp;subsets.&lt;/p&gt;
+&lt;p&gt;A very important equivalence relation is the …&lt;/p&gt;</summary><content type="html">&lt;p&gt;If you cast your mind back to the blog post on relations, you might remember a concept called equivalence classes. These are a consequence of when we have an equivalence relation of a set, and they partition the set into mutually exclusive&amp;nbsp;subsets.&lt;/p&gt;
+&lt;p&gt;A very important equivalence relation is the congruence relation. This relation is defined by &lt;span class="math"&gt;\(a\)&lt;/span&gt; being related to &lt;span class="math"&gt;\(b\)&lt;/span&gt; if and only if &lt;span class="math"&gt;\(a - b\)&lt;/span&gt; is a multiple of &lt;span class="math"&gt;\(m\)&lt;/span&gt;, where &lt;span class="math"&gt;\(m\)&lt;/span&gt; is some natural number. More formally, &lt;span class="math"&gt;\(a \mathrel{R} b \iff m \mid (a - b)\)&lt;/span&gt;. You can rather think of &lt;span class="math"&gt;\(b\)&lt;/span&gt; as what we need to subtract from &lt;span class="math"&gt;\(a\)&lt;/span&gt; in order to make it divisible by &lt;span class="math"&gt;\(m\)&lt;/span&gt;, or in other words, &lt;span class="math"&gt;\(b\)&lt;/span&gt; is the remainder if we divided &lt;span class="math"&gt;\(a\)&lt;/span&gt; by &lt;span class="math"&gt;\(m\)&lt;/span&gt;. We express this relation as &lt;span class="math"&gt;\(a \equiv b (\mathrm{mod} \textrm{ m})\)&lt;/span&gt;, meaning that &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt; are congruent modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;. (When they are not congruent modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;, we express this as &lt;span class="math"&gt;\(a \not\equiv b\)&lt;/span&gt;.) For example, &lt;span class="math"&gt;\(9 \equiv 1 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt;, because &lt;span class="math"&gt;\(4 \mid (9 - 1) = 8\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;A special thing about congruence relations is that they divide up the entire set of integers into equivalence classes, called congruence classes modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;. This is written as &lt;span class="math"&gt;\(\mathbb{Z}_m\)&lt;/span&gt;. For any congruence relation on &lt;span class="math"&gt;\(\mathbb{Z}\)&lt;/span&gt;, there are &lt;span class="math"&gt;\(m\)&lt;/span&gt; congruence classes modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;, each lining up with all of the possible values of &lt;span class="math"&gt;\(b\)&lt;/span&gt; when &lt;span class="math"&gt;\(a\)&lt;/span&gt; is divided by &lt;span class="math"&gt;\(m\)&lt;/span&gt;. For example, for &lt;span class="math"&gt;\(\mathbb{Z}_4\)&lt;/span&gt;, we have four congruence&amp;nbsp;classes:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+[0]_4 &amp;amp;= \{\vdots, -8, -4, 0, 4, 8, \vdots\} \\
+[1]_4 &amp;amp;= \{\vdots, -7, -3, 1, 5, 9, \vdots\} \\
+[2]_4 &amp;amp;= \{\vdots, -6, -2, 2, 6, 10, \vdots\} \\
+[3]_4 &amp;amp;= \{\vdots, -5, -1, 3, 7, 11, \vdots\}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;You can see that all of the integers in &lt;span class="math"&gt;\([0]_4\)&lt;/span&gt; are those with the remainder 0 when divided by 4, those in &lt;span class="math"&gt;\([1]_4\)&lt;/span&gt; are those with the remainder 1 when divided by 4, and so on. For any &lt;span class="math"&gt;\(m\)&lt;/span&gt;, the congruence classes will range between &lt;span class="math"&gt;\([0]_m\)&lt;/span&gt; and &lt;span class="math"&gt;\([m - 1]_m\)&lt;/span&gt;. As discussed in the blog post on relations, all members of a congruence class modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt; are considered equivalent, so &lt;span class="math"&gt;\([1]_4\)&lt;/span&gt; could also be called &lt;span class="math"&gt;\([-7]_4\)&lt;/span&gt; or &lt;span class="math"&gt;\([9]_4\)&lt;/span&gt;. However, class names are given based on the smallest positive integer (including 0). It also bears repeating that when values are congruent modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;, they belong to the same congruence class modulo &lt;span class="math"&gt;\(m\)&lt;/span&gt;. In the example above, we stated that &lt;span class="math"&gt;\(9 \equiv 1 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt;, and you can see that they indeed belong to the same congruence class &lt;span class="math"&gt;\([1]_4\)&lt;/span&gt;.&lt;/p&gt;
+&lt;h2&gt;Our first&amp;nbsp;proof&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s apply these facts to solve our first proof. Let&amp;#8217;s say we are asked to show that &lt;span class="math"&gt;\(n \equiv 7 (\mathrm{mod} \textrm{ 12})\)&lt;/span&gt; implies &lt;span class="math"&gt;\(n \equiv 3 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt;, and also to check if the converse is true. We can start with our definition of the congruence of integers, which is that if &lt;span class="math"&gt;\(n \equiv 7 (\mathrm{mod} \textrm{ 12})\)&lt;/span&gt;, then &lt;span class="math"&gt;\(12 \mid (n - 7)\)&lt;/span&gt;, and from there use the definition of divisibility to show that this implies that &lt;span class="math"&gt;\(n - 7 = 12a\)&lt;/span&gt;, for some &lt;span class="math"&gt;\(a \in \mathbb{Z}\)&lt;/span&gt;. Now, defining &lt;span class="math"&gt;\(n \equiv 3 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt; in the same way, we get &lt;span class="math"&gt;\(n - 3 = 4b\)&lt;/span&gt;, for some &lt;span class="math"&gt;\(b \in \mathbb{Z}\)&lt;/span&gt;. So, now we want to algebraically manipulate &lt;span class="math"&gt;\(n - 7 = 12a\)&lt;/span&gt; so we get it in the form &lt;span class="math"&gt;\(n - 3 = 4b\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+n - 7 &amp;amp;= 12a \\
+n &amp;amp;= 12a + 7 \\
+&amp;amp;= 12a + 4 + 3 \\
+&amp;amp;= 4(3a + 1) + 3 \\
+n - 3 &amp;amp;= 4(3a + 1)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;If we redefine &lt;span class="math"&gt;\(b = 3a + 1\)&lt;/span&gt;, then we have &lt;span class="math"&gt;\(n - 3 = 4b\)&lt;/span&gt;, as we needed. We then work back from this to get &lt;span class="math"&gt;\(4 \mid (n - 3)\)&lt;/span&gt;, and then finally &lt;span class="math"&gt;\(n \equiv 3 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt;. So &lt;span class="math"&gt;\(n \equiv 7 (\mathrm{mod} \textrm{ 12})\)&lt;/span&gt; indeed implies &lt;span class="math"&gt;\(n \equiv 3 (\mathrm{mod} \textrm{ 4})\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;We now move onto looking at the converse. The easiest way to do this is to check what are some members of the congruence class &lt;span class="math"&gt;\([3]_4\)&lt;/span&gt;, which include &lt;span class="math"&gt;\(\{\ldots, -5, -1, 3, 7, 11, \ldots\}\)&lt;/span&gt;. If we take any of these values &lt;span class="math"&gt;\(n\)&lt;/span&gt; and substitute it into &lt;span class="math"&gt;\(12 \mid (n - 7)\)&lt;/span&gt;, then this will be false (for example, &lt;span class="math"&gt;\(12 \mid (11 - 7)\)&lt;/span&gt; is false). Therefore, the converse is not&amp;nbsp;true.&lt;/p&gt;
+&lt;h2&gt;Manipulating congruence&amp;nbsp;relations&lt;/h2&gt;
+&lt;p&gt;There are a number of ways in which we can manipulate congruence relations, which come in really handy when solving problems within &lt;span class="math"&gt;\(Z_m\)&lt;/span&gt;. Assuming that &lt;span class="math"&gt;\(m \in \mathbb{N}\)&lt;/span&gt; and that &lt;span class="math"&gt;\(a, b, c\)&lt;/span&gt; and &lt;span class="math"&gt;\(d \in \mathbb{Z}\)&lt;/span&gt;, where &lt;span class="math"&gt;\(a \equiv b (\mathrm{mod} \textrm{ m})\)&lt;/span&gt; and &lt;span class="math"&gt;\(c \equiv d (\mathrm{mod} \textrm{ m})\)&lt;/span&gt;,&amp;nbsp;then:
+&lt;/p&gt;
+&lt;div class="math"&gt;$$ 
+\begin{aligned}
+\textrm{1. }&amp;amp; a + c \equiv b + d (\mathrm{mod} \textrm{ m}) \\
+\textrm{2. }&amp;amp; a - c \equiv b - d (\mathrm{mod} \textrm{ m}) \\
+\textrm{3. }&amp;amp; ac \equiv bd (\mathrm{mod} \textrm{ m}) \\
+\textrm{4. }&amp;amp; ka \equiv kb (\mathrm{mod} \textrm{ m}) \textrm{ for every } k \in \mathbb{Z} \\
+\textrm{5. }&amp;amp; a^n \equiv b^n (\mathrm{mod} \textrm{ m}) \textrm{ for every } n \in \mathbb{N}
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We can use the above to solve our next problem. We need to show that, for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, &lt;span class="math"&gt;\(3^{3n + 1} \equiv 3 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt; and that &lt;span class="math"&gt;\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. Hence, we then show that for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, &lt;span class="math"&gt;\(11 \mid (3^{3n + 1} + 2^{4n + 3})\)&lt;/span&gt;. &lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s start with showing that &lt;span class="math"&gt;\(3^{3n + 1} \equiv 3 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. We&amp;#8217;ll first simply it to &lt;span class="math"&gt;\(3 \cdot 3^{3n} \equiv 3 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. We can see that both sides are now multiplied by 3, and working backwards from rule 3 above, the congruence relation will hold if we divide both sides by 3: &lt;span class="math"&gt;\(3^{3n} \equiv 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. Simplifying this, we get &lt;span class="math"&gt;\(27^n \equiv 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;, which then means that both sides are raised to the same power &lt;span class="math"&gt;\(n\)&lt;/span&gt;. Again, working backwards from rule 5 above, we can take the &lt;span class="math"&gt;\(\log{n}\)&lt;/span&gt; of both sides, leaving us finally with &lt;span class="math"&gt;\(27 \equiv 5 (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;, which is true (&lt;span class="math"&gt;\(27 - 5 = 22\)&lt;/span&gt;, which is divisible by&amp;nbsp;11).&lt;/p&gt;
+&lt;p&gt;We can do the same thing with &lt;span class="math"&gt;\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. Let&amp;#8217;s do it all in one&amp;nbsp;go:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+2^{4n + 3} &amp;amp;\equiv 8 \cdot 5^n (\mathrm{mod} \textrm{ 11}) \\
+2^3 \cdot 2^{4n} &amp;amp;\equiv 8 \cdot 5^n \\
+8 \cdot 2^{4n} &amp;amp;\equiv 8 \cdot 5^n \\
+2^{4n} &amp;amp;\equiv 5^n \\
+16^n &amp;amp;\equiv 5^n \\
+16 &amp;amp;\equiv 5
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We end up with &lt;span class="math"&gt;\(16 \equiv 5 (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;, which is also true (&lt;span class="math"&gt;\(16 - 5 = 11\)&lt;/span&gt;, which is obviously divisible by&amp;nbsp;11!). &lt;/p&gt;
+&lt;p&gt;As we&amp;#8217;ve now proven that &lt;span class="math"&gt;\(3^{3n + 1} \equiv 3 \cdot 5^n\)&lt;/span&gt; and &lt;span class="math"&gt;\(2^{4n + 3} \equiv 8 \cdot 5^n (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt; are both true, we can now use the first rule above. We&amp;#8217;ll add the two congruence relations together, and then manipulate the result so that one of the sides is shown to be divisible by&amp;nbsp;11.&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+3^{3n + 1} + 2^{4n + 3} &amp;amp;\equiv 3 \cdot 5^n + 8 \cdot 5^n (\mathrm{mod} 11) \\
+&amp;amp;\equiv 5^n(3 + 8) \\
+&amp;amp;\equiv 11(5^n) \\
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We now have &lt;span class="math"&gt;\(3^{3n + 1} + 2^{4n + 3} \equiv 11(5^n) (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. As 11 is in equivalence class &lt;span class="math"&gt;\([0]_{11}\)&lt;/span&gt; in &lt;span class="math"&gt;\(\mathbb{Z}_{11}\)&lt;/span&gt;, it is congruent with 0, so we can simplify the above to &lt;span class="math"&gt;\(3^{3n + 1} + 2^{4n + 3} \equiv 0(5^n) = 0 (\mathrm{mod} \textrm{ 11})\)&lt;/span&gt;. Hence for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, &lt;span class="math"&gt;\(11 \mid (3^{3n + 1} + 2^{4n + 3})\)&lt;/span&gt;.&lt;/p&gt;
+&lt;h2&gt;Modular&amp;nbsp;arithmetic&lt;/h2&gt;
+&lt;p&gt;The final part of this (rather long!) blog post is on arithmetic in &lt;span class="math"&gt;\(\mathbb{Z}_m\)&lt;/span&gt;. In the regular integer space, we&amp;#8217;d carry out arithmetic operations like&amp;nbsp;so:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+2 + 3 &amp;amp;= 5 \\
+2 \times 3 &amp;amp;= 6
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;However, in &lt;span class="math"&gt;\(\mathbb{Z}_m\)&lt;/span&gt;, this works a bit differently. Let&amp;#8217;s take again &lt;span class="math"&gt;\(\mathbb{Z}_4\)&lt;/span&gt; again. How would the above operations&amp;nbsp;look?&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+2 + 3 &amp;amp;= 5 = 1 \\
+2 \times 3 &amp;amp;= 6 = 2
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We simplify the results of operations to the base member of their congruence class - in other words, those values between 0 and &lt;span class="math"&gt;\(m - 1\)&lt;/span&gt;. We&amp;#8217;ll use this to solve our next problem. By working modulo 7 (&lt;span class="math"&gt;\(\mathbb{Z}_7\)&lt;/span&gt;), we need to prove that &lt;span class="math"&gt;\(2^{n + 2} + 3^{2n + 1}\)&lt;/span&gt; is divisible by&amp;nbsp;7.&lt;/p&gt;
+&lt;p&gt;The way to approach this problem is simply to try and simplify each part of the expression in modulo 7. Starting with &lt;span class="math"&gt;\(2^{n + 2}\)&lt;/span&gt;, we&amp;nbsp;have:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+2^{n + 2} &amp;amp;= 2^2 \cdot 2^n (\mathrm{mod} \textrm{ 7}) \\
+&amp;amp;= 4 \cdot 2^n
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;This does not simply further in modulo 7. Looking now at &lt;span class="math"&gt;\(3^{2n + 1}\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+3^{2n + 1} &amp;amp;= 3 \cdot 3^{2n} (\mathrm{mod} \textrm{ 7}) \\
+&amp;amp;= 3 \cdot 9^n \\
+&amp;amp;= 3 \cdot 2^n
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We now add these two simplified results back together to&amp;nbsp;get:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+4(2^n) + 3(2^n) = 7(2^n) (\mathrm{mod} \textrm{ 7}) 
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Therefore in modulo 7, we&amp;#8217;ve shown that &lt;span class="math"&gt;\(2^{n + 2} + 3^{2n + 1}\)&lt;/span&gt; is divisible by 7, as&amp;nbsp;required.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category></entry><entry><title>Coprime numbers</title><link href="https://t-redactyl.github.io/blog/2021/04/coprime-numbers.html" rel="alternate"></link><published>2021-04-12T00:00:00+02:00</published><updated>2021-04-12T00:00:00+02:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-04-12:/blog/2021/04/coprime-numbers.html</id><summary type="html">&lt;p&gt;In the last blog post, we talked about divisibility and the greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;. You might have been wondering already in that post what happens when two integers don&amp;#8217;t have any common divisors? Well, in this case, as 1 divides every divisor, their &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt; is equal to …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In the last blog post, we talked about divisibility and the greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;. You might have been wondering already in that post what happens when two integers don&amp;#8217;t have any common divisors? Well, in this case, as 1 divides every divisor, their &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt; is equal to 1. Such pairs of numbers are called coprime, and they have applications in other areas of mathematics (such as modular arithmetic). In this post, we&amp;#8217;ll have a look at a couple of ways of determining if pairs of numbers are coprime, and we&amp;#8217;ll also have a look at a proof involving coprime&amp;nbsp;integers.&lt;/p&gt;
+&lt;h2&gt;Definition of a coprime&amp;nbsp;pair&lt;/h2&gt;
+&lt;p&gt;From the previous post, we know that when we have &lt;span class="math"&gt;\(d = \gcd(a, b)\)&lt;/span&gt;, then we can represent &lt;span class="math"&gt;\(d\)&lt;/span&gt; as a linear combination of &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;, such that &lt;span class="math"&gt;\(am + bn = d\)&lt;/span&gt;. This holds true also for coprime pairs, however, this time, &lt;span class="math"&gt;\(am + bn = 1\)&lt;/span&gt;. But how do we connect these two facts? We can use the following elegant proof&amp;nbsp;below.&lt;/p&gt;
+&lt;p&gt;Let&amp;#8217;s say that we have a pair of natural numbers, &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;, and integers &lt;span class="math"&gt;\(m\)&lt;/span&gt; and &lt;span class="math"&gt;\(n\)&lt;/span&gt;. We know that &lt;span class="math"&gt;\(am + bn = 1\)&lt;/span&gt;. What we need to now show is that these numbers are coprime, that is, that the &lt;span class="math"&gt;\(\gcd(a, b) = 1\)&lt;/span&gt;. As we&amp;#8217;re trying to find the &lt;span class="math"&gt;\(\gcd(a, b)\)&lt;/span&gt;, let&amp;#8217;s suppose there is some common divisor of the two which we&amp;#8217;ll call &lt;span class="math"&gt;\(c\)&lt;/span&gt; (where &lt;span class="math"&gt;\(c \in \mathbb{Z}\)&lt;/span&gt;). As &lt;span class="math"&gt;\(c\)&lt;/span&gt; is a divisor of both &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;, this means that &lt;span class="math"&gt;\(c \mid a\)&lt;/span&gt; and &lt;span class="math"&gt;\(c \mid b\)&lt;/span&gt;, and by the definition of divisibility, &lt;span class="math"&gt;\(a = cd\)&lt;/span&gt; and &lt;span class="math"&gt;\(b = cf\)&lt;/span&gt; for some &lt;span class="math"&gt;\(d, f \in \mathbb{Z}\)&lt;/span&gt;. We now have some new definitions of &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;, and we can substitute them into the linear equation we were given&amp;nbsp;above:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+am + bn &amp;amp;= 1 \\
+cdm + cfn &amp;amp;= 1 \\
+c(dm + fn) &amp;amp;= 1
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;As &lt;span class="math"&gt;\(dm + fn\)&lt;/span&gt; is a linear combination of integers, it is also an integer, so let&amp;#8217;s redefine it as &lt;span class="math"&gt;\(g = dm + fn\)&lt;/span&gt;, where &lt;span class="math"&gt;\(g \in \mathbb{Z}\)&lt;/span&gt;. So our equation above becomes &lt;span class="math"&gt;\(1 = cg\)&lt;/span&gt;, indicating that &lt;span class="math"&gt;\(c \mid 1\)&lt;/span&gt;. As &lt;span class="math"&gt;\(c \in \mathbb{Z}\)&lt;/span&gt;, then the only possible values of &lt;span class="math"&gt;\(c\)&lt;/span&gt; are &lt;span class="math"&gt;\(\pm 1\)&lt;/span&gt;. However, as &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt; are both in &lt;span class="math"&gt;\(\mathbb{N}\)&lt;/span&gt;, &lt;span class="math"&gt;\(c\)&lt;/span&gt; cannot be a negative number, so &lt;span class="math"&gt;\(c = 1\)&lt;/span&gt;. This means that as the only common divisor of &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt;, &lt;span class="math"&gt;\(c\)&lt;/span&gt; is also the &lt;span class="math"&gt;\(\gcd(a, b)\)&lt;/span&gt;, meaning &lt;span class="math"&gt;\(\gcd(a, b) = 1\)&lt;/span&gt; and that &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt; are&amp;nbsp;coprime.&lt;/p&gt;
+&lt;h2&gt;Another way of defining coprime&amp;nbsp;pairs&lt;/h2&gt;
+&lt;p&gt;Let&amp;#8217;s move onto a more complicated example. Let&amp;#8217;s say that we&amp;#8217;ve been asked to show that for all &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;, the numbers &lt;span class="math"&gt;\(9n + 8\)&lt;/span&gt; and &lt;span class="math"&gt;\(6n + 5\)&lt;/span&gt; are coprime. This time the simplest path forward is to revisit the Euclidean algorithm that we discussed in the last post. We start with the idea that we&amp;#8217;re trying to find the &lt;span class="math"&gt;\(\gcd(9n + 8, 6n + 5)\)&lt;/span&gt;. We start as per usual with the Euclidean algorithm, where we divide the larger number &lt;span class="math"&gt;\(9n + 8\)&lt;/span&gt; by the smaller number &lt;span class="math"&gt;\(6n + 5\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+9n + 8 = 6n + 5 \times 1 + 3n + 3
+$$&lt;/div&gt;
+&lt;p&gt;We now have &lt;span class="math"&gt;\(\gcd(b, r)\)&lt;/span&gt;, in this case &lt;span class="math"&gt;\(\gcd(6n + 5, 3n + 3)\)&lt;/span&gt;. We can proceed as normal with the Euclidean algorithm, using the fact that &lt;span class="math"&gt;\(\gcd(a, b) = \gcd(b, r)\)&lt;/span&gt; to seed each successive line until we get to our common&amp;nbsp;divisor:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+9n + 8 &amp;amp;= 6n + 5 \times 1 + 3n + 3 &amp;amp;\Rightarrow gcd(9n + 8, 6n + 5) &amp;amp;= gcd(6n + 5, 3n + 3) \\
+6n + 5 &amp;amp;= 3n + 3 \times 1 + 3n + 2 &amp;amp;\Rightarrow gcd(6n + 5, 3n + 3) &amp;amp;= gcd(3n + 3, 3n + 2) \\
+3n + 3 &amp;amp;= 3n + 2 \times 1 + 1 &amp;amp;\Rightarrow gcd(3n + 3, 3n + 2) &amp;amp;= gcd(3n + 2, 1)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Quickly ducking out of our Euclidean algorithm, we can now simplify the equation to get rid of &lt;span class="math"&gt;\(3n\)&lt;/span&gt; from both&amp;nbsp;sides:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+3n + 3 = 3n + 2 \times 1 + 1 \\
+3 = 2 \times 1 + 1
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Continuing on, we&amp;nbsp;get:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+3 &amp;amp;= 2 \times 1 + 1 &amp;amp;\Rightarrow gcd(3, 2) &amp;amp;= gcd(2, 1) \\
+2 &amp;amp;= 1 \times 1 + 1 &amp;amp;\Rightarrow gcd(2, 1) &amp;amp;= gcd(1, 1) \\
+1 &amp;amp;= 1 \times 1 + 0 &amp;amp;\Rightarrow gcd(1, 1) &amp;amp;= gcd(1, 0)
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;And with this, we&amp;#8217;ve found that the &lt;span class="math"&gt;\(\gcd(9n + 8, 6n + 5) = 1\)&lt;/span&gt;, meaning that these integers are coprime for every &lt;span class="math"&gt;\(n \in \mathbb{N}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;h2&gt;A proof using coprime&amp;nbsp;pairs&lt;/h2&gt;
+&lt;p&gt;We&amp;#8217;ll end this post by showing how we can exploit what we know about coprime pairs to complete a proof. Suppose that &lt;span class="math"&gt;\(a, b \in \mathbb{N}\)&lt;/span&gt; and that &lt;span class="math"&gt;\(gcd(a, b) = 1\)&lt;/span&gt;. Suppose also that &lt;span class="math"&gt;\(a \mid r\)&lt;/span&gt; and &lt;span class="math"&gt;\(b \mid r\)&lt;/span&gt;. What we need to show is that &lt;span class="math"&gt;\(ab \mid r\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Given that &lt;span class="math"&gt;\(a\)&lt;/span&gt; and &lt;span class="math"&gt;\(b\)&lt;/span&gt; are coprime, we know right away that &lt;span class="math"&gt;\(am + bn = 1\)&lt;/span&gt; for some &lt;span class="math"&gt;\(m, n \in \mathbb{Z}\)&lt;/span&gt;. We also know that &lt;span class="math"&gt;\(a \mid r\)&lt;/span&gt; and &lt;span class="math"&gt;\(b \mid r\)&lt;/span&gt;, so by the definition of divisibility, &lt;span class="math"&gt;\(r = ax\)&lt;/span&gt; and &lt;span class="math"&gt;\(r = by\)&lt;/span&gt; for some &lt;span class="math"&gt;\(x, y \in \mathbb{Z}\)&lt;/span&gt;. We&amp;#8217;re trying to show that &lt;span class="math"&gt;\(ab \mid r\)&lt;/span&gt;, so ideally we want some equation where &lt;span class="math"&gt;\(r = abz\)&lt;/span&gt;, where &lt;span class="math"&gt;\(z\)&lt;/span&gt; is some integer. We can exploit the fact that if we multiply &lt;span class="math"&gt;\(am + bn = 1\)&lt;/span&gt; by some value, the righthand side will now equal that value. Let&amp;#8217;s try this with &lt;span class="math"&gt;\(r\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+r(am + bn) &amp;amp;= r \\
+ram + rbn &amp;amp;= r
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;Ah ha! We have half of the problem solved, where we now have &lt;span class="math"&gt;\(r\)&lt;/span&gt; on one side of the equation. How do we get &lt;span class="math"&gt;\(ab\)&lt;/span&gt; as a common factor on the lefthand side? Well, we still have the fact that &lt;span class="math"&gt;\(r = ax\)&lt;/span&gt; and &lt;span class="math"&gt;\(r = by\)&lt;/span&gt;. We can subsitute these into our lefthand side, but we can be a little clever and use the definition that involves &lt;span class="math"&gt;\(a\)&lt;/span&gt; in with &lt;span class="math"&gt;\(bn\)&lt;/span&gt; and the definition that involves &lt;span class="math"&gt;\(b\)&lt;/span&gt; with &lt;span class="math"&gt;\(am\)&lt;/span&gt;:&lt;/p&gt;
+&lt;div class="math"&gt;$$
+\begin{aligned}
+ram + rbn &amp;amp;= r \\
+by \cdot am + ax \cdot bn &amp;amp;= r \\
+abmy + abnx &amp;amp;= r \\
+ab(my + nx) &amp;amp;= r
+\end{aligned}
+$$&lt;/div&gt;
+&lt;p&gt;We&amp;#8217;re almost there. The last step is to define &lt;span class="math"&gt;\(z = my + nx\)&lt;/span&gt;, where we know that &lt;span class="math"&gt;\(my + nx\)&lt;/span&gt; is in &lt;span class="math"&gt;\(\mathbb{Z}\)&lt;/span&gt; as a linear combination of integers, giving us &lt;span class="math"&gt;\(r = abz\)&lt;/span&gt;. Rewriting this, &lt;span class="math"&gt;\(ab \mid r\)&lt;/span&gt;, as&amp;nbsp;required.&lt;/p&gt;</content><category term="misc"></category><category term="maths"></category></entry><entry><title>The greatest common divisor and the Euclidean algorithm</title><link href="https://t-redactyl.github.io/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html" rel="alternate"></link><published>2021-03-28T00:00:00+01:00</published><updated>2021-03-28T00:00:00+01:00</updated><author><name>Jodie Burchell</name></author><id>tag:t-redactyl.github.io,2021-03-28:/blog/2021/03/the-greatest-common-divisor-and-the-euclidean-algorithm.html</id><summary type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24 …&lt;/p&gt;</summary><content type="html">&lt;p&gt;In this blog post, we&amp;#8217;re going to explore some properties of division of integers, and more specifically, a concept called the greatest common divisor. The greatest common divisor, or &lt;span class="math"&gt;\(\gcd\)&lt;/span&gt;, is the largest positive integer that divides a pair of integers. For example, take the pair 16 and 24. One method of finding their common divisor is to find the divisors of each integer, and then see which is the largest one they have in common. So the divisors of 16&amp;nbsp;are: 
 &lt;/p&gt;
 &lt;div class="math"&gt;$$\{-16, -8, -4, -2, -1, 1, 2, 4, 8, 16\}$$&lt;/div&gt;
 &lt;p&gt; 
