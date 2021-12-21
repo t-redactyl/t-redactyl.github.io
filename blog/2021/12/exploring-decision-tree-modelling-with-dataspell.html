@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Exploring decision tree modelling with DataSpell</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Exploring decision tree modelling with DataSpell written December 21, 2021 in python,machine learning">
+  <meta name="keywords" content="dataspell, jetbrains, ide, decision tree, pybaobab" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2021/12/exploring-decision-tree-modelling-with-dataspell.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Exploring decision tree modelling with DataSpell</h1>
+        <div class="meta">
+          written <time datetime="2021-12-21T00:00:00+01:00">December 21, 2021</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/python.html">python</a>,            <a href="https://t-redactyl.github.io/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p>During my years of working as a data scientist, I&#8217;ve tried quite a number of IDEs. When I was primarily working with R, RStudio was a very nice environment to work with, but when I moved to working in Python I hadn&#8217;t been able to find anything close. Over the years, I&#8217;ve tried working with just notebooks, experimented with Spyder and Rodeo, and have settled on a combination of JupyterLab for my research workflow and PyCharm when I want to write code intended for&nbsp;production.</p>
+<p>However, moving between two different IDEs creates a lot of friction when doing data science work, as it involves task switching and introduces needless distractions. This is particularly due to the fact that the flow of a data science project often iterates between the research and development phases. I was therefore very excited to hear that JetBrains has released a new <span class="caps">IDE</span> called <a href="https://www.jetbrains.com/dataspell/">DataSpell</a> specifically designed to support data science work. This <span class="caps">IDE</span> aims to take those features from PyCharm that we all know and love, such as smart code completion and dependency management, while at the same time making notebooks first-class citizens. In addition, there are a number of other nice features that make doing a data science project that much nicer, which I&#8217;ll show in this blog post. I should note that DataSpell also supports R natively, but in this post I&#8217;ll be focusing on it&#8217;s capabilities with a Python&nbsp;project.</p>
+<p>To explore what DataSpell can do, I&#8217;ll be creating a simple decision tree model using the <a href="https://www.kaggle.com/fedesoriano/heart-failure-prediction">Heart Failure Prediction DataSet</a>, which was kindly uploaded to Kaggle by <a href="https://www.kaggle.com/fedesoriano">Federico Soriano Palacios</a>. In this analysis, we&#8217;ll be reading in the data, doing some simple feature engineering, checking the model accuracy using cross-validation, and exploring a decision tree visualisation package called <a href="https://gitlab.tue.nl/20040367/pybaobab">pybaobab</a> which makes interpreting decision trees&nbsp;easier.</p>
+<h2>Accessing the&nbsp;data</h2>
+<p>Obviously, the first step is to access our data. I wanted to first show a really cool feature of DataSpell, which is its ability to support connections to databases. I really like <a href="https://www.jetbrains.com/datagrip/">DataGrip</a>, so the introduction of some of the features of DataGrip into DataSpell is a very welcome addition for&nbsp;me.</p>
+<p>For this project, I created a local PostgreSQL database in a Docker container. I then loaded my data into a table in this database using <code>pandas</code>, <code>sqlalchemy</code> and <code>psycopg2</code>. I will describe how I did this in another blog post, but for now, I want to show how easy it is to connect to this database within DataSpell and then view the table&nbsp;contents.</p>
+<p>By clicking on the &#8220;Database&#8221; tab to the right of the <span class="caps">IDE</span>, and then clicking on &#8220;New&#8221;, I was able to easily create a connection to my database just by specifying the database name, user and password (JetBrains has instructions on how to connect to a range of databases <a href="https://www.jetbrains.com/help/dataspell/connecting-to-a-database.html">here</a>). As you see below, I am now easily able to view the contents and schema of my&nbsp;table.</p>
+<p><img src="/figure/dataspell_1_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<h2>Setting up the&nbsp;environment</h2>
+<p>As said above, I will be using <code>pybaobab</code> to help me interpret my decision tree models. However, annoyingly, this package is only compatible with Python 3.6, which I no longer have installed globally on my&nbsp;machine.</p>
+<p>Luckily, DataSpell offers the ability to set up your Python interpreter using a range of methods, including Conda. This means I was quickly and easily able set up a Python 3.6 virtual environment using Conda, as you can see below. Detailed instructions on how to do this are <a href="https://www.jetbrains.com/help/dataspell/conda-support-creating-conda-virtual-environment.html">here</a>.</p>
+<p><img src="/figure/dataspell_2_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>This project required <code>sklearn</code>, <code>numpy</code>, <code>pygraphviz</code>, <code>matplotlib</code>, and <code>pandas</code>. I was able to add all of these dependencies through the <span class="caps">UI</span>, as&nbsp;below.</p>
+<p><img src="/figure/dataspell_3_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>The only exception was <code>pybaobabdt</code> itself, which is only available through <code>pip</code> for the moment. However, the built in Terminal meant that I was easily able to activate my Conda environment and then pip install the missing package. You can also see that this also makes it possible to install your Conda packages using the command&nbsp;line.</p>
+<p><img src="/figure/dataspell_4_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<h2>Feature engineering and modeling with DataSpell&nbsp;notebooks</h2>
+<p>In order to get started in DataSpell, you simply <a href="https://www.jetbrains.com/help/dataspell/creating-and-managing-projects.html">attach a directory.</a> I selected a location on my machine to save my project and was then able to get started by <a href="https://www.jetbrains.com/help/dataspell/jupyter-notebook-support.html#get-started">creating a new Jupyter notebook</a>.</p>
+<p>To get started, I first imported my dependencies and read in my&nbsp;data.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pybaobabdt</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s1">&#39;postgresql://jodie:hello@localhost/demo&#39;</span><span class="p">)</span>
+
+<span class="n">heart</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM heart&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</code></pre></div>
+
+<p>I then checked each of the categorical features and the&nbsp;target.</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;HeartDisease&quot;</span><span class="p">,</span> <span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;ChestPainType&quot;</span><span class="p">,</span> <span class="s2">&quot;RestingECG&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;ExerciseAngina&quot;</span><span class="p">,</span> <span class="s2">&quot;ST_Slope&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Data field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">HeartDisease</span>
+<span class="mi">1</span>    <span class="mi">508</span>
+<span class="mi">0</span>    <span class="mi">410</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">HeartDisease</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+
+<span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">Sex</span>
+<span class="n">M</span>    <span class="mi">725</span>
+<span class="n">F</span>    <span class="mi">193</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">Sex</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+
+<span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">ChestPainType</span>
+<span class="n">ASY</span>    <span class="mi">496</span>
+<span class="n">NAP</span>    <span class="mi">203</span>
+<span class="n">ATA</span>    <span class="mi">173</span>
+<span class="n">TA</span>      <span class="mi">46</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">ChestPainType</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+
+<span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">RestingECG</span>
+<span class="n">Normal</span>    <span class="mi">552</span>
+<span class="n">LVH</span>       <span class="mi">188</span>
+<span class="n">ST</span>        <span class="mi">178</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">RestingECG</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+
+<span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">ExerciseAngina</span>
+<span class="n">N</span>    <span class="mi">547</span>
+<span class="n">Y</span>    <span class="mi">371</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">ExerciseAngina</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+
+<span class="k">Data</span> <span class="n">field</span><span class="p">:</span> <span class="n">ST_Slope</span>
+<span class="n">Flat</span>    <span class="mi">460</span>
+<span class="n">Up</span>      <span class="mi">395</span>
+<span class="n">Down</span>     <span class="mi">63</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">ST_Slope</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+</code></pre></div>
+
+<p>You can see that the target is quite balanced, which will make building the classifier easier. There are also have a number of categorical features which are string encoded, and in some cases, have more than one level. I&#8217;ll need to convert these to one-hot encoded features to be able to use them in the classifier. I&#8217;ll also convert the outcome to a labelled bytes column so that in the visualisation I will have clear labels for each split of the&nbsp;tree.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_one_hot_encoding</span><span class="p">(</span><span class="n">data_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="n">data_field</span><span class="p">],</span>
+                          <span class="n">columns</span><span class="o">=</span><span class="n">heart</span><span class="p">[</span><span class="n">data_field</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                          <span class="n">prefix</span><span class="o">=</span><span class="n">data_field</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ChestPainType&quot;</span><span class="p">,</span> <span class="s2">&quot;RestingECG&quot;</span><span class="p">,</span> <span class="s2">&quot;ST_Slope&quot;</span><span class="p">]:</span>
+    <span class="n">heart</span> <span class="o">=</span> <span class="n">heart</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">generate_one_hot_encoding</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span>
+
+<span class="n">heart</span><span class="p">[</span><span class="s2">&quot;SexBin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="s2">&quot;Sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">heart</span><span class="p">[</span><span class="s2">&quot;ExerciseAnginaBin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="s2">&quot;ExerciseAngina&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">heart</span><span class="p">[</span><span class="s2">&quot;HeartDiseaseBytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="s2">&quot;HeartDisease&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;disease&quot;</span><span class="p">,</span> <span class="s2">&quot;no_disease&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Next, I&#8217;ll take all of the features and build a simple decision tree classifier. I&#8217;m not going to get fancy here as I&#8217;m just demoing a few things, so I&#8217;ve left in all of the features despite quite a few of them being highly imbalanced, and just used the default hyperparameter&nbsp;values.</p>
+<div class="highlight"><pre><span></span><code><span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">heart</span><span class="p">[</span><span class="s2">&quot;HeartDiseaseBytes&quot;</span><span class="p">])</span>
+<span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span> <span class="s1">&#39;RestingBP&#39;</span><span class="p">,</span> <span class="s1">&#39;Cholesterol&#39;</span><span class="p">,</span> <span class="s1">&#39;FastingBS&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;MaxHR&#39;</span><span class="p">,</span> <span class="s1">&#39;Oldpeak&#39;</span><span class="p">,</span> <span class="s1">&#39;ChestPainType_ASY&#39;</span><span class="p">,</span> <span class="s1">&#39;ChestPainType_ATA&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ChestPainType_NAP&#39;</span><span class="p">,</span> <span class="s1">&#39;ChestPainType_TA&#39;</span><span class="p">,</span> <span class="s1">&#39;RestingECG_LVH&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;RestingECG_Normal&#39;</span><span class="p">,</span> <span class="s1">&#39;RestingECG_ST&#39;</span><span class="p">,</span> <span class="s1">&#39;ST_Slope_Down&#39;</span><span class="p">,</span> <span class="s1">&#39;ST_Slope_Flat&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ST_Slope_Up&#39;</span><span class="p">,</span> <span class="s1">&#39;SexBin&#39;</span><span class="p">,</span> <span class="s1">&#39;ExerciseAnginaBin&#39;</span><span class="p">]</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">heart</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">features</span><span class="p">]</span>
+<span class="n">dt_class</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></div>
+
+<p>After doing cross-validation with 5 folds, you can see we have around 75% accuracy, which is not bad for a first pass. Of course, without a test set we cannot be sure that the model is not overfitting to this training&nbsp;set.</p>
+<div class="highlight"><pre><span></span><code><span class="n">scores</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">dt_class</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%0.2f</span><span class="s2"> accuracy with a standard deviation of </span><span class="si">%0.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">()))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">0.75 accuracy with a standard deviation of 0.04</span>
+</code></pre></div>
+
+<p>So how was this development experience different from working in JupyterLab? One of the first things I noticed is that all of the smart code completion and highlighting I&#8217;m used to from PyCharm is enabled within the DataSpell notebooks, which is an amazing upgrade from using regular notebooks or even JupyterLab. One of the first things I started benefitting from is the error detection. For example, you can see in the script below that when I tried to import a dependency I hadn&#8217;t installed yet, DataSpell threw an&nbsp;error.</p>
+<p><img src="/figure/dataspell_5_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>Secondly, I really like how nuanced the code completion is. As you can see in the following screenshots, the code completion is sensitive to context, suggesting methods, dataset names and column names in the correct&nbsp;places.</p>
+<p><img src="/figure/dataspell_6_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p><img src="/figure/dataspell_7_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>One final thing I really like is how Pandas DataFrames are displayed. I was able to view my complete DataFrame both within the notebook, and also have the option of opening it in a new tab, which really made scanning my data at the beginning of the project much easier. I imagine there are upper limits on the amount of columns and rows that you can display, but for smaller DataFrames, this is a lovely&nbsp;feature.</p>
+<p><img src="/figure/dataspell_8_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<h2>Visualising the decision&nbsp;tree</h2>
+<p>I&#8217;ll now use the <code>pybaobab</code> package to display an interpretable version of the decision tree model. As you can see, the labelling I did earlier of the target has appeared at the top of the chart, letting us know which branch belongs to which outcome. I&#8217;ve also customised it by using the standard <a href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">Brewer colour themes</a>, all of which are supported by <code>pybaobab</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ax</span> <span class="o">=</span> <span class="n">pybaobabdt</span><span class="o">.</span><span class="n">drawTree</span><span class="p">(</span><span class="n">dt_class</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s2">&quot;PiYG&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>You can see that the main predictor of heart disease is people who don&#8217;t have an increasing peak <span class="caps">ST</span> segment while exercising. If we follow the pink line on this graph downwards, this traces the indicators in the model of having heart disease, including having asymptomatic chest pain, being female, and having a resting blood pressure of less than or equal to 86. While I&#8217;m not really able to interpret this model from a medical perspective, it&#8217;s easy to imagine such a visualisation being very useful for a&nbsp;cardiologist.</p>
+<p><img src="/figure/dataspell_10_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>This visualisation actually came out very nicely in DataSpell. As you can see, I have my <span class="caps">IDE</span> set to a dark theme, and the visualisation is automatically displayed with a transparent background and white text. One other nice feature is that rather than having to explicitly save the visualisation with the <code>savefig</code> command, you can shortcut this by right clicking on the figure and saving it to&nbsp;file.</p>
+<p><img src="/figure/dataspell_9_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<h2>Splitting Python&nbsp;scripts</h2>
+<p>As you can see from the above, the notebook experience in DataSpell is very nice, but what about working with Python scripts? Let&#8217;s say that I want to be able to productionise this code, and I need to be able to run it in a Python script. My usual workflow for this is a little painful: normally I either do all of my prototyping in a Jupyter notebook and then export this to a <code>.py</code> file, or I start directly within a Python file, but comment out all of the code I don&#8217;t want to run as I test which parts are&nbsp;working.</p>
+<p>The way that Python scripts are treated in DataSpell overcomes these issues. The first nice feature is that Python files can be split using the <code>#%%</code> separator, so that sections of the script are treated akin to the cells in Jupyter notebooks. This means you can run just one small section of the code at a time, just as you would with cells in the notebook.Secondly, the output of Python scripts can be written to an iPython console. Finally, you can view all of the Jupyter environment variables that have been created. You can see examples of this below for the data cleaning and model building components of the project we just&nbsp;completed.</p>
+<p><img src="/figure/dataspell_11_resize.png" title="Database integration 1" style="display: block; margin: auto;" /></p>
+<p>At the same time, the scripts still have the smart code completion, debugging and other development tools that come with PyCharm. This means you can get the best of both worlds: the editor supports you to break down the script, inspect the output and explore the data and models while you&#8217;re in the research phase of your project, but then allows you to switch to improving the code and getting it ready for production once the modelling is&nbsp;complete.</p>
+<p>I&#8217;m only getting started with DataSpell and I am sure I have only scratched the surface of the available features, but so far I&#8217;ve really enjoyed the experience. I will keep exploring and report back with more cool features as I find&nbsp;them!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>
