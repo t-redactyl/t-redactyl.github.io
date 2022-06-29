@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Optimising the Minkowski distance, part 1: broadcasting</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Optimising the Minkowski distance, part 1: broadcasting written June 29, 2022 in python,machine learning">
+  <meta name="keywords" content="numpy, python, minkowski distance, euclidean distance, manhattan distance" />
+
+    <link
+      rel="canonical"
+      href="/blog/2022/06/optimising-the-minkowski-distance-part-1-broadcasting.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Optimising the Minkowski distance, part 1: broadcasting</h1>
+        <div class="meta">
+          written <time datetime="2022-06-29T00:00:00+02:00">June 29, 2022</time>
+          in <span class="categories">
+            <a href="/tag/python.html">python</a>,            <a href="/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p>In the last blog post, we managed to shave a bit of time off our calculation of the Minkowski distance by using vector subtraction. Instead of calculating the difference between each pair of vectors elementwise using a loop, we were able to take advantage of NumPy&#8217;s vectorised implementation to take these differences in one&nbsp;pass.</p>
+<p>However, we only knocked a couple of minutes off the calculation of the Minkowski distance on our second sample, which contained only three features but more than 13,000 observations. The main culprit of these long processing times is a remaining nested for loop which calculates the pairwise Minkowski distance between all observations in our samples. As such, we&#8217;ll be looking at how to use a method called <a href="https://numpy.org/doc/stable/user/basics.broadcasting.html">broadcasting</a> in NumPy to get rid of this and save ourselves some more time. Broadcasting is very powerful, but it&#8217;s not the most intuitive concept to understand. As such, we&#8217;ll be taking it slowly and explaining how we can apply it to our calculations step-by-step in this blog&nbsp;post.</p>
+<h2>Broadcasting</h2>
+<p>To understand how broadcasting works, let&#8217;s start with a small example. We&#8217;ll go back to the three example vectors we&#8217;ve been working with, <span class="math">\(X\)</span>, <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+
+<p>In order to calculate the pairwise distance between each of these vectors, we&#8217;ll first combine all of them into a matrix with 3 rows and 4 columns. You can have a look at <a href="/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">my earlier blog post</a> for a fuller explanation of what a matrix is, but essentially it is just a table whose rows or columns are made up of a collection of vectors with the same number of elements. You can see the matrix we made below where <span class="math">\(X\)</span>, <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span> make up the rows of the&nbsp;matrix.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="k">[[5 7 3 9]</span>
+ <span class="k">[1 6 2 4]</span>
+ <span class="k">[8 8 3 1]]</span>
+</code></pre></div>
+
+<p>In order to get the difference between each of the vectors and the <span class="math">\(X\)</span> vector, we can create a second 3 x 4 matrix which is just composed of the <span class="math">\(X\)</span> vector repeated three&nbsp;times:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">]))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="k">[[5 7 3 9]</span>
+ <span class="k">[5 7 3 9]</span>
+ <span class="k">[5 7 3 9]]</span>
+</code></pre></div>
+
+<p>We then subtract this matrix with the repeated <span class="math">\(X\)</span> vector from the matrix containing all three&nbsp;vectors:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">]))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="k">[[ 0  0  0  0]</span>
+ <span class="k">[-4 -1 -1 -5]</span>
+ <span class="k">[ 3  1  0 -8]]</span>
+</code></pre></div>
+
+<p>We now have the pairwise differences between the elements of vector <span class="math">\(X\)</span> and all other vectors, including itself. The reason this works is that the rules of vector subtraction also apply to matrices (see <a href="/blog/2020/06/working-with-matrices-addition-subtraction-and-multiplication.html">this blog post</a> for an overview of this). Just as two vectors with the same number of elements can be subtracted from each other elementwise, we can also subtract two matrices of the same size from each other elementwise. In this case it&#8217;s possible as both of our matrices are 3 x 4. This looks like the&nbsp;following:</p>
+<p><img src="/figure//broadcasting_1.png" title="2 dimensional matrix subtraction" style="display: block; margin: auto;" /></p>
+<p>So far, so good. However, we still have one issue: if we want to also subtract vectors <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span>, we&#8217;re still stuck with a for loop, right? Well, there is a way to avoid this. At the moment, we are using 2-dimensional NumPy arrays, where the first dimension represents our number of vectors and the second dimension represents the number of elements in each&nbsp;vector.</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(3, 4)</span>
+</code></pre></div>
+
+<p>We can switch instead to using 3-dimensional NumPy arrays, where the first two dimensions represent the number of vectors, and the final dimension represents the number of elements in each vector. Let&#8217;s have a look at how this would work for the first array in our subtraction&nbsp;calculation:</p>
+<p><img src="/figure//broadcasting_2.png" title="Array 1 with replication" style="display: block; margin: auto;" /></p>
+<p>In the second step in the above diagram, we&#8217;ve reshaped the 2-dimensional array containing <span class="math">\(X\)</span>, <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span> into a 3-dimensional array with the dimensions <span class="math">\((1, 3, 4)\)</span>. This indicates we have three vectors (and only one copy of each of these) and each vector contains 4&nbsp;elements.</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(1, 3, 4)</span>
+</code></pre></div>
+
+<p>In the final step in the diagram, we&#8217;ve just duplicated our reshaped matrix 3 times. As you can see, the dimensions of this array are now <span class="math">\((3, 3, 4)\)</span>, with the first dimension indicating that we have three copies of our original&nbsp;matrix.</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(3, 3, 4)</span>
+</code></pre></div>
+
+<p>Now we need to create a corresponding array which will generate pairwise combinations of every vector when we do our subtraction. If you&#8217;ll recall, when we were working with the 2-dimensional arrays, we simply created a matrix which duplicated the vector <span class="math">\(X\)</span> three times. We can do something similar here: we create 2-dimensional arrays which duplicate the <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span> vectors three times. We can then reshape these matrices so that they are, again, of dimension <span class="math">\((1, 3, 4)\)</span>, and &#8220;stack&#8221; them within the same 3-dimensional array to get an array with dimensions <span class="math">\((3, 3, 4)\)</span>. Let&#8217;s see how this looks&nbsp;below:</p>
+<p><img src="/figure//broadcasting_3.png" title="Array 2 with replication" style="display: block; margin: auto;" /></p>
+<p>Applying this in NumPy, you can see we do indeed get the correct&nbsp;shape:</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">],</span> <span class="p">[</span><span class="n">Y</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Y</span><span class="p">],</span> <span class="p">[</span><span class="n">Z</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(3, 3, 4)</span>
+</code></pre></div>
+
+<p>Finally, if we subtract our new 3-dimensional arrays from each other, we&#8217;ll get the difference scores. When you see it in the diagram below, it&#8217;s pretty clear that we&#8217;ve successfully created the correct combinations of&nbsp;pairs:</p>
+<p><img src="/figure//broadcasting_4.png" title="Array 2 with replication" style="display: block; margin: auto;" /></p>
+<p>Let&#8217;s check that it&nbsp;worked:</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">],</span> <span class="p">[</span><span class="n">Y</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Y</span><span class="p">],</span> <span class="p">[</span><span class="n">Z</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nb">array</span><span class="p">([[[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">3</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">]],</span>
+
+       <span class="p">[[</span> <span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">7</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]],</span>
+
+       <span class="p">[[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">8</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]]])</span>
+</code></pre></div>
+
+<p>Great! We&#8217;re getting the numbers we&nbsp;expected.</p>
+<p>However, it might have occurred to you that replicating each vector is not the most memory-friendly way of calculating the difference scores, especially once we start working with our full <code>beans</code> dataset or something even bigger. This is where broadcasting comes in. Essentially what broadcasting does is that it takes these replications that we&#8217;re doing explictly and implementing them in memory-efficient ways under the hood. Let&#8217;s have a closer look at how it&nbsp;works.</p>
+<p>In order to get the correct pairwise subtractions earlier, we created a 3-dimensional array where our vectors were replicated across the columns in one array and across the rows in the second one. What we want to do with broadcasting is signal to NumPy that we want it to do the same thing for us. We do this by reshaping our 2-dimensional array into two 3-dimensional arrays, each &#8220;orientated&#8221; in different directions. In the first, we have the vectors sitting in the second dimension of the array, so that we end up with a <span class="math">\((1, 3, 4)\)</span> array. In the second, we have the vectors sitting in the first dimension of the array, so that we end up with a <span class="math">\((3, 1, 4)\)</span> array. NumPy will see the dimension where the size is 1 and realise it needs to &#8220;stretch&#8221; or duplicate the data along this dimension in order to make the arrays a compatible size for subtraction. Once it does this, the final output will be our <span class="math">\((3, 3, 4)\)</span> array containing the difference&nbsp;scores.</p>
+<p><img src="/figure//broadcasting_5.png" title="Array 2 with replication" style="display: block; margin: auto;" /></p>
+<p>Let&#8217;s have a look at this with our example vectors. We&#8217;ll first create our <span class="math">\((1, 3, 4)\)</span> reshape of the 2-dimensional&nbsp;array:</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(1, 3, 4)</span>
+</code></pre></div>
+
+<p>We&#8217;ll then reshape it to a <span class="math">\((3, 1, 4)\)</span>&nbsp;array:</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">],</span> <span class="p">[</span><span class="n">Y</span><span class="p">],</span> <span class="p">[</span><span class="n">Z</span><span class="p">]])</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(3, 1, 4)</span>
+</code></pre></div>
+
+<p>Finally, we&#8217;re ready to do our&nbsp;subtraction:</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">]])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">X</span><span class="p">],</span> <span class="p">[</span><span class="n">Y</span><span class="p">],</span> <span class="p">[</span><span class="n">Z</span><span class="p">]])</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nb">array</span><span class="p">([[[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">3</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">]],</span>
+
+       <span class="p">[[</span> <span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">7</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]],</span>
+
+       <span class="p">[[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">8</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]]])</span>
+</code></pre></div>
+
+<p>And you can see we get the same results as when explicitly replicating the vectors! There is a slightly nicer notation for reshaping our arrays which I will use going forward. We can take advantage of the fact that when we pass <code>None</code> to slicing operations in NumPy, NumPy will automatically assign a dimension of 1 (as there is no data in that&nbsp;dimension).</p>
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(1, 3, 4)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(3, 1, 4)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nb">array</span><span class="p">([[[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">3</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">]],</span>
+
+       <span class="p">[[</span> <span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">7</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]],</span>
+
+       <span class="p">[[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">8</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]]])</span>
+</code></pre></div>
+
+<p>You can see it gets us the exact same result as when using the bracketing notation, and is much easier to read (especially for larger&nbsp;arrays).</p>
+<p>Now that we understand broadcasting, we can overhaul our Minkowski distance functions to use it, rather than that inefficient nested for loop. You can see that instead of calculating the difference between one pair of vectors, the formula now takes in two matrices (such as the bean dataset) and calculates the pairwise difference between all&nbsp;rows.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">array1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                            <span class="n">array2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                            <span class="n">p</span><span class="p">:</span> <span class="nb">int</span>
+                                            <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generalised formula for calculating both Manhattan and Euclidean distances. Calculates pairwise distances between every point in two n-dimensional arrays.</span>
+<span class="sd">    array1: first set of points;</span>
+<span class="sd">    array2: second set of points;</span>
+<span class="sd">    p: power parameter which determines the distance metric used, with 1 = Manhattan and 2 = Euclidean.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">array1</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">array2</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">abs_diffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Let&#8217;s test it&nbsp;out.</p>
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_min_1</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">array_sample_1</span><span class="p">,</span> <span class="n">array_sample_1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 1.48 ms, sys: 947 µs, total: 2.42 ms</span>
+<span class="err">Wall time: 1.2 ms</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_min_2</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">array_sample_2</span><span class="p">,</span> <span class="n">array_sample_2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 13.3 s, sys: 3.23 s, total: 16.5 s</span>
+<span class="err">Wall time: 16.6 s</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_min_3</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">array_sample_3</span><span class="p">,</span> <span class="n">array_sample_3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 1min 30s, sys: 1min 48s, total: 3min 18s</span>
+<span class="err">Wall time: 5min 38s</span>
+</code></pre></div>
+
+<p>We&#8217;ve now been able to lower our calculation time for 3 features and ~13,000 observations to less than 20 seconds, which is an incredible improvement over the 13 minutes we saw when using the nested for loops. However, with 16 features our performance is still a bit slow. Fortunately, we still have a couple more tricks we can use, which we&#8217;ll cover in the next blog&nbsp;post.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
