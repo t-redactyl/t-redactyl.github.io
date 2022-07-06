@@ -116,8 +116,8 @@
     <span class="n">diffs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="n">diffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">element</span><span class="p">]</span> <span class="o">-</span> <span class="n">Y</span><span class="p">[</span><span class="n">element</span><span class="p">])</span> <span class="o">**</span> <span class="n">p</span><span class="p">)</span>
-    <span class="n">euclidean_distance_sq</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">euclidean_distance_sq</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">abs_diffs</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
 </code></pre></div>
 
 <p>If we apply it to our two test vectors, we can see we get the exact same answer as when we calculated it&nbsp;step-by-step:</p>
@@ -256,8 +256,8 @@
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_minkowski_distance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculates the Minkowski distance between two vectors, X and Y. When p = 1, calculates the Manhattan distance, when p = 2, calculates the Euclidean distance.&quot;&quot;&quot;</span>
     <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">Y</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
-    <span class="n">euclidean_distance_sq</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">euclidean_distance_sq</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">abs_diffs</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
 </code></pre></div>
 
 <p>As a quick sanity check, let&#8217;s confirm that we get the same answer as with our previous implementation of the&nbsp;function.</p>

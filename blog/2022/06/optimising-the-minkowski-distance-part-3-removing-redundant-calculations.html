@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Optimising the Minkowski distance, part 3: removing redundant calculations</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Optimising the Minkowski distance, part 3: removing redundant calculations written June 29, 2022 in python,machine learning">
+  <meta name="keywords" content="numpy, python, minkowski distance, euclidean distance, manhattan distance, upper triangle, linear algebra" />
+
+    <link
+      rel="canonical"
+      href="/blog/2022/06/optimising-the-minkowski-distance-part-3-removing-redundant-calculations.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Optimising the Minkowski distance, part 3: removing redundant calculations</h1>
+        <div class="meta">
+          written <time datetime="2022-06-29T00:00:00+02:00">June 29, 2022</time>
+          in <span class="categories">
+            <a href="/tag/python.html">python</a>,            <a href="/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p>In our previous blog post we discussed how to implement the Minkowski distance formula in a couple of functions which relied heavily on for loops. On our full data, this lead to a processing time of over an hour. With some simple tricks in NumPy which exploit the properties of vectors and matrices, we were able to bring this down to around 5&nbsp;minutes.</p>
+<p>While this is not bad, we still have a couple more tricks up our sleeves to bring this time down further. In this blog post we&#8217;ll talk about cutting out redundant calculations to get us to a processing time around 5-fold faster. Let&#8217;s get&nbsp;started.</p>
+<p>We&#8217;ll again read in the <a href="https://archive.ics.uci.edu/ml/datasets/Dry+Bean+Dataset#">dry bean dataset</a> and extract the same sample arrays we used to time our functions in the previous blog&nbsp;post.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">beans</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">&quot;data/Dry_Bean_Dataset.xlsx&quot;</span><span class="p">)</span>
+
+<span class="n">array_sample_1</span> <span class="o">=</span> <span class="n">beans</span><span class="p">[[</span><span class="s2">&quot;MajorAxisLength&quot;</span><span class="p">,</span> <span class="s2">&quot;MinorAxisLength&quot;</span><span class="p">,</span> <span class="s2">&quot;roundness&quot;</span><span class="p">]][:</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">array_sample_2</span> <span class="o">=</span> <span class="n">beans</span><span class="p">[[</span><span class="s2">&quot;MajorAxisLength&quot;</span><span class="p">,</span> <span class="s2">&quot;MinorAxisLength&quot;</span><span class="p">,</span> <span class="s2">&quot;roundness&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">array_sample_3</span> <span class="o">=</span> <span class="n">beans</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Class&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+</code></pre></div>
+
+<h2>Removing duplicate and self&nbsp;calculations</h2>
+<p>In the previous blog post, something you have no doubt noticed is that we were calculating every distance twice, as well as unnecessarily calculating the distance between vectors and themselves. Removing these redundant calculations is likely to give us some extra&nbsp;speed.</p>
+<p>Within linear algebra, we can divide square matrices (that is, matrices with the same number of rows and columns) into different areas. The area that runs down the diagonal is called, unsurprisingly, the diagonal. The area above the diagonal is called the upper triangle, and the area below the diagonal is called the lower triangle. In our matrix of returned results, we are getting our distance metrics in the upper and lower triangles of the distance matrix, and the distances between vectors and themselves on the diagonal. Let&#8217;s have a look at this by recreating the distances matrix with our three example vectors, <span class="math">\(X\)</span>, <span class="math">\(Y\)</span> and <span class="math">\(Z\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">array1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                            <span class="n">array2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                                            <span class="n">p</span><span class="p">:</span> <span class="nb">int</span>
+                                            <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generalised formula for calculating both Manhattan and Euclidean distances. Calculates pairwise distances between every point in two n-dimensional arrays.</span>
+<span class="sd">    array1: first set of points;</span>
+<span class="sd">    array2: second set of points;</span>
+<span class="sd">    p: power parameter which determines the distance metric used, with 1 = Manhattan and 2 = Euclidean.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">array1</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">array2</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">abs_diffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">])</span>
+
+<span class="n">calculate_minkowski_distance_vectorised</span><span class="p">(</span><span class="n">base_matrix</span><span class="p">,</span> <span class="n">base_matrix</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[0.        , 6.55743852, 8.60232527],</span>
+<span class="err">       [6.55743852, 0.        , 7.93725393],</span>
+<span class="err">       [8.60232527, 7.93725393, 0.        ]])</span>
+</code></pre></div>
+
+<p>Looking at this matrix, if we aim to only return either the results in the upper or lower triangle we will cut the number of calculations we need to do by more than half. We can do this using a <a href="https://numpy.org/doc/stable/reference/generated/numpy.triu_indices.html">NumPy method</a> called <code>triu_indices</code> (for the upper triangle, the one for the lower triangle is called <code>tril_indices</code>). As an aside, thanks to <a href="https://towardsdatascience.com/vectorizing-computations-on-pairs-of-elements-in-an-nd-array-326b5a648ad6">this wonderful Medium post</a> by Shailesh Kumar for much of the below&nbsp;code. </p>
+<p>In order to use this method, we first need to find out the number of rows our matrix has. We can then input this value into <code>triu_indices</code>, plus the argument <code>k = 1</code>, to get the row and column values of the upper triangle values of our distance&nbsp;matrix.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n</span> <span class="o">=</span> <span class="n">base_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">row_indices</span><span class="p">,</span> <span class="n">column_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;row_indices&quot;</span><span class="p">:</span> <span class="n">row_indices</span><span class="p">,</span>
+    <span class="s2">&quot;column_indices&quot;</span><span class="p">:</span> <span class="n">column_indices</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>row_indices</b></th>
+      <th style="text-align:center"><b>column_indices</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">0</td>
+      <td style="text-align:center">1</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">0</td>
+      <td style="text-align:center">2</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">1</td>
+      <td style="text-align:center">2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>What this is essentially telling us is that in order to calculate the upper triangle of the distance matrix, we need to calculate the distance between vectors 0 and 1, vectors 0 and 2, and vectors 1 and 2. We can exploit this fact to create subdivisions of our <code>base_matrix</code>, dividing it up into a matrix with those vectors corresponding to the &#8220;row&#8221; indices and another corresponding to the &#8220;column&#8221;&nbsp;indices.</p>
+<div class="highlight"><pre><span></span><code><span class="n">base_matrix</span><span class="p">[</span><span class="n">row_indices</span><span class="p">]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[5, 7, 3, 9],</span>
+<span class="err">       [5, 7, 3, 9],</span>
+<span class="err">       [1, 6, 2, 4]])</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">base_matrix</span><span class="p">[</span><span class="n">column_indices</span><span class="p">]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[1, 6, 2, 4],</span>
+<span class="err">       [8, 8, 3, 1],</span>
+<span class="err">       [8, 8, 3, 1]])</span>
+</code></pre></div>
+
+<p>You can see that the first matrix has rows corresponding to vectors 0, 0 and 1, and matrix 2 has rows corresponding to vectors 1, 2 and 2. As they are the same size, we can just subtract them, ending up with a matrix containing the elementwise differences between vectors 0 and 1, vectors 0 and 2, and vectors 1 and&nbsp;2.</p>
+<div class="highlight"><pre><span></span><code><span class="n">base_matrix</span><span class="p">[</span><span class="n">row_indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">base_matrix</span><span class="p">[</span><span class="n">column_indices</span><span class="p">]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 4,  1,  1,  5],</span>
+<span class="err">       [-3, -1,  0,  8],</span>
+<span class="err">       [-7, -2, -1,  3]])</span>
+</code></pre></div>
+
+<p>You&#8217;ll likely recognise these values as the three difference vectors we&#8217;ve calculated on this matrix in the previous blog posts. We&#8217;ve now significantly simplified the most expensive step in our distance metric calculation, and can move on to applying the rest of the calculations to get the distance metrics. In order to be able to trace these distance metrics back to the rows they are comparing, I bundled the distance metrics into a Pandas DataFrame and included these values in additional&nbsp;columns.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_minkowski_distance_upper_triangle</span><span class="p">(</span><span class="n">s_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                                                <span class="n">p</span><span class="p">:</span> <span class="nb">int</span>
+                                                <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">s_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">row_indices</span><span class="p">,</span> <span class="n">column_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">s_array</span><span class="p">[</span><span class="n">row_indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">s_array</span><span class="p">[</span><span class="n">column_indices</span><span class="p">]</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;row1&quot;</span><span class="p">:</span> <span class="n">row_indices</span><span class="p">,</span>
+        <span class="s2">&quot;row2&quot;</span><span class="p">:</span> <span class="n">column_indices</span><span class="p">,</span>
+        <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">abs_diffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span>
+    <span class="p">})</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">calculate_minkowski_distance_upper_triangle</span><span class="p">(</span><span class="n">base_matrix</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div>
+<table class="table table-bordered">
+  <thead>
+    <tr style="text-align: right;">
+      <th style="text-align:center"><b>row1</b></th>
+      <th style="text-align:center"><b>row2</b></th>
+      <th style="text-align:center"><b>distance</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center">0</td>
+      <td style="text-align:center">1</td>
+      <td style="text-align:center">6.557439</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">0</td>
+      <td style="text-align:center">2</td>
+      <td style="text-align:center">8.602325</td>
+    </tr>
+    <tr>
+      <td style="text-align:center">1</td>
+      <td style="text-align:center">2</td>
+      <td style="text-align:center">7.937254</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>As you can see, we&#8217;re getting the exact same distance values as when calculating previously. Let&#8217;s now time it with our samples from the <code>beans</code> dataset.</p>
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">triu_min_1</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_upper_triangle</span><span class="p">(</span><span class="n">array_sample_1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 1.68 ms, sys: 1.09 ms, total: 2.76 ms</span>
+<span class="err">Wall time: 1.69 ms</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">triu_min_2</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_upper_triangle</span><span class="p">(</span><span class="n">array_sample_2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 11.8 s, sys: 3.06 s, total: 14.8 s</span>
+<span class="err">Wall time: 14.9 s</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">triu_min_3</span> <span class="o">=</span> <span class="n">calculate_minkowski_distance_upper_triangle</span><span class="p">(</span><span class="n">array_sample_3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 54.5 s, sys: 50.3 s, total: 1min 44s</span>
+<span class="err">Wall time: 2min 21s</span>
+</code></pre></div>
+
+<p>Impressive! Although this change hasn&#8217;t made much of a difference for the already quite fast second sample, it has cut the time of calculating for the third sample by more than half. Let&#8217;s end by exploring one final optimisation that we can&nbsp;make.</p>
+<h2>Splitting the distance&nbsp;calculations</h2>
+<p>One inefficiency with our code that remains is that, under the hood, NumPy is looping over the vectors to calculate both the absolute values and powers of the elements of a vector. This means that we obviously incur a time penalty when running these operations over larger vectors versus smaller ones. While we can&#8217;t avoid this looping, we can take advantage of some mathematical properties of the powers we&#8217;re working&nbsp;with.</p>
+<p>In the previous blog post when calculating the Manhattan distance, I pointed out that raising the difference calculations, as well as the final distance metric, to the power of 1 was a redundant operation as it just returns the same value. This means that when we&#8217;re applying our Minkowski distance function with <code>p = 1</code>, we&#8217;re wasting processing by applying the <code>power</code> function. Similarly, any number raised to the power of 2 will automatically become positive (e.g., <span class="math">\(-2^2 = 2^2 = 4\)</span>). Therefore, when we use our Minkowski distance function with <code>p = 2</code>, it is pointless to use the <code>abs</code> function prior to squaring our values. We can therefore do one final optimisation by splitting our Minkowski function into separate Manhattan and Euclidean distance functions and removing any redundant&nbsp;methods.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_manhattan_distance</span><span class="p">(</span><span class="n">s_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">s_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">s_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">s_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;row1&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+        <span class="s2">&quot;row2&quot;</span><span class="p">:</span> <span class="n">j</span><span class="p">,</span>
+        <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">abs_diffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">})</span>
+
+<span class="k">def</span> <span class="nf">calculate_euclidean_distance</span><span class="p">(</span><span class="n">s_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">s_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">diffs</span> <span class="o">=</span> <span class="n">s_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">s_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="n">abs_diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;row1&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+        <span class="s2">&quot;row2&quot;</span><span class="p">:</span> <span class="n">j</span><span class="p">,</span>
+        <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">abs_diffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">})</span>
+</code></pre></div>
+
+<p>This time, let&#8217;s see how long it takes both of these functions to run over our&nbsp;samples.</p>
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_manhattan_1</span> <span class="o">=</span> <span class="n">calculate_manhattan_distance</span><span class="p">(</span><span class="n">array_sample_1</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 1.37 ms, sys: 1.02 ms, total: 2.39 ms</span>
+<span class="err">Wall time: 1.58 ms</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_manhattan_2</span> <span class="o">=</span> <span class="n">calculate_manhattan_distance</span><span class="p">(</span><span class="n">array_sample_2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 5.94 s, sys: 2.37 s, total: 8.31 s</span>
+<span class="err">Wall time: 8.33 s</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_manhattan_3</span> <span class="o">=</span> <span class="n">calculate_manhattan_distance</span><span class="p">(</span><span class="n">array_sample_3</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 20.2 s, sys: 32.8 s, total: 52.9 s</span>
+<span class="err">Wall time: 1min 12s</span>
+</code></pre></div>
+
+<p>For the Manhattan distance, we&#8217;ve managed to almost halve the computational time. Now let&#8217;s check the Euclidean&nbsp;distance.</p>
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_euclidean_1</span> <span class="o">=</span> <span class="n">calculate_euclidean_distance</span><span class="p">(</span><span class="n">array_sample_1</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 1.89 ms, sys: 1.14 ms, total: 3.03 ms</span>
+<span class="err">Wall time: 1.81 ms</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_euclidean_2</span> <span class="o">=</span> <span class="n">calculate_euclidean_distance</span><span class="p">(</span><span class="n">array_sample_2</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 11.3 s, sys: 2.38 s, total: 13.6 s</span>
+<span class="err">Wall time: 13.7 s</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">time</span> <span class="n">vect_euclidean_3</span> <span class="o">=</span> <span class="n">calculate_euclidean_distance</span><span class="p">(</span><span class="n">array_sample_3</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">CPU times: user 49.3 s, sys: 32.6 s, total: 1min 21s</span>
+<span class="err">Wall time: 1min 37s</span>
+</code></pre></div>
+
+<p>Bam! With this final optimisation we get the calculation of the Manhattan distance down to around a minute and the Euclidean distance to a minute and a half on our largest sample. The Manhattan distance calculation is slightly faster as we&#8217;ve gotten rid of two power calculations when we split the functions, one over each of the differences and another over the final distance calculations. Comparing this to where we started, our calculation of the exact same distance metrics is now between 50 to 120 times&nbsp;faster!</p>
+<p>I hope this series has given you some idea of how vectorisation works, and the confidence to know when and how to use it. With just a small amount of linear algebra knowledge and a few small changes to your code, you could be seeing significant performance gains without ever having to leave Python. Happy&nbsp;optimising!</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
