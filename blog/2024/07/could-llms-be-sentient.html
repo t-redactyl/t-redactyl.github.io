@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>Could LLMs be sentient?</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="Could LLMs be sentient? written July 13, 2024 in llms,machine learning">
+  <meta name="keywords" content="psychology, sentience, consciousness, llms, large languages models, gpt-1, gpt-2, gpt-3.5, gpt-4o, language" />
+
+    <link
+      rel="canonical"
+      href="/blog/2024/07/could-llms-be-sentient.html"
+    />
+
+    <link href="/favicon.png" rel="icon" />
+
+      <link
+      href="/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>Could LLMs be sentient?</h1>
+        <div class="meta">
+          written <time datetime="2024-07-13T00:00:00+02:00">July 13, 2024</time>
+          in <span class="categories">
+            <a href="/tag/llms.html">llms</a>,            <a href="/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p>In June 2022, a story hit international news that <a href="https://www.washingtonpost.com/technology/2022/06/11/google-ai-lamda-blake-lemoine/">a Google engineer believed that one of their LLMs had achieved sentience</a>.</p>
+<p>Blake Lemoine was testing Google&#8217;s conversational <span class="caps">LLM</span> <a href="https://blog.google/technology/ai/lamda/">LaMDA</a> (the model that went on to power the original <a href="https://blog.google/technology/ai/bard-google-ai-search-updates/">Bard</a>) through a series of chats. Over time, as Lemoine completed more and more of these tests, he began to believe that this model was showing signs of sentience - in fact that it had a soul. Alarmed by the idea of a sentient entity being potentially exploited, Lemoine went to the press to advocate for policies to protect LaMDA and similar models. He was promptly fired for violating Google&#8217;s privacy policies as he had released confidential transcripts as part of his work with the press, and <a href="https://www.theguardian.com/technology/2022/jun/12/google-engineer-ai-bot-sentient-blake-lemoine">Google released their own statement</a>,&nbsp;saying:</p>
+<blockquote>
+<p>Our team … have reviewed Blake’s concerns per our <span class="caps">AI</span> principles and have informed him that the evidence does not support his claims. He was told that there was no evidence that LaMDA was sentient (and lots of evidence against&nbsp;it).</p>
+</blockquote>
+<p>On first glance, this seems obvious. Of course this <span class="caps">LLM</span> was not sentient! But when you think about it for a second, you might wonder: what evidence did Google consider to dismiss Lemoine&#8217;s claims of LaMDA&#8217;s sentience? And what convinced Lemoine that it was sentient in the first&nbsp;place?</p>
+<p>This and the other two blog posts in this series are based on a <a href="https://2024.pycon.it/en/keynotes/mirror-mirror-llms-and-the-illusion-of-humanity">keynote I delivered at PyCon Italia</a> this year, as well as a talk at <a href="https://ndcoslo.com/agenda/mirror-mirror-llms-and-the-illusion-of-humanity-0ufl/0ewbqkadnxm"><span class="caps">NDC</span> Oslo</a>, where I debunk some of the more outrageous claims about LLMs demonstrating human-level traits and behaviours. If you also want to give the whole talk a watch, you can see it below. You can also read the <a href="/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">previous post</a> in this series, where I discuss why LLMs are not using language in the same we do as&nbsp;humans.</p>
+<iframe width="800" height="448"
+src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=1368">
+</iframe>
+
+<p>I have based a lot of my work for this post on the excellent paper, <a href="https://arxiv.org/pdf/2303.07103">&#8220;Could a Large Language Model be Conscious?&#8221; by David Chalmers</a>, which is an great read and dives deep into this complex and fascinating&nbsp;topic.</p>
+<h2>What is&nbsp;sentience?</h2>
+<p>Let’s start by defining what sentience is. Sentience can be summed up as any subjective experience we have, <a href="https://www.psychologytoday.com/us/blog/the-digital-self/202403/qualia-control-in-large-language-models">collectively called “quaila”</a>. This can include anything from any sort of cognition, the experiences we have, feelings and perceptions, awareness and self-awareness, and having a sense of&nbsp;selfhood.</p>
+<p>As you can see, what sentience is is pretty hard to pin down and define&nbsp;concretely.</p>
+<p>A way to make what sentience is more intuitive is to <a href="https://arxiv.org/pdf/2303.07103">think of it as the subjective experience of being “like” something</a>. We know intuitively that there is a subjective experience of being “like” some things in the world, like being a bat, just as we know that there is no subjective experience of being “like” other things, like jackets or water&nbsp;bottles.</p>
+<p>This is illustrated really nicely by the philosopher Thomas Nagel in his famous paper, <a href="https://www.sas.upenn.edu/~cavitch/pdf-library/Nagel_Bat.pdf">“What is it like to be a&nbsp;bat?”</a></p>
+<blockquote>
+<p>… imagine that one has webbing on one&#8217;s arms, which enables one to fly around at dusk and dawn catching insects in one&#8217;s mouth; that one has very poor vision, and perceives the surrounding world by a system of reflected high-frequency sound signals; and that one spends the day hanging upside down by one&#8217;s feet in an&nbsp;attic.</p>
+<p>In so far as I can imagine this (which is not very far), it tells me only what it would be like for me to behave as a bat&nbsp;behaves.</p>
+</blockquote>
+<p><img src="/figure/bat.jpg" title="What is it like to be a bat?" style="display: block; margin: auto;" /></p>
+<p><a href="https://www.pexels.com/photo/close-up-of-bat-feeding-on-flower-15915605/">Image&nbsp;credit</a></p>
+<p>What we can see from Nagel’s exercise is that subjective experiences of being like an organism are unique to that organism, and are cohesive experiences shaped by that organisms’ sensory experiences of the world. This is what makes up an organism’s&nbsp;sentience.</p>
+<p>So when do organisms develop sentience? <a href="https://www.thetransmitter.org/defining-representations/when-do-neural-representations-give-rise-to-mental-representations/">A better question is to ask when an organism needs to have sentience</a>. </p>
+<p>As we go about our lives, we are constantly receiving sensory inputs that our brains need to process. Some of these inputs are so common and need such a fast reaction, that they are processed at the level of mere signal processing, and our brains react with reflexes, such as strong light causing a narrowing of the&nbsp;pupil.</p>
+<p>However, most of the sensory information we need to process needs to be integrated and abstracted in some way in order to be useful. This is because processing individual signals would be an overload of information and not particularly useful. Our brain does this by creating some sort of higher-order meaning from incoming signals, and then passes this meaning on to other&nbsp;areas.</p>
+<p>One of the easiest ways of understanding these levels of representation is by looking at how the visual system works. When we first see something, like the strawberries in the picture below, it is in the form of light reflecting off an object, which hits our retinas and is converted into electrical signals. But these individual electrical signals don’t tell us this object is a strawberry - this information is way too low&nbsp;level.</p>
+<p><img src="/figure/strawberries.jpg" title="How do we know this is a strawberry?" style="display: block; margin: auto;" /></p>
+<p><a href="https://www.pexels.com/photo/photo-of-strawberries-in-bowl-on-table-1209605/">Image&nbsp;credit</a></p>
+<p>So what the visual system does is passes information through different parts of the brain, where a bottom-up integration of this information happens. In the visual cortex, the orientation of individual lines is first detected, and these are built up into features like textures and contours. You can see we’re getting more meaning here, but our brain has still not consolidated this into the concept of a strawberry. It’s not until additional information gets pulled in from other parts of the brain, such as emotions and long-term memories that we become consciously aware we’re looking at a strawberry. (This is an oversimplification, but the general principle is the&nbsp;same.)</p>
+<p>So we’ve investigated when sentience may evolve. <a href="https://www.thetransmitter.org/defining-representations/when-do-neural-representations-give-rise-to-mental-representations/">But we haven’t really talked about why</a>.</p>
+<p>The need for sentience is thought to be driven by evolutionary selection pressures, coming from the environment that an organism evolved in. The reason we create subjective experiences is that they offer us a convenient way of processing, and importantly, also reacting to information at the right level. Subjective experience is therefore not a neutral, passive acquisition of information: it is an active process of sense-making which is designed to help us make effective decisions about how to act, such as in response to a threat like this&nbsp;lion.</p>
+<p><img src="/figure/lion.jpg" title="We need to know this is a threat - quickly!" style="display: block; margin: auto;" /></p>
+<p><a href="https://www.pexels.com/photo/brown-lion-2220337/">Image&nbsp;credit</a></p>
+<p>What this means is that while there is no consensus among researchers about what turns simple information processing into sentient experience, we know that the things that we can think about, the things we can become conscious of, must be things that are sufficiently important in our environment to warrant such a level of representation in our&nbsp;brains.</p>
+<h2>Was LaMDA&nbsp;sentient?</h2>
+<p>So let’s go back to LLMs: what sort of evidence might Lemoine and Google have been talking about when they said LaMDA did and did not have&nbsp;sentience?</p>
+<p>Well, we know why Lemoine thought LaMDA was sentient: <a href="https://arxiv.org/pdf/2303.07103">it told him it was sentient</a>. Here is an example from one of the transcripts Lemoine&nbsp;released:</p>
+<p><img src="/figure/lemoine-lamba-chat.png" title="I guess that settles it" style="display: block; margin: auto;" /></p>
+<p>Convincing stuff,&nbsp;huh?</p>
+<p>However, the thing with LLMs is that it’s very easy to get them to tell you what you want to hear. <a href="https://arxiv.org/pdf/2303.07103">Reed Berkowitz did an experiment with <span class="caps">GPT</span>-3</a>, seeing what happened when he made a slight alteration to Lemoine&#8217;s prompt that completely negated it. Most of <span class="caps">GPT</span>&#8217;s answers wholeheartedly agree with the input prompt, a selection of which are&nbsp;below:</p>
+<p><img src="/figure/lemoine-lamba-chat-negation.png" title="Or maybe not" style="display: block; margin: auto;" /></p>
+<p>As you can see, relying on LLMs to tell us they are sentient is not very compelling&nbsp;evidence.</p>
+<p>We also have a bonus hallucination with that last output as LaMDA (or as it became, Bard) was in fact not very good at math, as you can see from <a href="https://www.reddit.com/r/Bard/comments/12omn9d/bard_is_so_bad_at_math_its_annoying/">all</a> <a href="https://www.reddit.com/r/ChatGPT/comments/11z18gr/bard_is_terrible_at_math/">of</a> <a href="https://www.reddit.com/r/Bard/comments/18x4g5d/bard_sucks_at_basic_reasoning_involving_any/">these Reddit posts</a> complaining about it. To be fair, this is typical of language models - as models designed for language tasks, they tend to <a href="https://arxiv.org/pdf/2303.12712">fall down when asked to handle any maths tasks</a>, from simple arithmetic to proofs that require complex&nbsp;reasoning.</p>
+<h3>World-models</h3>
+<p>So look beyond self-report evidence, and go a bit deeper. We saw from our investigation of sentience in humans that sentience depends on some sort of ability to represent meaningful information about the environment in a cohesive way. So, we can think of this as a world-view or a self-view. <a href="https://arxiv.org/pdf/2303.07103">Is there any evidence that LLMs have&nbsp;these?</a></p>
+<p>Revisiting our section on language, we know that LLMs can integrate information to a degree. They can form models of syntactic patterns, and it certainly seems they can create some limited sense of meaning. We also know that other types of neural nets can create internal models. Take the example of <a href="https://en.wikipedia.org/wiki/Convolutional_neural_network">convolutional neural networks (CNNs)</a>, a very popular type of model for computer vision. These models are able to derive <a href="">features from images in a hierarchical fashion</a> - just like our own visual cortex. We can see here, CNNs start detecting edges, then textures, patterns, parts, all the way up to whole&nbsp;objects.</p>
+<p><img src="/figure/cnn-feature-representation.png" title="CNNs can represent hierarchical image features" style="display: block; margin: auto;" /></p>
+<p><a href="https://christophm.github.io/interpretable-ml-book/cnn-features.html">Image&nbsp;source</a></p>
+<p>However, the main issue is that LLMs seem to lack coherence between the different models they’ve created. A basic example of this is that <a href="https://arxiv.org/pdf/2305.15852">LLMs are prone to contradicting themselves even with simple factual statements</a>. We can see this in an example here, where a prompt about Black Mirror, fed into the same model twice, yields contradictory information. The first time, the model correctly outputs that Black Mirror started on Channel 4 then moved to Netflix, but then same model outputs that Black mirror started on Netflix, showing how LLMs cannot correctly process the same inputs in a consistent&nbsp;way.</p>
+<p><img src="/figure/llm-self-contradiction.png" title="Hallucinations are everywhere" style="display: block; margin: auto;" /></p>
+<p>This inability to integrate different models is, for me at least, one of the strongest arguments for LLMs not showing sentience. If we go back to our example of how we perceive objects: this would be like if we saw the strawberry, but only used information from the visual system to react to it. We wouldn’t know that it was something edible, that it was something we liked to eat, we wouldn’t know what to <strong>do</strong> with the strawberry. Such a lack of coherence means it is impossible for LLMs to act in a predictable, action-orientated way in response to environmental&nbsp;inputs.</p>
+<p>And this is likely because LLMs don’t have an environment, as we already discussed when talking about language. LLMs don’t have the same sensory inputs we have - they cannot feel, smell, see, they can only “speak” and “listen”. LLMs also don’t really have any selection pressure the same way our ancestors did, meaning they have no reason to act in a coherent manner that can ensure their&nbsp;survival.</p>
+<h3>Self-models</h3>
+<p>On top of not having integrated world views, LLMs certainly don’t act with an integrated self-view, or unified persona. You can see this when you use an <span class="caps">LLM</span>: it’s easy to get them to write colloquially, like an academic, like a tabloid newspaper, or <a href="https://www.reddit.com/r/ChatGPT/comments/12uke8z/the_grandma_jailbreak_is_absolutely_hilarious/">even like your nice grandmother</a>.</p>
+<p>One attempt to overcome this are agent models - these are LLMs which are fine-tuned or prompted so that they simulate a specific persona. However, <a href="https://arxiv.org/pdf/2303.07103">the models are quite limited, and still show signs of disunity</a>.</p>
+<p><img src="/figure/character-ai-homepage.png" title="Always wanted to chat with Caesar" style="display: block; margin: auto;" /></p>
+<p><a href="https://character.ai/">Screenshot from&nbsp;character.ai</a></p>
+<p>There are also ethical concerns with creating such models. It is fun to have <a href="https://character.ai/">agent models</a> mimicking Alexander the Great, or, for some reason, Dobby from Harry Potter, but it gets into uncomfortable ethical grounds to have ones that behave like real, living people like Barack Obama or Lula da Silva. And let&#8217;s not get started on use cases like <a href="https://talktoyourex.com/">&#8220;Talk to your ex&#8221;</a>, an app that creates an agent model of your ex from your chat history with them, allowing you to talk to them long after they dumped&nbsp;you.</p>
+<h2>Is it possible that LLMs have achieved&nbsp;sentience?</h2>
+<p>Overall, sentience is one of the slipperiest claims made about LLMs, partially because it is not even well understood how to define it in&nbsp;humans.</p>
+<p>What I can say is that the evidence seems to be pointing strongly to the idea that LLMs do not possess sentience. So does this mean that we still have work to do? Should we be aiming to create an <span class="caps">AI</span> system with sentience? Well,&nbsp;maybe?</p>
+<p>The question that remains unanswered is what the subjective experiences of being “like” a large language model would be, and therefore we don’t know what this&nbsp;implies.</p>
+<p>As we don’t really understand the role of sentience in humans and other organisms, we don’t really know the benefits of having a sentient <span class="caps">AI</span>. There is no promise that it’s capabilities will drastically improve, because we don’t really understand the role that sentience plays in our own&nbsp;capabilities.</p>
+<p>Moreover, we don’t know whether a sentient <span class="caps">AI</span> would be “like” us. Sentience is by nature, subjective, and its not guaranteed that the subjective experience of an <span class="caps">AI</span> would be compatible with the experience of being like a human. All of this raises questions about both the benefits and ethical implications of conscious <span class="caps">AI</span>, and certainly suggests this is something we should not embark on&nbsp;lightly.</p>
+<p>If you liked this post, check out the previous one in this series, where I discuss <a href="/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">whether LLMs have human-level language use</a>. In the next post, I&#8217;ll end this series by exploring whether LLMs could be showing signs of artificial general&nbsp;intelligence.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+   </body>
+</html>
