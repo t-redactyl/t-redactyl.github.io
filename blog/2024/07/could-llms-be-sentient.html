@@ -19,19 +19,25 @@
 
     <link
       rel="canonical"
-      href="/blog/2024/07/could-llms-be-sentient.html"
+      href="https://t-redactyl.github.io/blog/2024/07/could-llms-be-sentient.html"
     />
 
-    <link href="/favicon.png" rel="icon" />
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
 
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
       <link
-      href="/theme/css/screen.css"
+      href="https://t-redactyl.github.io/theme/css/screen.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
     />
     <link
-      href="/theme/css/tomorrow.css"
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
       media="screen, projection"
       rel="stylesheet"
       type="text/css"
@@ -58,7 +64,7 @@
    </head>
   <body>
     <a href="/" class="home-icon">
-      <img src="/theme/images/home.png" />
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
     </a>
 <article role="article" class="full-single-article">
   <div class="container">
@@ -68,7 +74,7 @@
         <div class="meta">
           written <time datetime="2024-07-13T00:00:00+02:00">July 13, 2024</time>
           in <span class="categories">
-            <a href="/tag/llms.html">llms</a>,            <a href="/tag/machine-learning.html">machine learning</a>          </span>
+            <a href="https://t-redactyl.github.io/tag/llms.html">llms</a>,            <a href="https://t-redactyl.github.io/tag/machine-learning.html">machine learning</a>          </span>
         </div>
         <p>In June 2022, a story hit international news that <a href="https://www.washingtonpost.com/technology/2022/06/11/google-ai-lamda-blake-lemoine/">a Google engineer believed that one of their LLMs had achieved sentience</a>.</p>
 <p>Blake Lemoine was testing Google&#8217;s conversational <span class="caps">LLM</span> <a href="https://blog.google/technology/ai/lamda/">LaMDA</a> (the model that went on to power the original <a href="https://blog.google/technology/ai/bard-google-ai-search-updates/">Bard</a>) through a series of chats. Over time, as Lemoine completed more and more of these tests, he began to believe that this model was showing signs of sentience - in fact that it had a soul. Alarmed by the idea of a sentient entity being potentially exploited, Lemoine went to the press to advocate for policies to protect LaMDA and similar models. He was promptly fired for violating Google&#8217;s privacy policies as he had released confidential transcripts as part of his work with the press, and <a href="https://www.theguardian.com/technology/2022/jun/12/google-engineer-ai-bot-sentient-blake-lemoine">Google released their own statement</a>,&nbsp;saying:</p>
@@ -76,7 +82,7 @@
 <p>Our team … have reviewed Blake’s concerns per our <span class="caps">AI</span> principles and have informed him that the evidence does not support his claims. He was told that there was no evidence that LaMDA was sentient (and lots of evidence against&nbsp;it).</p>
 </blockquote>
 <p>On first glance, this seems obvious. Of course this <span class="caps">LLM</span> was not sentient! But when you think about it for a second, you might wonder: what evidence did Google consider to dismiss Lemoine&#8217;s claims of LaMDA&#8217;s sentience? And what convinced Lemoine that it was sentient in the first&nbsp;place?</p>
-<p>This and the other two blog posts in this series are based on a <a href="https://2024.pycon.it/en/keynotes/mirror-mirror-llms-and-the-illusion-of-humanity">keynote I delivered at PyCon Italia</a> this year, as well as a talk at <a href="https://ndcoslo.com/agenda/mirror-mirror-llms-and-the-illusion-of-humanity-0ufl/0ewbqkadnxm"><span class="caps">NDC</span> Oslo</a>, where I debunk some of the more outrageous claims about LLMs demonstrating human-level traits and behaviours. If you also want to give the whole talk a watch, you can see it below. You can also read the <a href="/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">previous post</a> in this series, where I discuss why LLMs are not using language in the same we do as&nbsp;humans.</p>
+<p>This and the other two blog posts in this series are based on a <a href="https://2024.pycon.it/en/keynotes/mirror-mirror-llms-and-the-illusion-of-humanity">keynote I delivered at PyCon Italia</a> this year, as well as a talk at <a href="https://ndcoslo.com/agenda/mirror-mirror-llms-and-the-illusion-of-humanity-0ufl/0ewbqkadnxm"><span class="caps">NDC</span> Oslo</a>, where I debunk some of the more outrageous claims about LLMs demonstrating human-level traits and behaviours. If you also want to give the whole talk a watch, you can see it below. You can also read the <a href="https://t-redactyl.github.io/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">previous post</a> in this series, where I discuss why LLMs are not using language in the same we do as&nbsp;humans.</p>
 <iframe width="800" height="448"
 src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=1368">
 </iframe>
@@ -114,7 +120,7 @@ src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=136
 <p>However, the thing with LLMs is that it’s very easy to get them to tell you what you want to hear. <a href="https://arxiv.org/pdf/2303.07103">Reed Berkowitz did an experiment with <span class="caps">GPT</span>-3</a>, seeing what happened when he made a slight alteration to Lemoine&#8217;s prompt that completely negated it. Most of <span class="caps">GPT</span>&#8217;s answers wholeheartedly agree with the input prompt, a selection of which are&nbsp;below:</p>
 <p><img src="/figure/lemoine-lamba-chat-negation.png" title="Or maybe not" style="display: block; margin: auto;" /></p>
 <p>As you can see, relying on LLMs to tell us they are sentient is not very compelling&nbsp;evidence.</p>
-<p>We also have a bonus hallucination with that last output as LaMDA (or as it became, Bard) was in fact not very good at math, as you can see from <a href="https://www.reddit.com/r/Bard/comments/12omn9d/bard_is_so_bad_at_math_its_annoying/">all</a> <a href="https://www.reddit.com/r/ChatGPT/comments/11z18gr/bard_is_terrible_at_math/">of</a> <a href="https://www.reddit.com/r/Bard/comments/18x4g5d/bard_sucks_at_basic_reasoning_involving_any/">these Reddit posts</a> complaining about it. To be fair, this is typical of language models - as models designed for language tasks, they tend to <a href="https://arxiv.org/pdf/2303.12712">fall down when asked to handle any maths tasks</a>, from simple arithmetic to proofs that require complex&nbsp;reasoning.</p>
+<p>That last output becomes even funnier when you consider that LaMDA (or as it became, Bard) was in fact not very good at math, as you can see from <a href="https://www.reddit.com/r/Bard/comments/12omn9d/bard_is_so_bad_at_math_its_annoying/">all</a> <a href="https://www.reddit.com/r/ChatGPT/comments/11z18gr/bard_is_terrible_at_math/">of</a> <a href="https://www.reddit.com/r/Bard/comments/18x4g5d/bard_sucks_at_basic_reasoning_involving_any/">these Reddit posts</a> complaining about it. To be fair, this is typical of language models - as models designed for language tasks, they tend to <a href="https://arxiv.org/pdf/2303.12712">fall down when asked to handle any maths tasks</a>, from simple arithmetic to proofs that require complex&nbsp;reasoning.</p>
 <h3>World-models</h3>
 <p>So look beyond self-report evidence, and go a bit deeper. We saw from our investigation of sentience in humans that sentience depends on some sort of ability to represent meaningful information about the environment in a cohesive way. So, we can think of this as a world-view or a self-view. <a href="https://arxiv.org/pdf/2303.07103">Is there any evidence that LLMs have&nbsp;these?</a></p>
 <p>Revisiting our section on language, we know that LLMs can integrate information to a degree. They can form models of syntactic patterns, and it certainly seems they can create some limited sense of meaning. We also know that other types of neural nets can create internal models. Take the example of <a href="https://en.wikipedia.org/wiki/Convolutional_neural_network">convolutional neural networks (CNNs)</a>, a very popular type of model for computer vision. These models are able to derive <a href="">features from images in a hierarchical fashion</a> - just like our own visual cortex. We can see here, CNNs start detecting edges, then textures, patterns, parts, all the way up to whole&nbsp;objects.</p>
@@ -136,7 +142,7 @@ src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=136
 <p>The question that remains unanswered is what the subjective experiences of being “like” a large language model would be, and therefore we don’t know what this&nbsp;implies.</p>
 <p>As we don’t really understand the role of sentience in humans and other organisms, we don’t really know the benefits of having a sentient <span class="caps">AI</span>. There is no promise that it’s capabilities will drastically improve, because we don’t really understand the role that sentience plays in our own&nbsp;capabilities.</p>
 <p>Moreover, we don’t know whether a sentient <span class="caps">AI</span> would be “like” us. Sentience is by nature, subjective, and its not guaranteed that the subjective experience of an <span class="caps">AI</span> would be compatible with the experience of being like a human. All of this raises questions about both the benefits and ethical implications of conscious <span class="caps">AI</span>, and certainly suggests this is something we should not embark on&nbsp;lightly.</p>
-<p>If you liked this post, check out the previous one in this series, where I discuss <a href="/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">whether LLMs have human-level language use</a>. In the next post, I&#8217;ll end this series by exploring whether LLMs could be showing signs of artificial general&nbsp;intelligence.</p>
+<p>If you liked this post, check out the previous one in this series, where I discuss <a href="https://t-redactyl.github.io/blog/2024/06/can-llms-use-language-at-a-human-like-level.html">whether LLMs have human-level language use</a>. In the next post, I&#8217;ll end this series by exploring whether LLMs could be showing signs of artificial general&nbsp;intelligence.</p>
         <hr class="divider-short"/>
         <!-- Disqus goes here -->
         <!-- <section>
@@ -159,11 +165,11 @@ src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=136
             <div class="social-icon-list">
               <a href="https://twitter.com/t_redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_31_twitter.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
               /></a>
                <a href="https://github.com/t-redactyl"
                 ><img
-                  src="/theme/images/glyphicons_social_21_github.png"
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
               /></a>
               </div>
           </div>
@@ -187,5 +193,14 @@ src="https://www.youtube.com/embed/2jo2__9uulA?si=VIVhLY0DSErNxFKj&amp;start=136
       renderMathInElement(document.body);
     </script>
 
-   </body>
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
 </html>
