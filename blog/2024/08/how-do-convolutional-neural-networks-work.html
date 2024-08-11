@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html
+  class="no-js"
+  lang="en"
+><!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+    <title>How do convolutional neural networks work?</title>
+    <meta name="author" content="Jodie Burchell" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="description" content="How do convolutional neural networks work? written August 10, 2024 in deep learning,machine learning">
+  <meta name="keywords" content="computer vision, convolutional neural networks, convnets, CNN, CNNs, image classification" />
+
+    <link
+      rel="canonical"
+      href="https://t-redactyl.github.io/blog/2024/08/how-do-convolutional-neural-networks-work.html"
+    />
+
+    <link href="https://t-redactyl.github.io/favicon.png" rel="icon" />
+
+    <link
+      href="https://t-redactyl.github.io/feeds/all.atom.xml"
+      type="application/atom+xml"
+      rel="alternate"
+      title="Standard error Full Atom Feed"
+    />
+      <link
+      href="https://t-redactyl.github.io/theme/css/screen.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://t-redactyl.github.io/theme/css/tomorrow.css"
+      media="screen, projection"
+      rel="stylesheet"
+      type="text/css"
+    />
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css"
+      integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js"
+      integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/contrib/auto-render.min.js"
+      integrity="sha384-IiI65aU9ZYub2MY9zhtKd1H2ps7xxf+eb2YFG9lX6uRqpXCvBTOidPRCXCrQ++Uc"
+      crossorigin="anonymous"
+    ></script>
+   </head>
+  <body>
+    <a href="/" class="home-icon">
+      <img src="https://t-redactyl.github.io/theme/images/home.png" />
+    </a>
+<article role="article" class="full-single-article">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h1>How do convolutional neural networks work?</h1>
+        <div class="meta">
+          written <time datetime="2024-08-10T00:00:00+02:00">August 10, 2024</time>
+          in <span class="categories">
+            <a href="https://t-redactyl.github.io/tag/deep-learning.html">deep learning</a>,            <a href="https://t-redactyl.github.io/tag/machine-learning.html">machine learning</a>          </span>
+        </div>
+        <p><a href="https://en.wikipedia.org/wiki/Convolutional_neural_network">Convolutional neural networks</a>, CNNs, convnets, call them what you like - these powerful neural nets remain one of the most popular type of models for classifying images. But have you ever wondered how they work? In this blog post, we&#8217;ll go through this step-by-step, with lots of diagrams and code examples to try to make it as concrete as&nbsp;possible.</p>
+<p>For this blog post, I relied heavily on François Chollet&#8217;s wonderful book, <a href="https://www.manning.com/books/deep-learning-with-python-second-edition">Deep Learning with Python</a>. If you want one book to gently introduce you to neural networks, this would be the one I recommend. I also used <a href="https://courses.cs.washington.edu/courses/cse416/22su/lectures/10/lecture_10.pdf">these lecture notes</a> from the University of Washington&#8217;s <a href="https://courses.cs.washington.edu/courses/cse416/">Introduction to Machine Learning course</a>.</p>
+<h2>How do CNNs process&nbsp;images?</h2>
+<p>CNNs take in raw images as inputs, breaking them down to the level of individual pixels. Below you can see a <a href="https://www.planetminecraft.com/blog/pixel-art-3---lock/">greyscale 16 x 16 pixel image</a> which has been divided into its 256 respective pixels. Each of these pixels serves as an input feature for the&nbsp;model.</p>
+<p>Within each pixel, there is information about the intensity of the image at that point. For greyscale images, we only have information about the intensity of greyscale. This means that for greyscale images, we only have one <em>channel</em>, as you can see&nbsp;below.</p>
+<p><img src="/figure/cnn-greyscale-input.svg" title="" style="display: block; margin: auto;" /></p>
+<p>However, for colour images, we have information about the intensity of red, green and blue in each pixel, so we have a channel with information about the intensity of red in the image, another with the intensity of green, and a final one with the intensity of blue, giving colour images three channels in total. You can see this in the <a href="https://photonstorm.com/art/tutorials-art/16x16-pixel-art-tutorial">colour 16 <span class="math">\(\times\)</span> 16 pixel image</a> below: the image can be decomposed into its red, green and blue channels (I used this cool <a href="https://www.aatbio.com/tools/online-image-channel-splitter-rgb">channel splitter app</a> to do so), with each of these channels&#8217; values being the intensity of red, green and blue in that&nbsp;pixel.</p>
+<p><img src="/figure/cnn-colour-input.svg" title="" style="display: block; margin: auto;" /></p>
+<p>As each pixel is treated as a feature for the image, the total number of input features is calculated by the image height <span class="math">\(\times\)</span> width <span class="math">\(\times\)</span> number of channels. So for our 16 <span class="math">\(\times\)</span> 16 grey scale image above, the total number of input features would be 16 <span class="math">\(\times\)</span> 16 <span class="math">\(\times\)</span> 1 <span class="math">\(=\)</span> 256. For the 16 <span class="math">\(\times\)</span> 16 colour image, this would be 16 <span class="math">\(\times\)</span> 16 <span class="math">\(\times\)</span> 3 <span class="math">\(=\)</span> 768. You can see that using colour images is quite a bit more computationally expensive than greyscale&nbsp;ones!</p>
+<p>So for greyscale images, we now have one matrix of size height <span class="math">\(\times\)</span> width, and for colour images, we have three such matrices. How do we now convert these into a model input? Neural nets need their inputs to be in the form of a single input row, or vector, not two- or three-dimensional arrays. Well, it&#8217;s pretty straightforward to convert a 2D or 3D array into a vector: we just need to unroll it. Let&#8217;s have a look at how this might work in&nbsp;NumPy.</p>
+<p>For our greyscale image, we have a 16 <span class="math">\(\times\)</span> 16 matrix (a 2D array) containing all of the greyscale intensity&nbsp;values:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> 
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">138</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">174</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">174</span><span class="p">,</span> <span class="mi">198</span><span class="p">,</span>  <span class="mi">65</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">138</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span>  <span class="mi">65</span><span class="p">,</span>  <span class="mi">53</span><span class="p">,</span>  <span class="mi">65</span><span class="p">,</span> <span class="mi">156</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">174</span><span class="p">,</span>  <span class="mi">65</span><span class="p">,</span> <span class="mi">198</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span>  <span class="mi">65</span><span class="p">,</span> <span class="mi">174</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">146</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">167</span><span class="p">,</span> <span class="mi">153</span><span class="p">,</span> <span class="mi">138</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span>  <span class="mi">95</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">109</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span>
+    <span class="p">])</span>
+<span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(16, 16)</span>
+</code></pre></div>
+
+<p>To convert this into a vector (a 1D array), we use the <code>ravel</code> method:</p>
+<div class="highlight"><pre><span></span><code><span class="n">image_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="n">image_input</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(256,)</span>
+</code></pre></div>
+
+<p>We can see we now have an input vector for our <span class="caps">CNN</span> with 256 features. For the colour image, we&#8217;d unroll each of the colour channel matrices then append them to each other, giving a vector with 768 elements. Naturally, this means that all images used to train the <span class="caps">CNN</span> (and actually all images that the <span class="caps">CNN</span> can later run predictions over) must be the same&nbsp;size.</p>
+<h2>The convolutional&nbsp;layer</h2>
+<p>Now that we understand how CNNs treat images as inputs, let&#8217;s have a look at the first type of hidden layer in these networks: the convolutional&nbsp;layer.</p>
+<p>The goal of the convolutional layer is to try to summarise the input, called a <strong>feature map</strong>, by extracting meaningful visual features. Let&#8217;s see how this might work with the first convolutional layer in the network, where the feature map is the original image&nbsp;itself.</p>
+<p>Firstly, a <strong>window</strong>, normally of sizes 3 <span class="math">\(\times\)</span> 3, 5 <span class="math">\(\times\)</span> 5 or 7 <span class="math">\(\times\)</span> 7 is slid across the image. At each point that the window stops, the part of the image under it, called a <strong>patch</strong>, is extracted as a&nbsp;matrix. </p>
+<p>This patch is multiplied by another matrix of the same size, called the <strong>convolutional kernel</strong>. By multiplying the patch by the convolutional kernel, the model can capture some sort of key information contained in the image, such as dominant outlines, structural patterns, and even specific objects. There are <a href="https://courses.cs.washington.edu/courses/cse416/22su/lectures/10/lecture_10.pdf">kernels that do specific transformations to the image</a>. For example, this matrix sharpens&nbsp;images:</p>
+<div class="math">$$\begin{bmatrix} 0 &amp; -1 &amp; 0 \\
+                  -1 &amp; 5 &amp; -1 \\
+                  0 &amp; -1 &amp; 0 \\
+  \end{bmatrix}
+$$</div>
+<p>and this one detects&nbsp;edges:</p>
+<div class="math">$$\begin{bmatrix} -1 &amp; -1 &amp; -1 \\
+                  -1 &amp; 8 &amp; -1 \\
+                  -1 &amp; -1 &amp; -1 \\
+  \end{bmatrix}
+$$</div>
+<p>However, which transformations need to be applied by each convolutional kernel will be learned during the model&#8217;s training, and will be dependent on the specific set of images the network is trying to classify. This means that the weights in the convolutional kernels will be learned during the model&#8217;s training, just like with any weights in a neural&nbsp;network.</p>
+<p>The multiplication operation between each patch and the convolutional kernel is the sum of element-wise products, i.e., every element in a patch is multiplied by its corresponding element in the convolutional kernel, and all of these values are added together. This yields a single number for each multiplication between a patch and the convolutional kernel, which is then assigned to the output matrix of the convolutional layer. We repeat this operation with every patch in the input, until we&#8217;ve covered the whole feature map, ending up with a single <em>filter</em> of the feature map. You can see this in the animation&nbsp;below.</p>
+<iframe width="800" height="450"
+src="https://www.youtube.com/embed/s5OZA1vX02A?si=VIVhLY0DSErNxFKj&amp;autoplay=1&amp;mute=1&amp;&loop=1&amp;playlist=s5OZA1vX02A">
+</iframe>
+
+<p>In the case of a 3 <span class="math">\(\times\)</span> 3 window, the filter will be of size (feature map height - 2) <span class="math">\(\times\)</span> (feature map width - 2), so in the case of our 16 <span class="math">\(\times\)</span> 16 image, the resulting filter would be 14 <span class="math">\(\times\)</span> 14. This is because with a 3 <span class="math">\(\times\)</span> 3 window, the window can only fit in the image 14 times along the x-axis and 14 times along the y-axis, and each patch is reduced to a single value in the feature. With a 5 <span class="math">\(\times\)</span> 5 window, the resulting filter will be (feature map height - 4) <span class="math">\(\times\)</span> (feature map width - 4), and finally, with a 7 <span class="math">\(\times\)</span> 7 window, the resulting filter will be (feature map height - 6) <span class="math">\(\times\)</span> (feature map width -&nbsp;6).</p>
+<p>Let&#8217;s see how a filter is created by doing this step-by-step in&nbsp;NumPy.</p>
+<p>Firstly, let&#8217;s create the window using the <code>view_as_windows</code> function from <code>scikit-image</code>. We&#8217;ll work with a 3 <span class="math">\(\times\)</span> 3&nbsp;window.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">skimage.util.shape</span> <span class="kn">import</span> <span class="n">view_as_windows</span>
+
+<span class="n">window_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We apply this to our greyscale image from earlier in the post. We can see we now have an array containing all of our 3 <span class="math">\(\times\)</span> 3 patches, which are two dimensional NumPy arrays. As the window fits 14 times along the x-axis and 14 times along the y-axis, we have 196 of these patches in&nbsp;total. </p>
+<div class="highlight"><pre><span></span><code><span class="n">patches</span> <span class="o">=</span> <span class="n">view_as_windows</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">window_shape</span><span class="p">)</span>
+<span class="n">patches</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(14, 14, 3, 3)</span>
+</code></pre></div>
+
+<p>Let&#8217;s see the first of these&nbsp;patches:</p>
+<div class="highlight"><pre><span></span><code><span class="n">patches</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[255, 255, 255],</span>
+<span class="err">       [255, 255, 255],</span>
+<span class="err">       [255, 255, 255]])</span>
+</code></pre></div>
+
+<p>We can see this is the upper-left corner of our image, where all pixels have an intensity of 255 (i.e.,&nbsp;white).</p>
+<p>Let&#8217;s now create our convolutional kernel. As I explained earlier, the specific values will be determined by the model, but we can for now use the kernel that sharpens&nbsp;images.</p>
+<div class="highlight"><pre><span></span><code><span class="n">convolutional_kernel</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> 
+                        <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+</code></pre></div>
+
+<p>We now need to take the element-wise product between each of the values in the patch and the values in the convolutional kernel. We can do this by multiplying the corresponding elements in the two matrices together, then summing the values. We need to sum twice, as the first sum operation sums along each column in the&nbsp;matrix.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">patches</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">convolutional_kernel</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">255</span>
+</code></pre></div>
+
+<p>The value is, unsurprisingly, 255. Let&#8217;s now repeat this operation for every patch from the image. This is equivalent to sliding the window along the top row of the image matrix, calculating the sum of element-wise products each time it stops, then repeating this for the second row, and so on until the 14th&nbsp;row. </p>
+<p>We&#8217;ll assign each sum of products to a filter matrix, which we&#8217;ll initialise by creating a 14 <span class="math">\(\times\)</span> 14 matrix made up of&nbsp;zeros.</p>
+<div class="highlight"><pre><span></span><code><span class="n">filter_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">14</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span>
+        <span class="n">filter_value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">patches</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">convolutional_kernel</span><span class="p">))</span>
+        <span class="n">filter_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_value</span>
+</code></pre></div>
+
+<p>We can see that the resulting matrix looks quite similar to the input matrix, but smaller and with some numbers transformed. You can also see we&#8217;ve departed from the 0 to 255 greyscale&nbsp;values.</p>
+<div class="highlight"><pre><span></span><code><span class="n">filter_matrix</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[ 255.,  255.,  255.,  255.,  255.,  255.,  394.,  394.,  401.,</span>
+<span class="err">         255.,  255.,  255.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  255.,  255.,  533., -192.,  -53., -190.,</span>
+<span class="err">         401.,  255.,  255.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  255.,  533., -214.,   90.,  139., -227.,</span>
+<span class="err">         503.,  401.,  255.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  394., -184.,   50.,  481.,  357.,  503.,</span>
+<span class="err">           0., -234.,  401.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  394.,  -60.,  110.,  438.,  357.,  473.,</span>
+<span class="err">          90.,  -25.,  394.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  533., -104.,  113.,  118.,  125.,   53.,</span>
+<span class="err">          47., -150.,  575.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  394., -213.,  276.,  192.,  512., -232.,  343.,</span>
+<span class="err">         167.,  201., -289.,  415.,  255.],</span>
+<span class="err">       [ 255.,  255.,  394.,  -60.,  162.,  276., -267.,    5., -235.,</span>
+<span class="err">         249.,  188.,  -18.,  394.,  255.],</span>
+<span class="err">       [ 255.,  255.,  394.,  -39.,  176.,  174.,  406., -165.,  519.,</span>
+<span class="err">         147.,  267., -172.,  415.,  255.],</span>
+<span class="err">       [ 255.,  255.,  415., -144.,  204.,  195.,  262., -248.,  273.,</span>
+<span class="err">         188.,  184.,  -67.,  401.,  255.],</span>
+<span class="err">       [ 255.,  255.,  415., -276.,  213.,  190.,  239.,  320.,  232.,</span>
+<span class="err">         177.,  159., -212.,  401.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  554., -171., -158.,  -88.,  -60., -109.,</span>
+<span class="err">         -53., -184.,  540.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  255.,  394.,  415.,  401.,  394.,  401.,</span>
+<span class="err">         394.,  394.,  255.,  255.,  255.],</span>
+<span class="err">       [ 255.,  255.,  255.,  255.,  255.,  255.,  255.,  255.,  255.,</span>
+<span class="err">         255.,  255.,  255.,  255.,  255.]])</span>
+</code></pre></div>
+
+<p>We can see how the filter has transformed the image by visualising it below using <code>matplotlib</code>. As we&#8217;re not dealing with greyscale values anymore, this is not strictly how the image &#8220;looks&#8221; to the network, but it gives us an&nbsp;approximation.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">filter_matrix</span><span class="p">,</span> 
+           <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">();</span>
+</code></pre></div>
+
+<p><img src="/figure/cnn-filter-example.png" title="" style="display: block; margin: auto;" /></p>
+<p>If you want the filter matrix to be the same size as the input matrix, you can apply padding. This is where extra rows, with a value of zero, are added to the outside of the feature map. The number of rows added will be equal to the number of rows &#8220;lost&#8221; when calculating the values in the filter, so in the case of a 3 <span class="math">\(\times\)</span> 3 window, two rows would be added to both the height and width. You can see this in the diagram&nbsp;below:</p>
+<p><img src="/figure/cnn-padding-example.svg" title="" style="display: block; margin: auto;" /></p>
+<p>Now, we&#8217;ve only discussed making <em>one</em> filter from our input image. However, one of the hyperparameters you can set in the convolutional layer is the number of filters you want the model to extract, and normally you would make many of these (for example, 32 or 64). For each of these, a different convolutional kernel will be used, with the specific weights for that kernel calculated during model training. Each filter will then extract specific features from the image, meaning that a single convolutional layer can capture many different pieces of visual&nbsp;information.</p>
+<p>As a result, the output from the convolutional layer also has three dimensions: <em>height</em> and <em>width</em>, which as we discussed above refers to the dimensions of each of the filters, and <em>number of channels</em>, which now refers to the number of filters you want made over the feature&nbsp;map.</p>
+<p>The final thing to cover about the convolutional layer is a parameter called <strong>stride</strong>. So far, when we moved the window over the feature map, we were just moving it one pixel at a time. However, it is possible to change the stride so that you move two or more pixels at a time. This makes the output matrix less large, but is rarely used in practice. Instead, we rely on the next type of layer in CNNs, pooling layers, to reduce the size of the feature map as it moves through the&nbsp;network.</p>
+<h2>The pooling&nbsp;layer</h2>
+<p>Following the convolutional layer, there is usually another type of layer called a pooling layer. Pooling is designed to aggressively downsample the feature map by again sliding windows over each filter, and taking some aggregation of the values inside the window. There are several operations that can be used, but the most common of these is taking the maximum (known as <strong>max pooling</strong>). Max pooling usually uses a 2 <span class="math">\(\times\)</span> 2 window and a stride of 2, so that we get non-overlapping patches that we can conduct the pooling operation over. We can see how max pooling works&nbsp;below.</p>
+<p>Let&#8217;s say that we apply a max pooling operation to our 14 <span class="math">\(\times\)</span> 14 feature map. To remind you, this feature map is one of the filters from the previous convolutional layer, which was the result of multiplying our input matrix by the sharpening convolutional kernel. We can see how this would work in this&nbsp;diagram:</p>
+<p><img src="/figure/cnn-max-pooling.svg" title="" style="display: block; margin: auto;" /></p>
+<p>The image is broken into 2 <span class="math">\(\times\)</span> 2 patches, and within each, the maximum value is taken. As a result, we end up with a 7 <span class="math">\(\times\)</span> 7&nbsp;matrix.</p>
+<p>We can again see how this works step-by-step in&nbsp;NumPy:</p>
+<p>Firstly, we define our 2 <span class="math">\(\times\)</span> 2 window, and break the feature map into patches. We use the <code>step</code> argument to define a stride of&nbsp;2.</p>
+<div class="highlight"><pre><span></span><code><span class="n">window_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">patches</span> <span class="o">=</span> <span class="n">view_as_windows</span><span class="p">(</span><span class="n">filter_matrix</span><span class="p">,</span> <span class="n">window_shape</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">patches</span><span class="o">.</span><span class="n">shape</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">(7, 7, 2, 2)</span>
+</code></pre></div>
+
+<p>You can see that, as in the diagram above, we can fit 7 windows along the x-axis and 7 along the y-axis, leaving us with 49 2 <span class="math">\(\times\)</span> 2&nbsp;patches.</p>
+<p>Again, let&#8217;s have a look at the first&nbsp;patch:</p>
+<div class="highlight"><pre><span></span><code><span class="n">patches</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[255., 255.],</span>
+<span class="err">       [255., 255.]])</span>
+</code></pre></div>
+
+<p>We can get the maximum value for each patch by calling the <code>max()</code> function over the&nbsp;array.</p>
+<div class="highlight"><pre><span></span><code><span class="n">patches</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">255.0</span>
+</code></pre></div>
+
+<p>Now, all we need to do to take the max of each patch. We&#8217;ll again use a nested for loop to do&nbsp;this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">max_pooling_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="n">patches</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">max_pooling_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_value</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">max_pooling_matrix</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="err">array([[255., 255., 533., 394., 401., 255., 255.],</span>
+<span class="err">       [255., 394., 533., 481., 503., 401., 255.],</span>
+<span class="err">       [255., 533., 113., 438., 473., 575., 255.],</span>
+<span class="err">       [255., 394., 276., 512., 343., 201., 415.],</span>
+<span class="err">       [255., 415., 204., 406., 519., 267., 415.],</span>
+<span class="err">       [255., 554., 213., 320., 232., 540., 401.],</span>
+<span class="err">       [255., 255., 415., 401., 401., 394., 255.]])</span>
+</code></pre></div>
+
+<p>And there we have it: from our 14 <span class="math">\(\times\)</span> 14 filter, we have a 7 <span class="math">\(\times\)</span> 7 output. If we were doing this over the whole output from a convolutional kernel, we would repeat this operation for each channel (filter), leaving us with an output array again of size height <span class="math">\(\times\)</span> width <span class="math">\(\times\)</span> number of channels, but this time the height and width are half of what they were in the input array. As we complete the pooling operation over each filter separately, the number of channels remains the&nbsp;same.</p>
+<p>And with that, we&#8217;ve understood the two types of layers that make up CNNs! These layers will be repeated, with a convolutional layer followed by a pooling layer, until the network gets to the final dense prediction layers (which we&#8217;ll cover in second). The output of the pooling layer will become the input for the next convolutional layer, with each of the channels being treated as a feature map in that convolutional&nbsp;layer.</p>
+<p>How many of these layers that you include is, again, a subjective decision and will be based on how big and complex your image is. For example, in Chollet&#8217;s chapter on CNNs, he shows two examples. For the <a href="https://www.kaggle.com/datasets/hojjatk/mnist-dataset"><span class="caps">MNIST</span> digit classication dataset</a>, which has 26 <span class="math">\(\times\)</span> 26 pixel greyscale images, he uses three convolutional layers and three max pooling layers. For the larger and more complex images in the <a href="https://www.kaggle.com/c/dogs-vs-cats">Dogs vs Cats dataset</a>, he uses four of each layer. The idea is to try to have enough convolutional and pooling layers so that your images are relatively small by the time they hit the dense prediction&nbsp;layers.</p>
+<p>So, the final question you might ask about these two layers is: why bother with these complex layer types? Why not just use dense layers to learn the features from the&nbsp;images?</p>
+<p>There are a few reasons for this. The convolutional layers do the following:<br>
+<strong>They learn translation invariant patterns</strong>: This means that the network is able to learn patterns that make up meaningful features, no matter where they occur in the image. This is because the convolutional layers force the network to only focus on subsets of the image at a time, which means that if the network learns, for example, diagonal lines in one part of the image, it can recognise them anywhere. If we used a dense layer, the network would need to learn the same feature all over again if it occurred in a different place in another image. This mimics the way our own visual system recognises visual features, meaning the network can learn a lot more about images with fewer training&nbsp;examples.  </p>
+<p><strong>They are capable of learning hierarchies of visual features</strong>: Convolutional layers first learn simple features, such as the orientation of lines. As the features are passed through more convolutional layers, these features will be aggregated more and more, first into shapes, then features, as you can see below. This actually also mimics how visual inputs are processed in our visual&nbsp;system.  </p>
+<p><img src="/figure/cnn-feature-hierarchy.svg" title="" style="display: block; margin: auto;" /></p>
+<p><a href="https://www.flaticon.com/free-icon/triceratops_472861">Dinosaur icon&nbsp;credit</a></p>
+<p>The pooling layers also play an important role in how the network learns. Without pooling, the windows would remain relatively small as they progressed through the network. Our 3 <span class="math">\(\times\)</span> 3 window would analyse a 5 <span class="math">\(\times\)</span> 5 area of the original image in the second layer, and a 7 <span class="math">\(\times\)</span> 7 area in the third layer &#8230; as you can see, even with our small 16 <span class="math">\(\times\)</span> 16 image, we&#8217;re not even close to the network being able to analyse the whole image. The pooling operation halves the feature space each time, allowing the convolutional layers to more efficiently &#8220;see&#8221; larger and larger parts of the input image as the network progresses and allow it to build up that nice hierarchy of&nbsp;features.</p>
+<p>Additionally, as we have multiple channels per convolutional layer, without downsampling the number of features in the feature map, we&#8217;d potentially end up an absolutely enormous number of coefficients by the time we hit the dense layers we need for classification. As well as being computationally inefficient, it would also lead to model overfitting. You can see why these two reasons are also why you need to include enough convolutional and pooling layers to reduce the size of the feature map before you hit the final layers. And speaking of these final layers&nbsp;&#8230;</p>
+<h2>The dense&nbsp;layers</h2>
+<p>Finally, we of course need to get the <span class="caps">CNN</span> to solve a classification problem, not just recognise image features! This is where the final layers come&nbsp;in. </p>
+<p>After the final pooling layer, we&#8217;re of course left with a three dimensional array, with the dimensions height, width and number of channels. In order to connect this to a dense layer, we first need to flatten this array into a 1-dimensional array, which becomes a regular neural net layer with its number of nodes equal to height <span class="math">\(\times\)</span> width <span class="math">\(\times\)</span> number of&nbsp;channels.</p>
+<p>From here, CNNs act pretty much like a normal neural network. We need to first create a fully connected layer, which means we create a layer with a selected number of nodes, and connect every node in the flattened pooling layer to the nodes in this layer. You can see here how not aggressively downsizing your convolutional layers can blow out the size of your network, as the number of parameters could be enormous if the feature map is still large by the end of the&nbsp;network. </p>
+<p>Finally, we need to add our output layer. For classification problems, this layer will have a number of nodes equal to the number of prediction classes (so for the <span class="caps">MNIST</span> dataset, this will be 10, one for each digit). This will be a <a href="https://en.wikipedia.org/wiki/Softmax_function">softmax</a> layer, which returns an array of probability scores, one for each of the nodes in the output layer. This probability corresponds to how likely the network predicts each class of the outcome to be, and the class with the highest probability will the network&#8217;s prediction for that&nbsp;image.</p>
+<p>And there we have it! I hope this post has helped you to understand one of the most important models in computer vision, and see how this interesting model makes accurate predictions about images by processing them in a similar way to our own visual&nbsp;system.</p>
+        <hr class="divider-short"/>
+        <!-- Disqus goes here -->
+        <!-- <section>
+          <h1>Comments</h1>
+          <div id="disqus_thread" aria-live="polite">Disqus goes here</div>
+        </section>
+        -->
+      </div>
+    </div>
+  </div>
+</article>
+    <footer id="footer" class="her-row">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-1">
+            <a href="/"><h4>Home</h4></a>
+          </div>
+
+          <div class="col-md-2">
+            <div class="social-icon-list">
+              <a href="https://twitter.com/t_redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_31_twitter.png"
+              /></a>
+               <a href="https://github.com/t-redactyl"
+                ><img
+                  src="https://t-redactyl.github.io/theme/images/glyphicons_social_21_github.png"
+              /></a>
+              </div>
+          </div>
+          <div class="pull-right">
+            <h4>
+              Powered by <a href="http://blog.getpelican.com/">Pelican</a>.
+              Designed by <a href="http://AdrianArtiles.com">Adrian Artiles</a>.
+              Title picture by
+              <a
+                href="https://pixabay.com/en/brandenburg-gate-berlin-landmark-2010656/"
+                >Couleur via Pixabay</a
+              >.
+            </h4>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- KaTeX rendering -->
+    <script>
+      renderMathInElement(document.body);
+    </script>
+
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-66946155-1', 'auto');
+  ga('send', 'pageview');
+
+</script>    </body>
+</html>
