@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Analysing Reddit Data on Standard error</title><link>https://t-redactyl.io/series/analysing-reddit-data/</link><description>Recent content in Analysing Reddit Data on Standard error</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Wed, 09 Dec 2015 00:00:00 +0000</lastBuildDate><atom:link href="https://t-redactyl.io/series/analysing-reddit-data/index.xml" rel="self" type="application/rss+xml"/><item><title>Analysing reddit data: data analysis</title><link>https://t-redactyl.io/posts/2015-12-09-reddit-api-part-4/</link><pubDate>Wed, 09 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-09-reddit-api-part-4/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Analysing Reddit Data&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-18-reddit-api-part-1/"&gt;Analysing reddit data: setting up the environment&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-25-reddit-api-part-2/"&gt;Analysing reddit data: extracting the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-02-reddit-api-part-3/"&gt;Analysing reddit data: cleaning and describing the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Analysing reddit data: data analysis&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This week ends a 4-part series on extracting and analysing JSON-encoded data from reddit, using the subreddit &lt;a href="https://www.reddit.com/r/relationships#hme"&gt;/r/relationships&lt;/a&gt; as an example. In the first two entries I &lt;a href="%7Bfilename%7D2015-11-18-reddit-api-part-1.md"&gt;set up the environment&lt;/a&gt; and &lt;a href="%7Bfilename%7D2015-11-25-reddit-api-part-2.md"&gt;collected the data&lt;/a&gt;. &lt;a href="%7Bfilename%7D2015-12-02-reddit-api-part-3.md"&gt;Last week&lt;/a&gt;, I finished by cleaning the data and doing some basic analyses. This week we'll finish with some fairly simple bivariate analyses. We'll answer some questions about both posters to the subreddit and how the readers react to these posts, and play around with visualisation in &lt;code&gt;matplotlib&lt;/code&gt;. In the interest of brevity (i.e., not having to check parametric assumptions), I'll be using non-parametric tests, but if you were doing this properly (not being lazy!) you would need to complete all of these checks and consider the use of parametric tests.&lt;/p&gt;</description></item><item><title>Analysing reddit data: cleaning and describing the data</title><link>https://t-redactyl.io/posts/2015-12-02-reddit-api-part-3/</link><pubDate>Wed, 02 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-02-reddit-api-part-3/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Analysing Reddit Data&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-18-reddit-api-part-1/"&gt;Analysing reddit data: setting up the environment&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-25-reddit-api-part-2/"&gt;Analysing reddit data: extracting the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Analysing reddit data: cleaning and describing the data&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-09-reddit-api-part-4/"&gt;Analysing reddit data: data analysis&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Over the past two weeks (&lt;a href="%7Bfilename%7D2015-11-18-reddit-api-part-1.md"&gt;here&lt;/a&gt; and &lt;a href="%7Bfilename%7D2015-11-25-reddit-api-part-2.md"&gt;here&lt;/a&gt;) we have been discussing how to use JSON-encoded data from reddit. So far we have set up our environment and extracted the top 1,000 posts of all time from the subreddit &lt;a href="https://www.reddit.com/r/relationships#hme"&gt;/r/relationships&lt;/a&gt; into a &lt;code&gt;pandas Dataframe&lt;/code&gt;. This week, we will work on cleaning the data, extracting further data from our existing variables and describing these variables. We'll end this series next week by doing some basic inferential analyses.&lt;/p&gt;</description></item><item><title>Analysing reddit data: extracting the data</title><link>https://t-redactyl.io/posts/2015-11-25-reddit-api-part-2/</link><pubDate>Wed, 25 Nov 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-11-25-reddit-api-part-2/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Analysing Reddit Data&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-18-reddit-api-part-1/"&gt;Analysing reddit data: setting up the environment&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Analysing reddit data: extracting the data&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-02-reddit-api-part-3/"&gt;Analysing reddit data: cleaning and describing the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-09-reddit-api-part-4/"&gt;Analysing reddit data: data analysis&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In last week's post, we covered the basics of setting up our environment so we can extract data from reddit. Now it's time to start on the meat of this topic. This week I will show you how to use the reddit public API to retrieve JSON-encoded data from the subreddit /r/relationships, although this technique will translate to both the reddit mainpage and other subreddits. As I mentioned last week, this is aimed at people who are completely new to working with JSON data, so we will go through everything step-by-step.&lt;/p&gt;</description></item><item><title>Analysing reddit data: setting up the environment</title><link>https://t-redactyl.io/posts/2015-11-18-reddit-api-part-1/</link><pubDate>Wed, 18 Nov 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-11-18-reddit-api-part-1/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Analysing Reddit Data&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Analysing reddit data: setting up the environment&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-11-25-reddit-api-part-2/"&gt;Analysing reddit data: extracting the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-02-reddit-api-part-3/"&gt;Analysing reddit data: cleaning and describing the data&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-09-reddit-api-part-4/"&gt;Analysing reddit data: data analysis&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Early in my career (before I discovered all I wanted to do was work with data) I thought I wanted to be a relationships psychologist. I actually wrote my Ph.D. thesis on hurtful events in relationships, and my Honours thesis on romantic jealousy, so you get the point! I still have a bit of a fascination with people's relationship problems, so a guilty pleasure of mine is reading the subreddit &lt;a href="https://www.reddit.com/r/relationships#hme"&gt;/r/relationships&lt;/a&gt;. Given how much time I spend on this subreddit, it seemed like a good place for a first attempt at extracting JSON-encoded data from the web.&lt;/p&gt;</description></item></channel></rss>

@@ -1,5 +1,182 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Neural Networks on Standard error</title><link>https://t-redactyl.io/tags/neural-networks/</link><description>Recent content in Neural Networks on Standard error</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 09 Feb 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://t-redactyl.io/tags/neural-networks/index.xml" rel="self" type="application/rss+xml"/><item><title>Why the LMArena is a flawed approach to LLM evaluation</title><link>https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/</link><pubDate>Mon, 09 Feb 2026 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/</guid><description>&lt;p&gt;In the last blog post, we discussed some of the major issues with LLM evaluation benchmarks, and why they are often a poor way of assessing model performance. So what, if anything, should replace them? One alternative you may have heard of is the LMArena, which has become one of the most cited alternatives to traditional LLM benchmarks for evaluating large language models.&lt;/p&gt;
-&lt;h2 id="what-is-the-lmarena-and-how-does-it-evaluate-llms"&gt;What is the LMArena and how does it evaluate LLMs?&lt;/h2&gt;
-&lt;p&gt;The LMArena (previously called the Chatbot Arena) is a system for ranking the performance of large language models using preference-based evaluation. It is a large-scale experiment that anyone can take part in by visiting &lt;a href="https://lmarena.ai/"&gt;their website&lt;/a&gt;. Once a participant arrives, they are asked to enter a prompt, after which the Arena retrieves responses from two randomly selected state-of-the-art LLMs in its model pool. The user can compare these responses, optionally enter follow-up prompts, and finally rate which output they thought was better.&lt;/p&gt;</description></item><item><title>What LLM benchmarks get wrong about measuring model performance</title><link>https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/</link><pubDate>Mon, 19 Jan 2026 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/</guid><description>&lt;p&gt;Have you ever listened to the creators of the latest large language model talk about how their model is the "most powerful", "most intelligent" or "best" model to date, and wondered how they're measuring this? One of the most common ways this is assessed is by seeing how these models perform on a variety of LLM evaluation benchmarks. You can see a recent example of this below, from Anthropic's &lt;a href="https://www.anthropic.com/news/claude-4"&gt;release post for Claude 4&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Data leakage is a major issue when measuring LLM performance</title><link>https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/</link><pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/</guid><description>&lt;p&gt;Have a think back to when GPT-4 came out in March 2023. One of the key things that OpenAI highlighted in their &lt;a href="https://cdn.openai.com/papers/gpt-4.pdf"&gt;technical report&lt;/a&gt; was that this model was showing near-human performance, measured by how it scored on exams designed for humans. They reported finding that the model showed impressive performance on a range of professional and academic exams, including getting a score in the top 10% of test takers on a simulated bar exam. This led to a flurry of breathless headlines, &lt;a href="https://www.businessinsider.com/chatgpt-passes-medical-exam-diagnoses-rare-condition-2023-4"&gt;like the one below&lt;/a&gt;, jumping to the conclusion that these models are at the level of some of the smartest people on the planet, and it will only be a matter of time before they're replacing professionals like doctors.&lt;/p&gt;</description></item><item><title>How convolutional neural networks (CNNs) work</title><link>https://t-redactyl.io/posts/2024-08-10-how-do-cnns-work/</link><pubDate>Sat, 10 Aug 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-08-10-how-do-cnns-work/</guid><description>&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Convolutional_neural_network"&gt;Convolutional neural networks&lt;/a&gt;, CNNs, convnets, call them what you like - these powerful neural nets remain one of the most popular type of models for classifying images. But have you ever wondered how they work? In this blog post, we'll go through this step-by-step, with lots of diagrams and code examples to try to make it as concrete as possible.&lt;/p&gt;
-&lt;p&gt;For this blog post, I relied heavily on François Chollet's wonderful book, &lt;a href="https://www.manning.com/books/deep-learning-with-python-second-edition"&gt;Deep Learning with Python&lt;/a&gt;. If you want one book to gently introduce you to neural networks, this would be the one I recommend. I also used &lt;a href="https://courses.cs.washington.edu/courses/cse416/22su/lectures/10/lecture_10.pdf"&gt;these lecture notes&lt;/a&gt; from the University of Washington's &lt;a href="https://courses.cs.washington.edu/courses/cse416/"&gt;Introduction to Machine Learning course&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Are LLMs really on the path to AGI?</title><link>https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/</link><pubDate>Sat, 27 Jul 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/</guid><description>&lt;p&gt;The claims of &lt;a href="https://en.wikipedia.org/wiki/Artificial_general_intelligence"&gt;artificial general intelligence, or AGI&lt;/a&gt;, have been some of the hottest and most emotionally charged discussions about large language models. In addition, these claims probably have the most intellectual weight behind them of all of the claims about LLM abilities. For example, in March 2023, Microsoft research released a paper titled &lt;a href="https://arxiv.org/pdf/2303.12712"&gt;"Sparks of Artificial General Intelligence"&lt;/a&gt;, where they claimed that a series of experiments on GPT-4 showed that this model was showing at least some signs of AGI. Later that year, researchers &lt;a href="https://en.wikipedia.org/wiki/Blaise_Ag%C3%BCera_y_Arcas"&gt;Blaise Agüera y Arcas&lt;/a&gt; (an AI research fellow at Google) and &lt;a href="https://de.wikipedia.org/wiki/Peter_Norvig"&gt;Peter Norvig&lt;/a&gt; (a Distinguished Education Fellow at the Stanford Institute for Human-Centered AI) &lt;a href="https://www.noemamag.com/artificial-general-intelligence-is-already-here/"&gt;published a piece&lt;/a&gt; stating that LLMs had already crossed the threshold for AGI.&lt;/p&gt;</description></item><item><title>Could LLMs be conscious or sentient?</title><link>https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/</link><pubDate>Sat, 13 Jul 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/</guid><description>&lt;p&gt;In June 2022, a story hit international news that &lt;a href="https://www.washingtonpost.com/technology/2022/06/11/google-ai-lamda-blake-lemoine/"&gt;a Google engineer believed that one of their large language models had achieved sentience&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Blake Lemoine was testing Google's conversational LLM &lt;a href="https://blog.google/technology/ai/lamda/"&gt;LaMDA&lt;/a&gt; (the model that went on to power the original &lt;a href="https://blog.google/technology/ai/bard-google-ai-search-updates/"&gt;Bard&lt;/a&gt;) through a series of chats. Over time, as Lemoine completed more and more of these tests, he began to believe that this model was showing signs of sentience - in fact that it had a soul. Alarmed by the idea of a sentient entity being potentially exploited, Lemoine went to the press to advocate for policies to protect LaMDA and similar models. He was promptly fired for violating Google's privacy policies as he had released confidential transcripts as part of his work with the press, and &lt;a href="https://www.theguardian.com/technology/2022/jun/12/google-engineer-ai-bot-sentient-blake-lemoine"&gt;Google released their own statement&lt;/a&gt;, saying:&lt;/p&gt;</description></item><item><title>Can LLMs use language at a human-like level?</title><link>https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/</link><pubDate>Sat, 29 Jun 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/</guid><description>&lt;p&gt;Over the past two years, since the initial release of &lt;a href="https://openai.com/chatgpt/"&gt;ChatGPT&lt;/a&gt; in November 2022, we've been in a hype cycle around &lt;a href="https://en.wikipedia.org/wiki/Large_language_model"&gt;large language models&lt;/a&gt;, or LLMs. Due to the very human "feeling" of LLM outputs, a lot of people have been convinced that these models are showing human-level abilities, or are even at the point of exceeding humans in certain skills. For example, when I asked ChatGPT-4 to write me a Shakespearean sonnet about the night sky, it came up with something the bard himself could have written:&lt;/p&gt;</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Neural Networks on Standard error</title><link>https://t-redactyl.io/tags/neural-networks/</link><description>Recent content in Neural Networks on Standard error</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Mon, 09 Feb 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://t-redactyl.io/tags/neural-networks/index.xml" rel="self" type="application/rss+xml"/><item><title>Why the LMArena is a flawed approach to LLM evaluation</title><link>https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/</link><pubDate>Mon, 09 Feb 2026 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Measuring LLM Performance&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/"&gt;Data leakage is a major issue when measuring LLM performance&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/"&gt;What LLM benchmarks get wrong about measuring model performance&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Why the LMArena is a flawed approach to LLM evaluation&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In the last blog post, we discussed some of the major issues with LLM evaluation benchmarks, and why they are often a poor way of assessing model performance. So what, if anything, should replace them? One alternative you may have heard of is the LMArena, which has become one of the most cited alternatives to traditional LLM benchmarks for evaluating large language models.&lt;/p&gt;</description></item><item><title>What LLM benchmarks get wrong about measuring model performance</title><link>https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/</link><pubDate>Mon, 19 Jan 2026 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Measuring LLM Performance&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/"&gt;Data leakage is a major issue when measuring LLM performance&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;What LLM benchmarks get wrong about measuring model performance&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/"&gt;Why the LMArena is a flawed approach to LLM evaluation&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Have you ever listened to the creators of the latest large language model talk about how their model is the "most powerful", "most intelligent" or "best" model to date, and wondered how they're measuring this? One of the most common ways this is assessed is by seeing how these models perform on a variety of LLM evaluation benchmarks. You can see a recent example of this below, from Anthropic's &lt;a href="https://www.anthropic.com/news/claude-4"&gt;release post for Claude 4&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Data leakage is a major issue when measuring LLM performance</title><link>https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/</link><pubDate>Mon, 29 Dec 2025 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2025-12-29-data-leakage-llm-measurement/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Measuring LLM Performance&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Data leakage is a major issue when measuring LLM performance&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2026-01-19-llm-benchmarks-have-issues-with-validity/"&gt;What LLM benchmarks get wrong about measuring model performance&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2026-02-09-why-the-lm-arena-is-vibes-based/"&gt;Why the LMArena is a flawed approach to LLM evaluation&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Have a think back to when GPT-4 came out in March 2023. One of the key things that OpenAI highlighted in their &lt;a href="https://cdn.openai.com/papers/gpt-4.pdf"&gt;technical report&lt;/a&gt; was that this model was showing near-human performance, measured by how it scored on exams designed for humans. They reported finding that the model showed impressive performance on a range of professional and academic exams, including getting a score in the top 10% of test takers on a simulated bar exam. This led to a flurry of breathless headlines, &lt;a href="https://www.businessinsider.com/chatgpt-passes-medical-exam-diagnoses-rare-condition-2023-4"&gt;like the one below&lt;/a&gt;, jumping to the conclusion that these models are at the level of some of the smartest people on the planet, and it will only be a matter of time before they're replacing professionals like doctors.&lt;/p&gt;</description></item><item><title>How convolutional neural networks (CNNs) work</title><link>https://t-redactyl.io/posts/2024-08-10-how-do-cnns-work/</link><pubDate>Sat, 10 Aug 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-08-10-how-do-cnns-work/</guid><description>&lt;p&gt;&lt;a href="https://en.wikipedia.org/wiki/Convolutional_neural_network"&gt;Convolutional neural networks&lt;/a&gt;, CNNs, convnets, call them what you like - these powerful neural nets remain one of the most popular type of models for classifying images. But have you ever wondered how they work? In this blog post, we'll go through this step-by-step, with lots of diagrams and code examples to try to make it as concrete as possible.&lt;/p&gt;
+&lt;p&gt;For this blog post, I relied heavily on François Chollet's wonderful book, &lt;a href="https://www.manning.com/books/deep-learning-with-python-second-edition"&gt;Deep Learning with Python&lt;/a&gt;. If you want one book to gently introduce you to neural networks, this would be the one I recommend. I also used &lt;a href="https://courses.cs.washington.edu/courses/cse416/22su/lectures/10/lecture_10.pdf"&gt;these lecture notes&lt;/a&gt; from the University of Washington's &lt;a href="https://courses.cs.washington.edu/courses/cse416/"&gt;Introduction to Machine Learning course&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Are LLMs really on the path to AGI?</title><link>https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/</link><pubDate>Sat, 27 Jul 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Psychology of LLMs&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/"&gt;Can LLMs use language at a human-like level?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/"&gt;Could LLMs be conscious or sentient?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Are LLMs really on the path to AGI?&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;The claims of &lt;a href="https://en.wikipedia.org/wiki/Artificial_general_intelligence"&gt;artificial general intelligence, or AGI&lt;/a&gt;, have been some of the hottest and most emotionally charged discussions about large language models. In addition, these claims probably have the most intellectual weight behind them of all of the claims about LLM abilities. For example, in March 2023, Microsoft research released a paper titled &lt;a href="https://arxiv.org/pdf/2303.12712"&gt;"Sparks of Artificial General Intelligence"&lt;/a&gt;, where they claimed that a series of experiments on GPT-4 showed that this model was showing at least some signs of AGI. Later that year, researchers &lt;a href="https://en.wikipedia.org/wiki/Blaise_Ag%C3%BCera_y_Arcas"&gt;Blaise Agüera y Arcas&lt;/a&gt; (an AI research fellow at Google) and &lt;a href="https://de.wikipedia.org/wiki/Peter_Norvig"&gt;Peter Norvig&lt;/a&gt; (a Distinguished Education Fellow at the Stanford Institute for Human-Centered AI) &lt;a href="https://www.noemamag.com/artificial-general-intelligence-is-already-here/"&gt;published a piece&lt;/a&gt; stating that LLMs had already crossed the threshold for AGI.&lt;/p&gt;</description></item><item><title>Could LLMs be conscious or sentient?</title><link>https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/</link><pubDate>Sat, 13 Jul 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Psychology of LLMs&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/"&gt;Can LLMs use language at a human-like level?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Could LLMs be conscious or sentient?&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/"&gt;Are LLMs really on the path to AGI?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In June 2022, a story hit international news that &lt;a href="https://www.washingtonpost.com/technology/2022/06/11/google-ai-lamda-blake-lemoine/"&gt;a Google engineer believed that one of their large language models had achieved sentience&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Can LLMs use language at a human-like level?</title><link>https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/</link><pubDate>Sat, 29 Jun 2024 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2024-06-29-humanity-in-llms-language/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Psychology of LLMs&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Can LLMs use language at a human-like level?&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-07-13-could-llms-be-sentient/"&gt;Could LLMs be conscious or sentient?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2024-07-27-are-llms-on-path-of-agi/"&gt;Are LLMs really on the path to AGI?&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Over the past two years, since the initial release of &lt;a href="https://openai.com/chatgpt/"&gt;ChatGPT&lt;/a&gt; in November 2022, we've been in a hype cycle around &lt;a href="https://en.wikipedia.org/wiki/Large_language_model"&gt;large language models&lt;/a&gt;, or LLMs. Due to the very human "feeling" of LLM outputs, a lot of people have been convinced that these models are showing human-level abilities, or are even at the point of exceeding humans in certain skills. For example, when I asked ChatGPT-4 to write me a Shakespearean sonnet about the night sky, it came up with something the bard himself could have written:&lt;/p&gt;</description></item></channel></rss>

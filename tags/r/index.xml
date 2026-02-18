@@ -1,18 +1,955 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>R on Standard error</title><link>https://t-redactyl.io/tags/r/</link><description>Recent content in R on Standard error</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 10 Mar 2017 00:00:00 +0000</lastBuildDate><atom:link href="https://t-redactyl.io/tags/r/index.xml" rel="self" type="application/rss+xml"/><item><title>Doing hierarchical clustering with a precalculated dissimilarity index</title><link>https://t-redactyl.io/posts/2017-03-10-doing-hierachical-clustering-in-r/</link><pubDate>Fri, 10 Mar 2017 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2017-03-10-doing-hierachical-clustering-in-r/</guid><description>&lt;p&gt;Hierarchical clustering functionality in R is great, right? Between &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/dist.html"&gt;&lt;code&gt;dist&lt;/code&gt;&lt;/a&gt; and &lt;a href="http://cc.oulu.fi/~jarioksa/softhelp/vegan/html/vegdist.html"&gt;&lt;code&gt;vegdist&lt;/code&gt;&lt;/a&gt; it is possible to base your clustering on almost any method you want, from cosine to &lt;a href="https://blog.csiro.au/going-nuts-with-the-canberra-distance/"&gt;Canberra&lt;/a&gt;. However, what if you do want to use a different or custom method, and you've already calculated the distances separately? All of the documentation for the &lt;code&gt;hclust&lt;/code&gt; function asks you to start with raw data from which R can calculate the distances between pairs. How do you get &lt;code&gt;hclust&lt;/code&gt; to read in pre-calculated distance scores?&lt;/p&gt;</description></item><item><title>A very ggplot2 Christmas</title><link>https://t-redactyl.io/posts/2016-12-27-a-very-ggplot2-christmas/</link><pubDate>Tue, 27 Dec 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-12-27-a-very-ggplot2-christmas/</guid><description>&lt;p&gt;About a month ago, &lt;a href="http://is-r.tumblr.com/post/36277968787/happy-thanksgiving-from-isr"&gt;this classic gem&lt;/a&gt; popped up in my Twitter feed. For those unable to view the image, it is a Thanksgiving turkey made completely in ggplot2 by the guys over at &lt;a href="http://is-r.tumblr.com/"&gt;is.R&lt;/a&gt;. I was so inspired by this plot I decided to see whether I could similarly draw a Christmas tree using only ggplot2:&lt;/p&gt;
 &lt;img src="https://t-redactyl.io/figure/christmas_tree_final.png" title="The final product" style="display: block; margin: auto;" /&gt;
-&lt;p&gt;For those of you who want to jump straight to the final product, &lt;a href="https://gist.github.com/t-redactyl/b9067b1d8862d34b42cb49fc4793f284"&gt;here&lt;/a&gt; is the code you'll need to reproduce the chart above.&lt;/p&gt;</description></item><item><title>A crash course in reproducible research in R</title><link>https://t-redactyl.io/posts/2016-10-13-reproducible-research-in-r/</link><pubDate>Fri, 14 Oct 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-10-13-reproducible-research-in-r/</guid><description>&lt;p&gt;&lt;a href="%7Bfilename%7D2016-10-04-reproducible-research-in-python.md"&gt;A couple of weeks ago&lt;/a&gt;, I wrote a post giving you an introduction to &lt;a href="https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research"&gt;reproducible research&lt;/a&gt; in Python. While the principles of reproducibility stay the same no matter the language you are using, there are some specific libraries and tools that R has that differ from Python. In this blog post, I'll fill you in on how I conduct a reproducible analysis in R and, like with Python, you'll see how straightforward it is!&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 11: linear regression plots</title><link>https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/</link><pubDate>Wed, 11 May 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/</guid><description>&lt;p&gt;This is the eleventh tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating linear regression plots.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 10: boxplots</title><link>https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/</link><pubDate>Mon, 18 Apr 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/</guid><description>&lt;p&gt;This is the tenth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising boxplots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 9: function plots</title><link>https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/</link><pubDate>Mon, 28 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/</guid><description>&lt;p&gt;This is the ninth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for plotting and customising functions.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Group operations in R</title><link>https://t-redactyl.io/posts/2016-03-27-group-operations-in-r/</link><pubDate>Sun, 27 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-27-group-operations-in-r/</guid><description>&lt;p&gt;One of the things I really missed when I moved from Stata to R was how easy it was to do group operations; that is, being able to apply summary statistics by levels of a variable or variables in a dataset. Fortunately for me, I just needed a bit of time exploring R's massive number of functions in order to find that not only does R have as good functionality for producing statistics by groups, it offers far more flexibility and customisation than Stata. In this week's blog post, I will describe 4 functions that have become my grouping workhorses in R.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 8: density plots</title><link>https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/</link><pubDate>Wed, 16 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/</guid><description>&lt;p&gt;This is the eighth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising density plots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 7: histograms</title><link>https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/</link><pubDate>Sun, 28 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/</guid><description>&lt;p&gt;This is the seventh tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising histograms. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 6: weighted scatterplots</title><link>https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/</link><pubDate>Sat, 13 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/</guid><description>&lt;p&gt;This is the fifth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising weighted scatterplots. These plots are also called 'balloon plots' or 'bubble plots'. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package. In order to reduce the complexity of these data a little, we will only be looking at the final three months in the dataset (July, August and September).&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 5: scatterplots</title><link>https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/</link><pubDate>Thu, 04 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/</guid><description>&lt;p&gt;This is the fifth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising scatterplots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package. In order to reduce the complexity of these data a little, we will only be looking at the final three months in the dataset (July, August and September).&lt;/p&gt;</description></item><item><title>Picking your winning gwent deck using R</title><link>https://t-redactyl.io/posts/2016-01-31-picking-your-winning-gwent-deck-using-r/</link><pubDate>Sun, 31 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-31-picking-your-winning-gwent-deck-using-r/</guid><description>&lt;p&gt;My apologies for the two week hiatus from posting - I have been flat out job hunting so the blog has moved down the list of priorities a little. Happily I will be starting a new job next week so I will have more time to get back into my routine!&lt;/p&gt;
-&lt;p&gt;This week I want to talk about a topic near and dear to my heart - winning &lt;a href="http://witcher.wikia.com/wiki/Gwent"&gt;gwent&lt;/a&gt;. What is gwent, you ask? Gwent is a card game within the incredible video game, the &lt;a href="http://thewitcher.com/witcher3"&gt;Witcher 3&lt;/a&gt;. Those of you who are also gwent fans can benefit from my obsession with this game by using this data-driven guide to playing strategies. I've come up with five single approach strategies to win the game, and I will evaluate the decks on their various merits in each. Let's get started!&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 4: stacked bar plots</title><link>https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/</link><pubDate>Tue, 19 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/</guid><description>&lt;p&gt;In this fourth tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising stacked bar plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 3: bar plots</title><link>https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/</link><pubDate>Thu, 07 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/</guid><description>&lt;p&gt;In this third tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising bar plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Planning your New Year's Eve in Melbourne using data</title><link>https://t-redactyl.io/posts/2015-12-30-planning-melbourne-new-years-using-data/</link><pubDate>Wed, 30 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-30-planning-melbourne-new-years-using-data/</guid><description>&lt;p&gt;Like I've said in a previous post &lt;a href="%7Bfilename%7D2015-10-21-avoiding-the-crowds-in-melbourne-cbd-using-data.md"&gt;I'm not a huge fan of crowds&lt;/a&gt;, so I tend to spend my New Year's Eve at home. That's totally as fun as going out, right?&lt;/p&gt;
+&lt;p&gt;For those of you who want to jump straight to the final product, &lt;a href="https://gist.github.com/t-redactyl/b9067b1d8862d34b42cb49fc4793f284"&gt;here&lt;/a&gt; is the code you'll need to reproduce the chart above.&lt;/p&gt;</description></item><item><title>A crash course in reproducible research in R</title><link>https://t-redactyl.io/posts/2016-10-13-reproducible-research-in-r/</link><pubDate>Fri, 14 Oct 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-10-13-reproducible-research-in-r/</guid><description>&lt;p&gt;&lt;a href="%7Bfilename%7D2016-10-04-reproducible-research-in-python.md"&gt;A couple of weeks ago&lt;/a&gt;, I wrote a post giving you an introduction to &lt;a href="https://en.wikipedia.org/wiki/Reproducibility#Reproducible_research"&gt;reproducible research&lt;/a&gt; in Python. While the principles of reproducibility stay the same no matter the language you are using, there are some specific libraries and tools that R has that differ from Python. In this blog post, I'll fill you in on how I conduct a reproducible analysis in R and, like with Python, you'll see how straightforward it is!&lt;/p&gt;</description></item><item><title>Linear regression plots in ggplot2</title><link>https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/</link><pubDate>Wed, 11 May 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Linear regression plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the eleventh tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating linear regression plots.&lt;/p&gt;</description></item><item><title>Boxplots in ggplot</title><link>https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/</link><pubDate>Mon, 18 Apr 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Boxplots in ggplot&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the tenth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising boxplots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;</description></item><item><title>Function plots in ggplot2</title><link>https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/</link><pubDate>Mon, 28 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Function plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the ninth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for plotting and customising functions.&lt;/p&gt;</description></item><item><title>Group operations in R</title><link>https://t-redactyl.io/posts/2016-03-27-group-operations-in-r/</link><pubDate>Sun, 27 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-27-group-operations-in-r/</guid><description>&lt;p&gt;One of the things I really missed when I moved from Stata to R was how easy it was to do group operations; that is, being able to apply summary statistics by levels of a variable or variables in a dataset. Fortunately for me, I just needed a bit of time exploring R's massive number of functions in order to find that not only does R have as good functionality for producing statistics by groups, it offers far more flexibility and customisation than Stata. In this week's blog post, I will describe 4 functions that have become my grouping workhorses in R.&lt;/p&gt;</description></item><item><title>Density plots in ggplot2</title><link>https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/</link><pubDate>Wed, 16 Mar 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Density plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the eighth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising density plots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;</description></item><item><title>Histograms in ggplot2</title><link>https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/</link><pubDate>Sun, 28 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Histograms in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the seventh tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising histograms. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package.&lt;/p&gt;</description></item><item><title>Weighted scatterplots in ggplot2</title><link>https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/</link><pubDate>Sat, 13 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Weighted scatterplots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the fifth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising weighted scatterplots. These plots are also called 'balloon plots' or 'bubble plots'. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package. In order to reduce the complexity of these data a little, we will only be looking at the final three months in the dataset (July, August and September).&lt;/p&gt;</description></item><item><title>Scatterplots in ggplot2</title><link>https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/</link><pubDate>Thu, 04 Feb 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Scatterplots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;This is the fifth tutorial in a series on using &lt;code&gt;ggplot2&lt;/code&gt; I am creating with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;. In this tutorial we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising scatterplots. We will use R's &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html"&gt;airquality dataset&lt;/a&gt; in the &lt;code&gt;datasets&lt;/code&gt; package. In order to reduce the complexity of these data a little, we will only be looking at the final three months in the dataset (July, August and September).&lt;/p&gt;</description></item><item><title>Picking your winning gwent deck using R</title><link>https://t-redactyl.io/posts/2016-01-31-picking-your-winning-gwent-deck-using-r/</link><pubDate>Sun, 31 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-31-picking-your-winning-gwent-deck-using-r/</guid><description>&lt;p&gt;My apologies for the two week hiatus from posting - I have been flat out job hunting so the blog has moved down the list of priorities a little. Happily I will be starting a new job next week so I will have more time to get back into my routine!&lt;/p&gt;
+&lt;p&gt;This week I want to talk about a topic near and dear to my heart - winning &lt;a href="http://witcher.wikia.com/wiki/Gwent"&gt;gwent&lt;/a&gt;. What is gwent, you ask? Gwent is a card game within the incredible video game, the &lt;a href="http://thewitcher.com/witcher3"&gt;Witcher 3&lt;/a&gt;. Those of you who are also gwent fans can benefit from my obsession with this game by using this data-driven guide to playing strategies. I've come up with five single approach strategies to win the game, and I will evaluate the decks on their various merits in each. Let's get started!&lt;/p&gt;</description></item><item><title>Stacked bar plots in ggplot2</title><link>https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/</link><pubDate>Tue, 19 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Stacked bar plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In this fourth tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising stacked bar plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;</description></item><item><title>Bar plots in ggplot2</title><link>https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/</link><pubDate>Thu, 07 Jan 2016 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Bar plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In this third tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising bar plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;</description></item><item><title>Planning your New Year's Eve in Melbourne using data</title><link>https://t-redactyl.io/posts/2015-12-30-planning-melbourne-new-years-using-data/</link><pubDate>Wed, 30 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-30-planning-melbourne-new-years-using-data/</guid><description>&lt;p&gt;Like I've said in a previous post &lt;a href="%7Bfilename%7D2015-10-21-avoiding-the-crowds-in-melbourne-cbd-using-data.md"&gt;I'm not a huge fan of crowds&lt;/a&gt;, so I tend to spend my New Year's Eve at home. That's totally as fun as going out, right?&lt;/p&gt;
 &lt;img src="https://t-redactyl.io/figure/cinderella_nye.gif" title="NYE" alt="NYE" style="display: block; margin: auto;" /&gt;
-&lt;p&gt;For those of you with the patience to make your way into the city, I've put together a New Year's Eve edition of my analysis of the pedestrian traffic in Melbourne CBD. Hopefully this will help you avoid the worst of the crowds and have a fun and low-stress NYE.&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 2: area plots</title><link>https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/</link><pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/</guid><description>&lt;p&gt;In this second tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising area plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;
-&lt;p&gt;If you enjoyed this blog post and found it useful, please consider buying our book! It contains chapters detailing how to build and customise all 11 chart types published on the blog, as well as LOWESS charts. The book is also actively maintained (unlike the series on the blog) and contains up-to-date &lt;code&gt;ggplot&lt;/code&gt; and tidyverse code, and every purchase really helps us out with keeping up with new content.&lt;/p&gt;</description></item><item><title>Getting rJava to work in OS X El Capitan: A non-technical guide</title><link>https://t-redactyl.io/posts/2015-12-16-installing-rjava-in-mac/</link><pubDate>Wed, 16 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-16-installing-rjava-in-mac/</guid><description>&lt;p&gt;I recently needed to install the &lt;code&gt;XLConnect&lt;/code&gt; package in R, which has the dependency &lt;code&gt;rJava&lt;/code&gt;. Unfortunately rJava is one of &lt;em&gt;those&lt;/em&gt; R packages which is a real pain to install and required a bit of fiddling. I'll talk you through how I installed it in OS X El Capitan (for reference, I'm currently using version 10.11.2).&lt;/p&gt;
+&lt;p&gt;For those of you with the patience to make your way into the city, I've put together a New Year's Eve edition of my analysis of the pedestrian traffic in Melbourne CBD. Hopefully this will help you avoid the worst of the crowds and have a fun and low-stress NYE.&lt;/p&gt;</description></item><item><title>Area plots in ggplot2</title><link>https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/</link><pubDate>Tue, 22 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/"&gt;Line plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Area plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In this second tutorial I am doing with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt;, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising area plots. We will use the same &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; from the &lt;a href="http://t-redactyl.github.io/blog/2015/12/creating-plots-in-r-using-ggplot2-part-1-line-plots.html"&gt;first&lt;/a&gt; post.&lt;/p&gt;</description></item><item><title>Getting rJava to work in OS X El Capitan: A non-technical guide</title><link>https://t-redactyl.io/posts/2015-12-16-installing-rjava-in-mac/</link><pubDate>Wed, 16 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-16-installing-rjava-in-mac/</guid><description>&lt;p&gt;I recently needed to install the &lt;code&gt;XLConnect&lt;/code&gt; package in R, which has the dependency &lt;code&gt;rJava&lt;/code&gt;. Unfortunately rJava is one of &lt;em&gt;those&lt;/em&gt; R packages which is a real pain to install and required a bit of fiddling. I'll talk you through how I installed it in OS X El Capitan (for reference, I'm currently using version 10.11.2).&lt;/p&gt;
 &lt;h2 id="first-errors-first-rstudio"&gt;First errors first: RStudio&lt;/h2&gt;
-&lt;p&gt;I started by trying to install the &lt;code&gt;XLConnect&lt;/code&gt; package in RStudio:&lt;/p&gt;</description></item><item><title>Creating plots in R using ggplot2 - part 1: line plots</title><link>https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/</link><pubDate>Tue, 15 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/</guid><description>&lt;p&gt;I teamed up with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt; about a year ago to create some graphing tutorials in R. On this blog you will find a series of tutorials on how to use the &lt;code&gt;ggplot2&lt;/code&gt; package to create beautiful and informative data visualisations. Each tutorial will explain how to create a different type of plot, and will take you step-by-step from a basic plot to a highly customised graph.&lt;/p&gt;
-&lt;p&gt;In this first tutorial, we will demonstrate some of the many options the &lt;code&gt;ggplot2&lt;/code&gt; package has for creating and customising line plots. We will use an international trade &lt;a href="http://pachamaltese.github.io/stats/trade-chile-china/copper-data-for-tutorial.csv"&gt;dataset&lt;/a&gt; made by ourselves from different sources (Chile Customs, Central Bank of Chile and General Directorate of International Economic Relations).&lt;/p&gt;</description></item><item><title>Linear regression tools in R</title><link>https://t-redactyl.io/posts/2015-11-04-linear-regression-tools-in-r/</link><pubDate>Wed, 04 Nov 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-11-04-linear-regression-tools-in-r/</guid><description>&lt;p&gt;Choosing the right &lt;a href="https://en.wikipedia.org/wiki/Linear_regression"&gt;linear regression&lt;/a&gt; model for your data can be an overwhelming venture, especially when you have a large number of available predictors. Luckily R has a wide array of in-built and user-written tools to make this process easier. In this week's blog post I will describe some of the tools I commonly use.&lt;/p&gt;
+&lt;p&gt;I started by trying to install the &lt;code&gt;XLConnect&lt;/code&gt; package in RStudio:&lt;/p&gt;</description></item><item><title>Line plots in ggplot2</title><link>https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/</link><pubDate>Tue, 15 Dec 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-12-15-ggplot-graphs-part-1-line-graphs/</guid><description>&lt;div class="my-8 rounded-lg border border-[#516d57] p-6 bg-green-50"&gt;
+ &lt;div class="text-xs font-semibold uppercase tracking-widest text-[#516d57] mb-1"&gt;Part of the series&lt;/div&gt;
+ &lt;div class="text-xl font-medium text-gray-800 mb-4"&gt;Plotting in R With Ggplot2&lt;/div&gt;
+ &lt;div class="flex flex-col gap-2"&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;1.&lt;/span&gt;
+ 
+ &lt;span class="font-semibold text-gray-900"&gt;Line plots in ggplot2&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;2.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2015-12-22-ggplot-graphs-part-2-area-graphs/"&gt;Area plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;3.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-07-ggplot-graphs-part-3-bar-graphs/"&gt;Bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;4.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-01-19-ggplot-graphs-part-4-stacked-bar-graphs/"&gt;Stacked bar plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;5.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-04-ggplot-graphs-part-5-scatterplots/"&gt;Scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;6.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-13-ggplot-graphs-part-6-weighted-scatterplots/"&gt;Weighted scatterplots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;7.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-02-28-ggplot-graphs-part-7-histograms/"&gt;Histograms in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;8.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-16-ggplot-graphs-part-8-density-plots/"&gt;Density plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;9.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-03-28-ggplot-graphs-part-9-function-plots/"&gt;Function plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;10.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-04-18-ggplot-graphs-part-10-boxplots/"&gt;Boxplots in ggplot&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;div class="flex gap-2 items-baseline"&gt;
+ &lt;span class="text-[#516d57] font-medium shrink-0"&gt;11.&lt;/span&gt;
+ 
+ &lt;a href="https://t-redactyl.io/posts/2016-05-11-ggplot-graphs-part-11-linear-regression-plots/"&gt;Linear regression plots in ggplot2&lt;/a&gt;
+ 
+ &lt;/div&gt;
+ 
+ &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;I teamed up with &lt;a href="http://pachamaltese.github.io/"&gt;Mauricio Vargas Sepúlveda&lt;/a&gt; about a year ago to create some graphing tutorials in R. On this blog you will find a series of tutorials on how to use the &lt;code&gt;ggplot2&lt;/code&gt; package to create beautiful and informative data visualisations. Each tutorial will explain how to create a different type of plot, and will take you step-by-step from a basic plot to a highly customised graph.&lt;/p&gt;</description></item><item><title>Linear regression tools in R</title><link>https://t-redactyl.io/posts/2015-11-04-linear-regression-tools-in-r/</link><pubDate>Wed, 04 Nov 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-11-04-linear-regression-tools-in-r/</guid><description>&lt;p&gt;Choosing the right &lt;a href="https://en.wikipedia.org/wiki/Linear_regression"&gt;linear regression&lt;/a&gt; model for your data can be an overwhelming venture, especially when you have a large number of available predictors. Luckily R has a wide array of in-built and user-written tools to make this process easier. In this week's blog post I will describe some of the tools I commonly use.&lt;/p&gt;
 &lt;p&gt;For illustration I will use the &lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html"&gt;mtcars&lt;/a&gt; dataset. The first step as always is to load in the data.&lt;/p&gt;</description></item><item><title>Interpreting linear regression coefficients</title><link>https://t-redactyl.io/posts/2015-10-28-interpreting-linear-regression-coefficients/</link><pubDate>Wed, 28 Oct 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-10-28-interpreting-linear-regression-coefficients/</guid><description>&lt;p&gt;Coming from a psychology background, I have a soft spot for &lt;a href="https://en.wikipedia.org/wiki/Linear_regression"&gt;&lt;strong&gt;multiple linear regression&lt;/strong&gt;&lt;/a&gt;. This method is a workhorse in statistics and machine learning, being flexible, powerful and easily interpretable. An issue that people new to multiple regression face, however, is being overwhelmed by what all the coefficients represent and what the model is &lt;strong&gt;actually&lt;/strong&gt; saying about the outcome variable. In this blog post I will show you that it is actually relatively straightforward to understand your regression model by talking you through how to interpret the coefficients of a model containing one continuous predictor, one &lt;a href="https://en.wikipedia.org/wiki/Categorical_variable"&gt;factor predictor&lt;/a&gt; and their &lt;a href="https://en.wikipedia.org/wiki/Interaction_(statistics)"&gt;interaction&lt;/a&gt; in R.&lt;/p&gt;</description></item><item><title>Avoiding the crowds in Melbourne CBD using data</title><link>https://t-redactyl.io/posts/2015-10-21-avoiding-the-crowds-in-melbourne-cbd-using-data/</link><pubDate>Wed, 21 Oct 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-10-21-avoiding-the-crowds-in-melbourne-cbd-using-data/</guid><description>&lt;p&gt;I love visiting the CBD of Melbourne - it is a beautiful place with great restaurants, cafes, shopping and museums. Unfortunately, as with any big city it can get really crowded at times, which can sap a bit of enjoyment for a nerd like me! Imagine my delight when I found that the City of Melbourne has a &lt;a href="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-Counts/b2ak-trbp"&gt;publicly available dataset&lt;/a&gt; of the number of pedestrians per hour for major CBD locations. The topic of this week's blog post is therefore to help you to plan your journey around the city to avoid the crowds as best as possible.&lt;/p&gt;</description></item><item><title>Using k-fold cross-validation to estimate out-of-sample accuracy</title><link>https://t-redactyl.io/posts/2015-10-14-using-k-fold-cross-validation-to-estimate-out-of-sample-accuracy/</link><pubDate>Wed, 14 Oct 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-10-14-using-k-fold-cross-validation-to-estimate-out-of-sample-accuracy/</guid><description>&lt;p&gt;One of the biggest issues when building an effective machine learning algorithm is &lt;a href="https://en.wikipedia.org/wiki/Overfitting"&gt;&lt;strong&gt;overfitting&lt;/strong&gt;&lt;/a&gt;. Overfitting is where you build a model on your training data and it not only picks up the true relationship between the outcome and the predictors, but also random noise specific to your training set. As such, the model will have much better performance on the training set than any new data, and will not generalise well outside the training set. In order to gauge the true predictive ability of our model on novel data, we need to build some way of estimating the out-of-sample accuracy into our model generation process. I'll discuss one way of doing this, &lt;a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics)"&gt;&lt;strong&gt;k-fold cross-validation&lt;/strong&gt;&lt;/a&gt;, in this blog post, using the &lt;a href="https://www.kaggle.com/c/titanic"&gt;&lt;strong&gt;Kaggle Titanic tutorial dataset&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Two-group hypothesis testing: permutation tests</title><link>https://t-redactyl.io/posts/2015-10-07-two-group-hypothesis-testing-permutation-tests/</link><pubDate>Wed, 07 Oct 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-10-07-two-group-hypothesis-testing-permutation-tests/</guid><description>&lt;p&gt;In the &lt;a href="%7Bfilename%7D2015-09-30-two-group-hypothesis-testing-t-tests.md"&gt;last blog post&lt;/a&gt; I described how you could test whether the difference between two groups was statistically significant using an independent-samples t-test. (I will rely heavily on that blog post in this one, so I encourage you to at least skim it before reading this.) I used the example that your company (a retail website selling children's toys) had launched two advertising campaigns and wanted to see whether they brought in different amounts of revenue. I cheekily assumed that the population distribution of amount spent per site visit was approximately normally distributed. However, this is unlikely to be the case - you are much more likely to have a large number of visitors that buy nothing, a smaller number spending a small to moderate amount, and then a minority of visitors spending a lot.&lt;/p&gt;</description></item><item><title>Two-group hypothesis testing: independent samples t-tests</title><link>https://t-redactyl.io/posts/2015-09-30-two-group-hypothesis-testing-t-tests/</link><pubDate>Wed, 30 Sep 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-09-30-two-group-hypothesis-testing-t-tests/</guid><description>&lt;p&gt;In some of my previous posts, I asked you to imagine that we work for a retail website that sells children's toys. In the past, they've asked us to estimate the mean number of page views per day (see &lt;a href="(%7Bfilename%7D2015-09-01-A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean.md)"&gt;here&lt;/a&gt; and &lt;a href="(%7Bfilename%7D2015-09-08-a-gentle-introduction-to-bootstrapping.md)"&gt;here&lt;/a&gt; for my posts discussing this problem). Now, they've launched two online advertising campaigns, and they want us to see if these campaigns are equally effective or one is better than the other (a technique known as &lt;a href="https://en.wikipedia.org/wiki/A/B_testing"&gt;A/B testing&lt;/a&gt; or &lt;a href="https://en.wikipedia.org/wiki/Randomized_controlled_trial"&gt;randomised trials&lt;/a&gt;).&lt;/p&gt;</description></item><item><title>Representative sampling</title><link>https://t-redactyl.io/posts/2015-09-15-representative-sampling/</link><pubDate>Tue, 15 Sep 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-09-15-representative-sampling/</guid><description>&lt;p&gt;Unless we are lucky enough to have access to an entire population and the capacity to analyse all of that data, we have to make do with &lt;a href="https://en.wikipedia.org/wiki/Sample_(statistics)"&gt;&lt;strong&gt;samples&lt;/strong&gt;&lt;/a&gt; from our population to make statistical inferences. Choosing a sample that is a good representation of your population is the heart of a quality analysis, as all of the fancy statistical tricks in the world can't make accurate conclusions from bad or biased data. In this blog post, I will discuss some key concepts in selecting a representative sample.&lt;/p&gt;</description></item><item><title>A gentle introduction to bootstrapping</title><link>https://t-redactyl.io/posts/2015-09-08-a-gentle-introduction-to-bootstrapping/</link><pubDate>Tue, 08 Sep 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-09-08-a-gentle-introduction-to-bootstrapping/</guid><description>&lt;p&gt;In the &lt;a href="%7Bfilename%7D2015-09-01-A-Gentle-Introduction-to-the-Standard-Error-of-the-Mean.md"&gt;previous post&lt;/a&gt;, I explained the general principles behind the &lt;a href="https://en.wikipedia.org/wiki/Standard_error"&gt;&lt;strong&gt;standard error of the mean&lt;/strong&gt;&lt;/a&gt; (or &lt;strong&gt;SEM&lt;/strong&gt;). The idea underlying the SEM is that if you take repeated samples from the population of interest and take the standard deviation of the means of these samples, this gives you an estimate of the accuracy of the sample mean compared to the population mean. Formulas for the SEM are available for each distribution, and accurately reflect the degree of "fuzziness" in your sample mean &lt;strong&gt;if your data meet the assumptions of that distribution.&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>A gentle introduction to the standard error of the mean</title><link>https://t-redactyl.io/posts/2015-09-01-a-gentle-introduction-to-the-standard-error-of-the-mean/</link><pubDate>Tue, 01 Sep 2015 00:00:00 +0000</pubDate><guid>https://t-redactyl.io/posts/2015-09-01-a-gentle-introduction-to-the-standard-error-of-the-mean/</guid><description>&lt;p&gt;Imagine if you were working for a company that wanted to know the mean number of page views their website received per day. How do you measure this? Well, the most logical thing to do is to pick a sample of days, record the number of page views, and take the mean of these. &lt;em&gt;However&lt;/em&gt;, how do you know if this is the true mean number of page views per day? How do you know if you've taken a big enough sample?&lt;/p&gt;</description></item></channel></rss>
